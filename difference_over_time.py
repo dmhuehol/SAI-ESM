@@ -1,16 +1,26 @@
-# import netcdf4 as nc
-
 import xarray as xr
+import numpy as np
 
-def simple_diff_calc(filename):
+def import_glens_dataset(filename):
     dataPath = '/Users/dhueholt/Documents/ANN_GeoEng/data/GLENS/'
-    # filename = dataPath + 'control.001.T.r90x45.shift.annual.nc'
-    # endFile = dataPath + 'feedback.020.T.r90x45.shift.annual.nc'
 
     filename = dataPath + filename
     glensDataset = xr.open_dataset(filename)
-    # endDataset = xr.open_dataset(endFile)
 
+    return glensDataset
+
+def average_over_years(glensDataset,startYear,endYear):
+    # dataValues = glensDataset.T
+    datasetYears = glensDataset['time'].dt.year.data
+    startInd = int(np.where(datasetYears == startYear)[0])
+    endInd = int(np.where(datasetYears == endYear)[0])
+    intervalOfInterest = glensDataset.T[startInd:endInd]
+    glensMeanToi = intervalOfInterest.mean(dim='time')
+
+    return glensMeanToi
+
+
+def simple_diff_calc(glensDataset):
     dataValues = glensDataset.T
     # endTemp = endDataset.T
 
