@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import cartopy
 import cartopy.crs as ccrs
 import cmocean
+import numpy as np
 
 filenameCntrl = 'control.001.T.r90x45.shift.annual.nc'
 glensDatasetCntrl = dot.import_glens_dataset(filenameCntrl)
@@ -27,21 +28,45 @@ tempDiffOverToi1000Fdbck = tempDiffOverToiFdbck[0,:,:]
 # glensDatasetFdbck, tempDiffFdbck = dot.simple_diff_calc(glensDatasetFdbck)
 # tempDiff1000Fdbck = tempDiffFdbck[0,:,:]
 
+tempDiffOverToi1000FdbckCntrl = tempDiffOverToi1000Fdbck - tempDiffOverToi1000Cntrl
+
+tempDiffOverToiEndFdbckCntrl = toiEndFdbck - toiEndCntrl
+tempDiffOverToiEnd1000FdbckCntrl = tempDiffOverToiEndFdbckCntrl[0,:,:]
+# print(tempDiffOverToiEnd1000FdbckCntrl.equals(tempDiffOverToi1000FdbckCntrl))
+
+quantCut = tempDiffOverToiEnd1000FdbckCntrl.quantile(0.33)
+tempDiffOverToiEnd1000FdbckCntrlQ = tempDiffOverToiEnd1000FdbckCntrl
+tempDiffOverToiEnd1000FdbckCntrlQ.data[tempDiffOverToiEnd1000FdbckCntrlQ.data > quantCut.data] = np.nan
+# print(tempDiffOverToiEnd1000FdbckCntrlQ.data)
+
+tempDiffOverToiEndFdbckCntrl = toiEndFdbck - toiEndCntrl
+tempDiffOverToiEnd1000FdbckCntrl = tempDiffOverToiEndFdbckCntrl[0,:,:]
+# print(tempDiffOverToiEnd1000FdbckCntrl.equals(tempDiffOverToi1000FdbckCntrl))
+
+# Plotting
 CL = 0.
 mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
 
 plt.figure(figsize=(12,2.73*2))
-ax = plt.subplot(1,2,1,projection=mapProj)
+ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
 cmap = cmocean.cm.curl
-minVal = -10 #tempDiff.min()
-maxVal = 10 #tempDiff.max()
+minVal = -8
+maxVal = 8
 # print(maxVal)
 plt_tls.drawOnGlobe(ax, tempDiffOverToi1000Cntrl, glensDatasetCntrl.lat, glensDatasetCntrl.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=True, fastBool=True, extent='max')
-plt.title('2099-2010 difference CONTROL (RCP8.5) 1000mb temp')
+plt.title('2090-2099 - 2020-2030 CONTROL (RCP8.5) 1000mb temp')
 
-ax2 = plt.subplot(1,2,2,projection=mapProj)
+ax2 = plt.subplot(2,2,2,projection=mapProj)
 plt_tls.drawOnGlobe(ax2, tempDiffOverToi1000Fdbck, glensDatasetFdbck.lat, glensDatasetFdbck.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=True, fastBool=True, extent='max')
-plt.title('2099-2010 difference FEEDBACK (SAI) 1000mb temp')
+plt.title('2090-2099 - 2020-2030 FEEDBACK (SAI) 1000mb temp')
+
+ax3 = plt.subplot(2,2,3,projection=mapProj)
+plt_tls.drawOnGlobe(ax3, tempDiffOverToiEnd1000FdbckCntrlQ, glensDatasetFdbck.lat, glensDatasetFdbck.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=True, fastBool=True, extent='max')
+plt.title('2090-2099 FDBCK - CNTRL 1000mb temp 33Q< only')
+
+ax4 = plt.subplot(2,2,4,projection=mapProj)
+plt_tls.drawOnGlobe(ax4, tempDiffOverToiEnd1000FdbckCntrl, glensDatasetFdbck.lat, glensDatasetFdbck.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=True, fastBool=True, extent='max')
+plt.title('2090-2099 FDBCK - CNTRL 1000mb temp')
 plt.show()
 
 print('cats')
