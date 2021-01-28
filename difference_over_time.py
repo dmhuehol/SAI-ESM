@@ -12,6 +12,7 @@ def import_glens_dataset(filename):
 def average_over_years(glensDataset,startYear,endYear):
     # dataValues = glensDataset.T
     datasetYears = glensDataset['time'].dt.year.data
+    # print(datasetYears)
     startInd = int(np.where(datasetYears == startYear)[0])
     endInd = int(np.where(datasetYears == endYear)[0])
     intervalOfInterest = glensDataset.T[startInd:endInd]
