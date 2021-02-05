@@ -5,6 +5,7 @@ import numpy as np
 import numpy.ma as ma
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.pyplot as plt
+import seaborn as sn
 
 # drawOnGlobe and add_cyclic_point written by Prof. Elizabeth Barnes at Colorado State University
 # add_cyclic_point copied from cartopy utils
@@ -64,3 +65,25 @@ def add_cyclic_point(data, coord=None, axis=-1):
     else:
         return_value = new_data, new_coord
     return return_value
+
+def plot_pdf_kdeplot(handles, colors, bins, labels, savePath, saveName):
+    plt.figure()
+    print('Plotting!')
+    if np.size(colors) > 1:
+        for ind, h in enumerate(handles):
+            hHist = np.histogram(h, bins[ind])
+            xVals = hHist[1][:-1]
+            pdfVals = hHist[0].astype(float)/np.size(h)
+            ax = sn.kdeplot(data=h, label=labels[ind], color=colors[ind], linewidth=2)
+            ax.set(xlabel='Standard deviations', ylabel='Density')
+    else:
+        hHist = np.histogram(handles,bins)
+        xVals = hHist[1][:-1]
+        pdfVals = hHist[0].astype(float)/np.size(handles)
+        ax = sn.kdeplot(data=handles, label=labels, color=colors, linewidth=2)
+        ax.set(xlabel='Standard deviations',ylabel='Density')
+
+    plt.legend()
+    plt.title(labels[np.size(labels)-1])
+    # plt.show()
+    plt.savefig(savePath + saveName + '.png', dpi=300)

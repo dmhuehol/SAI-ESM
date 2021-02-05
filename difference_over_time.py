@@ -1,15 +1,18 @@
 import xarray as xr
 import numpy as np
 
-def import_glens_dataset(filename):
-    dataPath = '/Users/dhueholt/Documents/ANN_GeoEng/data/GLENS/'
+def average_over_years(glensDarr,startYear,endYear):
+    # dataValues = glensDataset.T
+    datasetYears = glensDarr['time'].dt.year.data
+    # print(datasetYears)
+    startInd = int(np.where(datasetYears == startYear)[0])
+    endInd = int(np.where(datasetYears == endYear)[0])
+    intervalOfInterest = glensDarr[startInd:endInd] #HERE IT IS restore with # intervalOfInterest = glensDataset.T[startInd:endInd]
+    glensMeanToi = intervalOfInterest.mean(dim='time')
 
-    filename = dataPath + filename
-    glensDataset = xr.open_dataset(filename)
+    return glensMeanToi
 
-    return glensDataset
-
-def average_over_years(glensDataset,startYear,endYear):
+def average_over_years_temp(glensDataset,startYear,endYear):
     # dataValues = glensDataset.T
     datasetYears = glensDataset['time'].dt.year.data
     # print(datasetYears)
