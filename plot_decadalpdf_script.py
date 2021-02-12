@@ -20,8 +20,8 @@ baselinePath = '/Users/dhueholt/Documents/GLENS_data/'
 baselineFile = glob(baselinePath + '*.nc')
 print(baselineFile)
 
-savePath = '/Users/dhueholt/Documents/GLENS_fig/20210209_pdfs/'
-saveName = 'pdf_test_cntrlfdbck'
+savePath = '/Users/dhueholt/Documents/GLENS_fig/20210211_formeeting/'
+saveName = 'pdf_Tglobal_cntrlfdbck'
 dpi_val = 300
 
 levOfInt = 1000 #hPa

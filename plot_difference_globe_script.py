@@ -34,7 +34,7 @@ glensDsetCntrl = xr.open_dataset(cntrlPath)
 dataKey = pgf.discover_data_var(glensDsetCntrl)
 glensDarrCntrl = glensDsetCntrl[dataKey] #HERE IT IS
 
-toiStart = dot.average_over_years(glensDarrCntrl,startInt[0],startInt[1]) # 2010-2020 is baseline, injection begins 2020
+toiStart = dot.average_over_years(glensDarrCntrl,startInt[0],startInt[1]) # 2010-2019 is baseline, injection begins 2020
 toiEndCntrl = dot.average_over_years(glensDarrCntrl,finalInt[0],finalInt[1])
 diffToiCntrl = toiEndCntrl - toiStart
 #format: lev,lat,lon
