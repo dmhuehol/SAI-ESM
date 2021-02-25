@@ -81,3 +81,59 @@ def plot_pdf_kdeplot(handles, colors, labels, savePath, saveName):
     plt.title(labels[np.size(labels)-1])
     # plt.show()
     plt.savefig(savePath + saveName + '.png', dpi=300, bbox_inches='tight')
+
+def select_colors(baselineFlag, nFdbck, nCntrl):
+# Returns colors for baseline and a set number of feedback and control objects
+# to plot. Aimed at the pdf plots but may be more broadly useful.
+    colorsToPlot = list()
+    baselineColor = 'slateblue'
+    cntrlColors = ["#F2BABA", "#E88989", "#DF5757", "#D32828", "#A21F1F", "#701515", "#3F0C0C"]
+    fdbckColors = ["#D2BBE8", "#B48FDA", "#9763CB", "#7A3DB6", "#5C2E8A", "#3F1F5E", "#211132"]
+
+    if baselineColor:
+        colorsToPlot.append(baselineColor)
+
+    colorsToPlot = paint_by_numbers(colorsToPlot, cntrlColors, nCntrl)
+    colorsToPlot = paint_by_numbers(colorsToPlot, fdbckColors, nFdbck)
+
+    return colorsToPlot
+
+def paint_by_numbers(colorsToPlot, colList, nfc):
+# Fill colors to plot by number
+    if nfc == 1:
+        colorsToPlot.append(colList[3])
+    elif nfc == 2:
+        colorsToPlot.append(colList[2])
+        colorsToPlot.append(colList[5])
+    elif nfc == 3:
+        colorsToPlot.append(colList[1])
+        colorsToPlot.append(colList[3])
+        colorsToPlot.append(colList[5])
+    elif nfc == 4:
+        colorsToPlot.append(colList[0])
+        colorsToPlot.append(colList[2])
+        colorsToPlot.append(colList[4])
+        colorsToPlot.append(colList[6])
+    elif nfc == 5:
+        colorsToPlot.append(colList[0])
+        colorsToPlot.append(colList[2])
+        colorsToPlot.append(colList[4])
+        colorsToPlot.append(colList[5])
+        colorsToPlot.append(colList[6])
+    elif nfc == 6:
+        colorsToPlot.append(colList[0])
+        colorsToPlot.append(colList[2])
+        colorsToPlot.append(colList[3])
+        colorsToPlot.append(colList[4])
+        colorsToPlot.append(colList[5])
+        colorsToPlot.append(colList[6])
+    elif nfc == 7:
+        colorsToPlot.append(colList[0])
+        colorsToPlot.append(colList[1])
+        colorsToPlot.append(colList[2])
+        colorsToPlot.append(colList[3])
+        colorsToPlot.append(colList[4])
+        colorsToPlot.append(colList[5])
+        colorsToPlot.append(colList[6])
+
+    return colorsToPlot
