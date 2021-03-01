@@ -71,8 +71,12 @@ def plot_pdf_kdeplot(handles, colors, labels, savePath, saveName):
     print('Plotting!')
     if np.size(colors) > 1:
         for ind, h in enumerate(handles):
+            # print(ind)
+            # print(h)
+            # print(labels[ind])
+            # print(colors[ind])
             ax = sn.kdeplot(data=h, label=labels[ind], color=colors[ind], linewidth=2)
-            ax.set(xlabel='Standard deviations', ylabel='Density')
+            ax.set(xlabel='Celsius', ylabel='Density')
     else:
         ax = sn.kdeplot(data=handles, label=labels, color=colors, linewidth=2)
         ax.set(xlabel='Standard deviations',ylabel='Density')
@@ -86,11 +90,11 @@ def select_colors(baselineFlag, nFdbck, nCntrl):
 # Returns colors for baseline and a set number of feedback and control objects
 # to plot. Aimed at the pdf plots but may be more broadly useful.
     colorsToPlot = list()
-    baselineColor = 'slateblue'
-    cntrlColors = ["#F2BABA", "#E88989", "#DF5757", "#D32828", "#A21F1F", "#701515", "#3F0C0C"]
-    fdbckColors = ["#D2BBE8", "#B48FDA", "#9763CB", "#7A3DB6", "#5C2E8A", "#3F1F5E", "#211132"]
+    baselineColor = 'slategrey'
+    cntrlColors = ["#F2BABA", "#E88989", "#DF5757", "#D93636", "#D32828", "#A21F1F", "#701515", "#3F0C0C"]
+    fdbckColors = ["#D2BBE8", "#B48FDA", "#9763CB", "#8346C1", "#7A3DB6", "#5C2E8A", "#3F1F5E", "#211132"]
 
-    if baselineColor:
+    if baselineFlag:
         colorsToPlot.append(baselineColor)
 
     colorsToPlot = paint_by_numbers(colorsToPlot, cntrlColors, nCntrl)
@@ -108,26 +112,34 @@ def paint_by_numbers(colorsToPlot, colList, nfc):
     elif nfc == 3:
         colorsToPlot.append(colList[1])
         colorsToPlot.append(colList[3])
-        colorsToPlot.append(colList[5])
+        colorsToPlot.append(colList[6])
     elif nfc == 4:
         colorsToPlot.append(colList[0])
         colorsToPlot.append(colList[2])
-        colorsToPlot.append(colList[4])
-        colorsToPlot.append(colList[6])
+        colorsToPlot.append(colList[5])
+        colorsToPlot.append(colList[7])
     elif nfc == 5:
         colorsToPlot.append(colList[0])
         colorsToPlot.append(colList[2])
-        colorsToPlot.append(colList[4])
         colorsToPlot.append(colList[5])
         colorsToPlot.append(colList[6])
+        colorsToPlot.append(colList[7])
     elif nfc == 6:
         colorsToPlot.append(colList[0])
         colorsToPlot.append(colList[2])
         colorsToPlot.append(colList[3])
-        colorsToPlot.append(colList[4])
         colorsToPlot.append(colList[5])
         colorsToPlot.append(colList[6])
+        colorsToPlot.append(colList[7])
     elif nfc == 7:
+        colorsToPlot.append(colList[0])
+        colorsToPlot.append(colList[1])
+        colorsToPlot.append(colList[2])
+        colorsToPlot.append(colList[3])
+        colorsToPlot.append(colList[5])
+        colorsToPlot.append(colList[6])
+        colorsToPlot.append(colList[7])
+    elif nfc == 8:
         colorsToPlot.append(colList[0])
         colorsToPlot.append(colList[1])
         colorsToPlot.append(colList[2])
@@ -135,5 +147,25 @@ def paint_by_numbers(colorsToPlot, colList, nfc):
         colorsToPlot.append(colList[4])
         colorsToPlot.append(colList[5])
         colorsToPlot.append(colList[6])
+        colorsToPlot.append(colList[7])
 
     return colorsToPlot
+
+def generate_labels(labelsList, intervalsToPlot, timePeriod, type):
+# Generate labels for figure titles and output filenames
+    for cdc,cdv in enumerate(intervalsToPlot):
+        if cdv == 2010:
+            continue
+        startYearStr = str(cdv)
+        endYearStr = str(cdv + timePeriod - 1)
+        if cdv+timePeriod == 2100:
+            endYearStr = str(2099)
+        labelStr = startYearStr + '-' + endYearStr + ' ' + type
+        labelsList.append(labelStr)
+
+    return labelsList
+        # handlesToPlot[cdv]["data"] = darr[startInd:endInd]
+        # handlesToPlot.append(darr[startInd:endInd])
+
+# labelsToPlot = ['2010-2019 Baseline', '2050-2059 RCP8.5', '2090-2099 RCP8.5', '2050-2059 SAI', '2090-2099 SAI', 'Global SST PDFs in GLENS']
+#

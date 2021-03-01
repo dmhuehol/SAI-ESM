@@ -57,3 +57,17 @@ def find_matching_year_bounds(glensCntrl,glensFdbck):
         "mtchYrs": bothYrs}
 
     return bndDct
+
+
+def extract_doi(intervalsToPlot, years, timePeriod, darr, handlesToPlot):
+# Extract time intervals (usually decades) from GLENS data
+    for cdc,cdv in enumerate(intervalsToPlot):
+        startInd = np.where(years==cdv)[0][0]
+        if cdv+timePeriod == 2100:
+            endInd = len(years)
+        else:
+            endInd = np.where(years==cdv+timePeriod)[0][0]
+        # handlesToPlot[cdv]["data"] = darr[startInd:endInd]
+        handlesToPlot.append(darr[startInd:endInd])
+
+    return handlesToPlot
