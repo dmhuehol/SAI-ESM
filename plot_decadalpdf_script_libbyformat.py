@@ -4,6 +4,7 @@
 
 import xarray as xr
 import matplotlib.pyplot as plt
+import seaborn as sn
 import cartopy
 import cartopy.crs as ccrs
 import cmocean
@@ -21,8 +22,9 @@ fdbckFile = '/Users/dhueholt/Documents/ANN_GeoEng/data/GLENS/feedback.001.SST.r9
 
 baselineFlag = 1
 savePath = '/Users/dhueholt/Documents/GLENS_fig/20210311_regiontesting/'
-saveName = 'pdf_SST_cntrlfdbck_TESTPOINT'
-dpi_val = 300
+saveName = 'pdf_TESTHIST_SST_cntrlfdbck_TESTPOINT'
+plotStyle = 'hist' #'kde'
+dpiVal = 400
 
 levOfInt = 500 #hPa
 # latOfInt = np.array([19.5,30])
@@ -105,6 +107,11 @@ labelsToPlot = plt_tls.generate_labels(labelsToPlot, fdbckIntToPlot, timePeriod,
 labelsToPlot.append('(-28.6,112) SST PDFs in GLENS')
 
 print(colorsToPlot)
-plt_tls.plot_pdf_kdeplot(handlesToPlot, colorsToPlot, labelsToPlot, savePath, saveName)
+if plotStyle == 'kde':
+    plt_tls.plot_pdf_kdeplot(handlesToPlot, colorsToPlot, labelsToPlot, savePath, saveName, dpiVal)
+elif plotStyle == 'hist':
+    plt_tls.plot_pdf_hist(handlesToPlot, colorsToPlot, labelsToPlot, savePath, saveName, dpiVal)
+else:
+    print("Invalid plot style")
 
 print('Completed!')

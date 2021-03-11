@@ -66,7 +66,8 @@ def add_cyclic_point(data, coord=None, axis=-1):
         return_value = new_data, new_coord
     return return_value
 
-def plot_pdf_kdeplot(handles, colors, labels, savePath, saveName):
+def plot_pdf_kdeplot(handles, colors, labels, savePath, saveName, dpiVal=400):
+# Plot kde pdfs for several input handles
     plt.figure()
     print('Plotting!')
     if np.size(colors) > 1:
@@ -79,12 +80,29 @@ def plot_pdf_kdeplot(handles, colors, labels, savePath, saveName):
             ax.set(xlabel='Celsius', ylabel='Density')
     else:
         ax = sn.kdeplot(data=handles, label=labels, color=colors, linewidth=2)
-        ax.set(xlabel='Standard deviations',ylabel='Density')
+        ax.set(xlabel='Celsius', ylabel='Density')
 
     plt.legend(bbox_to_anchor=(0.83,-0.1), ncol=2, fontsize=8)
     plt.title(labels[np.size(labels)-1])
     # plt.show()
-    plt.savefig(savePath + saveName + '.png', dpi=300, bbox_inches='tight')
+    plt.savefig(savePath + saveName + '.png', dpi=dpiVal, bbox_inches='tight')
+
+def plot_pdf_hist(handles, colors, labels, savePath, saveName, dpiVal=400):
+# Plot histogram pdfs for several input handles
+    plt.figure()
+    print('Plotting!')
+    if np.size(colors) > 1:
+        for ind, h in enumerate(handles):
+            ax = sn.histplot(data=h, label=labels[ind], color=colors[ind], edgecolor=None, linewidth=2)
+            ax.set(xlabel='Celsius', ylabel='Density')
+    else:
+        ax = sn.histplot(data=handles, label=labels, color=colors, edgecolor=None, stat='density', kde=False)
+        ax.set(xlabel='Celsius', ylabel='Density')
+
+    plt.legend(bbox_to_anchor=(0.83,-0.1), ncol=2, fontsize=8)
+    plt.title(labels[np.size(labels)-1])
+    # plt.show()
+    plt.savefig(savePath + saveName + '.png', dpi=dpiVal, bbox_inches='tight')
 
 def select_colors(baselineFlag, nFdbck, nCntrl):
 # Returns colors for baseline and a set number of feedback and control objects
