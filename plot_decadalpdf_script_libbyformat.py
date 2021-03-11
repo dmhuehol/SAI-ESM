@@ -9,6 +9,7 @@ import cartopy
 import cartopy.crs as ccrs
 import cmocean
 import numpy as np
+import scipy.stats as stats
 from glob import glob
 import time
 
@@ -20,9 +21,9 @@ import process_glens_fun as pgf
 cntrlFile = '/Users/dhueholt/Documents/ANN_GeoEng/data/GLENS/control.001.SST.r90x45.shift.annual.nc'
 fdbckFile = '/Users/dhueholt/Documents/ANN_GeoEng/data/GLENS/feedback.001.SST.r90x45.shift.annual.nc'
 
-baselineFlag = 1
+baselineFlag = 0
 savePath = '/Users/dhueholt/Documents/GLENS_fig/20210311_regiontesting/'
-saveName = 'pdf_TESTHIST_SST_cntrlfdbck_TESTPOINT'
+saveName = 'pdf_hist_SST_cntrlfdbck_global_30yr'
 plotStyle = 'hist' #'kde'
 dpiVal = 400
 
@@ -31,11 +32,12 @@ levOfInt = 500 #hPa
 latOfInt = -28.6
 lonOfInt = 112
 quantileForFig = 0.66
-regionToPlot = 'point' #aspirational
+regionToPlot = 'global' #aspirational
+titleStr = 'Global SST PDFs in GLENS'
 
-cntrlIntToPlot = [2010,2020,2030,2040,2050,2090]
-fdbckIntToPlot = [2020,2030,2040,2050,2090]
-timePeriod = 10 #number of years, i.e. 10 = decade
+cntrlIntToPlot = [2020,2050]
+fdbckIntToPlot = [2020,2050]
+timePeriod = 30 #number of years, i.e. 10 = decade
 
 cntrlDset = xr.open_dataset(cntrlFile)
 fdbckDset = xr.open_dataset(fdbckFile)
@@ -86,6 +88,9 @@ else:
 # baselineMeanToRmv = dot.average_over_years(cntrlDarrMnSpc,2010,2019)
 # cntrlDarrMnSpcNorm = cntrlDarrMnSpc - baselineMeanToRmv
 # fdbckDarrMnSpcNorm = fdbckDarrMnSpc - baselineMeanToRmv
+iqr = stats.iqr(cntrlDarrMnSpc)
+binwidth = 2*iqr*(10 ** -1/3) # the Freedman-Diaconis rule
+print(binwidth)
 
 cntrlActive = cntrlDarrMnSpc
 fdbckActive = fdbckDarrMnSpc
@@ -100,17 +105,24 @@ fdbckHandlesToPlot = pgf.extract_doi(fdbckIntToPlot, fdbckYears, timePeriod, fdb
 
 handlesToPlot = cntrlHandlesToPlot + fdbckHandlesToPlot
 
-colorsToPlot = plt_tls.select_colors(baselineFlag,len(cntrlIntToPlot)-1,len(fdbckIntToPlot))
-labelsToPlot = list(['2010-2019 Baseline'])
+if baselineFlag:
+    colorsToPlot = plt_tls.select_colors(baselineFlag,len(cntrlIntToPlot)-1,len(fdbckIntToPlot))
+else:
+    colorsToPlot = plt_tls.select_colors(baselineFlag,len(cntrlIntToPlot),len(fdbckIntToPlot))
+
+if baselineFlag:
+    labelsToPlot = list(['2010-2019 Baseline'])
+else:
+    labelsToPlot = list()
 labelsToPlot = plt_tls.generate_labels(labelsToPlot, cntrlIntToPlot, timePeriod, 'RCP8.5')
 labelsToPlot = plt_tls.generate_labels(labelsToPlot, fdbckIntToPlot, timePeriod, 'SAI')
-labelsToPlot.append('(-28.6,112) SST PDFs in GLENS')
+labelsToPlot.append(titleStr)
 
 print(colorsToPlot)
 if plotStyle == 'kde':
     plt_tls.plot_pdf_kdeplot(handlesToPlot, colorsToPlot, labelsToPlot, savePath, saveName, dpiVal)
 elif plotStyle == 'hist':
-    plt_tls.plot_pdf_hist(handlesToPlot, colorsToPlot, labelsToPlot, savePath, saveName, dpiVal)
+    plt_tls.plot_pdf_hist(handlesToPlot, colorsToPlot, labelsToPlot, savePath, saveName, binwidth, dpiVal)
 else:
     print("Invalid plot style")
 

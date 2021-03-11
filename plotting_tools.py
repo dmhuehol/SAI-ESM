@@ -7,6 +7,7 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.pyplot as plt
 import seaborn as sn
 
+
 # drawOnGlobe and add_cyclic_point written by Prof. Elizabeth Barnes at Colorado State University
 # add_cyclic_point copied from cartopy utils
 
@@ -87,16 +88,20 @@ def plot_pdf_kdeplot(handles, colors, labels, savePath, saveName, dpiVal=400):
     # plt.show()
     plt.savefig(savePath + saveName + '.png', dpi=dpiVal, bbox_inches='tight')
 
-def plot_pdf_hist(handles, colors, labels, savePath, saveName, dpiVal=400):
+def plot_pdf_hist(handles, colors, labels, savePath, saveName, binwidth, dpiVal=400):
 # Plot histogram pdfs for several input handles
     plt.figure()
     print('Plotting!')
     if np.size(colors) > 1:
         for ind, h in enumerate(handles):
-            ax = sn.histplot(data=h, label=labels[ind], color=colors[ind], edgecolor=None, linewidth=2)
+            # print(ind)
+            # print(h)
+            # print(labels[ind])
+            # print(colors[ind])
+            ax = sn.histplot(data=h, label=labels[ind], color=colors[ind], edgecolor='#3B3B3B', linewidth=0.8, kde=False, binwidth=binwidth)
             ax.set(xlabel='Celsius', ylabel='Density')
     else:
-        ax = sn.histplot(data=handles, label=labels, color=colors, edgecolor=None, stat='density', kde=False)
+        ax = sn.histplot(data=handles, label=labels, color=colors, edgecolor='#3B3B3B', stat='density', linewidth=0.8, kde=False, binwidth=binwidth)
         ax.set(xlabel='Celsius', ylabel='Density')
 
     plt.legend(bbox_to_anchor=(0.83,-0.1), ncol=2, fontsize=8)
