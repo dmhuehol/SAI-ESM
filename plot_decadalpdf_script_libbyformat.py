@@ -41,7 +41,6 @@ titleStr = regOfInt['regStr'] + ' SST PDFs in GLENS'
 # titleStr = 'Gulf of Mexico SST PDFs in GLENS' #use when region is set manually
 savePath = '/Users/dhueholt/Documents/GLENS_fig/20210318_regionrefinement/'
 saveName = 'pdf_' + plotStyle + '_SST_cntrlfdbck_' + regOfInt['regSaveStr'] + '_30yr_NOMEANTEST'
-# saveName = 'pdf_step_SST_cntrlfdbck_global_30yr_STEPTEST' #use when region is set manually
 # saveName = 'pdf_hist_SST_cntrlfdbck_REGIONHERE_30yr_MEANTEST' #use when region is set manually
 dpiVal = 400
 

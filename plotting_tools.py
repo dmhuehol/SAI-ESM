@@ -73,12 +73,7 @@ def plot_pdf_kdeplot(handles, colors, labels, savePath, saveName, dpiVal=400):
     print('Plotting!')
     if np.size(colors) > 1:
         for ind, h in enumerate(handles):
-            # print(ind)
-            # print(h)
-            # print(labels[ind])
-            # print(colors[ind])
             ax = sn.kdeplot(data=h, label=labels[ind], color=colors[ind], linewidth=2)
-            # ax = sn.kdeplot(data=h.data.flatten(), label=labels[ind], color=colors[ind], linewidth=2)
             ax.set(xlabel='Celsius', ylabel='Density')
     else:
         ax = sn.kdeplot(data=handles, label=labels, color=colors, linewidth=2)
@@ -95,13 +90,7 @@ def plot_pdf_hist(handles, colors, labels, savePath, saveName, binwidth, dpiVal=
     print('Plotting!')
     if np.size(colors) > 1:
         for ind, h in enumerate(handles):
-            # print(ind)
-            # print(h)
-            # print(labels[ind])
-            # print(colors[ind])
             ax = sn.histplot(data=h, label=labels[ind], color=colors[ind], edgecolor='#3B3B3B', linewidth=0.8, kde=False, binwidth=binwidth)
-            # ax = plt.hist(h, label=labels[ind], color=colors[ind], density=True, histtype='step')
-            # ax = sn.histplot(data=h.data.flatten(), label=labels[ind], color=colors[ind], edgecolor='#3B3B3B', linewidth=0.8, kde=False, binwidth=binwidth)
             ax.set(xlabel='Celsius', ylabel='Density')
     else:
         ax = sn.histplot(data=handles, label=labels, color=colors, edgecolor='#3B3B3B', stat='density', linewidth=0.8, kde=False, binwidth=binwidth)
@@ -118,15 +107,8 @@ def plot_pdf_step(handles, colors, labels, savePath, saveName, binwidth, dpiVal=
     print('Plotting!')
     if np.size(colors) > 1:
         for ind, h in enumerate(handles):
-            # print(ind)
-            # print(h)
-            # print(labels[ind])
-            # print(colors[ind])
-            # ax = sn.histplot(data=h, label=labels[ind], color=colors[ind], edgecolor='#3B3B3B', linewidth=0.8, kde=False, binwidth=binwidth)
             bins = np.arange(-2,9,0.2)
             ax = plt.hist(h, label=labels[ind], color=colors[ind], bins=bins, density=True, histtype='step')
-            # ax = sn.histplot(data=h.data.flatten(), label=labels[ind], color=colors[ind], edgecolor='#3B3B3B', linewidth=0.8, kde=False, binwidth=binwidth)
-            # ax.set(xlabel='Celsius', ylabel='Density')
             plt.xlabel("Celsius")
             plt.ylabel("Density")
     else:
