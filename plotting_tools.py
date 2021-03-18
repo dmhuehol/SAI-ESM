@@ -100,8 +100,35 @@ def plot_pdf_hist(handles, colors, labels, savePath, saveName, binwidth, dpiVal=
             # print(labels[ind])
             # print(colors[ind])
             ax = sn.histplot(data=h, label=labels[ind], color=colors[ind], edgecolor='#3B3B3B', linewidth=0.8, kde=False, binwidth=binwidth)
+            # ax = plt.hist(h, label=labels[ind], color=colors[ind], density=True, histtype='step')
             # ax = sn.histplot(data=h.data.flatten(), label=labels[ind], color=colors[ind], edgecolor='#3B3B3B', linewidth=0.8, kde=False, binwidth=binwidth)
             ax.set(xlabel='Celsius', ylabel='Density')
+    else:
+        ax = sn.histplot(data=handles, label=labels, color=colors, edgecolor='#3B3B3B', stat='density', linewidth=0.8, kde=False, binwidth=binwidth)
+        ax.set(xlabel='Celsius', ylabel='Density')
+
+    plt.legend(bbox_to_anchor=(0.83,-0.1), ncol=2, fontsize=8)
+    plt.title(labels[np.size(labels)-1])
+    # plt.show()
+    plt.savefig(savePath + saveName + '.png', dpi=dpiVal, bbox_inches='tight')
+
+def plot_pdf_step(handles, colors, labels, savePath, saveName, binwidth, dpiVal=400):
+# Plot histogram pdfs for several input handles
+    plt.figure()
+    print('Plotting!')
+    if np.size(colors) > 1:
+        for ind, h in enumerate(handles):
+            # print(ind)
+            # print(h)
+            # print(labels[ind])
+            # print(colors[ind])
+            # ax = sn.histplot(data=h, label=labels[ind], color=colors[ind], edgecolor='#3B3B3B', linewidth=0.8, kde=False, binwidth=binwidth)
+            bins = np.arange(-2,9,0.2)
+            ax = plt.hist(h, label=labels[ind], color=colors[ind], bins=bins, density=True, histtype='step')
+            # ax = sn.histplot(data=h.data.flatten(), label=labels[ind], color=colors[ind], edgecolor='#3B3B3B', linewidth=0.8, kde=False, binwidth=binwidth)
+            # ax.set(xlabel='Celsius', ylabel='Density')
+            plt.xlabel("Celsius")
+            plt.ylabel("Density")
     else:
         ax = sn.histplot(data=handles, label=labels, color=colors, edgecolor='#3B3B3B', stat='density', linewidth=0.8, kde=False, binwidth=binwidth)
         ax.set(xlabel='Celsius', ylabel='Density')
@@ -137,7 +164,7 @@ def paint_by_numbers(colorsToPlot, colList, nfc):
     elif nfc == 3:
         colorsToPlot.append(colList[1])
         colorsToPlot.append(colList[3])
-        colorsToPlot.append(colList[6])
+        colorsToPlot.append(colList[5])
     elif nfc == 4:
         colorsToPlot.append(colList[0])
         colorsToPlot.append(colList[2])

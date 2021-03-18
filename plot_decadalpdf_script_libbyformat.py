@@ -26,21 +26,22 @@ cntrlFile = '/Users/dhueholt/Documents/ANN_GeoEng/data/GLENS/control.001.SST.r90
 fdbckFile = '/Users/dhueholt/Documents/ANN_GeoEng/data/GLENS/feedback.001.SST.r90x45.shift.annual.nc'
 
 baselineFlag = 0
-regionToPlot = 'regional'
+regionToPlot = 'regional' #'global' 'regional' 'point'
 regOfInt = rlib.DrakePassage()
 levOfInt = 500 #z_t for SST, often hPa for other data
 latOfInt = regOfInt['regLats']#np.array([-35,-22])
 lonOfInt = regOfInt['regLons']#np.array([108,115])
-cntrlIntToPlot = [2020,2050]#[2020,2030,2040,2050,2090]#[2020,2050]
-fdbckIntToPlot = [2020,2050]#[2020,2030,2040,2050,2090]#[2020,2050]
+cntrlIntToPlot = [2020,2045,2070]#[2020,2030,2040,2050,2090]#[2020,2050]
+fdbckIntToPlot = [2020,2045,2070]#[2020,2030,2040,2050,2090]#[2020,2050]
 timePeriod = 30 #number of years, i.e. 10 = decade
 
-plotStyle = 'hist' #'kde' or 'hist'
+plotStyle = 'step' #'kde' or 'hist'
 areaAvgBool = False
 titleStr = regOfInt['regStr'] + ' SST PDFs in GLENS'
 # titleStr = 'Gulf of Mexico SST PDFs in GLENS' #use when region is set manually
 savePath = '/Users/dhueholt/Documents/GLENS_fig/20210318_regionrefinement/'
-saveName = 'pdf_' + plotStyle + '_SST_cntrlfdbck_' + regOfInt['regSaveStr'] + '_30yr_nomean'
+saveName = 'pdf_' + plotStyle + '_SST_cntrlfdbck_' + regOfInt['regSaveStr'] + '_30yr_NOMEANTEST'
+# saveName = 'pdf_step_SST_cntrlfdbck_global_30yr_STEPTEST' #use when region is set manually
 # saveName = 'pdf_hist_SST_cntrlfdbck_REGIONHERE_30yr_MEANTEST' #use when region is set manually
 dpiVal = 400
 
@@ -149,7 +150,9 @@ if plotStyle == 'kde':
     plt_tls.plot_pdf_kdeplot(handlesToPlot, colorsToPlot, labelsToPlot, savePath, saveName, dpiVal)
 elif plotStyle == 'hist':
     plt_tls.plot_pdf_hist(handlesToPlot, colorsToPlot, labelsToPlot, savePath, saveName, binwidth, dpiVal)
+elif plotStyle == 'step':
+    plt_tls.plot_pdf_step(handlesToPlot, colorsToPlot, labelsToPlot, savePath, saveName, binwidth, dpiVal)
 else:
-    print("Invalid plot style")
+    print("Invalid plot style") #TODO: make this a formal error message
 
 print('Completed!')
