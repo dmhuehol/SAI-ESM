@@ -22,10 +22,10 @@ import region_library as rlib
 cntrlFile = '/Users/dhueholt/Documents/ANN_GeoEng/data/GLENS/control.001.SST.r90x45.shift.annual.nc'
 fdbckFile = '/Users/dhueholt/Documents/ANN_GeoEng/data/GLENS/feedback.001.SST.r90x45.shift.annual.nc'
 
-regOfInt = rlib.GulfOfMexico()
+regOfInt = rlib.Nino34()
 baselineFlag = 0
 savePath = '/Users/dhueholt/Documents/GLENS_fig/20210318_regionrefinement/'
-saveName = 'pdf_hist_SST_cntrlfdbck_' + regOfInt['regStr'].replace(" ","") + '_30yr_MEANTEST'
+saveName = 'pdf_hist_SST_cntrlfdbck_' + regOfInt['regSaveStr'] + '_30yr_MEANTEST'
 # saveName = 'pdf_hist_SST_cntrlfdbck_REGIONHERE_30yr_MEANTEST' #use when region set manually
 plotStyle = 'hist' #'kde' or 'hist'
 dpiVal = 400
