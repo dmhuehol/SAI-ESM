@@ -39,3 +39,15 @@ def Nino34():
     }
 
     return regDict
+
+## Placeholder
+
+def Globe():
+    regDict = {
+        "regStr": 'Global',
+        "regSaveStr": 'global',
+        "regLats": np.array([np.nan, np.nan]),
+        "regLons": np.array([np.nan, np.nan])
+    }
+
+    return regDict
