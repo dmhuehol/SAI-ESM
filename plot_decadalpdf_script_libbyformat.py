@@ -16,25 +16,29 @@ import time
 import difference_over_time as dot
 import plotting_tools as plt_tls
 import process_glens_fun as pgf
+import region_library as rlib
 
 # Inputs
 cntrlFile = '/Users/dhueholt/Documents/ANN_GeoEng/data/GLENS/control.001.SST.r90x45.shift.annual.nc'
 fdbckFile = '/Users/dhueholt/Documents/ANN_GeoEng/data/GLENS/feedback.001.SST.r90x45.shift.annual.nc'
 
+regOfInt = rlib.GulfOfMexico()
 baselineFlag = 0
 savePath = '/Users/dhueholt/Documents/GLENS_fig/20210318_regionrefinement/'
-saveName = 'pdf_hist_SST_cntrlfdbck_GulfOfMexico_30yr_MEANTEST'
+saveName = 'pdf_hist_SST_cntrlfdbck_' + regOfInt['regStr'].replace(" ","") + '_30yr_MEANTEST'
+# saveName = 'pdf_hist_SST_cntrlfdbck_REGIONHERE_30yr_MEANTEST' #use when region set manually
 plotStyle = 'hist' #'kde' or 'hist'
 dpiVal = 400
 
 levOfInt = 500 #hPa
-latOfInt = np.array([19.5,30])#np.array([-35,-22])
-lonOfInt = np.array([263,280])#np.array([108,115])
+latOfInt = regOfInt['regLats']#np.array([-35,-22])
+lonOfInt = regOfInt['regLons']#np.array([108,115])
 # latOfInt = -28.6
 # lonOfInt = 112
 quantileForFig = 0.66
 regionToPlot = 'regional' #aspirational
-titleStr = 'Leeuwin Current SST PDFs in GLENS'
+titleStr = regOfInt['regStr'] + ' SST PDFs in GLENS'
+# titleStr = 'Gulf of Mexico SST PDFs in GLENS'
 
 cntrlIntToPlot = [2020,2050]#[2020,2030,2040,2050,2090]#[2020,2050]
 fdbckIntToPlot = [2020,2050]#[2020,2030,2040,2050,2090]#[2020,2050]
