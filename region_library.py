@@ -28,6 +28,18 @@ def LeeuwinCurrent():
 
     return regDict
 
+## Southern Ocean
+
+def DrakePassage():
+    regDict = {
+        "regStr": 'Drake Passage',
+        "regSaveStr": 'DrakePassage',
+        "regLats": np.array([-73,-55]),
+        "regLons": np.array([290,305])
+    }
+
+    return regDict
+
 ## Equatorial special regions
 
 def Nino34():

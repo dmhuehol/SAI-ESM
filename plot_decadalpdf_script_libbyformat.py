@@ -1,4 +1,4 @@
-# This makes decadal pdfs for data that's in single-file format as opposed to decadal-file format.
+# This makes timespan-avg pdfs for data that's in single-file format as opposed to decadal-file format.
 # This will be combined with plot_decadalpdf_script after completion.
 # Also, this makes SST plots
 
@@ -26,8 +26,8 @@ cntrlFile = '/Users/dhueholt/Documents/ANN_GeoEng/data/GLENS/control.001.SST.r90
 fdbckFile = '/Users/dhueholt/Documents/ANN_GeoEng/data/GLENS/feedback.001.SST.r90x45.shift.annual.nc'
 
 baselineFlag = 0
-regionToPlot = 'global' #aspirational
-regOfInt = rlib.Globe()
+regionToPlot = 'regional'
+regOfInt = rlib.DrakePassage()
 levOfInt = 500 #z_t for SST, often hPa for other data
 latOfInt = regOfInt['regLats']#np.array([-35,-22])
 lonOfInt = regOfInt['regLons']#np.array([108,115])
@@ -36,10 +36,11 @@ fdbckIntToPlot = [2020,2050]#[2020,2030,2040,2050,2090]#[2020,2050]
 timePeriod = 30 #number of years, i.e. 10 = decade
 
 plotStyle = 'hist' #'kde' or 'hist'
+areaAvgBool = False
 titleStr = regOfInt['regStr'] + ' SST PDFs in GLENS'
 # titleStr = 'Gulf of Mexico SST PDFs in GLENS' #use when region is set manually
 savePath = '/Users/dhueholt/Documents/GLENS_fig/20210318_regionrefinement/'
-saveName = 'pdf_hist_SST_cntrlfdbck_' + regOfInt['regSaveStr'] + '_30yr_MEANTEST'
+saveName = 'pdf_' + plotStyle + '_SST_cntrlfdbck_' + regOfInt['regSaveStr'] + '_30yr_nomean'
 # saveName = 'pdf_hist_SST_cntrlfdbck_REGIONHERE_30yr_MEANTEST' #use when region is set manually
 dpiVal = 400
 
@@ -50,11 +51,18 @@ if regionToPlot == 'global':
     cntrlDsetLoi = cntrlDset.sel(z_t=levOfInt) #z_t is equivalent to level
     dataKey = pgf.discover_data_var(cntrlDset)
     cntrlDarr = cntrlDsetLoi[dataKey]
-    cntrlDarrMnSpc = cntrlDarr.mean(dim=['lat','lon'])
 
     fdbckDsetLoi = fdbckDset.sel(z_t=levOfInt)
     fdbckDarr = fdbckDsetLoi[dataKey]
-    fdbckDarrMnSpc = fdbckDarr.mean(dim=['lat','lon'])
+
+    if areaAvgBool:
+        print("Spatially averaging across globe")
+        cntrlDarrMnSpc = cntrlDarr.mean(dim=['lat','lon'])
+        fdbckDarrMnSpc = fdbckDarr.mean(dim=['lat','lon'])
+    else:
+        print("No spatial average applied")
+        cntrlDarrMnSpc = cntrlDarr.stack(spc=("lat","lon"))
+        fdbckDarrMnSpc = fdbckDarr.stack(spc=("lat","lon"))
 
 elif regionToPlot == 'regional':
     cntrlDsetLoi = cntrlDset.sel(z_t=levOfInt) #z_t is equivalent to level
@@ -65,15 +73,20 @@ elif regionToPlot == 'regional':
     latMask = (lats>latOfInt[0]) & (lats<latOfInt[1])
     lonMask = (lons>lonOfInt[0]) & (lons<lonOfInt[1])
     cntrlDarrLoiAoi = cntrlDarrLoi[:,latMask,lonMask]
-    # cntrlDarrMnSpc = cntrlDarrLoiAoi.stack(spc=("lat","lon"))
-    cntrlDarrMnSpc = cntrlDarrLoiAoi.mean(dim=['lat','lon'])
 
     fdbckDsetLoi = fdbckDset.sel(z_t=levOfInt)
     dataKey = pgf.discover_data_var(fdbckDset)
     fdbckDarrLoi = fdbckDsetLoi[dataKey]
     fdbckDarrLoiAoi = fdbckDarrLoi[:,latMask,lonMask]
-    # fdbckDarrMnSpc = fdbckDarrLoiAoi.stack(spc=("lat","lon"))
-    fdbckDarrMnSpc = fdbckDarrLoiAoi.mean(dim=['lat','lon'])
+
+    if areaAvgBool:
+        print("Spatially averaging across region")
+        cntrlDarrMnSpc = cntrlDarrLoiAoi.mean(dim=['lat','lon'])
+        fdbckDarrMnSpc = fdbckDarrLoiAoi.mean(dim=['lat','lon'])
+    else:
+        print("No spatial average applied")
+        cntrlDarrMnSpc = cntrlDarrLoiAoi.stack(spc=("lat","lon"))
+        fdbckDarrMnSpc = fdbckDarrLoiAoi.stack(spc=("lat","lon"))
 
 elif regionToPlot == 'point':
     cntrlDsetLoiPoi = cntrlDset.sel(z_t=levOfInt, lat=latOfInt, lon=lonOfInt, method="nearest")
@@ -88,7 +101,6 @@ elif regionToPlot == 'point':
 
 else:
     print("Invalid region!")
-
 
 # Remove 2010-2019 average
 # baselineMeanToRmv = dot.average_over_years(cntrlDarrMnSpc,2010,2019)
@@ -110,8 +122,12 @@ cntrlHandlesToPlot = pgf.extract_doi(cntrlIntToPlot, cntrlYears, timePeriod, cnt
 fdbckYears = fdbckActive['time'].dt.year.data
 fdbckHandlesToPlot = list()
 fdbckHandlesToPlot = pgf.extract_doi(fdbckIntToPlot, fdbckYears, timePeriod, fdbckActive, fdbckHandlesToPlot)
-
 handlesToPlot = cntrlHandlesToPlot + fdbckHandlesToPlot
+
+# If not applying a spatial average, flatten data so dimensions don't confuse plotting code
+if ~areaAvgBool:
+    for ind, h in enumerate(handlesToPlot):
+        handlesToPlot[ind] = h.data.flatten()
 
 # Generate colors and strings for plots and filenames
 if baselineFlag:

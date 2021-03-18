@@ -133,7 +133,7 @@ def paint_by_numbers(colorsToPlot, colList, nfc):
         colorsToPlot.append(colList[3])
     elif nfc == 2:
         colorsToPlot.append(colList[2])
-        colorsToPlot.append(colList[6])
+        colorsToPlot.append(colList[5])
     elif nfc == 3:
         colorsToPlot.append(colList[1])
         colorsToPlot.append(colList[3])
