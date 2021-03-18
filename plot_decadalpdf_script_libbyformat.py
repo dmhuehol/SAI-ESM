@@ -22,21 +22,22 @@ cntrlFile = '/Users/dhueholt/Documents/ANN_GeoEng/data/GLENS/control.001.SST.r90
 fdbckFile = '/Users/dhueholt/Documents/ANN_GeoEng/data/GLENS/feedback.001.SST.r90x45.shift.annual.nc'
 
 baselineFlag = 0
-savePath = '/Users/dhueholt/Documents/GLENS_fig/20210311_regiontesting/'
-saveName = 'pdf_hist_SST_cntrlfdbck_global_30yr'
-plotStyle = 'hist' #'kde'
+savePath = '/Users/dhueholt/Documents/GLENS_fig/20210318_regionrefinement/'
+saveName = 'pdf_hist_SST_cntrlfdbck_GulfOfMexico_30yr_MEANTEST'
+plotStyle = 'hist' #'kde' or 'hist'
 dpiVal = 400
 
 levOfInt = 500 #hPa
-# latOfInt = np.array([19.5,30])
-latOfInt = -28.6
-lonOfInt = 112
+latOfInt = np.array([19.5,30])#np.array([-35,-22])
+lonOfInt = np.array([263,280])#np.array([108,115])
+# latOfInt = -28.6
+# lonOfInt = 112
 quantileForFig = 0.66
-regionToPlot = 'global' #aspirational
-titleStr = 'Global SST PDFs in GLENS'
+regionToPlot = 'regional' #aspirational
+titleStr = 'Leeuwin Current SST PDFs in GLENS'
 
-cntrlIntToPlot = [2020,2050]
-fdbckIntToPlot = [2020,2050]
+cntrlIntToPlot = [2020,2050]#[2020,2030,2040,2050,2090]#[2020,2050]
+fdbckIntToPlot = [2020,2050]#[2020,2030,2040,2050,2090]#[2020,2050]
 timePeriod = 30 #number of years, i.e. 10 = decade
 
 cntrlDset = xr.open_dataset(cntrlFile)
@@ -58,15 +59,24 @@ elif regionToPlot == 'regional':
     cntrlDarrLoi = cntrlDsetLoi[dataKey]
     lats = cntrlDsetLoi['lat'] #feedback and control are on same grid, fortunately
     lons = cntrlDsetLoi['lon']
-    latMask = (lats>19.5) & (lats<30)
-    lonMask = (lons>263) & (lons<280)
+    latMask = (lats>latOfInt[0]) & (lats<latOfInt[1])
+    # print(lats[latMask])
+    lonMask = (lons>lonOfInt[0]) & (lons<lonOfInt[1])
+    # print(lons[lonMask])
     cntrlDarrLoiAoi = cntrlDarrLoi[:,latMask,lonMask]
+    ## cshp = np.shape(cntrlDarrLoiAoi)
+    ## print(cshp)
+    ## cntrlDarrMnSpc = np.reshape(cntrlDarrLoiAoi, (cshp[0], cshp[1] * cshp[2]))
+    # cntrlDarrMnSpc = cntrlDarrLoiAoi.stack(spc=("lat","lon"))
     cntrlDarrMnSpc = cntrlDarrLoiAoi.mean(dim=['lat','lon'])
 
     fdbckDsetLoi = fdbckDset.sel(z_t=levOfInt) #z_t is the equivalent to level, I guess?
     dataKey = pgf.discover_data_var(fdbckDset)
     fdbckDarrLoi = fdbckDsetLoi[dataKey]
     fdbckDarrLoiAoi = fdbckDarrLoi[:,latMask,lonMask]
+    # fshp = np.shape(fdbckDarrLoiAoi)
+    ## fdbckDarrMnSpc = np.reshape(fdbckDarrLoiAoi, (fshp[0],fshp[1] * fshp[2]))
+    # fdbckDarrMnSpc = fdbckDarrLoiAoi.stack(spc=("lat","lon"))
     fdbckDarrMnSpc = fdbckDarrLoiAoi.mean(dim=['lat','lon'])
 
 elif regionToPlot == 'point':
@@ -88,8 +98,10 @@ else:
 # baselineMeanToRmv = dot.average_over_years(cntrlDarrMnSpc,2010,2019)
 # cntrlDarrMnSpcNorm = cntrlDarrMnSpc - baselineMeanToRmv
 # fdbckDarrMnSpcNorm = fdbckDarrMnSpc - baselineMeanToRmv
+
 iqr = stats.iqr(cntrlDarrMnSpc)
 binwidth = 2*iqr*(10 ** -1/3) # the Freedman-Diaconis rule
+# binwidth = 0.2 #the let's not overthink this rule
 print(binwidth)
 
 cntrlActive = cntrlDarrMnSpc

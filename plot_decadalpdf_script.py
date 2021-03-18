@@ -20,7 +20,7 @@ baselinePath = '/Users/dhueholt/Documents/GLENS_data/'
 baselineFile = glob(baselinePath + '*.nc')
 print(baselineFile)
 
-savePath = '/Users/dhueholt/Documents/GLENS_fig/20210211_formeeting/'
+savePath = '/Users/dhueholt/Documents/GLENS_fig/20210225_formeeting/'
 saveName = 'pdf_Tglobal_cntrlfdbck'
 dpi_val = 300
 
@@ -60,6 +60,7 @@ for f,ffile in enumerate(fdbckIn):
 
 
 # print(handlesToPlot)
+# ['slateblue','rosybrown','lightcoral','firebrick','orchid','purple']
 
 plt_tls.plot_pdf_kdeplot(handlesToPlot, ['slateblue','rosybrown','lightcoral','firebrick','orchid','purple'], ['2010-2019 Baseline','2020-2029 RCP8.5', '2080-2089 RCP8.5', '2090-2099 RCP8.5', '2080-2089 SAI', '2090-2099 SAI', 'Global temperature PDFs in GLENS'], savePath, saveName)
 
