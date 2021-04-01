@@ -1,8 +1,27 @@
 import xarray as xr
 import numpy as np
 import sys
+from cdo import *
 
 # baselineFname = baselineStr[len(baselinePath):len(baselineStr)] #only filename
+
+def prep_raw_data(inPath,inCard,outFile):
+# Conduct basic preparation of raw data to make it suitable to run through other
+    # functions. Current list of tasks: merge decadal files, shift time -1 days
+    cdo = Cdo()
+    inFile = inPath + inCard
+    mergeFile = inPath + 'merge_' + outFile + '.nc'
+    shiftFile = inPath + 'shift_' + outFile + '.nc'
+
+    cdo.mergetime(input=inFile, output=mergeFile)
+    print('Merged')
+    cdo.shifttime('-1days', input=mergeFile, output=shiftFile)
+    print('Shifted')
+    print('Completed')
+
+    return
+
+
 def extract_meta_from_fname(fname):
 # Extract useful metadata from GLENS output filename
     # baselineFname = fname[len(fname):len(fname)] #only filename
