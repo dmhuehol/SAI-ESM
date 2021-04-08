@@ -7,16 +7,20 @@ from cdo import *
 
 def prep_raw_data(inPath,inCard,outFile):
 # Conduct basic preparation of raw data to make it suitable to run through other
-    # functions. Current list of tasks: merge decadal files, shift time -1 days
+    # functions. Current list of tasks: merge decadal files, shift time -1 days,
+    # annual average
     cdo = Cdo()
     inFile = inPath + inCard
     mergeFile = inPath + 'merge_' + outFile + '.nc'
     shiftFile = inPath + 'shift_' + outFile + '.nc'
+    yearFile = inPath + 'annual_' + outFile + '.nc'
 
     cdo.mergetime(input=inFile, output=mergeFile)
     print('Merged')
     cdo.shifttime('-1days', input=mergeFile, output=shiftFile)
     print('Shifted')
+    cdo.yearmonmean(input=shiftFile, output=yearFile)
+    print('Annual averaged')
     print('Completed')
 
     return

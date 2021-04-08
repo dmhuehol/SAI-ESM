@@ -52,6 +52,42 @@ def Nino34():
 
     return regDict
 
+## Africa
+
+def SouthernAfrica():
+    regDict = {
+        "regStr": 'SouthernAfrica',
+        "regSaveStr": 'SrnAfrcia',
+        "regLats": np.array([-36,16]),
+        "regLons": np.array([12,37])
+    }
+
+    return regDict
+
+## Australia
+
+def AustralianContinent():
+    regDict = {
+        "regStr": 'Australia',
+        "regSaveStr": 'Australia',
+        "regLats": np.array([-43,-12]),
+        "regLons": np.array([111,115])
+    }
+
+    return regDict
+
+## Europe
+
+def EasternEurope():
+    regDict = {
+        "regStr": 'EasternEurope',
+        "regSaveStr": 'EasternEurope',
+        "regLats": np.array([36,56]),
+        "regLons": np.array([14,36])
+    }
+
+    return regDict
+
 ## Placeholder
 
 def Globe():

@@ -73,7 +73,7 @@ def plot_pdf_kdeplot(handles, colors, labels, savePath, saveName, dpiVal=400):
     print('Plotting!')
     if np.size(colors) > 1:
         for ind, h in enumerate(handles):
-            ax = sn.kdeplot(data=h, label=labels[ind], color=colors[ind], linewidth=2)
+            ax = sn.kdeplot(data=h-273.15, label=labels[ind], color=colors[ind], linewidth=2)
             ax.set(xlabel='Celsius', ylabel='Density')
     else:
         ax = sn.kdeplot(data=handles, label=labels, color=colors, linewidth=2)
@@ -90,7 +90,7 @@ def plot_pdf_hist(handles, colors, labels, savePath, saveName, binwidth, dpiVal=
     print('Plotting!')
     if np.size(colors) > 1:
         for ind, h in enumerate(handles):
-            ax = sn.histplot(data=h, label=labels[ind], color=colors[ind], edgecolor='#3B3B3B', linewidth=0.8, kde=False, binwidth=binwidth)
+            ax = sn.histplot(data=h-273.15, label=labels[ind], color=colors[ind], edgecolor='#3B3B3B', linewidth=0.8, kde=False, binwidth=binwidth)
             ax.set(xlabel='Celsius', ylabel='Density')
     else:
         ax = sn.histplot(data=handles, label=labels, color=colors, edgecolor='#3B3B3B', stat='density', linewidth=0.8, kde=False, binwidth=binwidth)
@@ -141,8 +141,8 @@ def paint_by_numbers(colorsToPlot, colList, nfc):
     if nfc == 1:
         colorsToPlot.append(colList[3])
     elif nfc == 2:
-        colorsToPlot.append(colList[2])
-        colorsToPlot.append(colList[5])
+        colorsToPlot.append(colList[1])
+        colorsToPlot.append(colList[6])
     elif nfc == 3:
         colorsToPlot.append(colList[1])
         colorsToPlot.append(colList[3])
