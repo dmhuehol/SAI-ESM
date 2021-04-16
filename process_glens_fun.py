@@ -5,15 +5,15 @@ from cdo import *
 
 # baselineFname = baselineStr[len(baselinePath):len(baselineStr)] #only filename
 
-def prep_raw_data(inPath,inCard,outFile):
+def prep_raw_data(inPath,outPath,inCard,outFile):
 # Conduct basic preparation of raw data to make it suitable to run through other
     # functions. Current list of tasks: merge decadal files, shift time -1 days,
     # annual average
     cdo = Cdo()
     inFile = inPath + inCard
-    mergeFile = inPath + 'merge_' + outFile + '.nc'
-    shiftFile = inPath + 'shift_' + outFile + '.nc'
-    yearFile = inPath + 'annual_' + outFile + '.nc'
+    mergeFile = outPath + 'merge_' + outFile + '.nc'
+    shiftFile = outPath + 'shift_' + outFile + '.nc'
+    yearFile = outPath + 'annual_' + outFile + '.nc'
 
     cdo.mergetime(input=inFile, output=mergeFile)
     print('Merged')
