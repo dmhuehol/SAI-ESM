@@ -38,6 +38,8 @@ echo $OUT_FNAME
 
 OUT_MERGE="${OUT_PATH}${OUT_FNAME}_merge.nc"
 OUT_SHIFT="${OUT_PATH}${OUT_FNAME}_shift.nc"
+OUT_ANNUAL="${OUT_PATH}${OUT_FNAME}_annual.nc"
 
 cdo mergetime $IN_CARD $OUT_MERGE
 cdo shifttime,'-1days' $OUT_MERGE $OUT_SHIFT
+cdo yearmonmean $OUT_SHIFT $OUT_ANNUAL
