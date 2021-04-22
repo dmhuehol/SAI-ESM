@@ -6,7 +6,7 @@ OUT_PATH=$3 #Path to save files
 ### Script
 IN_CARD="$IN_PATH$IN_TOKEN"
 PATH_LENGTH=${#IN_PATH}
-echo $PATH_LENGTH #troubleshooting
+echo $PATH_LENGTH
 
 RUN_FNAMES=()
 RUN_TIMES=()
@@ -40,6 +40,9 @@ OUT_MERGE="${OUT_PATH}${OUT_FNAME}_merge.nc"
 OUT_SHIFT="${OUT_PATH}${OUT_FNAME}_shift.nc"
 OUT_ANNUAL="${OUT_PATH}${OUT_FNAME}_annual.nc"
 
-cdo mergetime $IN_CARD $OUT_MERGE
-cdo shifttime,'-1days' $OUT_MERGE $OUT_SHIFT
-cdo yearmonmean $OUT_SHIFT $OUT_ANNUAL
+cdo -yearmonmean -shifttime,'-1days' -mergetime ${IN_CARD} ${OUT_ANNUAL}
+# cdo -yearmonmean -shifttime,'-1days' ${OUT_MERGE} ${OUT_ANNUAL}
+
+# cdo mergetime $IN_CARD $OUT_MERGE
+# cdo shifttime,'-1days' $OUT_MERGE $OUT_SHIFT
+# cdo yearmonmean $OUT_SHIFT $OUT_ANNUAL
