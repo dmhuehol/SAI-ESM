@@ -1,3 +1,17 @@
+#######################################
+# Merge GLENS monthly netcdf files, shift time, and calculate annual mean.
+# Output files are named automatically as:
+# type_ensnumber_variable_YYYYMM-YYYYMM[first]_..._YYYYMM-YYYYMM[last].nc
+# Globals:
+#   None
+# Arguments:
+#   IN_PATH
+#   IN_TOKEN
+#   OUT_PATH
+# Written by Daniel Hueholt
+# Graduate Research Assistant at Colorado State University
+#######################################
+
 ### Input variables
 IN_PATH=$1 #Path to data
 IN_TOKEN=$2 #Token to match data files, e.g. "*.001.*.nc"
@@ -41,8 +55,3 @@ OUT_SHIFT="${OUT_PATH}${OUT_FNAME}_shift.nc"
 OUT_ANNUAL="${OUT_PATH}${OUT_FNAME}_annual.nc"
 
 cdo -yearmonmean -shifttime,'-1days' -mergetime ${IN_CARD} ${OUT_ANNUAL}
-# cdo -yearmonmean -shifttime,'-1days' ${OUT_MERGE} ${OUT_ANNUAL}
-
-# cdo mergetime $IN_CARD $OUT_MERGE
-# cdo shifttime,'-1days' $OUT_MERGE $OUT_SHIFT
-# cdo yearmonmean $OUT_SHIFT $OUT_ANNUAL
