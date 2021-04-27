@@ -19,5 +19,3 @@ mkdir -p $TMPDIR
 
 tar -C /glade/scratch/dhueholt/ -xvf /glade/campaign/cesm/collections/GLENS/Control/atm/proc/tseries/monthly/O3/*2090*.tar
 tar -C /glade/scratch/dhueholt/ -xvf /glade/campaign/cesm/collections/GLENS/Feedback/atm/proc/tseries/monthly/O3/*2090*.tar
-
-# python prep_files_script.py # wait on that
