@@ -7,6 +7,7 @@ Repository for code analyzing stratospheric aerosol injection model output. This
 `casper_starter`: Contains the generic header and export command required for all jobs run on Casper or Cheyenne.  
 `do_cdo_prep`: Merges GLENS monthly netcdf files, apply time shift, and calculates annual mean fields.  
 `run_cdo_prep`: Runs `do_cdo_prep` on a set of control and feedback data files. (Submit using `qsub` on Casper/Cheyenne.)
+`run_untar_prep`: Untars a set of control and feedback files and moves to scratch directory. (Submit using `qsub` on Casper/Cheyenne.)
 
 ### Analysis and plotting
 #### "Bread and butter"
