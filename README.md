@@ -3,8 +3,19 @@ Repository for code analyzing stratospheric aerosol injection model output. This
 
 ## Code description
 
-### NCAR code (for Casper and Cheyenne)
+### Data preprocessing
 `casper_starter`: Contains the generic header and export command required for all jobs run on Casper or Cheyenne.  
+`do_cdo_prep`: Merges GLENS monthly netcdf files, apply time shift, and calculates annual mean fields.  
+`run_cdo_prep`: Runs `do_cdo_prep` on a set of control and feedback data files. (Submit using `qsub` on Casper/Cheyenne.)
+
+### Analysis and plotting
+#### "Bread and butter"
+
+#### Other
+
+#### Helpers
+`region_library`: Contains lat/lon bounds and other info for a variety of useful regions in easily-callable format.  
+`run_test_script`: This is the coding equivalent of scratch paper.
 
 ## Sources and Credit
 Unless specified otherwise, all code and documentation was written by Daniel Hueholt as a Graduate Research Assistant under the advisement of Profs. [Elizabeth Barnes](https://sites.google.com/rams.colostate.edu/barnesresearchgroup/home) and [James Hurrell](https://sites.google.com/rams.colostate.edu/hurrellgroup/home) at Colorado State University.
