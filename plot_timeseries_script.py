@@ -1,5 +1,3 @@
-# Plot timeseries for a GLENS dataset given location or region (eventually)
-
 import xarray as xr
 import matplotlib.pyplot as plt
 import cartopy
@@ -12,22 +10,21 @@ import plotting_tools as plt_tls
 import process_glens_fun as pgf
 
 # Inputs
-filenameCntrl = 'control.001.U.r90x45.shift.annual.nc'
-filenameFdbck = 'feedback.001.U.r90x45.shift.annual.nc'
-dataPath = '/Users/dhueholt/Documents/ANN_GeoEng/data/GLENS/'
+dataPath = '/Users/dhueholt/Documents/GLENS_data/annual_o3/'
+filenameCntrl = 'control_003_O3_201001-201912_202001-202912_203001-203912_204001-204912_205001-205912_206001-206912_207001-207912_208001-208912_209001-209912_annual.nc'
+filenameFdbck = 'feedback_003_O3_202001-202912_203001-203912_204001-204912_205001-205912_206001-206912_207001-207912_208001-208912_209001-209912_annual.nc'
 cntrlPath = dataPath + filenameCntrl
 fdbckPath = dataPath + filenameFdbck
 
-savePath = '/Users/dhueholt/Documents/GLENS_fig/20210204_timeseries/'
-saveFile = 'timeseries_testU_'
+savePath = '/Users/dhueholt/Documents/GLENS_fig/20210429_refactoringAndOzone/'
+saveFile = 'timeseries_testO3_'
 saveName = savePath + saveFile
-dpi_val = 300
+dpi_val = 400
 
-levOfInt = 1000 #hPa
+# levOfInt = 1000 #hPa
 latOfInt = 34
-lonOfInt = -78
-quantileForFig = 0.66
-regionToPlot = 'global' #aspirational
+lonOfInt = 282
+regionToPlot = 'point' #aspirational
 
 # Control
 glensDsetCntrl = xr.open_dataset(cntrlPath)
@@ -38,35 +35,40 @@ glensDarrCntrl = glensDsetCntrl[dataKey]
 glensDsetFdbck = xr.open_dataset(fdbckPath)
 glensDarrFdbck = glensDsetFdbck[dataKey]
 
-# Obtain matching periods
-# Format: time,lev,lat,lon
 bndDct = pgf.find_matching_year_bounds(glensDarrCntrl, glensDarrFdbck)
-
 glensCntrlPoi = glensDarrCntrl[bndDct['cntrlStrtMtch']:bndDct['cntrlEndMtch']+1] #RANGES IN PYTHON ARE [)
-cntrlToPlot = glensCntrlPoi.sel(lev=levOfInt, lat=latOfInt, lon=lonOfInt, method="nearest")
+print(glensCntrlPoi['lev'])
 glensFdbckPoi = glensDarrFdbck[bndDct['fdbckStrtMtch']:bndDct['fdbckEndMtch']+1]
-fdbckToPlot = glensFdbckPoi.sel(lev=levOfInt, lat=latOfInt, lon=lonOfInt, method="nearest")
-# glensFdbckToPlot = glensFdbckLoi.where((glensFdbckLoi.lat == -65.45) & (glensFdbckLoi.lon == 148))
+levOfInt = glensCntrlPoi['lev'].data[len(glensCntrlPoi['lev'].data)-1]
+print(levOfInt)
+
+if regionToPlot == 'point':
+    # glensCntrlPoi = glensCntrlPoi.sum(dim='lev')#
+    cntrlToPlot = glensCntrlPoi.sel(lev=levOfInt, lat=latOfInt, lon=lonOfInt, method="nearest")
+    # cntrlToPlot = glensCntrlPoi.sel(lat=latOfInt, lon=lonOfInt, method="nearest")
+    # glensFdbckPoi = glensFdbckPoi.sum(dim='lev')
+    fdbckToPlot = glensFdbckPoi.sel(lev=levOfInt, lat=latOfInt, lon=lonOfInt, method="nearest")
+    # fdbckToPlot = glensFdbckPoi.sel(lat=latOfInt, lon=lonOfInt, method="nearest")
 
 # Plotting
 yStr = glensDarrFdbck.units
 varStr = glensDarrFdbck.long_name
 startStr = str(bndDct['strtYrMtch'])
 endStr = str(bndDct['endYrMtch'])
+levStr = str(np.round_(levOfInt,decimals=1))
 latStr = str(np.round_(cntrlToPlot.lat.data,decimals=2))
 lonStr = str(np.round_(cntrlToPlot.lon.data,decimals=2))
 locStr = latStr + '_' + lonStr
 locTitleStr = '(' + latStr + ',' + lonStr + ')'
 
-plt.figure(figsize=(12,2.73*2))
-# ax = plt.subplot(2,2,1) #nrow ncol index
+plt.figure()
 plt.plot(bndDct['mtchYrs'],cntrlToPlot.data,color='#DF8C20',label='RCP8.5') #These are the cuckooColormap colors
 plt.plot(bndDct['mtchYrs'],fdbckToPlot.data,color='#20DFCC',label='SAI')
 plt.legend()
 plt.ylabel(yStr)
-plt.title(varStr + ': ' + startStr + '-' + endStr + ' ' + locTitleStr)
-# plt.show()
+# plt.title('TCO' + ': ' + startStr + '-' + endStr + ' ' + locTitleStr)
+plt.autoscale(enable=True, axis='x', tight=True)
+plt.title(varStr + ' ' + levStr + ': ' + startStr + '-' + endStr + ' ' + locTitleStr)
+plt.savefig(saveName + locStr + '_' + levStr + '.png',dpi=dpi_val,bbox_inches='tight')
 
-plt.savefig(saveName + locStr + '.png',dpi=dpi_val,bbox_inches='tight')
-
-print('Completed!')
+print("Completed! :D")
