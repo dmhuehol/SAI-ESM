@@ -54,4 +54,4 @@ OUT_MERGE="${OUT_PATH}${OUT_FNAME}_merge.nc"
 OUT_SHIFT="${OUT_PATH}${OUT_FNAME}_shift.nc"
 OUT_ANNUAL="${OUT_PATH}${OUT_FNAME}_annual.nc"
 
-cdo -yearmonmean -shifttime,'-1days' -mergetime ${IN_CARD} ${OUT_ANNUAL}
+cdo -L -yearmonmean -shifttime,'-1days' -mergetime ${IN_CARD} ${OUT_ANNUAL}
