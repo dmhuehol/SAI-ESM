@@ -17,5 +17,14 @@
 export TMPDIR=/glade/scratch/dhueholt/temp
 mkdir -p $TMPDIR
 
-tar -C /glade/scratch/dhueholt/ -xvf /glade/campaign/cesm/collections/GLENS/Control/atm/proc/tseries/monthly/O3/*2090*.tar
-tar -C /glade/scratch/dhueholt/ -xvf /glade/campaign/cesm/collections/GLENS/Feedback/atm/proc/tseries/monthly/O3/*2090*.tar
+TAR_PATH_CNTRL="/glade/campaign/cesm/collections/GLENS/Control/atm/proc/tseries/monthly/O3/"
+TAR_PATH_FDBCK="/glade/campaign/cesm/collections/GLENS/Feedback/atm/proc/tseries/monthly/O3/"
+OUT_PATH="/glade/scratch/dhueholt/"
+
+for CNTRLF in "$TAR_PATH_CNTRL"*021*.tar; do
+    tar -C $OUT_PATH -xvf "$CNTRLF"
+done
+
+for FDBCKF in "$TAR_PATH_FDBCK"*021*.tar; do
+    tar -C $OUT_PATH -xvf "$FDBCKF"
+done
