@@ -41,8 +41,7 @@ bndDct = pgf.find_matching_year_bounds(glensDarrCntrl, glensDarrFdbck)
 glensCntrlPoi = glensDarrCntrl[bndDct['cntrlStrtMtch']:bndDct['cntrlEndMtch']+1] #RANGES IN PYTHON ARE [)
 ic(glensCntrlPoi['lev'])
 glensFdbckPoi = glensDarrFdbck[bndDct['fdbckStrtMtch']:bndDct['fdbckEndMtch']+1]
-
-# levs = glensCntrlPoi['lev'].data
+levs = glensCntrlPoi['lev'].data
 # levMask = levs > levActive
 # ic(levOfInt)
 
@@ -51,7 +50,6 @@ if levOfInt == 'total':
     glensFdbckPoi = glensFdbckPoi.sum(dim='lev')
 elif levOfInt == 'troposphere':
     indTpause = pgf.find_closest_level(glensCntrlPoi, 200, levName='lev') #simple split on 200hPa for now
-    levs = glensCntrlPoi['lev'].data
     levMask = levs > indTpause
     glensCntrlPoi = glensCntrlPoi[:,levMask,:,:]
     glensCntrlPoi = glensCntrlPoi.sum(dim='lev')
@@ -59,7 +57,6 @@ elif levOfInt == 'troposphere':
     glensFdbckPoi = glensFdbckPoi.sum(dim='lev')
 elif levOfInt == 'stratosphere':
     indTpause = pgf.find_closest_level(glensCntrlPoi, 200, levName='lev') #simple split on 200hPa for now
-    levs = glensCntrlPoi['lev'].data
     levMask = levs <= indTpause
     glensCntrlPoi = glensCntrlPoi[:,levMask,:,:]
     glensCntrlPoi = glensCntrlPoi.sum(dim='lev')
@@ -68,7 +65,6 @@ elif levOfInt == 'stratosphere':
 elif np.size(levOfInt)==2:
     indHghrPres = pgf.find_closest_level(glensCntrlPoi, max(levOfInt), levName='lev')
     indLowerPres = pgf.find_closest_level(glensCntrlPoi, min(levOfInt), levName='lev')
-    levs = glensCntrlPoi['lev'].data
     levOfInt = [levs[indLowerPres],levs[indHghrPres]]
     glensCntrlPoi = glensCntrlPoi[:,indLowerPres:indHghrPres+1,:,:]
     glensCntrlPoi = glensCntrlPoi.sum(dim='lev')
@@ -76,16 +72,13 @@ elif np.size(levOfInt)==2:
     glensFdbckPoi = glensFdbckPoi.sum(dim='lev')
 else:
     indClosest = pgf.find_closest_level(glensCntrlPoi, levOfInt, levName='lev')
-    ic(indClosest)
-    levActive = glensCntrlPoi['lev'].data[indClosest]#glensCntrlPoi['lev'].data[len(glensCntrlPoi['lev'].data)-1-16]
-    ic(levActive)
+    levActive = glensCntrlPoi['lev'].data[indClosest]
     glensCntrlPoi = glensCntrlPoi.sel(lev=levActive)
     glensFdbckPoi = glensFdbckPoi.sel(lev=levActive)
 
 if regionToPlot == 'point':
     cntrlToPlot = glensCntrlPoi.sel(lat=latOfInt, lon=lonOfInt, method="nearest")
     fdbckToPlot = glensFdbckPoi.sel(lat=latOfInt, lon=lonOfInt, method="nearest")
-
 
 # Plotting
 yStr = glensDarrFdbck.units
@@ -114,10 +107,8 @@ plt.plot(bndDct['mtchYrs'],cntrlToPlot.data,color='#DF8C20',label='RCP8.5') #The
 plt.plot(bndDct['mtchYrs'],fdbckToPlot.data,color='#20DFCC',label='SAI')
 plt.legend()
 plt.ylabel(yStr)
-# plt.title('TotalO3' + ': ' + startStr + '-' + endStr + ' ' + locTitleStr)
 plt.autoscale(enable=True, axis='x', tight=True)
 plt.title(varStr + ' ' + levStr + ': ' + startStr + '-' + endStr + ' ' + locTitleStr)
-# plt.savefig(saveName + locStr + '_' + 'TotalO3' + '.png',dpi=dpi_val,bbox_inches='tight')
 plt.savefig(saveName + locStr + '_' + levStr + '.png',dpi=dpi_val,bbox_inches='tight')
 
 print("Completed! :D")
