@@ -94,3 +94,17 @@ def extract_doi(intervalsToPlot, years, timePeriod, darr, handlesToPlot):
         handlesToPlot.append(darr[startInd:endInd])
 
     return handlesToPlot
+
+def find_closest_level(darr, levOfInt, levName='lev'):
+# Find the index of the level which is closest to an input value
+    levs = darr[levName].data
+    levDiffs = np.abs(levs - levOfInt)
+    closestVal = np.min(levDiffs)
+    closestTup = np.where(levDiffs == closestVal)
+
+    if len(closestTup) > 1:
+        sys.exit('Conflicting levels! Input new level of interest and try again.')
+
+    closestInd = closestTup[0][0] #np.where generates a tuple, which can't be indexed
+
+    return closestInd
