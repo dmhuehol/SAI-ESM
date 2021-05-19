@@ -12,6 +12,7 @@ import numpy as np
 import difference_over_time as dot
 import plotting_tools as plt_tls
 import process_glens_fun as pgf
+import region_library as rlib
 
 # Inputs
 dataPath = '/Users/dhueholt/Documents/GLENS_data/annual_o3/'
@@ -20,12 +21,13 @@ filenameFdbck = 'feedback_003_O3_202001-202912_203001-203912_204001-204912_20500
 cntrlPath = dataPath + filenameCntrl
 fdbckPath = dataPath + filenameFdbck
 
-levOfInt = 'total'#5.96 * 10**(-6) #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
-latOfInt = 34
-lonOfInt = 282
-regionToPlot = 'point' #aspirational
+levOfInt = 'troposphere' #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
+regionToPlot = 'global' #'global', 'regional', 'point'
+regOfInt = rlib.EasternEurope()
+latOfInt = regOfInt['regLats']#34
+lonOfInt = regOfInt['regLons']#282
 
-savePath = '/Users/dhueholt/Documents/GLENS_fig/20210518_tsRfctrng/'
+savePath = '/Users/dhueholt/Documents/GLENS_fig/20210519_regionsAndOzone/'
 saveFile = 'timeseries_testO3_'
 saveName = savePath + saveFile
 dpi_val = 400
@@ -42,8 +44,6 @@ glensCntrlPoi = glensDarrCntrl[bndDct['cntrlStrtMtch']:bndDct['cntrlEndMtch']+1]
 ic(glensCntrlPoi['lev'])
 glensFdbckPoi = glensDarrFdbck[bndDct['fdbckStrtMtch']:bndDct['fdbckEndMtch']+1]
 levs = glensCntrlPoi['lev'].data
-# levMask = levs > levActive
-# ic(levOfInt)
 
 if levOfInt == 'total':
     glensCntrlPoi = glensCntrlPoi.sum(dim='lev')
@@ -76,9 +76,30 @@ else:
     glensCntrlPoi = glensCntrlPoi.sel(lev=levActive)
     glensFdbckPoi = glensFdbckPoi.sel(lev=levActive)
 
-if regionToPlot == 'point':
+if regionToPlot == 'global':
+    ic('global')
+    latWeights = np.cos(np.deg2rad(glensCntrlPoi['lat']))
+    glensCntrlPoi = glensCntrlPoi.weighted(latWeights)
+    glensFdbckPoi = glensFdbckPoi.weighted(latWeights)
+    cntrlToPlot = glensCntrlPoi.mean(dim=['lat','lon'])
+    fdbckToPlot = glensFdbckPoi.mean(dim=['lat','lon'])
+elif regionToPlot == 'regional':
+    ic('regional')
+    lats = glensCntrlPoi['lat'] #feedback and control are on same grid, fortunately
+    lons = glensCntrlPoi['lon']
+    latMask = (lats>latOfInt[0]) & (lats<latOfInt[1])
+    lonMask = (lons>lonOfInt[0]) & (lons<lonOfInt[1])
+    cntrlBoxMask = glensCntrlPoi[:,latMask,lonMask]
+    fdbckBoxMask = glensFdbckPoi[:,latMask,lonMask]
+    cntrlToPlot = cntrlBoxMask.mean(dim=['lat','lon'])
+    fdbckToPlot = fdbckBoxMask.mean(dim=['lat','lon'])
+elif regionToPlot == 'point':
+    ic('point')
     cntrlToPlot = glensCntrlPoi.sel(lat=latOfInt, lon=lonOfInt, method="nearest")
     fdbckToPlot = glensFdbckPoi.sel(lat=latOfInt, lon=lonOfInt, method="nearest")
+else:
+    ic("zombiezombiezombie")
+    sys.exit('STOP')
 
 # Plotting
 yStr = glensDarrFdbck.units
@@ -96,11 +117,19 @@ elif np.round_(levActive,decimals=1) == 0:
     levStr = str(np.round_(levActive,decimals=6))
 else:
     levStr = str(np.round_(levActive,decimals=1))
-ic(levStr)
-latStr = str(np.round_(cntrlToPlot.lat.data,decimals=2))
-lonStr = str(np.round_(cntrlToPlot.lon.data,decimals=2))
-locStr = latStr + '_' + lonStr
-locTitleStr = '(' + latStr + ',' + lonStr + ')'
+
+if regionToPlot == 'global':
+    locStr = 'global'
+    locTitleStr = 'global'
+elif regionToPlot == 'regional':
+    locStr = regOfInt['regSaveStr']
+    locTitleStr = regOfInt['regStr']
+elif regionToPlot == 'point':
+    latStr = str(np.round_(cntrlToPlot.lat.data,decimals=2))
+    lonStr = str(np.round_(cntrlToPlot.lon.data,decimals=2))
+    locStr = latStr + '_' + lonStr
+    locTitleStr = '(' + latStr + ',' + lonStr + ')'
+ic(levStr, locStr)
 
 plt.figure()
 plt.plot(bndDct['mtchYrs'],cntrlToPlot.data,color='#DF8C20',label='RCP8.5') #These are the cuckooColormap colors
