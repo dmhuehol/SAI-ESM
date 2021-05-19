@@ -27,8 +27,8 @@ filenameFdbck = 'feedback_003_O3_202001-202912_203001-203912_204001-204912_20500
 cntrlPath = dataPath + filenameCntrl
 fdbckPath = dataPath + filenameFdbck
 
-levOfInt = [1000,850] #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
-regionToPlot = 'global' #'global', 'regional', 'point'
+levOfInt = 1000 #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
+regionToPlot = 'regional' #'global', 'regional', 'point'
 regOfInt = rlib.EasternEurope()
 latOfInt = regOfInt['regLats']#34
 lonOfInt = regOfInt['regLons']#282
@@ -51,17 +51,17 @@ ic(glensCntrlPoi['lev'])
 glensFdbckPoi = glensDarrFdbck[bndDct['fdbckStrtMtch']:bndDct['fdbckEndMtch']+1]
 
 # Obtain levels
-glensCntrlPoi,levActive = pgf.obtain_levels(glensCntrlPoi, levOfInt)
-glensFdbckPoi,levActive = pgf.obtain_levels(glensFdbckPoi, levOfInt)
+glensCntrlPoi = pgf.obtain_levels(glensCntrlPoi, levOfInt)
+glensFdbckPoi = pgf.obtain_levels(glensFdbckPoi, levOfInt)
 
 # Deal with area (potentially break off to new function)
 if regionToPlot == 'global':
     ic('global')
     latWeights = np.cos(np.deg2rad(glensCntrlPoi['lat']))
-    glensCntrlPoi = glensCntrlPoi.weighted(latWeights)
-    glensFdbckPoi = glensFdbckPoi.weighted(latWeights)
-    cntrlToPlot = glensCntrlPoi.mean(dim=['lat','lon'])
-    fdbckToPlot = glensFdbckPoi.mean(dim=['lat','lon'])
+    glensCntrlPoiWght = glensCntrlPoi.weighted(latWeights)
+    glensFdbckPoiWght = glensFdbckPoi.weighted(latWeights)
+    cntrlToPlot = glensCntrlPoiWght.mean(dim=['lat','lon'])
+    fdbckToPlot = glensFdbckPoiWght.mean(dim=['lat','lon'])
 elif regionToPlot == 'regional':
     ic('regional')
     lats = glensCntrlPoi['lat'] #feedback and control are on same grid, fortunately
@@ -95,10 +95,10 @@ elif np.size(levOfInt)==2:
         levStr = str(np.round_(levOfInt,decimals=6))
     else:
         levStr = str(np.round_(levOfInt,decimals=1))
-elif np.round_(levActive,decimals=1) == 0:
-    levStr = str(np.round_(levActive,decimals=6))
+elif np.round_(glensCntrlPoi.attrs['lev'],decimals=1) == 0:
+    levStr = str(np.round_(glensCntrlPoi.attrs['lev'],decimals=6))
 else:
-    levStr = str(np.round_(levActive,decimals=1))
+    levStr = str(np.round_(glensCntrlPoi.attrs['lev'],decimals=1))
 
 if regionToPlot == 'global':
     locStr = 'global'

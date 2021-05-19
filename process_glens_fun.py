@@ -113,8 +113,6 @@ def find_closest_level(darr, levOfInt, levName='lev'):
 
 def obtain_levels(darr, levOfInt):
 # Obtain relevant levels from data based on levOfInt input TODO add levname='lev' as in find_closest_level
-    ic()
-    levActive = ''
     levs = darr['lev'].data
     if levOfInt == 'total':
         darr = darr.sum(dim='lev')
@@ -136,7 +134,7 @@ def obtain_levels(darr, levOfInt):
         darr = darr.sum(dim='lev')
     else:
         indClosest = find_closest_level(darr, levOfInt, levName='lev')
-        levActive = darr['lev'].data[indClosest]
-        darr = darr.sel(lev=levActive)
+        darr.attrs['lev'] = darr['lev'].data[indClosest]
+        darr = darr.sel(lev=darr.attrs['lev'])
 
-    return darr, levActive
+    return darr
