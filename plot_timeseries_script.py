@@ -1,9 +1,8 @@
 # Make timeseries from GLENS data showing progression of both RCP8.5 ("Control)
 # and SAI ("Feedback") for a variable.
 #
-# Written by Daniel Hueholt
+# Written by Daniel Hueholt | May 2021
 # Graduate Research Assistant at Colorado State University
-# May 2021
 
 from icecream import ic
 import sys
@@ -19,6 +18,7 @@ import difference_over_time as dot
 import plotting_tools as plt_tls
 import process_glens_fun as pgf
 import region_library as rlib
+import fun_convert_unit as fcu
 
 # Inputs
 dataPath = '/Users/dhueholt/Documents/GLENS_data/annual_o3/'
@@ -27,7 +27,7 @@ filenameFdbck = 'feedback_003_O3_202001-202912_203001-203912_204001-204912_20500
 cntrlPath = dataPath + filenameCntrl
 fdbckPath = dataPath + filenameFdbck
 
-levOfInt = 'troposphere' #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
+levOfInt = 1000 #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
 regionToPlot = 'global' #'global', 'regional', 'point'
 regOfInt = rlib.EasternEurope()
 latOfInt = regOfInt['regLats']#34
@@ -110,8 +110,12 @@ else:
     ic("zombiezombiezombie")
     sys.exit('STOP')
 
+# Unit conversion
+cntrlToPlot = fcu.molmol_to_ppm(cntrlToPlot)
+fdbckToPlot = fcu.molmol_to_ppm(fdbckToPlot)
+
 # Plotting
-yStr = glensDarrFdbck.units
+yStr = cntrlToPlot.units
 varStr = glensDarrFdbck.long_name
 startStr = str(bndDct['strtYrMtch'])
 endStr = str(bndDct['endYrMtch'])
