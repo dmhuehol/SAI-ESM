@@ -41,7 +41,6 @@ dpi_val = 400
 # Open data
 glensDsetCntrl = xr.open_dataset(cntrlPath)
 glensDsetFdbck = xr.open_dataset(fdbckPath)
-
 dataKey = pgf.discover_data_var(glensDsetCntrl)
 glensDarrCntrl = glensDsetCntrl[dataKey]
 glensDarrFdbck = glensDsetFdbck[dataKey]
@@ -72,9 +71,9 @@ elif levOfInt == 'stratosphere':
     glensFdbckPoi = glensFdbckPoi.sum(dim='lev')
 elif np.size(levOfInt)==2:
     indHghrPres = pgf.find_closest_level(glensCntrlPoi, max(levOfInt), levName='lev')
-    indLowerPres = pgf.find_closest_level(glensCntrlPoi, min(levOfInt), levName='lev')
-    levOfInt = [levs[indLowerPres],levs[indHghrPres]]
-    glensCntrlPoi = glensCntrlPoi[:,indLowerPres:indHghrPres+1,:,:]
+    indLwrPres = pgf.find_closest_level(glensCntrlPoi, min(levOfInt), levName='lev')
+    levOfInt = [levs[indLwrPres],levs[indHghrPres]]
+    glensCntrlPoi = glensCntrlPoi[:,indLwrPres:indHghrPres+1,:,:]
     glensCntrlPoi = glensCntrlPoi.sum(dim='lev')
     glensFdbckPoi = glensFdbckPoi[:,indLowerPres:indHghrPres+1,:,:]
     glensFdbckPoi = glensFdbckPoi.sum(dim='lev')
@@ -107,12 +106,11 @@ elif regionToPlot == 'point':
     cntrlToPlot = glensCntrlPoi.sel(lat=latOfInt, lon=lonOfInt, method="nearest")
     fdbckToPlot = glensFdbckPoi.sel(lat=latOfInt, lon=lonOfInt, method="nearest")
 else:
-    ic("zombiezombiezombie")
-    sys.exit('STOP')
+    sys.exit('Input error! Check value for regionToPlot.')
 
 # Unit conversion
-cntrlToPlot = fcu.molmol_to_ppm(cntrlToPlot)
-fdbckToPlot = fcu.molmol_to_ppm(fdbckToPlot)
+cntrlToPlot = fcu.molmol_to_ppb(cntrlToPlot)
+fdbckToPlot = fcu.molmol_to_ppb(fdbckToPlot)
 
 # Plotting
 yStr = cntrlToPlot.units
