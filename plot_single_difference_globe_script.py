@@ -24,7 +24,7 @@ fdbckPath = dataPath + filenameFdbck
 
 startInt = [2020,2029]
 finalInt = [2090,2099]
-# levOfInt = 992.6 #hPa
+levOfInt = 1000 #hPa
 quantileForFig = 0.66
 regionToPlot = 'global' #aspirational
 
@@ -39,62 +39,26 @@ dataKey = pgf.discover_data_var(glensDsetCntrl)
 glensDarrCntrl = glensDsetCntrl[dataKey]
 glensDarrFdbck = glensDsetFdbck[dataKey]
 
-# Level (TODO: REPLACE)
-levOfInt = glensDarrCntrl['lev'].data[len(glensDarrCntrl['lev'].data)-1-16]
-levs = glensDarrCntrl['lev'].data
-levMask = levs > levOfInt
+# Obtain levels
+glensCntrlLoi = pgf.obtain_levels(glensDarrCntrl, levOfInt)
+glensFdbckLoi = pgf.obtain_levels(glensDarrFdbck, levOfInt)
 
-ic(glensDarrCntrl)
 # Average over years but also apply level mask (TODO: REFACTOR)
-toiStart = dot.average_over_years(glensDarrCntrl,startInt[0],startInt[1]) # 2010-2019 is baseline, injection begins 2020
-toiEndCntrl = dot.average_over_years(glensDarrCntrl,finalInt[0],finalInt[1])
-toiEndCntrl = toiEndCntrl[levMask,:,:]
-# toiEndCntrl = toiEndCntrl.sel(lat=latOfInt, lon=lonOfInt, method="nearest")
-toiEndCntrl = toiEndCntrl.sum(dim='lev')
-# diffToiCntrl = toiEndCntrl - toiStart
-#format: lev,lat,lon
-
-toiEndFdbck = dot.average_over_years(glensDarrFdbck,finalInt[0],finalInt[1])
-toiEndFdbck = toiEndFdbck[levMask,:,:]
-# toiEndFdbck = toiEndFdbck.sel(lat=latOfInt, lon=lonOfInt, method="nearest")
-toiEndFdbck = toiEndFdbck.sum(dim='lev')
-# diffToiFdbck = toiEndFdbck - toiStart
+toiStart = dot.average_over_years(glensCntrlLoi,startInt[0],startInt[1]) # 2010-2019 is baseline, injection begins 2020
+toiEndCntrl = dot.average_over_years(glensCntrlLoi,finalInt[0],finalInt[1])
+toiEndFdbck = dot.average_over_years(glensFdbckLoi,finalInt[0],finalInt[1])
 diffToiFdbck =  toiEndFdbck - toiEndCntrl
-
-# Calculate
-# print(diffToiFdbck['lev'][0].data)
-# diffToiFdbck = diffToiFdbck.sum(dim='lev')#
-
-# diffToiFdbck = diffToiFdbck.sel(lev=diffToiFdbck['lev'][0].data)
-
-# diffToiLevCntrl = diffToiCntrl.sel(lev=levOfInt)
-# diffToiLevFdbck = diffToiFdbck.sel(lev=levOfInt)
-
-# diffToiLevFdbckCntrl = diffToiLevFdbck - diffToiLevCntrl
-
-# diffToiEndFdbckCntrl = toiEndFdbck - toiEndCntrl
-# diffToiEndLevFdbckCntrl = diffToiEndFdbckCntrl.sel(lev=levOfInt)
-#
-# diffToiEndLevFdbckCntrlAbs = np.abs(diffToiEndLevFdbckCntrl)
-# diffToiEndLevFdbckCntrlAbsNorm = diffToiEndLevFdbckCntrlAbs / np.max(diffToiEndLevFdbckCntrlAbs)
-# quantCut = diffToiEndLevFdbckCntrlAbsNorm.quantile(quantileForFig)
-# diffToiEndLevFdbckCntrlQ = diffToiEndLevFdbckCntrlAbsNorm
-# diffToiEndLevFdbckCntrlQ.data[diffToiEndLevFdbckCntrlQ.data < quantCut.data] = np.nan
-#
-# diffToiEndFdbckCntrl = toiEndFdbck - toiEndCntrl
-# diffToiEndLevFdbckCntrl = diffToiEndFdbckCntrl.sel(lev=levOfInt)
 
 # Plotting
 CL = 0.
 mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
-
 # Make title text
 firstDcd = str(startInt[0]) + '-' + str(startInt[1])
 lastDcd = str(finalInt[0]) + '-' + str(finalInt[1])
 cntrlStr = 'RCP8.5'
 # fdbckStr = 'SAI'
 tempStr = 'RCP8.5 - SAI'
-levStr = "TropCO" #str(levOfInt) + 'mb'
+levStr = str(levOfInt) + 'mb'
 varStr = glensDarrCntrl.long_name
 quantileStr = str(quantileForFig)
 
@@ -107,11 +71,9 @@ maxVal = diffToiFdbck.quantile(0.99).data
 
 ic(diffToiFdbck)
 plt_tls.drawOnGlobe(ax, diffToiFdbck, glensDarrFdbck.lat, glensDarrFdbck.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=True, fastBool=True, extent='max')
-# plt.title(lastDcd + ' - ' + firstDcd + ' ' + tempStr + ' ' + levStr + ' ' + varStr)
 plt.title(lastDcd + ' ' + tempStr + ' ' + levStr + ' ' + varStr)
 
-saveStr = savePrfx + dataKey + "TropCO" + '_' + regionToPlot + '_' + str(startInt[0]) + str(startInt[1]) + '_' + str(finalInt[0]) + str(finalInt[1])
-# saveStr = savePrfx + dataKey + str(levOfInt) + '_' + regionToPlot + '_' + str(startInt[0]) + str(startInt[1]) + '_' + str(finalInt[0]) + str(finalInt[1])
+saveStr = savePrfx + dataKey + str(levOfInt) + '_' + regionToPlot + '_' + str(startInt[0]) + str(startInt[1]) + '_' + str(finalInt[0]) + str(finalInt[1])
 savename = savePath + saveStr + '.png'
 plt.savefig(savename,dpi=dpi_val,bbox_inches='tight')
 
