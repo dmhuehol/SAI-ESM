@@ -111,31 +111,31 @@ def find_closest_level(darr, levOfInt, levName='lev'):
 
     return closestInd
 
-def obtain_levels(darr, levOfInt):
-# Obtain relevant levels from data based on levOfInt input TODO add levname='lev' as in find_closest_level
-    levs = darr['lev'].data
+def obtain_levels(darr, levOfInt, levName='lev'):
+# Obtain relevant levels from data based on levOfInt input
+    levs = darr[levName].data
     if levOfInt == 'total':
-        darr = darr.sum(dim='lev')
+        darr = darr.sum(dim=levName)
     elif levOfInt == 'troposphere':
-        indTpause = find_closest_level(darr, 200, levName='lev') #simple split on 200hPa for now
+        indTpause = find_closest_level(darr, 200, levName=levName) #simple split on 200hPa for now
         levMask = levs > indTpause
         darr = darr[:,levMask,:,:]
-        darr = darr.sum(dim='lev')
+        darr = darr.sum(dim=levName)
     elif levOfInt == 'stratosphere':
-        indTpause = find_closest_level(darr, 200, levName='lev') #simple split on 200hPa for now
+        indTpause = find_closest_level(darr, 200, levName=levName) #simple split on 200hPa for now
         levMask = levs <= indTpause
         darr = darr[:,levMask,:,:]
-        darr = darr.sum(dim='lev')
+        darr = darr.sum(dim=levName)
     elif np.size(levOfInt)==2:
-        indHghrPres = find_closest_level(darr, max(levOfInt), levName='lev')
-        indLwrPres = find_closest_level(darr, min(levOfInt), levName='lev')
+        indHghrPres = find_closest_level(darr, max(levOfInt), levName=levName)
+        indLwrPres = find_closest_level(darr, min(levOfInt), levName=levName)
         levOfInt = [levs[indLwrPres],levs[indHghrPres]]
         darr = darr[:,indLwrPres:indHghrPres+1,:,:]
-        darr = darr.sum(dim='lev')
+        darr = darr.sum(dim=levName)
     else:
-        indClosest = find_closest_level(darr, levOfInt, levName='lev')
-        darr.attrs['lev'] = darr['lev'].data[indClosest]
-        darr = darr.sel(lev=darr.attrs['lev'])
+        indClosest = find_closest_level(darr, levOfInt, levName=levName)
+        darr.attrs[levName] = darr[levName].data[indClosest]
+        darr = darr.sel(lev=darr.attrs[levName])
 
     return darr
 
