@@ -138,3 +138,18 @@ def obtain_levels(darr, levOfInt):
         darr = darr.sel(lev=darr.attrs['lev'])
 
     return darr
+
+def make_level_string(darr, levOfInt):
+    if isinstance(levOfInt,str):
+        levStr = levOfInt
+    elif np.size(levOfInt)==2:
+        if (np.round_(levOfInt[0],decimals=1)==0) | (np.round_(levOfInt[1],decimals=1)==0):
+            levStr = str(np.round_(levOfInt,decimals=6))
+        else:
+            levStr = str(np.round_(levOfInt,decimals=1))
+    elif np.round_(darr.attrs['lev'],decimals=1) == 0:
+        levStr = str(np.round_(darr.attrs['lev'],decimals=6))
+    else:
+        levStr = str(np.round_(darr.attrs['lev'],decimals=1))
+
+    return levStr

@@ -57,7 +57,7 @@ diffToiFdbck =  toiEndFdbck - toiEndCntrl
 firstDcd = str(startInt[0]) + '-' + str(startInt[1])
 lastDcd = str(finalInt[0]) + '-' + str(finalInt[1])
 sceneStr = 'RCP8.5 - SAI'
-levStr = str(levOfInt) + 'mb'
+levStr = pgf.make_level_string(glensCntrlLoi, levOfInt)
 varStr = glensDarrCntrl.long_name
 
 CL = 0.
@@ -70,8 +70,9 @@ maxVal = diffToiFdbck.quantile(0.99).data
 
 plt_tls.drawOnGlobe(ax, diffToiFdbck, glensDarrFdbck.lat, glensDarrFdbck.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=True, fastBool=True, extent='max')
 plt.title(lastDcd + ' ' + sceneStr + ' ' + levStr + ' ' + varStr)
-saveStr = savePrfx + dataKey + '_' + str(levOfInt) + '_' + firstDcd + '_' + lastDcd
+saveStr = savePrfx + dataKey + '_' + levStr + '_' + firstDcd + '_' + lastDcd
 savename = savePath + saveStr + '.png'
 plt.savefig(savename, dpi=dpi_val, bbox_inches='tight')
+ic(savename)
 
 print('Completed!')

@@ -1,4 +1,4 @@
-# Make timeseries from GLENS data showing progression of both RCP8.5 ("Control)
+# Make timeseries from GLENS output showing progression of both RCP8.5 ("Control)
 # and SAI ("Feedback") for a variable.
 #
 # Written by Daniel Hueholt | May 2021
@@ -27,14 +27,14 @@ filenameFdbck = 'feedback_003_O3_202001-202912_203001-203912_204001-204912_20500
 cntrlPath = dataPath + filenameCntrl
 fdbckPath = dataPath + filenameFdbck
 
-levOfInt = 1000 #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
+levOfInt = 'stratosphere' #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
 regionToPlot = 'regional' #'global', 'regional', 'point'
 regOfInt = rlib.EasternEurope()
 latOfInt = regOfInt['regLats']#34
 lonOfInt = regOfInt['regLons']#282
 
 savePath = '/Users/dhueholt/Documents/GLENS_fig/20210519_regionsAndOzone/'
-saveFile = 'REFACTOR_timeseries_testO3_'
+saveFile = 'JUSTNOW_timeseries_testO3_'
 saveName = savePath + saveFile
 dpi_val = 400
 
@@ -88,17 +88,7 @@ yStr = cntrlToPlot.units
 varStr = glensDarrFdbck.long_name
 startStr = str(bndDct['strtYrMtch'])
 endStr = str(bndDct['endYrMtch'])
-if isinstance(levOfInt,str):
-    levStr = levOfInt
-elif np.size(levOfInt)==2:
-    if (np.round_(levOfInt[0],decimals=1)==0) | (np.round_(levOfInt[1],decimals=1)==0):
-        levStr = str(np.round_(levOfInt,decimals=6))
-    else:
-        levStr = str(np.round_(levOfInt,decimals=1))
-elif np.round_(glensCntrlPoi.attrs['lev'],decimals=1) == 0:
-    levStr = str(np.round_(glensCntrlPoi.attrs['lev'],decimals=6))
-else:
-    levStr = str(np.round_(glensCntrlPoi.attrs['lev'],decimals=1))
+levStr = pgf.make_level_string(glensCntrlPoi, levOfInt)
 
 if regionToPlot == 'global':
     locStr = 'global'
