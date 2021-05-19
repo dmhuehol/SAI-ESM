@@ -27,14 +27,14 @@ filenameFdbck = 'feedback_003_O3_202001-202912_203001-203912_204001-204912_20500
 cntrlPath = dataPath + filenameCntrl
 fdbckPath = dataPath + filenameFdbck
 
-levOfInt = 1000 #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
+levOfInt = [1000,850] #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
 regionToPlot = 'global' #'global', 'regional', 'point'
 regOfInt = rlib.EasternEurope()
 latOfInt = regOfInt['regLats']#34
 lonOfInt = regOfInt['regLons']#282
 
 savePath = '/Users/dhueholt/Documents/GLENS_fig/20210519_regionsAndOzone/'
-saveFile = 'timeseries_testO3_'
+saveFile = 'REFACTOR_timeseries_testO3_'
 saveName = savePath + saveFile
 dpi_val = 400
 
@@ -49,39 +49,10 @@ bndDct = pgf.find_matching_year_bounds(glensDarrCntrl, glensDarrFdbck)
 glensCntrlPoi = glensDarrCntrl[bndDct['cntrlStrtMtch']:bndDct['cntrlEndMtch']+1] #RANGES IN PYTHON ARE [)
 ic(glensCntrlPoi['lev'])
 glensFdbckPoi = glensDarrFdbck[bndDct['fdbckStrtMtch']:bndDct['fdbckEndMtch']+1]
-levs = glensCntrlPoi['lev'].data
 
-# Deal with level (potentially break off to new function)
-if levOfInt == 'total':
-    glensCntrlPoi = glensCntrlPoi.sum(dim='lev')
-    glensFdbckPoi = glensFdbckPoi.sum(dim='lev')
-elif levOfInt == 'troposphere':
-    indTpause = pgf.find_closest_level(glensCntrlPoi, 200, levName='lev') #simple split on 200hPa for now
-    levMask = levs > indTpause
-    glensCntrlPoi = glensCntrlPoi[:,levMask,:,:]
-    glensCntrlPoi = glensCntrlPoi.sum(dim='lev')
-    glensFdbckPoi = glensFdbckPoi[:,levMask,:,:]
-    glensFdbckPoi = glensFdbckPoi.sum(dim='lev')
-elif levOfInt == 'stratosphere':
-    indTpause = pgf.find_closest_level(glensCntrlPoi, 200, levName='lev') #simple split on 200hPa for now
-    levMask = levs <= indTpause
-    glensCntrlPoi = glensCntrlPoi[:,levMask,:,:]
-    glensCntrlPoi = glensCntrlPoi.sum(dim='lev')
-    glensFdbckPoi = glensFdbckPoi[:,levMask,:,:]
-    glensFdbckPoi = glensFdbckPoi.sum(dim='lev')
-elif np.size(levOfInt)==2:
-    indHghrPres = pgf.find_closest_level(glensCntrlPoi, max(levOfInt), levName='lev')
-    indLwrPres = pgf.find_closest_level(glensCntrlPoi, min(levOfInt), levName='lev')
-    levOfInt = [levs[indLwrPres],levs[indHghrPres]]
-    glensCntrlPoi = glensCntrlPoi[:,indLwrPres:indHghrPres+1,:,:]
-    glensCntrlPoi = glensCntrlPoi.sum(dim='lev')
-    glensFdbckPoi = glensFdbckPoi[:,indLowerPres:indHghrPres+1,:,:]
-    glensFdbckPoi = glensFdbckPoi.sum(dim='lev')
-else:
-    indClosest = pgf.find_closest_level(glensCntrlPoi, levOfInt, levName='lev')
-    levActive = glensCntrlPoi['lev'].data[indClosest]
-    glensCntrlPoi = glensCntrlPoi.sel(lev=levActive)
-    glensFdbckPoi = glensFdbckPoi.sel(lev=levActive)
+# Obtain levels
+glensCntrlPoi,levActive = pgf.obtain_levels(glensCntrlPoi, levOfInt)
+glensFdbckPoi,levActive = pgf.obtain_levels(glensFdbckPoi, levOfInt)
 
 # Deal with area (potentially break off to new function)
 if regionToPlot == 'global':

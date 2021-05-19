@@ -1,6 +1,8 @@
+from icecream import ic
+import sys
+
 import xarray as xr
 import numpy as np
-import sys
 from cdo import *
 
 # baselineFname = baselineStr[len(baselinePath):len(baselineStr)] #only filename
@@ -108,3 +110,33 @@ def find_closest_level(darr, levOfInt, levName='lev'):
     closestInd = closestTup[0][0] #np.where generates a tuple, which can't be indexed
 
     return closestInd
+
+def obtain_levels(darr, levOfInt):
+# Obtain relevant levels from data based on levOfInt input TODO add levname='lev' as in find_closest_level
+    ic()
+    levActive = ''
+    levs = darr['lev'].data
+    if levOfInt == 'total':
+        darr = darr.sum(dim='lev')
+    elif levOfInt == 'troposphere':
+        indTpause = find_closest_level(darr, 200, levName='lev') #simple split on 200hPa for now
+        levMask = levs > indTpause
+        darr = darr[:,levMask,:,:]
+        darr = darr.sum(dim='lev')
+    elif levOfInt == 'stratosphere':
+        indTpause = find_closest_level(darr, 200, levName='lev') #simple split on 200hPa for now
+        levMask = levs <= indTpause
+        darr = darr[:,levMask,:,:]
+        darr = darr.sum(dim='lev')
+    elif np.size(levOfInt)==2:
+        indHghrPres = find_closest_level(darr, max(levOfInt), levName='lev')
+        indLwrPres = find_closest_level(darr, min(levOfInt), levName='lev')
+        levOfInt = [levs[indLwrPres],levs[indHghrPres]]
+        darr = darr[:,indLwrPres:indHghrPres+1,:,:]
+        darr = darr.sum(dim='lev')
+    else:
+        indClosest = find_closest_level(darr, levOfInt, levName='lev')
+        levActive = darr['lev'].data[indClosest]
+        darr = darr.sel(lev=levActive)
+
+    return darr, levActive
