@@ -20,6 +20,7 @@ import numpy as np
 import difference_over_time as dot
 import process_glens_fun as pgf
 import plotting_tools as plt_tls
+import fun_convert_unit as fcu
 
 # Inputs
 dataPath = '/Users/dhueholt/Documents/GLENS_data/annual_o3/'
@@ -33,7 +34,7 @@ finalInt = [2090,2099]
 levOfInt = 1000 #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
 
 savePath = '/Users/dhueholt/Documents/GLENS_fig/20210519_regionsAndOzone/'
-savePrfx = 'INPROGRESS_globe_1p_FdbckCntrl_'
+savePrfx = 'JUSTNOW_globe_1p_FdbckCntrl_'
 dpi_val = 400
 
 # Open data
@@ -53,6 +54,9 @@ toiEndCntrl = dot.average_over_years(glensCntrlLoi, finalInt[0], finalInt[1])
 toiEndFdbck = dot.average_over_years(glensFdbckLoi, finalInt[0], finalInt[1])
 diffToiFdbck =  toiEndFdbck - toiEndCntrl
 
+# Unit conversion
+diffToiFdbckPlot = fcu.molmol_to_ppb(diffToiFdbck)
+
 # Plotting
 firstDcd = str(startInt[0]) + '-' + str(startInt[1])
 lastDcd = str(finalInt[0]) + '-' + str(finalInt[1])
@@ -65,10 +69,10 @@ mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
 plt.figure(figsize=(12, 2.73*2))
 ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
 cmap = cmocean.cm.delta
-minVal = -diffToiFdbck.quantile(0.99).data
-maxVal = diffToiFdbck.quantile(0.99).data
+minVal = -diffToiFdbckPlot.quantile(0.99).data
+maxVal = diffToiFdbckPlot.quantile(0.99).data
 
-plt_tls.drawOnGlobe(ax, diffToiFdbck, glensDarrFdbck.lat, glensDarrFdbck.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=True, fastBool=True, extent='max')
+plt_tls.drawOnGlobe(ax, diffToiFdbckPlot, glensDarrFdbck.lat, glensDarrFdbck.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=True, fastBool=True, extent='max')
 plt.title(lastDcd + ' ' + sceneStr + ' ' + levStr + ' ' + varStr)
 saveStr = savePrfx + dataKey + '_' + levStr + '_' + firstDcd + '_' + lastDcd
 savename = savePath + saveStr + '.png'
