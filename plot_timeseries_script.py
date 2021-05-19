@@ -1,3 +1,9 @@
+# Make timeseries from GLENS data showing progression of both RCP8.5 ("Control)
+# and SAI ("Feedback") for a variable.
+#
+# Written by Daniel Hueholt
+# Graduate Research Assistant at Colorado State University
+# May 2021
 
 from icecream import ic
 import sys
@@ -32,6 +38,7 @@ saveFile = 'timeseries_testO3_'
 saveName = savePath + saveFile
 dpi_val = 400
 
+# Open data
 glensDsetCntrl = xr.open_dataset(cntrlPath)
 glensDsetFdbck = xr.open_dataset(fdbckPath)
 
@@ -45,6 +52,7 @@ ic(glensCntrlPoi['lev'])
 glensFdbckPoi = glensDarrFdbck[bndDct['fdbckStrtMtch']:bndDct['fdbckEndMtch']+1]
 levs = glensCntrlPoi['lev'].data
 
+# Deal with level (potentially break off to new function)
 if levOfInt == 'total':
     glensCntrlPoi = glensCntrlPoi.sum(dim='lev')
     glensFdbckPoi = glensFdbckPoi.sum(dim='lev')
@@ -76,6 +84,7 @@ else:
     glensCntrlPoi = glensCntrlPoi.sel(lev=levActive)
     glensFdbckPoi = glensFdbckPoi.sel(lev=levActive)
 
+# Deal with area (potentially break off to new function)
 if regionToPlot == 'global':
     ic('global')
     latWeights = np.cos(np.deg2rad(glensCntrlPoi['lat']))
@@ -131,6 +140,7 @@ elif regionToPlot == 'point':
     locTitleStr = '(' + latStr + ',' + lonStr + ')'
 ic(levStr, locStr)
 
+# Make timeseries
 plt.figure()
 plt.plot(bndDct['mtchYrs'],cntrlToPlot.data,color='#DF8C20',label='RCP8.5') #These are the cuckooColormap colors
 plt.plot(bndDct['mtchYrs'],fdbckToPlot.data,color='#20DFCC',label='SAI')
