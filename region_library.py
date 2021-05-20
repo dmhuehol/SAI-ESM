@@ -47,6 +47,16 @@ def DrakePassage():
 
     return regDict
 
+def NoLandLatitude():
+    regDict = {
+        "regStr": 'NoLandLat60S',
+        "regSaveStr": 'NoLandLat60S',
+        "regLats": np.array([-65,-55]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
 ## Equatorial special regions
 
 def Nino34():
