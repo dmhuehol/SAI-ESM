@@ -118,12 +118,12 @@ def obtain_levels(darr, levOfInt, levName='lev'):
         darr = darr.sum(dim=levName)
     elif levOfInt == 'troposphere':
         indTpause = find_closest_level(darr, 200, levName=levName) #simple split on 200hPa for now
-        levMask = levs > indTpause
+        levMask = levs > levs[indTpause]
         darr = darr[:,levMask,:,:]
         darr = darr.sum(dim=levName)
     elif levOfInt == 'stratosphere':
         indTpause = find_closest_level(darr, 200, levName=levName) #simple split on 200hPa for now
-        levMask = levs <= indTpause
+        levMask = levs <= levs[indTpause]
         darr = darr[:,levMask,:,:]
         darr = darr.sum(dim=levName)
     elif np.size(levOfInt)==2:
