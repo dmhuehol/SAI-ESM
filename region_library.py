@@ -105,6 +105,18 @@ def Below50S():
 
     return regDict
 
+## Asia
+
+def NortheastAsia():
+    regDict = {
+        "regStr": 'NortheastAsia',
+        "regSaveStr": 'NortheastAsia',
+        "regLats": np.array([40,70]),
+        "regLons": np.array([106,115])
+    }
+
+    return regDict
+
 ## Australia
 
 def AustralianContinent():
