@@ -1,8 +1,15 @@
-# Define useful regions for plotting to be called from other functions.
-# Latitudes are in deg N, longitudes are in 360-format deg E to match the GLENS
-# format.
+''' region_library
+Define useful regions for plotting to be called from other functions.
+Latitudes are in deg N, longitudes are in 360-format deg E to match the GLENS
+format.
+
+Written by Daniel Hueholt | May 2021
+Graduate Research Assistant at Colorado State University
+'''
 
 import numpy as np
+
+### Oceans
 
 ## North Atlantic Basin
 
@@ -52,14 +59,38 @@ def Nino34():
 
     return regDict
 
+### Terrestrial
+
 ## Africa
 
 def SouthernAfrica():
     regDict = {
         "regStr": 'SouthernAfrica',
-        "regSaveStr": 'SrnAfrcia',
+        "regSaveStr": 'SrnAfrica',
         "regLats": np.array([-36,16]),
         "regLons": np.array([12,37])
+    }
+
+    return regDict
+
+## Antarctica
+
+def AntarcticCircle():
+    regDict = {
+        "regStr": 'AntarcticCircle',
+        "regSaveStr": 'AntrctcCrcl',
+        "regLats": np.array([-90,-66.5]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
+def Below50S():
+    regDict = {
+        "regStr": 'Below50S',
+        "regSaveStr": 'Below50S',
+        "regLats": np.array([-90,-50]),
+        "regLons": np.array([0,360])
     }
 
     return regDict

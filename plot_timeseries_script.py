@@ -27,14 +27,14 @@ filenameFdbck = 'feedback_003_O3_202001-202912_203001-203912_204001-204912_20500
 cntrlPath = dataPath + filenameCntrl
 fdbckPath = dataPath + filenameFdbck
 
-levOfInt = 'stratosphere' #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
+levOfInt = 'total' #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
 regionToPlot = 'regional' #'global', 'regional', 'point'
-regOfInt = rlib.EasternEurope()
-latOfInt = regOfInt['regLats']#34
-lonOfInt = regOfInt['regLons']#282
+regOfInt = rlib.Below50S()
+latOfInt = regOfInt['regLats']#-70#34
+lonOfInt = regOfInt['regLons']#282#282
 
-savePath = '/Users/dhueholt/Documents/GLENS_fig/20210519_regionsAndOzone/'
-saveFile = 'JUSTNOW_timeseries_testO3_'
+savePath = '/Users/dhueholt/Documents/GLENS_fig/20210520_ozoneAndRfctrng/'
+saveFile = 'timeseries_testO3_'
 saveName = savePath + saveFile
 dpi_val = 400
 
@@ -80,8 +80,8 @@ else:
     sys.exit('Input error! Check value for regionToPlot.')
 
 # Unit conversion
-cntrlToPlot = fcu.molmol_to_ppb(cntrlToPlot)
-fdbckToPlot = fcu.molmol_to_ppb(fdbckToPlot)
+cntrlToPlot = fcu.molmol_to_ppm(cntrlToPlot)
+fdbckToPlot = fcu.molmol_to_ppm(fdbckToPlot)
 
 # Plotting
 yStr = cntrlToPlot.units
@@ -112,5 +112,6 @@ plt.ylabel(yStr)
 plt.autoscale(enable=True, axis='x', tight=True)
 plt.title(varStr + ' ' + levStr + ': ' + startStr + '-' + endStr + ' ' + locTitleStr)
 plt.savefig(saveName + locStr + '_' + levStr + '.png',dpi=dpi_val,bbox_inches='tight')
+ic(saveName + locStr + '_' + levStr + '.png')
 
 print("Completed! :D")
