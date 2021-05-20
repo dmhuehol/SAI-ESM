@@ -31,9 +31,9 @@ fdbckPath = dataPath + filenameFdbck
 
 startInt = [2020,2029]
 finalInt = [2090,2099]
-levOfInt = 1000 #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
+levOfInt = 'troposphere' #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
 
-savePath = '/Users/dhueholt/Documents/GLENS_fig/20210519_regionsAndOzone/'
+savePath = '/Users/dhueholt/Documents/GLENS_fig/20210520_ozoneAndRfctrng/'
 savePrfx = 'JUSTNOW_globe_1p_FdbckCntrl_'
 dpi_val = 400
 
@@ -52,10 +52,10 @@ glensFdbckLoi = pgf.obtain_levels(glensDarrFdbck, levOfInt)
 toiStart = dot.average_over_years(glensCntrlLoi, startInt[0], startInt[1]) # 2010-2019 is baseline, injection begins 2020
 toiEndCntrl = dot.average_over_years(glensCntrlLoi, finalInt[0], finalInt[1])
 toiEndFdbck = dot.average_over_years(glensFdbckLoi, finalInt[0], finalInt[1])
-diffToiFdbck =  toiEndFdbck - toiEndCntrl
+diffToiFdbck =  toiEndCntrl - toiEndFdbck
 
 # Unit conversion
-diffToiFdbckPlot = fcu.molmol_to_ppb(diffToiFdbck)
+diffToiFdbckPlot = fcu.molmol_to_ppm(diffToiFdbck)
 
 # Plotting
 firstDcd = str(startInt[0]) + '-' + str(startInt[1])
