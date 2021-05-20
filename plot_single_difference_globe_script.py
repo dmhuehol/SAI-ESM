@@ -74,7 +74,9 @@ maxVal = diffToiFdbckPlot.quantile(0.99).data
 
 plt_tls.drawOnGlobe(ax, diffToiFdbckPlot, glensDarrFdbck.lat, glensDarrFdbck.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=True, fastBool=True, extent='max')
 plt.title(lastDcd + ' ' + sceneStr + ' ' + levStr + ' ' + varStr)
-saveStr = savePrfx + dataKey + '_' + levStr + '_' + firstDcd + '_' + lastDcd
+# plt.title("2010-2019 Baseline - 2090-2099 SAI [250 50] ozone") #Override automatic title generation here
+saveStr = savePrfx + dataKey + '_' + levStr + '_' + lastDcd
+# saveStr = 'globe_1p_FdbckCntrl_O3_[250 50]_C2010-2019_F2090-2099'#Override automatic filename generation here
 savename = savePath + saveStr + '.png'
 plt.savefig(savename, dpi=dpi_val, bbox_inches='tight')
 ic(savename)
