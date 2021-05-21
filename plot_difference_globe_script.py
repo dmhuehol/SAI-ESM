@@ -1,4 +1,12 @@
-# Plot GLENS data on a globe given location or region (eventually)
+''' plot_difference_globe_script
+Plot differences between RCP8.5 ("Control") and SAI ("Feedback") values for a
+GLENS output variable on a 4-panel globe.
+
+Equal Earth map projection used by default.
+
+Written by Daniel Hueholt | May 2021
+Graduate Research Assistant at Colorado State University
+'''
 
 from icecream import ic
 import sys
