@@ -26,10 +26,10 @@ fdbckPath = dataPath + filenameFdbck
 startInt = [2010,2019]
 finalInt = [2090,2099]
 levOfInt = 'stratosphere' #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
-quantileForFig = 0.67
+quantileOfInt = 0.67
 
 savePath = '/Users/dhueholt/Documents/GLENS_fig/20210521_rfctrngArea4pPdf/'
-savePrfx = 'globe_4p_FdbckCntrl_'
+savePrfx = 'REFACTOR_globe_4p_FdbckCntrl_'
 dpi_val = 400
 
 # Open data
@@ -56,14 +56,7 @@ toiEndFdbck = dot.average_over_years(glensFdbckLoi, finalInt[0], finalInt[1])
 diffToiCntrl = toiEndCntrl - toiStart
 diffToiFdbck = toiEndFdbck - toiStart
 diffEndCntrlFdbck = toiEndCntrl - toiEndFdbck
-
-# This should DEFINITELY be its own function
-diffEndCntrlFdbckAbs = np.abs(diffEndCntrlFdbck)
-normValue = np.max(diffEndCntrlFdbckAbs)
-diffEndCntrlFdbckAbsNorm = diffEndCntrlFdbckAbs / normValue
-quantCut = diffEndCntrlFdbckAbsNorm.quantile(quantileForFig)
-diffEndCntrlFdbckAbsNormQ = diffEndCntrlFdbckAbsNorm
-diffEndCntrlFdbckAbsNormQ.data[diffEndCntrlFdbckAbsNormQ.data < quantCut.data] = np.nan
+diffEndCntrlFdbckAbsNormQ = pgf.isolate_change_quantile(diffEndCntrlFdbck, quantileOfInt)
 
 # Plotting
 CL = 0.
@@ -75,9 +68,8 @@ lastDcd = str(finalInt[0]) + '-' + str(finalInt[1])
 cntrlStr = 'RCP8.5'
 fdbckStr = 'SAI'
 levStr = pgf.make_level_string(glensCntrlLoi, levOfInt)
-# levStr = str(levOfInt) + 'mb'
 varStr = glensDarrCntrl.long_name
-quantileStr = str(quantileForFig)
+quantileStr = str(quantileOfInt)
 
 plt.figure(figsize=(12,2.73*2))
 ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index

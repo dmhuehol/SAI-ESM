@@ -208,3 +208,14 @@ def manage_area(darr, regionToPlot):
         sys.exit('Invalid region! Check value for regionToPlot.')
 
     return darr, locStr, locTitleStr
+
+def isolate_change_quantile(darr, quantileOfInt):
+    ''' Isolate the largest change by a quantile cutoff '''
+    darrAbs = np.abs(darr)
+    normValue = np.max(darrAbs)
+    darrAbsNorm = darrAbs / normValue
+    quantCut = darrAbsNorm.quantile(quantileOfInt)
+    darrAbsNormQ = darrAbsNorm
+    darrAbsNormQ.data[darrAbsNormQ.data < quantCut.data] = np.nan
+
+    return darrAbsNormQ
