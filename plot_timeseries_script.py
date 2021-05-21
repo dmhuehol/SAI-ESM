@@ -1,20 +1,18 @@
-# Make timeseries from GLENS output showing progression of both RCP8.5 ("Control)
-# and SAI ("Feedback") for a variable.
-#
-# Written by Daniel Hueholt | May 2021
-# Graduate Research Assistant at Colorado State University
+''' plot_timeseries_script
+Make timeseries from GLENS output showing progression of both RCP8.5 ("Control")
+and SAI ("Feedback") for a variable.
+
+Written by Daniel Hueholt | May 2021
+Graduate Research Assistant at Colorado State University
+'''
 
 from icecream import ic
 import sys
 
 import xarray as xr
 import matplotlib.pyplot as plt
-import cartopy
-import cartopy.crs as ccrs
-import cmocean
 import numpy as np
 
-import difference_over_time as dot
 import plotting_tools as plt_tls
 import process_glens_fun as pgf
 import region_library as rlib
@@ -27,11 +25,11 @@ filenameFdbck = 'feedback_003_O3_202001-202912_203001-203912_204001-204912_20500
 cntrlPath = dataPath + filenameCntrl
 fdbckPath = dataPath + filenameFdbck
 
-levOfInt = 1000 #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
-regionToPlot = [-70,282] #'global', rlib.Place(), [latN,lonE360]
+levOfInt = 'total' #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
+regionToPlot = 'global' #'global', rlib.Place(), [latN,lonE360]
 
 savePath = '/Users/dhueholt/Documents/GLENS_fig/20210521_rfctrngArea4pPdf/'
-saveFile = 'NEWSTRING_timeseries_O3_'
+saveFile = 'timeseries_O3_'
 saveName = savePath + saveFile
 dpi_val = 400
 
@@ -39,6 +37,7 @@ dpi_val = 400
 glensDsetCntrl = xr.open_dataset(cntrlPath)
 glensDsetFdbck = xr.open_dataset(fdbckPath)
 dataKey = pgf.discover_data_var(glensDsetCntrl)
+#dataKey = '' #Override automatic variable discovery here
 glensDarrCntrl = glensDsetCntrl[dataKey]
 glensDarrFdbck = glensDsetFdbck[dataKey]
 
@@ -51,7 +50,7 @@ glensFdbckPoi = glensDarrFdbck[bndDct['fdbckStrtMtch']:bndDct['fdbckEndMtch']+1]
 glensCntrlPoi = pgf.obtain_levels(glensCntrlPoi, levOfInt)
 glensFdbckPoi = pgf.obtain_levels(glensFdbckPoi, levOfInt)
 
-# Deal with area (potentially break off to new function)
+# Deal with area
 cntrlToPlot, locStr, locTitleStr = pgf.manage_area(glensCntrlPoi, regionToPlot)
 fdbckToPlot, locStr, locTitleStr = pgf.manage_area(glensFdbckPoi, regionToPlot)
 
