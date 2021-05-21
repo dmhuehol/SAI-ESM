@@ -153,3 +153,25 @@ def make_level_string(darr, levOfInt):
         levStr = str(np.round_(darr.attrs['lev'],decimals=1))
 
     return levStr
+
+def manage_area(darr, regionToPlot, latOfInt='', lonOfInt=''):
+    if regionToPlot == 'global':
+        ic('global')
+        latWeights = np.cos(np.deg2rad(darr['lat']))
+        darrWght = darr.weighted(latWeights)
+        darr = darrWght.mean(dim=['lat','lon'])
+    elif regionToPlot == 'regional':
+        ic('regional')
+        lats = darr['lat'] #feedback and control are on same grid, fortunately
+        lons = darr['lon']
+        latMask = (lats>latOfInt[0]) & (lats<latOfInt[1])
+        lonMask = (lons>lonOfInt[0]) & (lons<lonOfInt[1])
+        darrBoxMask = darr[:,latMask,lonMask]
+        darr = darrBoxMask.mean(dim=['lat','lon'])
+    elif regionToPlot == 'point':
+        ic('point')
+        darr = darr.sel(lat=latOfInt, lon=lonOfInt, method="nearest")
+    else:
+        sys.exit('Invalid region! Check value for regionToPlot.')
+
+    return darr

@@ -27,14 +27,14 @@ filenameFdbck = 'feedback_003_O3_202001-202912_203001-203912_204001-204912_20500
 cntrlPath = dataPath + filenameCntrl
 fdbckPath = dataPath + filenameFdbck
 
-levOfInt = 'total' #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
+levOfInt = 1000 #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
 regionToPlot = 'regional' #'global', 'regional', 'point'
-regOfInt = rlib.Below50S()
+regOfInt = rlib.NoLandLatitude()
 latOfInt = regOfInt['regLats']#-70#34
 lonOfInt = regOfInt['regLons']#282#282
 
-savePath = '/Users/dhueholt/Documents/GLENS_fig/20210520_ozoneAndRfctrng/'
-saveFile = 'timeseries_testO3_'
+savePath = '/Users/dhueholt/Documents/GLENS_fig/20210521_rfctrngArea4pPdf/'
+saveFile = 'timeseries_O3_'
 saveName = savePath + saveFile
 dpi_val = 400
 
@@ -55,33 +55,12 @@ glensCntrlPoi = pgf.obtain_levels(glensCntrlPoi, levOfInt)
 glensFdbckPoi = pgf.obtain_levels(glensFdbckPoi, levOfInt)
 
 # Deal with area (potentially break off to new function)
-if regionToPlot == 'global':
-    ic('global')
-    latWeights = np.cos(np.deg2rad(glensCntrlPoi['lat']))
-    glensCntrlPoiWght = glensCntrlPoi.weighted(latWeights)
-    glensFdbckPoiWght = glensFdbckPoi.weighted(latWeights)
-    cntrlToPlot = glensCntrlPoiWght.mean(dim=['lat','lon'])
-    fdbckToPlot = glensFdbckPoiWght.mean(dim=['lat','lon'])
-elif regionToPlot == 'regional':
-    ic('regional')
-    lats = glensCntrlPoi['lat'] #feedback and control are on same grid, fortunately
-    lons = glensCntrlPoi['lon']
-    latMask = (lats>latOfInt[0]) & (lats<latOfInt[1])
-    lonMask = (lons>lonOfInt[0]) & (lons<lonOfInt[1])
-    cntrlBoxMask = glensCntrlPoi[:,latMask,lonMask]
-    fdbckBoxMask = glensFdbckPoi[:,latMask,lonMask]
-    cntrlToPlot = cntrlBoxMask.mean(dim=['lat','lon'])
-    fdbckToPlot = fdbckBoxMask.mean(dim=['lat','lon'])
-elif regionToPlot == 'point':
-    ic('point')
-    cntrlToPlot = glensCntrlPoi.sel(lat=latOfInt, lon=lonOfInt, method="nearest")
-    fdbckToPlot = glensFdbckPoi.sel(lat=latOfInt, lon=lonOfInt, method="nearest")
-else:
-    sys.exit('Input error! Check value for regionToPlot.')
+cntrlToPlot = pgf.manage_area(glensCntrlPoi, regionToPlot, latOfInt, lonOfInt)
+fdbckToPlot = pgf.manage_area(glensFdbckPoi, regionToPlot, latOfInt, lonOfInt)
 
 # Unit conversion
-cntrlToPlot = fcu.molmol_to_ppm(cntrlToPlot)
-fdbckToPlot = fcu.molmol_to_ppm(fdbckToPlot)
+cntrlToPlot = fcu.molmol_to_ppb(cntrlToPlot)
+fdbckToPlot = fcu.molmol_to_ppb(fdbckToPlot)
 
 # Plotting
 yStr = cntrlToPlot.units
