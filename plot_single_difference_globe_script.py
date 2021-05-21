@@ -29,12 +29,12 @@ filenameFdbck = 'feedback_003_O3_202001-202912_203001-203912_204001-204912_20500
 cntrlPath = dataPath + filenameCntrl
 fdbckPath = dataPath + filenameFdbck
 
-startInt = [2020,2029]
+startInt = [2010,2019]
 finalInt = [2090,2099]
-levOfInt = 'troposphere' #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
+levOfInt = 1000 #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
 
 savePath = '/Users/dhueholt/Documents/GLENS_fig/20210520_ozoneAndRfctrng/'
-savePrfx = 'JUSTNOW_globe_1p_FdbckCntrl_'
+savePrfx = 'globe_1p_FdbckCntrl_'
 dpi_val = 400
 
 # Open data
@@ -55,7 +55,7 @@ toiEndFdbck = dot.average_over_years(glensFdbckLoi, finalInt[0], finalInt[1])
 diffToiFdbck =  toiEndCntrl - toiEndFdbck
 
 # Unit conversion
-diffToiFdbckPlot = fcu.molmol_to_ppm(diffToiFdbck)
+diffToiFdbckPlot = fcu.molmol_to_ppb(diffToiFdbck)
 
 # Plotting
 firstDcd = str(startInt[0]) + '-' + str(startInt[1])
@@ -70,13 +70,15 @@ plt.figure(figsize=(12, 2.73*2))
 ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
 cmap = cmocean.cm.delta
 minVal = -diffToiFdbckPlot.quantile(0.99).data
+# minVal = -7 #Override automatic colorbar minimum here
 maxVal = diffToiFdbckPlot.quantile(0.99).data
+# maxVal = 7 #Override automatic colorbar maximum here
 
 plt_tls.drawOnGlobe(ax, diffToiFdbckPlot, glensDarrFdbck.lat, glensDarrFdbck.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=True, fastBool=True, extent='max')
 plt.title(lastDcd + ' ' + sceneStr + ' ' + levStr + ' ' + varStr)
-# plt.title("2010-2019 Baseline - 2090-2099 SAI [250 50] ozone") #Override automatic title generation here
+# plt.title("2010-2019 Baseline - 2090-2099 SAI [50 0] ozone") #Override automatic title generation here
 saveStr = savePrfx + dataKey + '_' + levStr + '_' + lastDcd
-# saveStr = 'globe_1p_FdbckCntrl_O3_[250 50]_C2010-2019_F2090-2099'#Override automatic filename generation here
+# saveStr = 'globe_1p_FdbckCntrl_O3_[50 0]_C2010-2019_F2090-2099'#Override automatic filename generation here
 savename = savePath + saveStr + '.png'
 plt.savefig(savename, dpi=dpi_val, bbox_inches='tight')
 ic(savename)
