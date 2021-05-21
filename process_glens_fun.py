@@ -1,3 +1,12 @@
+''' process_glens_fun
+Contains functions to process GLENS data, taking care of operations like
+extracting metadata from the filename, choosing and summing levels, or
+managing area inputs.
+
+Written by Daniel Hueholt | May 2021
+Graduate Research Assistant at Colorado State University
+'''
+
 from icecream import ic
 import sys
 
@@ -5,12 +14,12 @@ import xarray as xr
 import numpy as np
 from cdo import *
 
-# baselineFname = baselineStr[len(baselinePath):len(baselineStr)] #only filename
-
 def prep_raw_data(inPath,outPath,inCard,outFile):
-# Conduct basic preparation of raw data to make it suitable to run through other
-    # functions. Current list of tasks: merge decadal files, shift time -1 days,
-    # annual average
+''' Conduct basic preparation of raw data to make it suitable to run through other
+    functions. Current list of tasks: merge decadal files, shift time -1 days,
+    annual average. Requires Python CDO bindings, and thus cannot be run on the
+    NCAR system.
+'''
     cdo = Cdo()
     inFile = inPath + inCard
     mergeFile = outPath + 'merge_' + outFile + '.nc'
@@ -29,7 +38,7 @@ def prep_raw_data(inPath,outPath,inCard,outFile):
 
 
 def extract_meta_from_fname(fname):
-# Extract useful metadata from GLENS output filename
+''' Extract useful metadata from GLENS output filename '''
     # baselineFname = fname[len(fname):len(fname)] #only filename
     fnamePcs = fname.split('.') #period is delimiter in filename
     glensMeta = {"unkn1": fnamePcs[0],
@@ -52,6 +61,7 @@ def extract_meta_from_fname(fname):
     return glensMeta
 
 def discover_data_var(glensDsetCntrl):
+''' GLENS files contain lots of variables--this finds the one with actual data! '''
     fileKeys = list(glensDsetCntrl.keys())
     notDataKeys = ['time_bnds', 'date', 'datesec']
     dataKey = "empty"
@@ -67,6 +77,7 @@ def discover_data_var(glensDsetCntrl):
     return dataKey
 
 def find_matching_year_bounds(glensCntrl,glensFdbck):
+''' Find indices that bound matching time periods in control and feedback data '''
     cntrlYrs = glensCntrl['time'].dt.year.data
     fdbckYrs = glensFdbck['time'].dt.year.data
     bothYrs,cntrlInd,fdbckInd = np.intersect1d(cntrlYrs, fdbckYrs, return_indices=True)
@@ -85,7 +96,7 @@ def find_matching_year_bounds(glensCntrl,glensFdbck):
 
 
 def extract_doi(intervalsToPlot, years, timePeriod, darr, handlesToPlot):
-# Extract time intervals (usually decades) from GLENS data
+''' Extract time intervals (usually decades) from GLENS data '''
     for cdc,cdv in enumerate(intervalsToPlot):
         startInd = np.where(years==cdv)[0][0]
         if cdv+timePeriod == 2100:
@@ -98,7 +109,7 @@ def extract_doi(intervalsToPlot, years, timePeriod, darr, handlesToPlot):
     return handlesToPlot
 
 def find_closest_level(darr, levOfInt, levName='lev'):
-# Find the index of the level which is closest to an input value
+''' Find the index of the level which is closest to an input value '''
     levs = darr[levName].data
     levDiffs = np.abs(levs - levOfInt)
     closestVal = np.min(levDiffs)
@@ -107,12 +118,12 @@ def find_closest_level(darr, levOfInt, levName='lev'):
     if len(closestTup) > 1:
         sys.exit('Conflicting levels! Input new level of interest and try again.')
 
-    closestInd = closestTup[0][0] #np.where generates a tuple, which can't be indexed
+    closestInd = closestTup[0][0] #np.where returns tuple, which can't be indexed
 
     return closestInd
 
 def obtain_levels(darr, levOfInt, levName='lev'):
-# Obtain relevant levels from data based on levOfInt input
+''' Obtain relevant level(s) from data based on levOfInt input '''
     levs = darr[levName].data
     if levOfInt == 'total':
         darr = darr.sum(dim=levName)
@@ -140,6 +151,7 @@ def obtain_levels(darr, levOfInt, levName='lev'):
     return darr
 
 def make_level_string(darr, levOfInt):
+''' Create strings describing level of data used in title and filenames. '''
     if isinstance(levOfInt,str):
         levStr = levOfInt
     elif np.size(levOfInt)==2:
@@ -155,7 +167,7 @@ def make_level_string(darr, levOfInt):
     return levStr
 
 def manage_area(darr, regionToPlot):
-
+''' Manage area operations: obtain global, regional, or pointal output '''
     if regionToPlot == 'global':
         ic('global')
         latWeights = np.cos(np.deg2rad(darr['lat']))
@@ -187,17 +199,3 @@ def manage_area(darr, regionToPlot):
         sys.exit('Invalid region! Check value for regionToPlot.')
 
     return darr, locStr, locTitleStr
-
-#
-#
-# if regionToPlot == 'global':
-#     locStr = 'global'
-#     locTitleStr = 'global'
-# elif isinstance(regionToPlot,dict):
-#     locStr = regionToPlot['regSaveStr']
-#     locTitleStr = regionToPlot['regStr']
-# elif isinstance(regionToPlot,list):
-#     latStr = str(np.round_(cntrlToPlot.lat.data,decimals=2))
-#     lonStr = str(np.round_(cntrlToPlot.lon.data,decimals=2))
-#     locStr = latStr + '_' + lonStr
-#     locTitleStr = '(' + latStr + ',' + lonStr + ')'
