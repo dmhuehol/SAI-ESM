@@ -155,11 +155,15 @@ def make_level_string(darr, levOfInt):
     return levStr
 
 def manage_area(darr, regionToPlot):
+
     if regionToPlot == 'global':
         ic('global')
         latWeights = np.cos(np.deg2rad(darr['lat']))
         darrWght = darr.weighted(latWeights)
         darr = darrWght.mean(dim=['lat','lon'])
+
+        locStr = 'global'
+        locTitleStr = 'global'
     elif isinstance(regionToPlot,dict):
         ic('regional')
         lats = darr['lat'] #feedback and control are on same grid, fortunately
@@ -168,10 +172,32 @@ def manage_area(darr, regionToPlot):
         lonMask = (lons>regionToPlot['regLons'][0]) & (lons<regionToPlot['regLons'][1])
         darrBoxMask = darr[:,latMask,lonMask]
         darr = darrBoxMask.mean(dim=['lat','lon'])
+
+        locStr = regionToPlot['regSaveStr']
+        locTitleStr = regionToPlot['regSaveStr']
     elif isinstance(regionToPlot,list):
         ic('point')
         darr = darr.sel(lat=regionToPlot[0], lon=regionToPlot[1], method="nearest")
+
+        latStr = str(np.round_(darr.lat.data,decimals=2))
+        lonStr = str(np.round_(darr.lon.data,decimals=2))
+        locStr = latStr + '_' + lonStr
+        locTitleStr = '(' + latStr + ',' + lonStr + ')'
     else:
         sys.exit('Invalid region! Check value for regionToPlot.')
 
-    return darr
+    return darr, locStr, locTitleStr
+
+#
+#
+# if regionToPlot == 'global':
+#     locStr = 'global'
+#     locTitleStr = 'global'
+# elif isinstance(regionToPlot,dict):
+#     locStr = regionToPlot['regSaveStr']
+#     locTitleStr = regionToPlot['regStr']
+# elif isinstance(regionToPlot,list):
+#     latStr = str(np.round_(cntrlToPlot.lat.data,decimals=2))
+#     lonStr = str(np.round_(cntrlToPlot.lon.data,decimals=2))
+#     locStr = latStr + '_' + lonStr
+#     locTitleStr = '(' + latStr + ',' + lonStr + ')'
