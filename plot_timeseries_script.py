@@ -28,10 +28,10 @@ cntrlPath = dataPath + filenameCntrl
 fdbckPath = dataPath + filenameFdbck
 
 levOfInt = 1000 #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
-regionToPlot = 'regional' #'global', 'regional', 'point'
-regOfInt = rlib.NoLandLatitude()
-latOfInt = regOfInt['regLats']#-70#34
-lonOfInt = regOfInt['regLons']#282#282
+regionToPlot = 'global' #'global', rlib.Place(), [latN,lonE360]
+# regOfInt = rlib.NoLandLatitude()
+# latOfInt = regionToPlot['regLats']#-70#34
+# lonOfInt = regionToPlot['regLons']#282#282
 
 savePath = '/Users/dhueholt/Documents/GLENS_fig/20210521_rfctrngArea4pPdf/'
 saveFile = 'timeseries_O3_'
@@ -55,8 +55,8 @@ glensCntrlPoi = pgf.obtain_levels(glensCntrlPoi, levOfInt)
 glensFdbckPoi = pgf.obtain_levels(glensFdbckPoi, levOfInt)
 
 # Deal with area (potentially break off to new function)
-cntrlToPlot = pgf.manage_area(glensCntrlPoi, regionToPlot, latOfInt, lonOfInt)
-fdbckToPlot = pgf.manage_area(glensFdbckPoi, regionToPlot, latOfInt, lonOfInt)
+cntrlToPlot = pgf.manage_area(glensCntrlPoi, regionToPlot)
+fdbckToPlot = pgf.manage_area(glensFdbckPoi, regionToPlot)
 
 # Unit conversion
 cntrlToPlot = fcu.molmol_to_ppb(cntrlToPlot)
@@ -72,10 +72,10 @@ levStr = pgf.make_level_string(glensCntrlPoi, levOfInt)
 if regionToPlot == 'global':
     locStr = 'global'
     locTitleStr = 'global'
-elif regionToPlot == 'regional':
-    locStr = regOfInt['regSaveStr']
-    locTitleStr = regOfInt['regStr']
-elif regionToPlot == 'point':
+elif isinstance(regionToPlot,dict):
+    locStr = regionToPlot['regSaveStr']
+    locTitleStr = regionToPlot['regStr']
+elif isinstance(regionToPlot,list):
     latStr = str(np.round_(cntrlToPlot.lat.data,decimals=2))
     lonStr = str(np.round_(cntrlToPlot.lon.data,decimals=2))
     locStr = latStr + '_' + lonStr

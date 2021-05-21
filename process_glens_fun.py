@@ -154,23 +154,23 @@ def make_level_string(darr, levOfInt):
 
     return levStr
 
-def manage_area(darr, regionToPlot, latOfInt='', lonOfInt=''):
+def manage_area(darr, regionToPlot):
     if regionToPlot == 'global':
         ic('global')
         latWeights = np.cos(np.deg2rad(darr['lat']))
         darrWght = darr.weighted(latWeights)
         darr = darrWght.mean(dim=['lat','lon'])
-    elif regionToPlot == 'regional':
+    elif isinstance(regionToPlot,dict):
         ic('regional')
         lats = darr['lat'] #feedback and control are on same grid, fortunately
         lons = darr['lon']
-        latMask = (lats>latOfInt[0]) & (lats<latOfInt[1])
-        lonMask = (lons>lonOfInt[0]) & (lons<lonOfInt[1])
+        latMask = (lats>regionToPlot['regLats'][0]) & (lats<regionToPlot['regLats'][1])
+        lonMask = (lons>regionToPlot['regLons'][0]) & (lons<regionToPlot['regLons'][1])
         darrBoxMask = darr[:,latMask,lonMask]
         darr = darrBoxMask.mean(dim=['lat','lon'])
-    elif regionToPlot == 'point':
+    elif isinstance(regionToPlot,list):
         ic('point')
-        darr = darr.sel(lat=latOfInt, lon=lonOfInt, method="nearest")
+        darr = darr.sel(lat=regionToPlot[0], lon=regionToPlot[1], method="nearest")
     else:
         sys.exit('Invalid region! Check value for regionToPlot.')
 
