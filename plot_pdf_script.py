@@ -33,12 +33,12 @@ fdbckPath = dataPath + filenameFdbck
 baselineFlag = 0 #Include 2010-2019 period from RCP8.5 "Control" scenario
 levOfInt = 'stratosphere' #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
 regionToPlot = rlib.NoLandLatitude() #'global', rlib.Place(), [latN,lonE360]
-areaAvgBool = False #Apply spatial average over region or include every point individually
+areaAvgBool = True #Apply spatial average over region or include every point individually
 cntrlPoi = [2020,2090]#[2020,2030,2040,2050,2090]#[2020,2050]
 fdbckPoi = [2020,2090]#[2020,2030,2040,2050,2090]#[2020,2050]
 timePeriod = 10 #number of years, i.e. 10 = decade
 
-plotStyle = 'kde' #'kde' or 'hist' or 'step'
+plotStyle = 'hist' #'kde' or 'hist' or 'step'
 savePath = '/Users/dhueholt/Documents/GLENS_fig/20210524_4pPdfReg/'
 savePrfx = 'pdf_' + plotStyle
 dpiVal = 400
@@ -73,16 +73,13 @@ iqr = stats.iqr(glensCntrlAoi)
 binwidth = 1 #the Let's Not Overthink This rule
 ic(binwidth)
 
-cntrlActive = cntrlToPlot
-fdbckActive = fdbckToPlot
-
 # Extract the decades of interest from the control and feedback datasets
-cntrlYears = cntrlActive['time'].dt.year.data
+cntrlYears = cntrlToPlot['time'].dt.year.data
 cntrlHandlesToPlot = list()
-cntrlHandlesToPlot = pgf.extract_doi(cntrlPoi, cntrlYears, timePeriod, cntrlActive, cntrlHandlesToPlot)
-fdbckYears = fdbckActive['time'].dt.year.data
+cntrlHandlesToPlot = pgf.extract_doi(cntrlPoi, cntrlYears, timePeriod, cntrlToPlot, cntrlHandlesToPlot)
+fdbckYears = fdbckToPlot['time'].dt.year.data
 fdbckHandlesToPlot = list()
-fdbckHandlesToPlot = pgf.extract_doi(fdbckPoi, fdbckYears, timePeriod, fdbckActive, fdbckHandlesToPlot)
+fdbckHandlesToPlot = pgf.extract_doi(fdbckPoi, fdbckYears, timePeriod, fdbckToPlot, fdbckHandlesToPlot)
 handlesToPlot = cntrlHandlesToPlot + fdbckHandlesToPlot
 
 # If not applying a spatial average, flatten data so dimensions don't confuse plotting code
