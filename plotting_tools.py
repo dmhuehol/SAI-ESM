@@ -70,7 +70,7 @@ def add_cyclic_point(data, coord=None, axis=-1):
         return_value = new_data, new_coord
     return return_value
 
-def plot_pdf_kdeplot(handles, colors, labels, savePath, saveName, dpiVal=400):
+def plot_pdf_kdeplot(handles, colors, labels, saveName, dpiVal=400):
 # Plot kde pdfs for several input handles
     plt.figure()
     print('Plotting!')
@@ -85,9 +85,10 @@ def plot_pdf_kdeplot(handles, colors, labels, savePath, saveName, dpiVal=400):
     plt.legend(bbox_to_anchor=(0.83,-0.1), ncol=2, fontsize=8)
     plt.title(labels[np.size(labels)-1])
     # plt.show()
-    plt.savefig(savePath + saveName + '.png', dpi=dpiVal, bbox_inches='tight')
+    ic(saveName)
+    plt.savefig(saveName + '.png', dpi=dpiVal, bbox_inches='tight')
 
-def plot_pdf_hist(handles, colors, labels, savePath, saveName, binwidth, dpiVal=400):
+def plot_pdf_hist(handles, colors, labels, saveName, binwidth, dpiVal=400):
 # Plot histogram pdfs for several input handles
     plt.figure()
     print('Plotting!')
@@ -102,9 +103,10 @@ def plot_pdf_hist(handles, colors, labels, savePath, saveName, binwidth, dpiVal=
     plt.legend(bbox_to_anchor=(0.83,-0.1), ncol=2, fontsize=8)
     plt.title(labels[np.size(labels)-1])
     # plt.show()
-    plt.savefig(savePath + saveName + '.png', dpi=dpiVal, bbox_inches='tight')
+    ic(saveName)
+    plt.savefig(saveName + '.png', dpi=dpiVal, bbox_inches='tight')
 
-def plot_pdf_step(handles, colors, labels, savePath, saveName, binwidth, dpiVal=400):
+def plot_pdf_step(handles, colors, labels, saveName, binwidth, dpiVal=400):
 # Plot histogram pdfs for several input handles
     plt.figure()
     print('Plotting!')
@@ -121,7 +123,8 @@ def plot_pdf_step(handles, colors, labels, savePath, saveName, binwidth, dpiVal=
     plt.legend(bbox_to_anchor=(0.83,-0.1), ncol=2, fontsize=8)
     plt.title(labels[np.size(labels)-1])
     # plt.show()
-    plt.savefig(savePath + saveName + '.png', dpi=dpiVal, bbox_inches='tight')
+    ic(saveName)
+    plt.savefig(saveName + '.png', dpi=dpiVal, bbox_inches='tight')
 
 def select_colors(baselineFlag, nFdbck, nCntrl):
 # Returns colors for baseline and a set number of feedback and control objects

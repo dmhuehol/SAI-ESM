@@ -39,20 +39,12 @@ cntrlIntToPlot = [2020,2090]#[2020,2030,2040,2050,2090]#[2020,2050]
 fdbckIntToPlot = [2020,2090]#[2020,2030,2040,2050,2090]#[2020,2050]
 timePeriod = 10 #number of years, i.e. 10 = decade
 
-# regionToPlot = 'regional' #'global' 'regional' 'point'
-# regOfInt = rlib.EasternEurope()
-# levOfInt = 1000 #z_t for SST, often hPa for other data
-# latOfInt = regOfInt['regLats']#np.array([-35,-22])
-# lonOfInt = regOfInt['regLons']#np.array([108,115])
-
-plotStyle = 'step' #'kde' or 'hist' or 'step'
-# titleStr = regOfInt['regStr'] + ' T PDFs in GLENS'
-titleStr = 'NoLandLat60S stratosphere ozone PDFs in GLENS' #use when region is set manually
+plotStyle = 'kde' #'kde' or 'hist' or 'step'
 savePath = '/Users/dhueholt/Documents/GLENS_fig/20210524_4pPdfReg/'
-# saveName = 'pdf_' + plotStyle + '_T_cntrlfdbck_' + regOfInt['regSaveStr'] + '_10yr_TESTINSET'
-saveName = 'pdf_step_stratosphere_O3_cntrlfdbck_NoLandLat60S_10yr_nospcavg' #use when region is set manually
+savePrfx = 'pdf_' + plotStyle
 dpiVal = 400
 
+# Open data
 glensDsetCntrl = xr.open_dataset(cntrlPath)
 glensDsetFdbck = xr.open_dataset(fdbckPath)
 dataKey = pgf.discover_data_var(glensDsetCntrl)
@@ -69,9 +61,9 @@ glensCntrlAoi, locStr, locTitleStr = pgf.manage_area(glensCntrlLoi, regionToPlot
 glensFdbckAoi, locStr, locTitleStr = pgf.manage_area(glensFdbckLoi, regionToPlot, areaAvgBool)
 
 # Remove 2010-2019 average
-# baselineMeanToRmv = dot.average_over_years(cntrlDarrMnSpc,2010,2019)
-# cntrlDarrMnSpcNorm = cntrlDarrMnSpc - baselineMeanToRmv
-# fdbckDarrMnSpcNorm = fdbckDarrMnSpc - baselineMeanToRmv
+# baselineMeanToRmv = dot.average_over_years(glensCntrlAoi,2010,2019)
+# glensCntrlAoi = glensCntrlAoi - baselineMeanToRmv
+# glensFdbckAoi = glensFdbckAoi - baselineMeanToRmv
 
 # Unit conversion
 cntrlToPlot = fcu.molmol_to_ppm(glensCntrlAoi)
@@ -110,17 +102,27 @@ else:
     labelsToPlot = list()
 labelsToPlot = plt_tls.generate_labels(labelsToPlot, cntrlIntToPlot, timePeriod, 'RCP8.5')
 labelsToPlot = plt_tls.generate_labels(labelsToPlot, fdbckIntToPlot, timePeriod, 'SAI')
+varStr = glensDarrFdbck.long_name
+varSave = varStr.replace(" ","")
+levStr = pgf.make_level_string(cntrlToPlot, levOfInt)
+timeStr = str(timePeriod) + 'yr'
+titleStr = varStr + ' ' + levStr + ' ' + locTitleStr
 labelsToPlot.append(titleStr)
+if areaAvgBool:
+    spcStr = 'spcavg'
+else:
+    spcStr = 'nospcavg'
+saveName = savePath + savePrfx + '_' + timeStr + '_' + varSave + '_' + levStr + '_' + locStr + '_' + spcStr
 
-print(colorsToPlot) # For troubleshooting
+ic(colorsToPlot) # For troubleshooting
 
 # Make KDE or histograms
 if plotStyle == 'kde':
-    plt_tls.plot_pdf_kdeplot(handlesToPlot, colorsToPlot, labelsToPlot, savePath, saveName, dpiVal)
+    plt_tls.plot_pdf_kdeplot(handlesToPlot, colorsToPlot, labelsToPlot, saveName, dpiVal)
 elif plotStyle == 'hist':
-    plt_tls.plot_pdf_hist(handlesToPlot, colorsToPlot, labelsToPlot, savePath, saveName, binwidth, dpiVal)
+    plt_tls.plot_pdf_hist(handlesToPlot, colorsToPlot, labelsToPlot, saveName, binwidth, dpiVal)
 elif plotStyle == 'step':
-    plt_tls.plot_pdf_step(handlesToPlot, colorsToPlot, labelsToPlot, savePath, saveName, binwidth, dpiVal)
+    plt_tls.plot_pdf_step(handlesToPlot, colorsToPlot, labelsToPlot, saveName, binwidth, dpiVal)
 else:
     print("Invalid plot style") #TODO: make this a formal error message
 
