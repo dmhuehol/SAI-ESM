@@ -9,6 +9,16 @@ import sys
 import xarray as xr
 import numpy as np
 
+### Temperature
+def kelvin_to_celsius(darrKel):
+    darrCel = darrKel - 273.15
+    darrCel.attrs['units'] = 'celsius'
+
+    return darrCel
+
+
+### Chemistry
+
 def molmol_to_ppm(darrMolmol):
 # Convert mol/mol to parts per million
 # acmg.seas.harvard.edu/people/faculty/djj/book/bookchap1.html
