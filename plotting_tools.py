@@ -1,3 +1,6 @@
+from icecream import ic
+import sys
+
 import cartopy as ct
 import cartopy.crs as ccrs
 import cmocean as cmocean
@@ -73,11 +76,11 @@ def plot_pdf_kdeplot(handles, colors, labels, savePath, saveName, dpiVal=400):
     print('Plotting!')
     if np.size(colors) > 1:
         for ind, h in enumerate(handles):
-            ax = sn.kdeplot(data=h-273.15, label=labels[ind], color=colors[ind], linewidth=2)
-            ax.set(xlabel='Celsius', ylabel='Density')
+            ax = sn.kdeplot(data=h, label=labels[ind], color=colors[ind], linewidth=2)
+            ax.set(xlabel='ppm', ylabel='Density')
     else:
         ax = sn.kdeplot(data=handles, label=labels, color=colors, linewidth=2)
-        ax.set(xlabel='Celsius', ylabel='Density')
+        ax.set(xlabel='ppm', ylabel='Density')
 
     plt.legend(bbox_to_anchor=(0.83,-0.1), ncol=2, fontsize=8)
     plt.title(labels[np.size(labels)-1])
@@ -90,11 +93,11 @@ def plot_pdf_hist(handles, colors, labels, savePath, saveName, binwidth, dpiVal=
     print('Plotting!')
     if np.size(colors) > 1:
         for ind, h in enumerate(handles):
-            ax = sn.histplot(data=h-273.15, label=labels[ind], color=colors[ind], edgecolor='#3B3B3B', linewidth=0.8, kde=False, binwidth=binwidth)
-            ax.set(xlabel='Celsius', ylabel='Density')
+            ax = sn.histplot(data=h, label=labels[ind], color=colors[ind], edgecolor='#3B3B3B', stat='probability', linewidth=0.8, kde=False, binwidth=binwidth)
+            ax.set(xlabel='ppm', ylabel='Density')
     else:
-        ax = sn.histplot(data=handles, label=labels, color=colors, edgecolor='#3B3B3B', stat='density', linewidth=0.8, kde=False, binwidth=binwidth)
-        ax.set(xlabel='Celsius', ylabel='Density')
+        ax = sn.histplot(data=handles, label=labels, color=colors, edgecolor='#3B3B3B', stat='probability', linewidth=0.8, kde=False, binwidth=binwidth)
+        ax.set(xlabel='ppm', ylabel='Density')
 
     plt.legend(bbox_to_anchor=(0.83,-0.1), ncol=2, fontsize=8)
     plt.title(labels[np.size(labels)-1])
@@ -107,9 +110,9 @@ def plot_pdf_step(handles, colors, labels, savePath, saveName, binwidth, dpiVal=
     print('Plotting!')
     if np.size(colors) > 1:
         for ind, h in enumerate(handles):
-            bins = np.arange(-2,9,0.2)
+            bins = np.arange(np.min(h),np.max(h),binwidth)
             ax = plt.hist(h, label=labels[ind], color=colors[ind], bins=bins, density=True, histtype='step')
-            plt.xlabel("Celsius")
+            plt.xlabel("ppm")
             plt.ylabel("Density")
     else:
         ax = sn.histplot(data=handles, label=labels, color=colors, edgecolor='#3B3B3B', stat='density', linewidth=0.8, kde=False, binwidth=binwidth)
@@ -142,7 +145,7 @@ def paint_by_numbers(colorsToPlot, colList, nfc):
         colorsToPlot.append(colList[3])
     elif nfc == 2:
         colorsToPlot.append(colList[1])
-        colorsToPlot.append(colList[6])
+        colorsToPlot.append(colList[4])
     elif nfc == 3:
         colorsToPlot.append(colList[1])
         colorsToPlot.append(colList[3])

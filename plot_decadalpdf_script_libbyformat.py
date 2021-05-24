@@ -4,6 +4,8 @@
 
 # latOfInt/lonOfInt can be a np.array([min,max]), or a single value. If
 # regionToPlot is set to 'global', latOfInt/lonOfInt are ignored.
+from icecream import ic
+import sys
 
 import xarray as xr
 import matplotlib.pyplot as plt
@@ -20,100 +22,68 @@ import difference_over_time as dot
 import plotting_tools as plt_tls
 import process_glens_fun as pgf
 import region_library as rlib
+import fun_convert_unit as fcu
 
 # Inputs
-cntrlFile = '/Users/dhueholt/Documents/ANN_GeoEng/data/GLENS/control.001.SST.r90x45.shift.annual.nc'
-fdbckFile = '/Users/dhueholt/Documents/ANN_GeoEng/data/GLENS/feedback.001.SST.r90x45.shift.annual.nc'
+dataPath = '/Users/dhueholt/Documents/GLENS_data/annual_o3/'
+filenameCntrl = 'control_003_O3_201001-201912_202001-202912_203001-203912_204001-204912_205001-205912_206001-206912_207001-207912_208001-208912_209001-209912_annual.nc'
+filenameFdbck = 'feedback_003_O3_202001-202912_203001-203912_204001-204912_205001-205912_206001-206912_207001-207912_208001-208912_209001-209912_annual.nc'
+cntrlPath = dataPath + filenameCntrl
+fdbckPath = dataPath + filenameFdbck
 
 baselineFlag = 0
-regionToPlot = 'regional' #'global' 'regional' 'point'
-regOfInt = rlib.DrakePassage()
-levOfInt = 500 #z_t for SST, often hPa for other data
-latOfInt = regOfInt['regLats']#np.array([-35,-22])
-lonOfInt = regOfInt['regLons']#np.array([108,115])
-cntrlIntToPlot = [2020,2045,2070]#[2020,2030,2040,2050,2090]#[2020,2050]
-fdbckIntToPlot = [2020,2045,2070]#[2020,2030,2040,2050,2090]#[2020,2050]
-timePeriod = 30 #number of years, i.e. 10 = decade
-
-plotStyle = 'step' #'kde' or 'hist'
+levOfInt = 'stratosphere' #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
+regionToPlot = rlib.NoLandLatitude() #'global', rlib.Place(), [latN,lonE360]
 areaAvgBool = False
-titleStr = regOfInt['regStr'] + ' SST PDFs in GLENS'
-# titleStr = 'Gulf of Mexico SST PDFs in GLENS' #use when region is set manually
-savePath = '/Users/dhueholt/Documents/GLENS_fig/20210318_regionrefinement/'
-saveName = 'pdf_' + plotStyle + '_SST_cntrlfdbck_' + regOfInt['regSaveStr'] + '_30yr_NOMEANTEST'
-# saveName = 'pdf_hist_SST_cntrlfdbck_REGIONHERE_30yr_MEANTEST' #use when region is set manually
+cntrlIntToPlot = [2020,2090]#[2020,2030,2040,2050,2090]#[2020,2050]
+fdbckIntToPlot = [2020,2090]#[2020,2030,2040,2050,2090]#[2020,2050]
+timePeriod = 10 #number of years, i.e. 10 = decade
+
+# regionToPlot = 'regional' #'global' 'regional' 'point'
+# regOfInt = rlib.EasternEurope()
+# levOfInt = 1000 #z_t for SST, often hPa for other data
+# latOfInt = regOfInt['regLats']#np.array([-35,-22])
+# lonOfInt = regOfInt['regLons']#np.array([108,115])
+
+plotStyle = 'step' #'kde' or 'hist' or 'step'
+# titleStr = regOfInt['regStr'] + ' T PDFs in GLENS'
+titleStr = 'NoLandLat60S stratosphere ozone PDFs in GLENS' #use when region is set manually
+savePath = '/Users/dhueholt/Documents/GLENS_fig/20210524_4pPdfReg/'
+# saveName = 'pdf_' + plotStyle + '_T_cntrlfdbck_' + regOfInt['regSaveStr'] + '_10yr_TESTINSET'
+saveName = 'pdf_step_stratosphere_O3_cntrlfdbck_NoLandLat60S_10yr_nospcavg' #use when region is set manually
 dpiVal = 400
 
-cntrlDset = xr.open_dataset(cntrlFile)
-fdbckDset = xr.open_dataset(fdbckFile)
+glensDsetCntrl = xr.open_dataset(cntrlPath)
+glensDsetFdbck = xr.open_dataset(fdbckPath)
+dataKey = pgf.discover_data_var(glensDsetCntrl)
+#dataKey = '' #Override automatic variable discovery here
+glensDarrCntrl = glensDsetCntrl[dataKey]
+glensDarrFdbck = glensDsetFdbck[dataKey]
 
-if regionToPlot == 'global':
-    cntrlDsetLoi = cntrlDset.sel(z_t=levOfInt) #z_t is equivalent to level
-    dataKey = pgf.discover_data_var(cntrlDset)
-    cntrlDarr = cntrlDsetLoi[dataKey]
+# Obtain levels
+glensCntrlLoi = pgf.obtain_levels(glensDarrCntrl, levOfInt)
+glensFdbckLoi = pgf.obtain_levels(glensDarrFdbck, levOfInt)
 
-    fdbckDsetLoi = fdbckDset.sel(z_t=levOfInt)
-    fdbckDarr = fdbckDsetLoi[dataKey]
-
-    if areaAvgBool:
-        print("Spatially averaging across globe")
-        cntrlDarrMnSpc = cntrlDarr.mean(dim=['lat','lon'])
-        fdbckDarrMnSpc = fdbckDarr.mean(dim=['lat','lon'])
-    else:
-        print("No spatial average applied")
-        cntrlDarrMnSpc = cntrlDarr.stack(spc=("lat","lon"))
-        fdbckDarrMnSpc = fdbckDarr.stack(spc=("lat","lon"))
-
-elif regionToPlot == 'regional':
-    cntrlDsetLoi = cntrlDset.sel(z_t=levOfInt) #z_t is equivalent to level
-    dataKey = pgf.discover_data_var(cntrlDset)
-    cntrlDarrLoi = cntrlDsetLoi[dataKey]
-    lats = cntrlDsetLoi['lat'] #feedback and control are on same grid, fortunately
-    lons = cntrlDsetLoi['lon']
-    latMask = (lats>latOfInt[0]) & (lats<latOfInt[1])
-    lonMask = (lons>lonOfInt[0]) & (lons<lonOfInt[1])
-    cntrlDarrLoiAoi = cntrlDarrLoi[:,latMask,lonMask]
-
-    fdbckDsetLoi = fdbckDset.sel(z_t=levOfInt)
-    dataKey = pgf.discover_data_var(fdbckDset)
-    fdbckDarrLoi = fdbckDsetLoi[dataKey]
-    fdbckDarrLoiAoi = fdbckDarrLoi[:,latMask,lonMask]
-
-    if areaAvgBool:
-        print("Spatially averaging across region")
-        cntrlDarrMnSpc = cntrlDarrLoiAoi.mean(dim=['lat','lon'])
-        fdbckDarrMnSpc = fdbckDarrLoiAoi.mean(dim=['lat','lon'])
-    else:
-        print("No spatial average applied")
-        cntrlDarrMnSpc = cntrlDarrLoiAoi.stack(spc=("lat","lon"))
-        fdbckDarrMnSpc = fdbckDarrLoiAoi.stack(spc=("lat","lon"))
-
-elif regionToPlot == 'point':
-    cntrlDsetLoiPoi = cntrlDset.sel(z_t=levOfInt, lat=latOfInt, lon=lonOfInt, method="nearest")
-    dataKey = pgf.discover_data_var(cntrlDset)
-    cntrlDarrLoiPoi = cntrlDsetLoiPoi[dataKey]
-    cntrlDarrMnSpc = cntrlDarrLoiPoi #need better variable name
-
-    fdbckDsetLoiPoi = fdbckDset.sel(z_t=levOfInt, lat=latOfInt, lon=lonOfInt, method="nearest")
-    dataKey = pgf.discover_data_var(fdbckDset)
-    fdbckDarrLoiPoi = fdbckDsetLoiPoi[dataKey]
-    fdbckDarrMnSpc = fdbckDarrLoiPoi
-
-else:
-    print("Invalid region!")
+# Deal with area
+glensCntrlAoi, locStr, locTitleStr = pgf.manage_area(glensCntrlLoi, regionToPlot, areaAvgBool)
+glensFdbckAoi, locStr, locTitleStr = pgf.manage_area(glensFdbckLoi, regionToPlot, areaAvgBool)
 
 # Remove 2010-2019 average
 # baselineMeanToRmv = dot.average_over_years(cntrlDarrMnSpc,2010,2019)
 # cntrlDarrMnSpcNorm = cntrlDarrMnSpc - baselineMeanToRmv
 # fdbckDarrMnSpcNorm = fdbckDarrMnSpc - baselineMeanToRmv
 
-iqr = stats.iqr(cntrlDarrMnSpc)
-# binwidth = 2*iqr*(10 ** -1/3) # the Freedman-Diaconis rule
-binwidth = 0.2 #the Let's Not Overthink This rule
-print(binwidth)
+# Unit conversion
+cntrlToPlot = fcu.molmol_to_ppm(glensCntrlAoi)
+fdbckToPlot = fcu.molmol_to_ppm(glensFdbckAoi)
 
-cntrlActive = cntrlDarrMnSpc
-fdbckActive = fdbckDarrMnSpc
+iqr = stats.iqr(glensCntrlAoi)
+# binwidth = 2*iqr*(10 ** -1/3) # the Freedman-Diaconis rule
+binwidth = 1 #the Let's Not Overthink This rule
+ic(binwidth)
+
+cntrlActive = cntrlToPlot
+fdbckActive = fdbckToPlot
 
 # Extract the decades of interest from the control and feedback datasets
 cntrlYears = cntrlActive['time'].dt.year.data

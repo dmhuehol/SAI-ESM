@@ -174,28 +174,33 @@ def make_level_string(darr, levOfInt):
 
     return levStr
 
-def manage_area(darr, regionToPlot):
+def manage_area(darr, regionToPlot, areaAvgBool=True):
     ''' Manage area operations: obtain global, regional, or pointal output '''
 
     if regionToPlot == 'global':
         ic('global')
-        latWeights = np.cos(np.deg2rad(darr['lat']))
-        darrWght = darr.weighted(latWeights)
-        darr = darrWght.mean(dim=['lat','lon'])
-
         locStr = 'global'
         locTitleStr = 'global'
+
+        if areaAvgBool:
+            latWeights = np.cos(np.deg2rad(darr['lat']))
+            darrWght = darr.weighted(latWeights)
+            darr = darrWght.mean(dim=['lat','lon'])
+
     elif isinstance(regionToPlot,dict):
         ic('regional')
+        locStr = regionToPlot['regSaveStr']
+        locTitleStr = regionToPlot['regSaveStr']
+
         lats = darr['lat'] #feedback and control are on same grid, fortunately
         lons = darr['lon']
         latMask = (lats>regionToPlot['regLats'][0]) & (lats<regionToPlot['regLats'][1])
         lonMask = (lons>regionToPlot['regLons'][0]) & (lons<regionToPlot['regLons'][1])
         darrBoxMask = darr[:,latMask,lonMask]
-        darr = darrBoxMask.mean(dim=['lat','lon'])
 
-        locStr = regionToPlot['regSaveStr']
-        locTitleStr = regionToPlot['regSaveStr']
+        if areaAvgBool:
+            darr = darrBoxMask.mean(dim=['lat','lon'])
+
     elif isinstance(regionToPlot,list):
         ic('point')
         darr = darr.sel(lat=regionToPlot[0], lon=regionToPlot[1], method="nearest")

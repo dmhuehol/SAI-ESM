@@ -51,8 +51,8 @@ glensCntrlPoi = pgf.obtain_levels(glensCntrlPoi, levOfInt)
 glensFdbckPoi = pgf.obtain_levels(glensFdbckPoi, levOfInt)
 
 # Deal with area
-cntrlToPlot, locStr, locTitleStr = pgf.manage_area(glensCntrlPoi, regionToPlot)
-fdbckToPlot, locStr, locTitleStr = pgf.manage_area(glensFdbckPoi, regionToPlot)
+cntrlToPlot, locStr, locTitleStr = pgf.manage_area(glensCntrlPoi, regionToPlot, areaAvgBool=True)
+fdbckToPlot, locStr, locTitleStr = pgf.manage_area(glensFdbckPoi, regionToPlot, areaAvgBool=True)
 
 # Unit conversion
 cntrlToPlot = fcu.molmol_to_ppb(cntrlToPlot)
