@@ -1,22 +1,21 @@
-# This makes timespan-avg pdfs for data that's in single-file format as opposed to decadal-file format.
-# This will be combined with plot_decadalpdf_script after completion.
-# Also, this makes SST plots
+''' plot_pdf_script
+Plot pdfs for RCP8.5 ("Control") and SAI ("Feedback") values for a GLENS output
+variable. Three formats are available: a kernel density estimate, a histogram,
+or a step plot.
 
-# latOfInt/lonOfInt can be a np.array([min,max]), or a single value. If
-# regionToPlot is set to 'global', latOfInt/lonOfInt are ignored.
+Written by Daniel Hueholt | May 2021
+Graduate Research Assistant at Colorado State University
+'''
+
 from icecream import ic
 import sys
 
 import xarray as xr
 import matplotlib.pyplot as plt
 import seaborn as sn
-import cartopy
-import cartopy.crs as ccrs
 import cmocean
 import numpy as np
 import scipy.stats as stats
-from glob import glob
-import time
 
 import difference_over_time as dot
 import plotting_tools as plt_tls
@@ -31,12 +30,12 @@ filenameFdbck = 'feedback_003_O3_202001-202912_203001-203912_204001-204912_20500
 cntrlPath = dataPath + filenameCntrl
 fdbckPath = dataPath + filenameFdbck
 
-baselineFlag = 0
+baselineFlag = 0 #Include 2010-2019 period from RCP8.5 "Control" scenario
 levOfInt = 'stratosphere' #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
 regionToPlot = rlib.NoLandLatitude() #'global', rlib.Place(), [latN,lonE360]
-areaAvgBool = False
-cntrlIntToPlot = [2020,2090]#[2020,2030,2040,2050,2090]#[2020,2050]
-fdbckIntToPlot = [2020,2090]#[2020,2030,2040,2050,2090]#[2020,2050]
+areaAvgBool = False #Apply spatial average over region or include every point individually
+cntrlPoi = [2020,2090]#[2020,2030,2040,2050,2090]#[2020,2050]
+fdbckPoi = [2020,2090]#[2020,2030,2040,2050,2090]#[2020,2050]
 timePeriod = 10 #number of years, i.e. 10 = decade
 
 plotStyle = 'kde' #'kde' or 'hist' or 'step'
@@ -80,10 +79,10 @@ fdbckActive = fdbckToPlot
 # Extract the decades of interest from the control and feedback datasets
 cntrlYears = cntrlActive['time'].dt.year.data
 cntrlHandlesToPlot = list()
-cntrlHandlesToPlot = pgf.extract_doi(cntrlIntToPlot, cntrlYears, timePeriod, cntrlActive, cntrlHandlesToPlot)
+cntrlHandlesToPlot = pgf.extract_doi(cntrlPoi, cntrlYears, timePeriod, cntrlActive, cntrlHandlesToPlot)
 fdbckYears = fdbckActive['time'].dt.year.data
 fdbckHandlesToPlot = list()
-fdbckHandlesToPlot = pgf.extract_doi(fdbckIntToPlot, fdbckYears, timePeriod, fdbckActive, fdbckHandlesToPlot)
+fdbckHandlesToPlot = pgf.extract_doi(fdbckPoi, fdbckYears, timePeriod, fdbckActive, fdbckHandlesToPlot)
 handlesToPlot = cntrlHandlesToPlot + fdbckHandlesToPlot
 
 # If not applying a spatial average, flatten data so dimensions don't confuse plotting code
@@ -93,15 +92,15 @@ if ~areaAvgBool:
 
 # Generate colors and strings for plots and filenames
 if baselineFlag:
-    colorsToPlot = plt_tls.select_colors(baselineFlag,len(cntrlIntToPlot)-1,len(fdbckIntToPlot))
+    colorsToPlot = plt_tls.select_colors(baselineFlag,len(cntrlPoi)-1,len(fdbckPoi))
 else:
-    colorsToPlot = plt_tls.select_colors(baselineFlag,len(cntrlIntToPlot),len(fdbckIntToPlot))
+    colorsToPlot = plt_tls.select_colors(baselineFlag,len(cntrlPoi),len(fdbckPoi))
 if baselineFlag:
     labelsToPlot = list(['2010-2019 Baseline'])
 else:
     labelsToPlot = list()
-labelsToPlot = plt_tls.generate_labels(labelsToPlot, cntrlIntToPlot, timePeriod, 'RCP8.5')
-labelsToPlot = plt_tls.generate_labels(labelsToPlot, fdbckIntToPlot, timePeriod, 'SAI')
+labelsToPlot = plt_tls.generate_labels(labelsToPlot, cntrlPoi, timePeriod, 'RCP8.5')
+labelsToPlot = plt_tls.generate_labels(labelsToPlot, fdbckPoi, timePeriod, 'SAI')
 varStr = glensDarrFdbck.long_name
 varSave = varStr.replace(" ","")
 levStr = pgf.make_level_string(cntrlToPlot, levOfInt)
@@ -113,10 +112,9 @@ if areaAvgBool:
 else:
     spcStr = 'nospcavg'
 saveName = savePath + savePrfx + '_' + timeStr + '_' + varSave + '_' + levStr + '_' + locStr + '_' + spcStr
-
 ic(colorsToPlot) # For troubleshooting
 
-# Make KDE or histograms
+# Make kde, histograms, or step plots
 if plotStyle == 'kde':
     plt_tls.plot_pdf_kdeplot(handlesToPlot, colorsToPlot, labelsToPlot, saveName, dpiVal)
 elif plotStyle == 'hist':
@@ -124,6 +122,6 @@ elif plotStyle == 'hist':
 elif plotStyle == 'step':
     plt_tls.plot_pdf_step(handlesToPlot, colorsToPlot, labelsToPlot, saveName, binwidth, dpiVal)
 else:
-    print("Invalid plot style") #TODO: make this a formal error message
+    sys.exit('Invalid plot style')
 
 print('Completed!')
