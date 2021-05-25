@@ -1,6 +1,17 @@
 # GLENS
 Repository for code analyzing stratospheric aerosol injection model output. This code is designed to work with output from the [Geoengineering Large ENSemble (GLENS)](https://www.cesm.ucar.edu/projects/community-projects/GLENS/). However, the medium-term intention is that it will apply to output from the [upcoming NCAR model runs performed under the Safe Climate Research Initiative](https://federallabs.org/news/ncar-noaa-lead-efforts-to-understand-risks-and-benefits-of-solar-geoenginering) with minor tuning.
 
+## Example plots
+There are three plots which are fundamental to this repository: difference globes, timeseries, and pdfs.
+
+### Difference globes
+These are standard "variable on a map" plots. They come in both 4-panel versions (`plot_difference_globe_script`) and 1-panel versions (`plot_single_difference_globe`). The basic 4-panel plot has the change over century for RCP8.5 on top left, SAI on the top right, final decade difference between RCP8.5 and SAI on bottom left, and a normalized metric showing where the greatest third of the changes occur.
+![Four panel difference globe](images/globe_4p_FdbckCntrl_O3_200_20102019_20902099.png)
+By default, the 1-panel globe shows the end of century difference between RCP8.5 and SAI.
+
+It's also easy to change this to show the change from the 2010-2019 ("Baseline") period from the RCP8.5 branch of GLENS.
+![Baseline one panel difference globe](images/globe_1p_FdbckCntrl_O3_197.9_C2010-2019_F2090-2099.png)
+
 ## Code description
 
 ### Data preprocessing
