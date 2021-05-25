@@ -10,6 +10,7 @@ from icecream import ic
 import sys
 
 import xarray as xr
+xr.set_options(keep_attrs=True)
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import cartopy
@@ -31,9 +32,9 @@ fdbckPath = dataPath + filenameFdbck
 
 startInt = [2010,2019]
 finalInt = [2090,2099]
-levOfInt = 1000 #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
+levOfInt = 200 #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
 
-savePath = '/Users/dhueholt/Documents/GLENS_fig/20210520_ozoneAndRfctrng/'
+savePath = '/Users/dhueholt/Documents/GLENS_fig/20210525_github/'
 savePrfx = 'globe_1p_FdbckCntrl_'
 dpi_val = 400
 
@@ -55,7 +56,7 @@ toiEndFdbck = dot.average_over_years(glensFdbckLoi, finalInt[0], finalInt[1])
 diffToiFdbck =  toiEndCntrl - toiEndFdbck
 
 # Unit conversion
-diffToiFdbckPlot = fcu.molmol_to_ppb(diffToiFdbck)
+diffToiFdbckPlot = fcu.molmol_to_ppm(diffToiFdbck)
 
 # Plotting
 firstDcd = str(startInt[0]) + '-' + str(startInt[1])

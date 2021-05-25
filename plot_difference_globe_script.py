@@ -12,6 +12,7 @@ from icecream import ic
 import sys
 
 import xarray as xr
+xr.set_options(keep_attrs=True)
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import cartopy
@@ -33,11 +34,11 @@ fdbckPath = dataPath + filenameFdbck
 
 startInt = [2010,2019]
 finalInt = [2090,2099]
-levOfInt = 'stratosphere' #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
+levOfInt = 200 #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
 quantileOfInt = 0.67
 
-savePath = '/Users/dhueholt/Documents/GLENS_fig/20210521_rfctrngArea4pPdf/'
-savePrfx = 'REFACTOR_globe_4p_FdbckCntrl_'
+savePath = '/Users/dhueholt/Documents/GLENS_fig/20210525_github/'
+savePrfx = 'globe_4p_FdbckCntrl_'
 dpi_val = 400
 
 # Open data

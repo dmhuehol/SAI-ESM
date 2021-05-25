@@ -10,6 +10,7 @@ from icecream import ic
 import sys
 
 import xarray as xr
+xr.set_options(keep_attrs=True)
 import matplotlib.pyplot as plt
 import numpy as np
 
