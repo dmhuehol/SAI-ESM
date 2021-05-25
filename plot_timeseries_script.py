@@ -26,10 +26,10 @@ filenameFdbck = 'feedback_003_O3_202001-202912_203001-203912_204001-204912_20500
 cntrlPath = dataPath + filenameCntrl
 fdbckPath = dataPath + filenameFdbck
 
-levOfInt = 'total' #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
+levOfInt = 'stratosphere' #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
 regionToPlot = 'global' #'global', rlib.Place(), [latN,lonE360]
 
-savePath = '/Users/dhueholt/Documents/GLENS_fig/20210521_rfctrngArea4pPdf/'
+savePath = '/Users/dhueholt/Documents/GLENS_fig/20210525_github/'
 saveFile = 'timeseries_O3_'
 saveName = savePath + saveFile
 dpi_val = 400
@@ -56,8 +56,8 @@ cntrlToPlot, locStr, locTitleStr = pgf.manage_area(glensCntrlPoi, regionToPlot, 
 fdbckToPlot, locStr, locTitleStr = pgf.manage_area(glensFdbckPoi, regionToPlot, areaAvgBool=True)
 
 # Unit conversion
-cntrlToPlot = fcu.molmol_to_ppb(cntrlToPlot)
-fdbckToPlot = fcu.molmol_to_ppb(fdbckToPlot)
+cntrlToPlot = fcu.molmol_to_ppm(cntrlToPlot)
+fdbckToPlot = fcu.molmol_to_ppm(fdbckToPlot)
 
 # Plotting
 yStr = cntrlToPlot.units

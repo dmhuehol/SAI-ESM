@@ -84,7 +84,7 @@ def add_cyclic_point(data, coord=None, axis=-1):
         return_value = new_data, new_coord
     return return_value
 
-def plot_pdf_kdeplot(handles, colors, labels, saveName, dpiVal=400):
+def plot_pdf_kdeplot(handles, colors, labels, unit, saveName, dpiVal=400):
     ''' Make kernel density estimates for several input handles '''
 
     plt.figure()
@@ -92,18 +92,18 @@ def plot_pdf_kdeplot(handles, colors, labels, saveName, dpiVal=400):
     if np.size(colors) > 1:
         for ind, h in enumerate(handles):
             ax = sn.kdeplot(data=h, label=labels[ind], color=colors[ind], linewidth=2)
-            ax.set(xlabel='ppm', ylabel='Density')
+            ax.set(xlabel=unit, ylabel='Density')
     else:
         ax = sn.kdeplot(data=handles, label=labels, color=colors, linewidth=2)
-        ax.set(xlabel='ppm', ylabel='Density')
+        ax.set(xlabel=unit, ylabel='Density')
 
     plt.legend(bbox_to_anchor=(0.83,-0.1), ncol=2, fontsize=8)
     plt.title(labels[np.size(labels)-1])
-    # plt.show()
+
     ic(saveName)
     plt.savefig(saveName + '.png', dpi=dpiVal, bbox_inches='tight')
 
-def plot_pdf_hist(handles, colors, labels, saveName, binwidth, dpiVal=400):
+def plot_pdf_hist(handles, colors, labels, unit, saveName, binwidth, dpiVal=400):
     ''' Make histograms for several input handles'''
 
     plt.figure()
@@ -111,18 +111,18 @@ def plot_pdf_hist(handles, colors, labels, saveName, binwidth, dpiVal=400):
     if np.size(colors) > 1:
         for ind, h in enumerate(handles):
             ax = sn.histplot(data=h, label=labels[ind], color=colors[ind], edgecolor='#3B3B3B', stat='probability', linewidth=0.8, kde=False, binwidth=binwidth)
-            ax.set(xlabel='ppm', ylabel='Density')
+            ax.set(xlabel=unit, ylabel='Density')
     else:
         ax = sn.histplot(data=handles, label=labels, color=colors, edgecolor='#3B3B3B', stat='probability', linewidth=0.8, kde=False, binwidth=binwidth)
-        ax.set(xlabel='ppm', ylabel='Density')
+        ax.set(xlabel=unit, ylabel='Density')
 
     plt.legend(bbox_to_anchor=(0.83,-0.1), ncol=2, fontsize=8)
     plt.title(labels[np.size(labels)-1])
-    # plt.show()
+
     ic(saveName)
     plt.savefig(saveName + '.png', dpi=dpiVal, bbox_inches='tight')
 
-def plot_pdf_step(handles, colors, labels, saveName, binwidth, dpiVal=400):
+def plot_pdf_step(handles, colors, labels, unit, saveName, binwidth, dpiVal=400):
     ''' Make step plots for several input handles '''
 
     plt.figure()
@@ -131,15 +131,15 @@ def plot_pdf_step(handles, colors, labels, saveName, binwidth, dpiVal=400):
         for ind, h in enumerate(handles):
             bins = np.arange(np.min(h),np.max(h),binwidth)
             ax = plt.hist(h, label=labels[ind], color=colors[ind], bins=bins, density=True, histtype='step')
-            plt.xlabel("ppm")
+            plt.xlabel(unit)
             plt.ylabel("Density")
     else:
         ax = sn.histplot(data=handles, label=labels, color=colors, edgecolor='#3B3B3B', stat='density', linewidth=0.8, kde=False, binwidth=binwidth)
-        ax.set(xlabel='Celsius', ylabel='Density')
+        ax.set(xlabel=unit, ylabel='Density')
 
     plt.legend(bbox_to_anchor=(0.83,-0.1), ncol=2, fontsize=8)
     plt.title(labels[np.size(labels)-1])
-    # plt.show()
+
     ic(saveName)
     plt.savefig(saveName + '.png', dpi=dpiVal, bbox_inches='tight')
 

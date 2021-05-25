@@ -11,6 +11,7 @@ from icecream import ic
 import sys
 
 import xarray as xr
+xr.set_options(keep_attrs=True)
 import numpy as np
 from cdo import *
 
@@ -200,6 +201,8 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
 
         if areaAvgBool:
             darr = darrBoxMask.mean(dim=['lat','lon'])
+        else:
+            darr = darrBoxMask
 
     elif isinstance(regionToPlot,list):
         ic('point')

@@ -32,15 +32,15 @@ cntrlPath = dataPath + filenameCntrl
 fdbckPath = dataPath + filenameFdbck
 
 baselineFlag = 0 #Include 2010-2019 period from RCP8.5 "Control" scenario
-levOfInt = 'stratosphere' #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
-regionToPlot = rlib.NoLandLatitude() #'global', rlib.Place(), [latN,lonE360]
-areaAvgBool = True #Apply spatial average over region or include every point individually
+levOfInt = 'total' #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
+regionToPlot = 'global' #'global', rlib.Place(), [latN,lonE360]
+areaAvgBool = False #Apply spatial average over region or include every point individually
 cntrlPoi = [2020,2090]#[2020,2030,2040,2050,2090]#[2020,2050]
 fdbckPoi = [2020,2090]#[2020,2030,2040,2050,2090]#[2020,2050]
 timePeriod = 10 #number of years, i.e. 10 = decade
 
-plotStyle = 'hist' #'kde' or 'hist' or 'step'
-savePath = '/Users/dhueholt/Documents/GLENS_fig/20210524_4pPdfReg/'
+plotStyle = 'kde' #'kde' or 'hist' or 'step'
+savePath = '/Users/dhueholt/Documents/GLENS_fig/20210525_github/'
 savePrfx = 'pdf_' + plotStyle
 dpiVal = 400
 
@@ -71,7 +71,7 @@ fdbckToPlot = fcu.molmol_to_ppm(glensFdbckAoi)
 
 iqr = stats.iqr(glensCntrlAoi)
 # binwidth = 2*iqr*(10 ** -1/3) # the Freedman-Diaconis rule
-binwidth = 1 #the Let's Not Overthink This rule
+binwidth = 10 #the Let's Not Overthink This rule
 ic(binwidth)
 
 # Extract the decades of interest from the control and feedback datasets
@@ -109,16 +109,17 @@ if areaAvgBool:
     spcStr = 'spcavg'
 else:
     spcStr = 'nospcavg'
+unit = cntrlToPlot.attrs['units']
 saveName = savePath + savePrfx + '_' + timeStr + '_' + varSave + '_' + levStr + '_' + locStr + '_' + spcStr
 ic(colorsToPlot) # For troubleshooting
 
 # Make kde, histograms, or step plots
 if plotStyle == 'kde':
-    plt_tls.plot_pdf_kdeplot(handlesToPlot, colorsToPlot, labelsToPlot, saveName, dpiVal)
+    plt_tls.plot_pdf_kdeplot(handlesToPlot, colorsToPlot, labelsToPlot, unit, saveName, dpiVal)
 elif plotStyle == 'hist':
-    plt_tls.plot_pdf_hist(handlesToPlot, colorsToPlot, labelsToPlot, saveName, binwidth, dpiVal)
+    plt_tls.plot_pdf_hist(handlesToPlot, colorsToPlot, labelsToPlot, unit, saveName, binwidth, dpiVal)
 elif plotStyle == 'step':
-    plt_tls.plot_pdf_step(handlesToPlot, colorsToPlot, labelsToPlot, saveName, binwidth, dpiVal)
+    plt_tls.plot_pdf_step(handlesToPlot, colorsToPlot, labelsToPlot, unit, saveName, binwidth, dpiVal)
 else:
     sys.exit('Invalid plot style')
 
