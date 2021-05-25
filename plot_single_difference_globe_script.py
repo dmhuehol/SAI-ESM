@@ -1,4 +1,4 @@
-"""
+""" plot_single_difference_globe_script
 Plot difference between RCP8.5 ("Control") and SAI ("Feedback") values for a
 GLENS output variable on a globe. Equal Earth map projection used by default.
 
