@@ -1,3 +1,14 @@
+''' plotting_tools
+Contains functions to plot GLENS data, e.g. drawing data on a globe, making kernel
+density estimates, histograms, step plots, etc. Includes functions related to
+plotting, as well, such as paint_by_numbers which chooses colors for perceptual
+difference based on the number of objects being drawn.
+
+Unless otherwise specified:
+Written by Daniel Hueholt | May 2021
+Graduate Research Assistant at Colorado State University
+'''
+
 from icecream import ic
 import sys
 
@@ -10,12 +21,11 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.pyplot as plt
 import seaborn as sn
 
-
-# drawOnGlobe and add_cyclic_point written by Prof. Elizabeth Barnes at Colorado State University
-# add_cyclic_point copied from cartopy utils
+# drawOnGlobe written by Prof. Elizabeth Barnes at Colorado State University
+# add_cyclic_point copied from cartopy utils by Prof. Elizabeth Barnes at Colorado State University
 
 def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc=None, cbarBool=True, contourMap=[], contourVals = [], fastBool=False, extent='both'):
-
+    ''' Draws geolocated data on a globe '''
     data_crs = ct.crs.PlateCarree()
     data_cyc, lons_cyc = add_cyclic_point(data, coord=lons) #fixes white line by adding point#data,lons#ct.util.add_cyclic_point(data, coord=lons) #fixes white line by adding point
 
@@ -41,8 +51,7 @@ def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc
     return cb, image
 
 def add_cyclic_point(data, coord=None, axis=-1):
-
-    # had issues with cartopy finding utils so copied for myself
+    ''' had issues with cartopy finding utils so copied for myself -EAB '''
 
     if coord is not None:
         if coord.ndim != 1:
@@ -71,7 +80,8 @@ def add_cyclic_point(data, coord=None, axis=-1):
     return return_value
 
 def plot_pdf_kdeplot(handles, colors, labels, saveName, dpiVal=400):
-# Plot kde pdfs for several input handles
+    ''' Make kernel density estimates for several input handles '''
+
     plt.figure()
     print('Plotting!')
     if np.size(colors) > 1:
@@ -89,7 +99,8 @@ def plot_pdf_kdeplot(handles, colors, labels, saveName, dpiVal=400):
     plt.savefig(saveName + '.png', dpi=dpiVal, bbox_inches='tight')
 
 def plot_pdf_hist(handles, colors, labels, saveName, binwidth, dpiVal=400):
-# Plot histogram pdfs for several input handles
+    ''' Make histograms for several input handles'''
+
     plt.figure()
     print('Plotting!')
     if np.size(colors) > 1:
@@ -107,7 +118,8 @@ def plot_pdf_hist(handles, colors, labels, saveName, binwidth, dpiVal=400):
     plt.savefig(saveName + '.png', dpi=dpiVal, bbox_inches='tight')
 
 def plot_pdf_step(handles, colors, labels, saveName, binwidth, dpiVal=400):
-# Plot histogram pdfs for several input handles
+    ''' Make step plots for several input handles '''
+
     plt.figure()
     print('Plotting!')
     if np.size(colors) > 1:
@@ -127,8 +139,8 @@ def plot_pdf_step(handles, colors, labels, saveName, binwidth, dpiVal=400):
     plt.savefig(saveName + '.png', dpi=dpiVal, bbox_inches='tight')
 
 def select_colors(baselineFlag, nFdbck, nCntrl):
-# Returns colors for baseline and a set number of feedback and control objects
-# to plot. Aimed at the pdf plots but may be more broadly useful.
+    '''Returns colors for a set number of feedback and control objects '''
+
     colorsToPlot = list()
     baselineColor = 'slategrey'
     cntrlColors = ["#F2BABA", "#E88989", "#DF5757", "#D93636", "#D32828", "#A21F1F", "#701515", "#3F0C0C"]
@@ -143,7 +155,8 @@ def select_colors(baselineFlag, nFdbck, nCntrl):
     return colorsToPlot
 
 def paint_by_numbers(colorsToPlot, colList, nfc):
-# Fill colors to plot by number
+    ''' Choose colors for perceptual distinction given number of objects to be plotted '''
+
     if nfc == 1:
         colorsToPlot.append(colList[3])
     elif nfc == 2:
@@ -192,7 +205,8 @@ def paint_by_numbers(colorsToPlot, colList, nfc):
     return colorsToPlot
 
 def generate_labels(labelsList, intervalsToPlot, timePeriod, type):
-# Generate labels for figure titles and output filenames
+    ''' Generate labels for figure titles and output filenames '''
+
     for cdc,cdv in enumerate(intervalsToPlot):
         if cdv == 2010:
             continue
@@ -204,8 +218,3 @@ def generate_labels(labelsList, intervalsToPlot, timePeriod, type):
         labelsList.append(labelStr)
 
     return labelsList
-        # handlesToPlot[cdv]["data"] = darr[startInd:endInd]
-        # handlesToPlot.append(darr[startInd:endInd])
-
-# labelsToPlot = ['2010-2019 Baseline', '2050-2059 RCP8.5', '2090-2099 RCP8.5', '2050-2059 SAI', '2090-2099 SAI', 'Global SST PDFs in GLENS']
-#
