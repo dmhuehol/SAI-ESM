@@ -223,4 +223,6 @@ def isolate_change_quantile(darr, quantileOfInt):
     darrAbsNormQ = darrAbsNorm
     darrAbsNormQ.data[darrAbsNormQ.data < quantCut.data] = np.nan
 
+    darrAbsNormQ.attrs['units'] = 'dimless'
+
     return darrAbsNormQ
