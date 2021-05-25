@@ -21,11 +21,12 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.pyplot as plt
 import seaborn as sn
 
-# drawOnGlobe written by Prof. Elizabeth Barnes at Colorado State University
+# drawOnGlobe written by Prof. Elizabeth Barnes at Colorado State University, lightly edited by Daniel Hueholt
 # add_cyclic_point copied from cartopy utils by Prof. Elizabeth Barnes at Colorado State University
 
 def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc=None, cbarBool=True, contourMap=[], contourVals = [], fastBool=False, extent='both'):
     ''' Draws geolocated data on a globe '''
+
     data_crs = ct.crs.PlateCarree()
     data_cyc, lons_cyc = add_cyclic_point(data, coord=lons) #fixes white line by adding point#data,lons#ct.util.add_cyclic_point(data, coord=lons) #fixes white line by adding point
 
@@ -43,6 +44,10 @@ def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc
     if(cbarBool):
         cb = plt.colorbar(image, shrink=.75, orientation="vertical", pad=.02, extend=extent)
         cb.ax.tick_params(labelsize=6)
+        try:
+            cb.set_label(data.attrs['units'])
+        except:
+            print('No units in attributes; colorbar will be unlabeled.')
     else:
         cb = None
 
