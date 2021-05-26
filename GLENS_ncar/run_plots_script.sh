@@ -20,6 +20,7 @@ mkdir -p $TMPDIR
 
 # Load modules
 module load python
-module load ncar_pylib
+module load ncarenv
+ncar_pylib
 
 python plot_timeseries_script.py
