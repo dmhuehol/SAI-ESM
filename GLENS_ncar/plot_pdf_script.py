@@ -7,7 +7,6 @@ Written by Daniel Hueholt | May 2021
 Graduate Research Assistant at Colorado State University
 '''
 
-from icecream import ic
 import sys
 
 import xarray as xr
@@ -72,7 +71,6 @@ fdbckToPlot = fcu.molmol_to_ppm(glensFdbckAoi)
 iqr = stats.iqr(glensCntrlAoi)
 # binwidth = 2*iqr*(10 ** -1/3) # the Freedman-Diaconis rule
 binwidth = 10 #the Let's Not Overthink This rule
-ic(binwidth)
 
 # Extract the decades of interest from the control and feedback datasets
 cntrlYears = cntrlToPlot['time'].dt.year.data
@@ -111,7 +109,6 @@ else:
     spcStr = 'nospcavg'
 unit = cntrlToPlot.attrs['units']
 saveName = savePath + savePrfx + '_' + timeStr + '_' + varSave + '_' + levStr + '_' + locStr + '_' + spcStr
-ic(colorsToPlot) # For troubleshooting
 
 # Make kde, histograms, or step plots
 if plotStyle == 'kde':
@@ -122,5 +119,3 @@ elif plotStyle == 'step':
     plt_tls.plot_pdf_step(handlesToPlot, colorsToPlot, labelsToPlot, unit, saveName, binwidth, dpiVal)
 else:
     sys.exit('Invalid plot style')
-
-print('Completed!')

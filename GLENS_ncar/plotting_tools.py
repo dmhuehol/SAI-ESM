@@ -9,7 +9,6 @@ Written by Daniel Hueholt | May 2021
 Graduate Research Assistant at Colorado State University
 '''
 
-from icecream import ic
 import sys
 
 import cartopy as ct
@@ -100,7 +99,7 @@ def plot_pdf_kdeplot(handles, colors, labels, unit, saveName, dpiVal=400):
     plt.legend(bbox_to_anchor=(0.83,-0.1), ncol=2, fontsize=8)
     plt.title(labels[np.size(labels)-1])
 
-    ic(saveName)
+    print(saveName)
     plt.savefig(saveName + '.png', dpi=dpiVal, bbox_inches='tight')
 
 def plot_pdf_hist(handles, colors, labels, unit, saveName, binwidth, dpiVal=400):
@@ -119,7 +118,7 @@ def plot_pdf_hist(handles, colors, labels, unit, saveName, binwidth, dpiVal=400)
     plt.legend(bbox_to_anchor=(0.83,-0.1), ncol=2, fontsize=8)
     plt.title(labels[np.size(labels)-1])
 
-    ic(saveName)
+    print(saveName)
     plt.savefig(saveName + '.png', dpi=dpiVal, bbox_inches='tight')
 
 def plot_pdf_step(handles, colors, labels, unit, saveName, binwidth, dpiVal=400):
@@ -140,7 +139,7 @@ def plot_pdf_step(handles, colors, labels, unit, saveName, binwidth, dpiVal=400)
     plt.legend(bbox_to_anchor=(0.83,-0.1), ncol=2, fontsize=8)
     plt.title(labels[np.size(labels)-1])
 
-    ic(saveName)
+    print(saveName)
     plt.savefig(saveName + '.png', dpi=dpiVal, bbox_inches='tight')
 
 def select_colors(baselineFlag, nFdbck, nCntrl):

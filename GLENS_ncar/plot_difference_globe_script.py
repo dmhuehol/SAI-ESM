@@ -8,7 +8,6 @@ Written by Daniel Hueholt | May 2021
 Graduate Research Assistant at Colorado State University
 '''
 
-from icecream import ic
 import sys
 
 import xarray as xr
@@ -105,6 +104,4 @@ plt.title(lastDcd + ' ' + fdbckStr + ' - ' + cntrlStr + ' ' + levStr + ' ' + '|'
 saveStr = savePrfx + dataKey + '_' + str(levOfInt) + '_' + str(startInt[0]) + str(startInt[1]) + '_' + str(finalInt[0]) + str(finalInt[1])
 savename = savePath + saveStr + '.png'
 plt.savefig(savename,dpi=dpi_val,bbox_inches='tight')
-ic(savename)
-
-print('Completed!')
+print(savename)

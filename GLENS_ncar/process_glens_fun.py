@@ -7,7 +7,6 @@ Written by Daniel Hueholt | May 2021
 Graduate Research Assistant at Colorado State University
 '''
 
-from icecream import ic
 import sys
 
 import xarray as xr
@@ -179,7 +178,6 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
     ''' Manage area operations: obtain global, regional, or pointal output '''
 
     if regionToPlot == 'global':
-        ic('global')
         locStr = 'global'
         locTitleStr = 'global'
 
@@ -189,7 +187,6 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
             darr = darrWght.mean(dim=['lat','lon'])
 
     elif isinstance(regionToPlot,dict):
-        ic('regional')
         locStr = regionToPlot['regSaveStr']
         locTitleStr = regionToPlot['regSaveStr']
 
@@ -205,7 +202,6 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
             darr = darrBoxMask
 
     elif isinstance(regionToPlot,list):
-        ic('point')
         darr = darr.sel(lat=regionToPlot[0], lon=regionToPlot[1], method="nearest")
 
         latStr = str(np.round_(darr.lat.data,decimals=2))

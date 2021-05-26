@@ -44,7 +44,6 @@ glensDarrFdbck = glensDsetFdbck[dataKey]
 
 bndDct = pgf.find_matching_year_bounds(glensDarrCntrl, glensDarrFdbck)
 glensCntrlPoi = glensDarrCntrl[bndDct['cntrlStrtMtch']:bndDct['cntrlEndMtch']+1] #RANGES IN PYTHON ARE [)
-ic(glensCntrlPoi['lev'])
 glensFdbckPoi = glensDarrFdbck[bndDct['fdbckStrtMtch']:bndDct['fdbckEndMtch']+1]
 
 # Obtain levels
@@ -65,7 +64,6 @@ varStr = glensDarrFdbck.long_name
 startStr = str(bndDct['strtYrMtch'])
 endStr = str(bndDct['endYrMtch'])
 levStr = pgf.make_level_string(glensCntrlPoi, levOfInt)
-ic(levStr, locStr)
 
 # Make timeseries
 plt.figure()
@@ -76,6 +74,4 @@ plt.ylabel(yStr)
 plt.autoscale(enable=True, axis='x', tight=True)
 plt.title(varStr + ' ' + levStr + ': ' + startStr + '-' + endStr + ' ' + locTitleStr)
 plt.savefig(saveName + locStr + '_' + levStr + '.png',dpi=dpi_val,bbox_inches='tight')
-ic(saveName + locStr + '_' + levStr + '.png')
-
-print("Completed! :D")
+print(saveName + locStr + '_' + levStr + '.png')

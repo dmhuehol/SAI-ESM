@@ -6,7 +6,6 @@ Written by Daniel Hueholt | May 2021
 Graduate Research Assistant at Colorado State University
 '''
 
-from icecream import ic
 import sys
 
 import xarray as xr

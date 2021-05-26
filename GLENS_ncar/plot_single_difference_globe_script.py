@@ -6,7 +6,6 @@ Written by Daniel Hueholt | May 2021
 Graduate Research Assistant at Colorado State University
 """
 
-from icecream import ic
 import sys
 
 import xarray as xr
@@ -82,6 +81,4 @@ saveStr = savePrfx + dataKey + '_' + levStr + '_' + lastDcd
 # saveStr = 'globe_1p_FdbckCntrl_O3_[50 0]_C2010-2019_F2090-2099'#Override automatic filename generation here
 savename = savePath + saveStr + '.png'
 plt.savefig(savename, dpi=dpi_val, bbox_inches='tight')
-ic(savename)
-
-print('Completed!')
+print(savename)
