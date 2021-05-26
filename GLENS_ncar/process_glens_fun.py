@@ -12,31 +12,6 @@ import sys
 import xarray as xr
 xr.set_options(keep_attrs=True)
 import numpy as np
-from cdo import *
-
-def prep_raw_data(inPath,outPath,inCard,outFile):
-    ''' Conduct basic preparation of raw data to make it suitable to run through other
-    functions. Current list of tasks: merge decadal files, shift time -1 days,
-    annual average. Requires Python CDO bindings, and thus cannot be run on the
-    NCAR system.
-    '''
-
-    cdo = Cdo()
-    inFile = inPath + inCard
-    mergeFile = outPath + 'merge_' + outFile + '.nc'
-    shiftFile = outPath + 'shift_' + outFile + '.nc'
-    yearFile = outPath + 'annual_' + outFile + '.nc'
-
-    cdo.mergetime(input=inFile, output=mergeFile)
-    print('Merged')
-    cdo.shifttime('-1days', input=mergeFile, output=shiftFile)
-    print('Shifted')
-    cdo.yearmonmean(input=shiftFile, output=yearFile)
-    print('Annual averaged')
-    print('Completed')
-
-    return
-
 
 def extract_meta_from_fname(fname):
     ''' Extract useful metadata from GLENS output filename '''
