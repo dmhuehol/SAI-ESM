@@ -25,7 +25,7 @@ import plotting_tools as plt_tls
 import fun_convert_unit as fcu
 
 # Inputs
-dataPath = '/Users/dhueholt/Documents/GLENS_data/annual_o3/'
+dataPath = '/glade/scratch/dhueholt/annual_o3/'
 filenameCntrl = 'control_003_O3_201001-201912_202001-202912_203001-203912_204001-204912_205001-205912_206001-206912_207001-207912_208001-208912_209001-209912_annual.nc'
 filenameFdbck = 'feedback_003_O3_202001-202912_203001-203912_204001-204912_205001-205912_206001-206912_207001-207912_208001-208912_209001-209912_annual.nc'
 cntrlPath = dataPath + filenameCntrl
@@ -36,7 +36,7 @@ finalInt = [2090,2099]
 levOfInt = 200 #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
 quantileOfInt = 0.67
 
-savePath = '/Users/dhueholt/Documents/GLENS_fig/20210525_github/'
+savePath = '/glade/work/dhueholt/20210526_dayOne/'
 savePrfx = 'globe_4p_FdbckCntrl_'
 dpi_val = 400
 

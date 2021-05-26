@@ -24,7 +24,7 @@ import region_library as rlib
 import fun_convert_unit as fcu
 
 # Inputs
-dataPath = '/Users/dhueholt/Documents/GLENS_data/annual_o3/'
+dataPath = '/glade/scratch/dhueholt/annual_o3/'
 filenameCntrl = 'control_003_O3_201001-201912_202001-202912_203001-203912_204001-204912_205001-205912_206001-206912_207001-207912_208001-208912_209001-209912_annual.nc'
 filenameFdbck = 'feedback_003_O3_202001-202912_203001-203912_204001-204912_205001-205912_206001-206912_207001-207912_208001-208912_209001-209912_annual.nc'
 cntrlPath = dataPath + filenameCntrl
@@ -39,7 +39,7 @@ fdbckPoi = [2020,2090]#[2020,2030,2040,2050,2090]#[2020,2050]
 timePeriod = 10 #number of years, i.e. 10 = decade
 
 plotStyle = 'kde' #'kde' or 'hist' or 'step'
-savePath = '/Users/dhueholt/Documents/GLENS_fig/20210525_github/'
+savePath = '/glade/work/dhueholt/20210526_dayOne/'
 savePrfx = 'pdf_' + plotStyle
 dpiVal = 400
 
