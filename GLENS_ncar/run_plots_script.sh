@@ -1,6 +1,6 @@
 #!/bin/bash -l
 ### Job Name
-#PBS -N untar_2020_O3
+#PBS -N plot_timeseries_O3
 ### Project code
 #PBS -A P06010014
 #PBS -l walltime=30:00
@@ -20,5 +20,6 @@ mkdir -p $TMPDIR
 
 # Load modules
 module load python
+module load ncar_pylib
 
 python plot_timeseries_script.py
