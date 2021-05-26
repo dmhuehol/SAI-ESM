@@ -55,4 +55,4 @@ Step plots plot a histogram without filling or edges. They are very useful when 
 `prep_files_script`: uses Python-based CDO to prepare files, kept in case of offline processing
 
 ## Sources and Credit
-Unless specified otherwise, all code and documentation was written by Daniel Hueholt as a Graduate Research Assistant advised by Profs. [Elizabeth Barnes](https://sites.google.com/rams.colostate.edu/barnesresearchgroup/home) and [James Hurrell](https://sites.google.com/rams.colostate.edu/hurrellgroup/home) at [Colorado State University](https://www.colostate.edu/).
+Unless specified otherwise, all code and documentation was written by Daniel Hueholt as a Graduate Research Assistant advised by Profs. [Elizabeth Barnes](https://barnes.atmos.colostate.edu/) and [James Hurrell](https://sites.google.com/rams.colostate.edu/hurrellgroup/home) at [Colorado State University](https://www.colostate.edu/).
