@@ -138,19 +138,31 @@ def obtain_levels(darr, levOfInt, levName='lev'):
     elif levOfInt == 'troposphere':
         indTpause = find_closest_level(darr, 200, levName=levName) #simple split on 200hPa for now
         levMask = levs > levs[indTpause]
-        darr = darr[:,levMask,:,:]
-        darr = darr.sum(dim=levName)
+        if np.ndim(darr) == 3:
+            darr = darr[levMask,:,:]
+            darr = darr.sum(dim=levName)
+        else:
+            darr = darr[:,levMask,:,:]
+            darr = darr.sum(dim=levName)
     elif levOfInt == 'stratosphere':
         indTpause = find_closest_level(darr, 200, levName=levName) #simple split on 200hPa for now
         levMask = levs <= levs[indTpause]
-        darr = darr[:,levMask,:,:]
-        darr = darr.sum(dim=levName)
+        if np.ndim(darr) == 3:
+            darr = darr[levMask,:,:]
+            darr = darr.sum(dim=levName)
+        else:
+            darr = darr[:,levMask,:,:]
+            darr = darr.sum(dim=levName)
     elif np.size(levOfInt)==2:
         indHghrPres = find_closest_level(darr, max(levOfInt), levName=levName)
         indLwrPres = find_closest_level(darr, min(levOfInt), levName=levName)
         levOfInt = [levs[indLwrPres],levs[indHghrPres]]
-        darr = darr[:,indLwrPres:indHghrPres+1,:,:]
-        darr = darr.sum(dim=levName)
+        if np.ndim(darr) == 3:
+                    darr = darr[indLwrPres:indHghrPres+1,:,:]
+                    darr = darr.sum(dim=levName)
+        else:
+            darr = darr[:,indLwrPres:indHghrPres+1,:,:]
+            darr = darr.sum(dim=levName)
     else:
         indClosest = find_closest_level(darr, levOfInt, levName=levName)
         darr.attrs[levName] = darr[levName].data[indClosest]
