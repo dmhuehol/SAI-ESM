@@ -223,3 +223,37 @@ def generate_labels(labelsList, intervalsToPlot, timePeriod, type):
         labelsList.append(labelStr)
 
     return labelsList
+
+def save_colorbar(cbarDict, savePath, saveName, dpiVal=400):
+    ''' Plots and saves a colorbar
+        cbarDict should have a cmap, range, direction (horizontal vs. vertical),
+        and label.
+    '''
+    cbarRange = np.array([cbarDict["range"]])
+
+    if cbarDict["direction"] == 'horizontal':
+        plt.figure(figsize=(9,3))
+        img = plt.imshow(cbarRange, cmap=cbarDict["cmap"])
+        plt.gca().set_visible(False)
+        colorAx = plt.axes([0.1,0.2,0.8,0.6])
+        cb = plt.colorbar(orientation='horizontal', cax=colorAx)
+        for label in cb.ax.get_xticklabels():
+            print(label)
+            # label.set_fontproperties(FiraSansThin) #Set font
+            # label.set_fontsize(18) #Set font size
+    elif cbarDict["direction"] == 'vertical':
+        plt.figure(figsize=(3,9))
+        img = plt.imshow(cbarRange, cmap=cbarDict["cmap"])
+        plt.gca().set_visible(False)
+        colorAx = plt.axes([0.1,0.2,0.5,0.6])
+        cb = plt.colorbar(orientation='vertical', cax=colorAx)
+        for label in cb.ax.get_yticklabels():
+            print(label)
+            # label.set_fontproperties(FiraSansThin)
+            # label.set_fontsize(18)
+    else:
+        sys.exit('Direction must be either horizontal or vertical.')
+
+    cb.set_label(cbarDict["label"], size='large')
+    # cb.set_label(cbarDict["label"], size='large', fontproperties=FiraSansThin) # Set font
+    plt.savefig(savePath + saveName + '.png', dpi=dpiVal)
