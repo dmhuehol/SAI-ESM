@@ -227,7 +227,13 @@ def generate_labels(labelsList, intervalsToPlot, timePeriod, type):
 def save_colorbar(cbarDict, savePath, saveName, dpiVal=400):
     ''' Plots and saves a colorbar
         cbarDict should have a cmap, range, direction (horizontal vs. vertical),
-        and label.
+        and label. Ex:
+        cbarDict = {
+            "cmap": cmocean.cm.delta,
+            "range": [-15,15],
+            "direction": 'vertical',
+            "label": 'percent'
+        }
     '''
     cbarRange = np.array([cbarDict["range"]])
 
