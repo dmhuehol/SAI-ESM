@@ -49,8 +49,22 @@ dataKey = pgf.discover_data_var(glensDsetCntrl)
 glensDarrCntrl = glensDsetCntrl[dataKey]
 glensDarrFdbck = glensDsetFdbck[dataKey]
 
-savePath='/Users/dhueholt/Documents/GLENS_fig/20210601_theOzoneStory/'
+savePath='/Users/dhueholt/Documents/GLENS_fig/20210602_OzoneAndRefinements/'
 dpi_val = 800
+
+def to3s_cbar():
+    ''' Plots the PuOr colorbar '''
+    cbarRange = np.array([[-15,15]])
+    plt.figure(figsize=(9,3))
+    img = plt.imshow(cbarRange, cmap='PuOr')
+    plt.gca().set_visible(False)
+    colorAx = plt.axes([0.1,0.2,0.8,0.6])
+    cb = plt.colorbar(orientation='horizontal', cax=colorAx)
+    for label in cb.ax.get_xticklabels():
+        label.set_fontproperties(FiraSansThin)
+        label.set_fontsize(18)
+    cb.set_label('Percent', size='large', fontproperties=FiraSansThin)
+    plt.savefig(savePath + 'PuOr_colorbar' + '.png', dpi=dpi_val)
 
 def to3s_dg(levOfInt,tStr):
     ''' Makes difference globe '''
@@ -83,15 +97,12 @@ def to3s_dg(levOfInt,tStr):
     minVal = -15
     maxVal = 15
 
-    plt_tls.drawOnGlobe(ax, diffToiFdbckPlotNorm, glensDarrFdbck.lat, glensDarrFdbck.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=True, fastBool=True, extent='max')
+    plt_tls.drawOnGlobe(ax, diffToiFdbckPlotNorm, glensDarrFdbck.lat, glensDarrFdbck.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=False, fastBool=True, extent='max')
     plt.title(tStr,fontproperties=FiraSansMed,fontsize=18) #Override automatic title generation here
     saveStr = savePrfx + dataKey + '_' + levStr + '_' + lastDcd
     savename = savePath + saveStr + '.png'
     plt.savefig(savename, dpi=dpi_val, bbox_inches='tight')
     ic(savename)
-
-to3s_dg(levOfInt='stratosphere',tStr="Percent change in stratospheric ozone 2010-2019 to 2090-2099")
-to3s_dg(levOfInt=[250,50],tStr="Percent change in 250mb to 50mb ozone 2010-2019 to 2090-2099")
 
 def to3s_ts():
     ''' Make stratospheric ozone timeseries '''
@@ -138,4 +149,7 @@ def to3s_ts():
 
     print('Completed!')
 
+to3s_cbar()
+to3s_dg(levOfInt='stratosphere',tStr="Percent change in stratospheric ozone 2010-2019 to 2090-2099")
+to3s_dg(levOfInt=[250,50],tStr="Percent change in 250mb to 50mb ozone 2010-2019 to 2090-2099")
 to3s_ts()
