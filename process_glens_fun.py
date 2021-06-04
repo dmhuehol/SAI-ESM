@@ -241,3 +241,15 @@ def isolate_change_quantile(darr, quantileOfInt):
     darrAbsNormQ.attrs['units'] = 'dimless'
 
     return darrAbsNormQ
+
+def open_data(dataDict):
+    ''' Opens data and select data variable '''
+    cntrlPath = dataDict["dataPath"] + dataDict["fnameCntrl"]
+    fdbckPath = dataDict["dataPath"] + dataDict["fnameFdbck"]
+    glensDsetCntrl = xr.open_dataset(cntrlPath)
+    glensDsetFdbck = xr.open_dataset(fdbckPath)
+    dataKey = discover_data_var(glensDsetCntrl)
+    glensDarrCntrl = glensDsetCntrl[dataKey]
+    glensDarrFdbck = glensDsetFdbck[dataKey]
+
+    return glensDarrCntrl, glensDarrFdbck, dataKey
