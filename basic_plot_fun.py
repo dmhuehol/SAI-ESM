@@ -396,6 +396,8 @@ def plot_timeseries(dataDict, setDict, outDict):
     plt.savefig(savename,dpi=outDict["dpiVal"],bbox_inches='tight')
     ic(savename)
 
+## PDFs
+
 def plot_pdf(dataDict, setDict, outDict):
     ''' Plot pdfs for RCP8.5 ("Control") and SAI ("Feedback") values for a GLENS output
     variable. Three formats are available: a kernel density estimate, a histogram,
