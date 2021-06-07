@@ -397,7 +397,9 @@ def plot_timeseries(dataDict, setDict, outDict):
     ic(savename)
 
 def plot_pdf(dataDict, setDict, outDict):
-
+    ''' Plot pdfs for RCP8.5 ("Control") and SAI ("Feedback") values for a GLENS output
+    variable. Three formats are available: a kernel density estimate, a histogram,
+    or a step plot.'''
     baselineFlag = False #Set whether to plot 2010-2019 ("Baseline") from RCP8.5
     # Open data
     glensDarrCntrl, glensDarrFdbck, dataKey = pgf.open_data(dataDict)
