@@ -1,15 +1,22 @@
 ''' basic_plot_fun
 Contains the basic plotting functions for GLENS output variables:
-difference globes, timeseries, and pdfs.
+difference globes, timeseries, and pdfs. The same three dictionary inputs (defining
+the input files, plot settings, and output images, respectively) are used for
+each function.
 
 --DIFFERENCE GLOBES--
-Functions to plot differences between RCP8.5 ("Control") and SAI ("Feedback")
+Functions to plot differences between RCP8.5 ("Control") and SAI/GEO8.5 ("Feedback")
 scenarios for a GLENS output variable on a 4-panel globe. Equal Earth map
 projection used by default.
 plot_basic_difference_globe: 4 panels showing different plots wrt scenario
 plot_single_basic_difference_globe: 1 panel plot, flexible
 plot_vertical_difference_globe: 4 panels showing different plots wrt height (RCP - SAI)
 plot_vertical_baseline_difference_globe: 4 panels showing different plots wrt height (BASELINE - SAI)
+
+--TIMESERIES--
+Make timeseries showing progression of both RCP8.5 ("Control") and SAI/GEO8.5
+("Feedback") for a GLENS output variable.
+plot_timeseries: plots a timeseries
 
 Written by Daniel Hueholt | June 2021
 Graduate Research Assistant at Colorado State University
