@@ -18,6 +18,11 @@ Make timeseries showing progression of both RCP8.5 ("Control") and SAI/GEO8.5
 ("Feedback") for a GLENS output variable.
 plot_timeseries: plots a timeseries
 
+--PDFs--
+Plot pdfs for RCP8.5 ("Control") and SAI ("Feedback") values for a GLENS output
+variable.
+plot_pdf: plots the pdfs as histogram, step plot, or kde depending on input
+
 Written by Daniel Hueholt | June 2021
 Graduate Research Assistant at Colorado State University
 '''
@@ -33,11 +38,13 @@ import cartopy
 import cartopy.crs as ccrs
 import cmocean
 import numpy as np
+import scipy.stats as stats
 
 import difference_over_time as dot
 import process_glens_fun as pgf
 import plotting_tools as plt_tls
 import fun_convert_unit as fcu
+import region_library as rlib
 
 # Example inputs
 # dataDict = {
@@ -49,8 +56,13 @@ import fun_convert_unit as fcu
 # setDict = {
 #     "startIntvl": [2010,2019],
 #     "endIntvl": [2090,2099],
-#     "levOfInt": 200, #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels,
-#     "regOfInt": 'global',  #'global', rlib.Place(), [latN,lonE360]
+#     "cntrlPoi": [2020,2090],
+#     "fdbckPoi": [2020,2090],
+#     "timePeriod": 10,
+#     "levOfInt": 'stratosphere', #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
+#     "regOfInt": 'global',
+#     "areaAvgBool": False,
+#     "plotStyle": 'kde',
 #     "quantileOfInt": 0.67
 # }
 #
@@ -383,3 +395,81 @@ def plot_timeseries(dataDict, setDict, outDict):
     savename = outDict["savePath"] + saveStr + '.png'
     plt.savefig(savename,dpi=outDict["dpiVal"],bbox_inches='tight')
     ic(savename)
+
+def plot_pdf(dataDict, setDict, outDict):
+
+    baselineFlag = False #Set whether to plot 2010-2019 ("Baseline") from RCP8.5
+    # Open data
+    glensDarrCntrl, glensDarrFdbck, dataKey = pgf.open_data(dataDict)
+
+    # Obtain levels
+    glensCntrlLoi = pgf.obtain_levels(glensDarrCntrl, setDict["levOfInt"])
+    glensFdbckLoi = pgf.obtain_levels(glensDarrFdbck, setDict["levOfInt"])
+
+    # Deal with area
+    glensCntrlAoi, locStr, locTitleStr = pgf.manage_area(glensCntrlLoi, setDict["regOfInt"], setDict["areaAvgBool"])
+    glensFdbckAoi, locStr, locTitleStr = pgf.manage_area(glensFdbckLoi, setDict["regOfInt"], setDict["areaAvgBool"])
+
+    # Remove 2010-2019 average
+    # baselineMeanToRmv = dot.average_over_years(glensCntrlAoi,2010,2019)
+    # glensCntrlAoi = glensCntrlAoi - baselineMeanToRmv
+    # glensFdbckAoi = glensFdbckAoi - baselineMeanToRmv
+
+    # Unit conversion
+    cntrlToPlot = fcu.molmol_to_ppm(glensCntrlAoi)
+    fdbckToPlot = fcu.molmol_to_ppm(glensFdbckAoi)
+
+    iqr = stats.iqr(glensCntrlAoi)
+    # binwidth = 2*iqr*(10 ** -1/3) # the Freedman-Diaconis rule
+    binwidth = 0.5 #the Let's Not Overthink This rule
+    ic(binwidth)
+
+    # Extract the decades of interest from the control and feedback datasets
+    cntrlYears = cntrlToPlot['time'].dt.year.data
+    cntrlHandlesToPlot = list()
+    cntrlHandlesToPlot = pgf.extract_doi(setDict["cntrlPoi"], cntrlYears, setDict["timePeriod"], cntrlToPlot, cntrlHandlesToPlot)
+    fdbckYears = fdbckToPlot['time'].dt.year.data
+    fdbckHandlesToPlot = list()
+    fdbckHandlesToPlot = pgf.extract_doi(setDict["fdbckPoi"], fdbckYears, setDict["timePeriod"], fdbckToPlot, fdbckHandlesToPlot)
+    handlesToPlot = cntrlHandlesToPlot + fdbckHandlesToPlot
+
+    # If not applying a spatial average, flatten data so dimensions don't confuse plotting code
+    if ~setDict["areaAvgBool"]:
+        for ind, h in enumerate(handlesToPlot):
+            handlesToPlot[ind] = h.data.flatten()
+
+    # Generate colors and strings for plots and filenames
+    if baselineFlag:
+        colorsToPlot = plt_tls.select_colors(baselineFlag,len(setDict["cntrlPoi"])-1,len(setDict["fdbckPoi"]))
+    else:
+        colorsToPlot = plt_tls.select_colors(baselineFlag,len(setDict["cntrlPoi"]),len(setDict["fdbckPoi"]))
+    if baselineFlag:
+        labelsToPlot = list(['2010-2019 Baseline'])
+    else:
+        labelsToPlot = list()
+    labelsToPlot = plt_tls.generate_labels(labelsToPlot, setDict["cntrlPoi"], setDict["timePeriod"], 'RCP8.5')
+    labelsToPlot = plt_tls.generate_labels(labelsToPlot, setDict["fdbckPoi"], setDict["timePeriod"], 'SAI')
+    varStr = glensDarrFdbck.long_name
+    varSave = varStr.replace(" ","")
+    levStr = pgf.make_level_string(cntrlToPlot, setDict["levOfInt"])
+    timeStr = str(setDict["timePeriod"]) + 'yr'
+    titleStr = varStr + ' ' + levStr + ' ' + locTitleStr
+    labelsToPlot.append(titleStr)
+    if setDict["areaAvgBool"]:
+        spcStr = 'spcavg'
+    else:
+        spcStr = 'nospcavg'
+    unit = cntrlToPlot.attrs['units']
+    savePrfx = 'pdf_' + setDict["plotStyle"] #Modify manually for differentiation
+    saveName = outDict["savePath"] + savePrfx + '_' + timeStr + '_' + varSave + '_' + levStr + '_' + locStr + '_' + spcStr
+    ic(colorsToPlot) # For troubleshooting
+
+    # Make kde, histograms, or step plots
+    if setDict["plotStyle"] == 'kde':
+        plt_tls.plot_pdf_kdeplot(handlesToPlot, colorsToPlot, labelsToPlot, unit, saveName, outDict["dpiVal"])
+    elif setDict["plotStyle"] == 'hist':
+        plt_tls.plot_pdf_hist(handlesToPlot, colorsToPlot, labelsToPlot, unit, saveName, binwidth, outDict["dpiVal"])
+    elif setDict["plotStyle"] == 'step':
+        plt_tls.plot_pdf_step(handlesToPlot, colorsToPlot, labelsToPlot, unit, saveName, binwidth, outDict["dpiVal"])
+    else:
+        sys.exit('Invalid plot style')
