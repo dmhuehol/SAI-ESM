@@ -1,13 +1,15 @@
-''' plot_difference_globes
-Functions to plot differences between RCP8.5 ("Control") and SAI ("Feedback")
-scenarios for a GLENS output variable on a 4-panel globe.
+''' basic_plot_fun
+Contains the basic plotting functions for GLENS output variables:
+difference globes, timeseries, and pdfs.
 
+--DIFFERENCE GLOBES--
+Functions to plot differences between RCP8.5 ("Control") and SAI ("Feedback")
+scenarios for a GLENS output variable on a 4-panel globe. Equal Earth map
+projection used by default.
 plot_basic_difference_globe: 4 panels showing different plots wrt scenario
 plot_single_basic_difference_globe: 1 panel plot, flexible
 plot_vertical_difference_globe: 4 panels showing different plots wrt height (RCP - SAI)
 plot_vertical_baseline_difference_globe: 4 panels showing different plots wrt height (BASELINE - SAI)
-
-Equal Earth map projection used by default.
 
 Written by Daniel Hueholt | June 2021
 Graduate Research Assistant at Colorado State University
@@ -40,7 +42,8 @@ import fun_convert_unit as fcu
 # setDict = {
 #     "startIntvl": [2010,2019],
 #     "endIntvl": [2090,2099],
-#     "levOfInt": 200, #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
+#     "levOfInt": 200, #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels,
+#     "regOfInt": 'global',  #'global', rlib.Place(), [latN,lonE360]
 #     "quantileOfInt": 0.67
 # }
 #
@@ -48,6 +51,8 @@ import fun_convert_unit as fcu
 #     "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210604_refactoringZonalAndMore/',
 #     "dpiVal": 400
 # }
+
+## DIFFERENCE GLOBES
 
 def plot_basic_difference_globe(dataDict, setDict, outDict):
     ''' Plot 4-panel difference globe
@@ -322,6 +327,52 @@ def plot_vertical_baseline_difference_globe(dataDict, setDict, outDict):
 
     savePrfx = 'globe_4p_vertical_baseline_' #Modify manually for differentiation
     saveStr = savePrfx + dataKey + '_' + str(setDict["levOfInt"]) + '_' + str(setDict["startIntvl"][0]) + str(setDict["startIntvl"][1]) + '_' + str(setDict["endIntvl"][0]) + str(setDict["endIntvl"][1])
+    savename = outDict["savePath"] + saveStr + '.png'
+    plt.savefig(savename,dpi=outDict["dpiVal"],bbox_inches='tight')
+    ic(savename)
+
+## TIMESERIES
+
+def plot_timeseries(dataDict, setDict, outDict):
+    ''' Make timeseries of GLENS output variable for RCP8.5 ("Control") and SAI/GEO8.5 ("Feedback") '''
+    # Open data
+    glensDarrCntrl, glensDarrFdbck, dataKey = pgf.open_data(dataDict)
+
+    bndDct = pgf.find_matching_year_bounds(glensDarrCntrl, glensDarrFdbck)
+    glensCntrlPoi = glensDarrCntrl[bndDct['cntrlStrtMtch']:bndDct['cntrlEndMtch']+1] #RANGES IN PYTHON ARE [)
+    glensFdbckPoi = glensDarrFdbck[bndDct['fdbckStrtMtch']:bndDct['fdbckEndMtch']+1]
+
+    # Obtain levels
+    glensCntrlPoi = pgf.obtain_levels(glensCntrlPoi, setDict["levOfInt"])
+    glensFdbckPoi = pgf.obtain_levels(glensFdbckPoi, setDict["levOfInt"])
+
+    # Deal with area
+    cntrlToPlot, locStr, locTitleStr = pgf.manage_area(glensCntrlPoi, setDict["regOfInt"], areaAvgBool=True)
+    fdbckToPlot, locStr, locTitleStr = pgf.manage_area(glensFdbckPoi, setDict["regOfInt"], areaAvgBool=True)
+
+    # Unit conversion
+    cntrlToPlot = fcu.molmol_to_ppm(cntrlToPlot)
+    fdbckToPlot = fcu.molmol_to_ppm(fdbckToPlot)
+
+    # Plotting
+    yStr = cntrlToPlot.units
+    varStr = glensDarrFdbck.long_name
+    startStr = str(bndDct['strtYrMtch'])
+    endStr = str(bndDct['endYrMtch'])
+    levStr = pgf.make_level_string(glensCntrlPoi, setDict["levOfInt"])
+    ic(levStr, locStr)
+
+    # Make timeseries
+    plt.figure()
+    plt.plot(bndDct['mtchYrs'],cntrlToPlot.data,color='#DF8C20',label='RCP8.5') #These are the cuckooColormap colors
+    plt.plot(bndDct['mtchYrs'],fdbckToPlot.data,color='#20DFCC',label='SAI')
+    plt.legend()
+    plt.ylabel(yStr)
+    plt.autoscale(enable=True, axis='x', tight=True)
+    plt.title(varStr + ' ' + levStr + ': ' + startStr + '-' + endStr + ' ' + locTitleStr)
+
+    savePrfx = 'timeseries_' #Modify manually for differentiation
+    saveStr = savePrfx + locStr + '_' + levStr
     savename = outDict["savePath"] + saveStr + '.png'
     plt.savefig(savename,dpi=outDict["dpiVal"],bbox_inches='tight')
     ic(savename)
