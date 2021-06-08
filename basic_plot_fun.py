@@ -88,8 +88,8 @@ def plot_basic_difference_globe(dataDict, setDict, outDict):
     glensFdbckLoi = pgf.obtain_levels(glensDarrFdbck, setDict["levOfInt"])
 
     # Unit conversion
-    glensCntrlLoi = fcu.molmol_to_ppm(glensCntrlLoi)
-    glensFdbckLoi = fcu.molmol_to_ppm(glensFdbckLoi)
+    # glensCntrlLoi = fcu.molmol_to_ppm(glensCntrlLoi)
+    # glensFdbckLoi = fcu.molmol_to_ppm(glensFdbckLoi)
 
     # Average over years
     toiStart = dot.average_over_years(glensCntrlLoi, setDict["startIntvl"][0], setDict["startIntvl"][1]) # 2010-2019 is baseline, injection begins 2020
@@ -159,7 +159,7 @@ def plot_single_basic_difference_globe(dataDict, setDict, outDict):
     diffToiFdbck =  toiEndCntrl - toiEndFdbck
 
     # Unit conversion
-    diffToiFdbckPlot = fcu.molmol_to_ppm(diffToiFdbck)
+    # diffToiFdbck = fcu.molmol_to_ppm(diffToiFdbck)
 
     # Plotting
     firstDcd = str(setDict["startIntvl"][0]) + '-' + str(setDict["startIntvl"][1])
@@ -173,12 +173,12 @@ def plot_single_basic_difference_globe(dataDict, setDict, outDict):
     plt.figure(figsize=(12, 2.73*2))
     ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
     cmap = cmocean.cm.delta
-    minVal = -diffToiFdbckPlot.quantile(0.99).data
+    minVal = -diffToiFdbck.quantile(0.99).data
     # minVal = -7 #Override automatic colorbar minimum here
-    maxVal = diffToiFdbckPlot.quantile(0.99).data
+    maxVal = diffToiFdbck.quantile(0.99).data
     # maxVal = 7 #Override automatic colorbar maximum here
 
-    plt_tls.drawOnGlobe(ax, diffToiFdbckPlot, glensDarrFdbck.lat, glensDarrFdbck.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=True, fastBool=True, extent='max')
+    plt_tls.drawOnGlobe(ax, diffToiFdbck, glensDarrFdbck.lat, glensDarrFdbck.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=True, fastBool=True, extent='max')
     plt.title(lastDcd + ' ' + sceneStr + ' ' + levStr + ' ' + varStr)
     # plt.title("2010-2019 Baseline - 2090-2099 SAI [50 0] ozone") #Override automatic title generation here
 
@@ -201,12 +201,12 @@ def plot_vertical_difference_globe(dataDict, setDict, outDict):
     glensDarrCntrl, glensDarrFdbck, dataKey = pgf.open_data(dataDict)
 
     # Unit conversion
-    glensDarrCntrlUnit = fcu.molmol_to_ppm(glensDarrCntrl)
-    glensDarrFdbckUnit = fcu.molmol_to_ppm(glensDarrFdbck)
+    # glensDarrCntrl = fcu.molmol_to_ppm(glensDarrCntrl)
+    # glensDarrFdbck = fcu.molmol_to_ppm(glensDarrFdbck)
 
     # Average over years
-    toiEndCntrl = dot.average_over_years(glensDarrCntrlUnit, setDict["endIntvl"][0], setDict["endIntvl"][1])
-    toiEndFdbck = dot.average_over_years(glensDarrFdbckUnit, setDict["endIntvl"][0], setDict["endIntvl"][1])
+    toiEndCntrl = dot.average_over_years(glensDarrCntrl, setDict["endIntvl"][0], setDict["endIntvl"][1])
+    toiEndFdbck = dot.average_over_years(glensDarrFdbck, setDict["endIntvl"][0], setDict["endIntvl"][1])
 
     # Obtain levels
     toiEndCntrlTotal = pgf.obtain_levels(toiEndCntrl, 'total')
@@ -281,12 +281,12 @@ def plot_vertical_baseline_difference_globe(dataDict, setDict, outDict):
     glensDarrCntrl, glensDarrFdbck, dataKey = pgf.open_data(dataDict)
 
     # Unit conversion
-    glensDarrCntrlUnit = fcu.molmol_to_ppm(glensDarrCntrl)
-    glensDarrFdbckUnit = fcu.molmol_to_ppm(glensDarrFdbck)
+    glensDarrCntrl = fcu.molmol_to_ppm(glensDarrCntrl)
+    glensDarrFdbck = fcu.molmol_to_ppm(glensDarrFdbck)
 
     # Average over years
-    toiStart = dot.average_over_years(glensDarrCntrlUnit, setDict["startIntvl"][0], setDict["startIntvl"][1]) # 2010-2019 is baseline, injection begins 2020
-    toiEndFdbck = dot.average_over_years(glensDarrFdbckUnit, setDict["endIntvl"][0], setDict["endIntvl"][1])
+    toiStart = dot.average_over_years(glensDarrCntrl, setDict["startIntvl"][0], setDict["startIntvl"][1]) # 2010-2019 is baseline, injection begins 2020
+    toiEndFdbck = dot.average_over_years(glensDarrFdbck, setDict["endIntvl"][0], setDict["endIntvl"][1])
 
     # Obtain levels
     toiStartCntrlTotal = pgf.obtain_levels(toiStart, 'total')
@@ -420,13 +420,15 @@ def plot_pdf(dataDict, setDict, outDict):
     # glensFdbckAoi = glensFdbckAoi - baselineMeanToRmv
 
     # Unit conversion
-    cntrlToPlot = fcu.molmol_to_ppm(glensCntrlAoi)
-    fdbckToPlot = fcu.molmol_to_ppm(glensFdbckAoi)
+    # cntrlToPlot = fcu.molmol_to_ppm(glensCntrlAoi)
+    # fdbckToPlot = fcu.molmol_to_ppm(glensFdbckAoi)
+    cntrlToPlot = glensCntrlAoi
+    fdbckToPlot = glensFdbckAoi
 
-    iqr = stats.iqr(glensCntrlAoi)
-    # binwidth = 2*iqr*(10 ** -1/3) # the Freedman-Diaconis rule
-    binwidth = 0.5 #the Let's Not Overthink This rule
-    ic(binwidth)
+    iqr = stats.iqr(cntrlToPlot)
+    binwidth = (2*iqr) / np.power(np.size(cntrlToPlot),1/3) # the Freedman-Diaconis rule
+    # binwidth = 0.5 #the Let's Not Overthink This rule
+    ic(iqr, binwidth)
 
     # Extract the decades of interest from the control and feedback datasets
     cntrlYears = cntrlToPlot['time'].dt.year.data
