@@ -92,6 +92,7 @@ def plot_pdf_kdeplot(handles, colors, labels, unit, saveName, dpiVal=400):
     if np.size(colors) > 1:
         for ind, h in enumerate(handles):
             ax = sn.kdeplot(data=h, label=labels[ind], color=colors[ind], linewidth=2)
+            ic(h)
             ax.set(xlabel=unit, ylabel='Density')
     else:
         ax = sn.kdeplot(data=handles, label=labels, color=colors, linewidth=2)
@@ -213,8 +214,8 @@ def generate_labels(labelsList, intervalsToPlot, timePeriod, type):
     ''' Generate labels for figure titles and output filenames '''
 
     for cdc,cdv in enumerate(intervalsToPlot):
-        if cdv == 2010:
-            continue
+        if cdv < 2020:
+            continue #Do not auto-generate if interval starts during the 2010-2019 "Baseline" period
         startYearStr = str(cdv)
         endYearStr = str(cdv + timePeriod - 1)
         if cdv+timePeriod == 2100:
