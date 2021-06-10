@@ -39,6 +39,7 @@ import cartopy.crs as ccrs
 import cmocean
 import numpy as np
 import scipy.stats as stats
+import glob
 
 import difference_over_time as dot
 import process_glens_fun as pgf
@@ -402,13 +403,40 @@ def plot_pdf(dataDict, setDict, outDict):
     ''' Plot pdfs for RCP8.5 ("Control") and SAI ("Feedback") values for a GLENS output
     variable. Three formats are available: a kernel density estimate, a histogram,
     or a step plot.'''
-    baselineFlag = False #Set whether to plot 2010-2019 ("Baseline") from RCP8.5
+    baselineFlag = True #Set whether to plot 2010-2019 ("Baseline") from RCP8.5
     # Open data
     glensDarrCntrl, glensDarrFdbck, dataKey = pgf.open_data(dataDict)
 
     # Obtain levels
     glensCntrlLoi = pgf.obtain_levels(glensDarrCntrl, setDict["levOfInt"])
     glensFdbckLoi = pgf.obtain_levels(glensDarrFdbck, setDict["levOfInt"])
+
+    # Choose ensemble member
+    realzFlag = 'mn'
+    if realzFlag = 'mn':
+        cntrlFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameCntrl']))
+        fdbckFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameFdbck']))
+        ememCntrl = pgf.get_ens_mem(cntrlFiles)
+        ememFdbck = pgf.get_ens_mem(fdbckFiles)
+        glensCntrlLoi = glensCntrlLoi.mean(dim='realization')
+        glensFdbckLoi = glensFdbckLoi.mean(dim='realization')
+        ememSaveCntrl = 'mnc' + 'r'.join(ememCntrl)
+        ememSaveFdbck = 'mnf' + 'r'.join(ememFdbck)
+        ememSave = ememSaveCntrl + '-' + ememSaveFdbck
+        ic(ememSave)
+    else:
+        try:
+            cntrlInd = 1
+            glensCntrlLoi = glensCntrlLoi[cntrlInd,:,:,:].compute()
+            activeCntrlEmem = ememCntrl[cntrlInd]
+            fdbckInd = 0
+            glensFdbckLoi = glensFdbckLoi[fdbckInd,:,:,:].compute()
+            activeFdbckEmem = ememFdbck[fdbckInd]
+            ememSave = 'rc' + activeCntrlEmem + '-' + 'rf' + activeFdbckEmem
+        except:
+            glensCntrlLoi = glensCntrlLoi
+            glensFdbckLoi = glensFdbckLoi
+            ememSave = ''
 
     # Deal with area
     glensCntrlAoi, locStr, locTitleStr = pgf.manage_area(glensCntrlLoi, setDict["regOfInt"], setDict["areaAvgBool"])
@@ -425,8 +453,8 @@ def plot_pdf(dataDict, setDict, outDict):
     cntrlToPlot = glensCntrlAoi
     fdbckToPlot = glensFdbckAoi
 
-    iqr = stats.iqr(cntrlToPlot)
-    binwidth = (2*iqr) / np.power(np.size(cntrlToPlot),1/3) # the Freedman-Diaconis rule
+    iqr = stats.iqr(cntrlToPlot,nan_policy='omit')
+    binwidth = (2*iqr) / np.power(np.count_nonzero(~np.isnan(cntrlToPlot)),1/3) # the Freedman-Diaconis rule (NaNs omitted as stackoverflow.com/a/21778195)
     # binwidth = 0.5 #the Let's Not Overthink This rule
     ic(iqr, binwidth)
 
@@ -450,11 +478,14 @@ def plot_pdf(dataDict, setDict, outDict):
     else:
         colorsToPlot = plt_tls.select_colors(baselineFlag,len(setDict["cntrlPoi"]),len(setDict["fdbckPoi"]))
     if baselineFlag:
-        labelsToPlot = list(['2010-2019 Baseline'])
+        labelsToPlot = list(['2011-2030 Baseline'])
     else:
         labelsToPlot = list()
+    ic(labelsToPlot)
     labelsToPlot = plt_tls.generate_labels(labelsToPlot, setDict["cntrlPoi"], setDict["timePeriod"], 'RCP8.5')
+    ic(labelsToPlot)
     labelsToPlot = plt_tls.generate_labels(labelsToPlot, setDict["fdbckPoi"], setDict["timePeriod"], 'SAI')
+    ic(labelsToPlot)
     varStr = glensDarrFdbck.long_name
     varSave = varStr.replace(" ","")
     levStr = pgf.make_level_string(cntrlToPlot, setDict["levOfInt"])
@@ -467,7 +498,7 @@ def plot_pdf(dataDict, setDict, outDict):
         spcStr = 'nospcavg'
     unit = cntrlToPlot.attrs['units']
     savePrfx = 'pdf_' + setDict["plotStyle"] #Modify manually for differentiation
-    saveName = outDict["savePath"] + savePrfx + '_' + timeStr + '_' + varSave + '_' + levStr + '_' + locStr + '_' + spcStr
+    saveName = outDict["savePath"] + savePrfx + '_' + ememSave + '_' + timeStr + '_' + varSave + '_' + levStr + '_' + locStr + '_' + spcStr + '_' + ememSave
     ic(colorsToPlot) # For troubleshooting
 
     # Make kde, histograms, or step plots

@@ -219,12 +219,35 @@ def isolate_change_quantile(darr, quantileOfInt):
 
 def open_data(dataDict):
     ''' Opens data and select data variable '''
-    cntrlPath = dataDict["dataPath"] + dataDict["fnameCntrl"]
-    fdbckPath = dataDict["dataPath"] + dataDict["fnameFdbck"]
-    glensDsetCntrl = xr.open_dataset(cntrlPath)
-    glensDsetFdbck = xr.open_dataset(fdbckPath)
-    dataKey = discover_data_var(glensDsetCntrl)
-    glensDarrCntrl = glensDsetCntrl[dataKey]
-    glensDarrFdbck = glensDsetFdbck[dataKey]
+    ic(dataDict["fnameCntrl"])
+    if '*' in dataDict["fnameCntrl"]:
+        ic('Multiple files')
+        cntrlPath = dataDict["dataPath"] + dataDict["fnameCntrl"]
+        fdbckPath = dataDict["dataPath"] + dataDict["fnameFdbck"]
+        glensDsetCntrl = xr.open_mfdataset(cntrlPath,concat_dim='realization',combine='nested')
+        glensDsetFdbck = xr.open_mfdataset(fdbckPath,concat_dim='realization',combine='nested')
+        dataKey = discover_data_var(glensDsetCntrl)
+        glensDarrCntrl = glensDsetCntrl[dataKey]
+        glensDarrFdbck = glensDsetFdbck[dataKey]
+    else:
+        ic('Single file')
+        cntrlPath = dataDict["dataPath"] + dataDict["fnameCntrl"]
+        fdbckPath = dataDict["dataPath"] + dataDict["fnameFdbck"]
+        glensDsetCntrl = xr.open_dataset(cntrlPath)
+        glensDsetFdbck = xr.open_dataset(fdbckPath)
+        dataKey = discover_data_var(glensDsetCntrl)
+        glensDarrCntrl = glensDsetCntrl[dataKey]
+        glensDarrFdbck = glensDsetFdbck[dataKey]
 
     return glensDarrCntrl, glensDarrFdbck, dataKey
+
+def get_ens_mem(files):
+    ''' Find ensemble members from a list of files '''
+    emem = list()
+    for pth in files:
+        pthPcs = pth.split('/')
+        fName = pthPcs[len(pthPcs)-1]
+        fNamePcs = fName.split('_')
+        emem.append(fNamePcs[1])
+
+    return emem
