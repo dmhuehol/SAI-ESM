@@ -23,25 +23,19 @@ dataDict = {
     "fnameCntrl": 'control_*',
     "fnameFdbck": 'feedback_*'
 }
-# control_*
-# feedback_*
-# control_003_U_201001-201912_202001-202912_203001-203912_204001-204912_205001-205912_206001-206912_207001-207912_208001-208912_209001-209912_annual.nc
-# feedback_003_U_202001-202912_203001-203912_204001-204912_205001-205912_206001-206912_207001-207912_208001-208912_209001-209912_annual.nc
-
 setDict = {
-    "realization": 3, #number for individual member or 'mean' for ensemble mean
-    "startIntvl": [2011,2030],
-    "endIntvl": [2041,2060],
-    "cntrlPoi": [2011,2076],
-    "fdbckPoi": [2076],
-    "timePeriod": 20,
+    "realization": 3, #number for individual member or 'mean' for ensemble mean | TODO: array entry to choose particular members
+    "startIntvl": [2011,2030], #dg
+    "endIntvl": [2041,2060], #dg
+    "cntrlPoi": [2011,2076], #pdf
+    "fdbckPoi": [2076], #pdf
+    "timePeriod": 20, #pdf
     "levOfInt": 50, #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
-    "regOfInt": rlib.NoLandLatitude(),
-    "areaAvgBool": False,
-    "plotStyle": 'step',
-    "quantileOfInt": 0.67
+    "regOfInt": rlib.NoLandLatitude(), #ts, pdf
+    "areaAvgBool": False, #pdf
+    "plotStyle": 'step', #pdf
+    "quantileOfInt": 0.67 #dg
 }
-
 outDict = {
     "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210615_polishingEns/',
     "dpiVal": 400
