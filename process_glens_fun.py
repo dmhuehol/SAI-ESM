@@ -13,6 +13,7 @@ import sys
 import xarray as xr
 xr.set_options(keep_attrs=True)
 import numpy as np
+import glob
 
 def extract_meta_from_fname(fname):
     ''' Extract useful metadata from GLENS output filename '''
@@ -276,3 +277,17 @@ def manage_realizations(setDict, cntrlDarr, fdbckDarr, ememCntrl, ememFdbck):
         ememSave = 'rc' + activeCntrlEmem + '-' + 'rf' + activeFdbckEmem
 
     return cntrlDarrOut, fdbckDarrOut, ememSave
+
+def call_to_open(dataDict, setDict):
+    ''' Common data tasks for all basic plots '''
+    glensDarrCntrl, glensDarrFdbck, dataKey = open_data(dataDict)
+
+    cntrlFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameCntrl']))
+    fdbckFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameFdbck']))
+    ememCntrl = get_ens_mem(cntrlFiles)
+    ememFdbck = get_ens_mem(fdbckFiles)
+    glensCntrlRlz, glensFdbckRlz, ememSave = manage_realizations(setDict, glensDarrCntrl, glensDarrFdbck, ememCntrl, ememFdbck)
+
+    cmnDict = {'dataKey': dataKey, 'ememSave': ememSave}
+
+    return glensCntrlRlz, glensFdbckRlz, cmnDict

@@ -39,7 +39,6 @@ import cartopy.crs as ccrs
 import cmocean
 import numpy as np
 import scipy.stats as stats
-import glob
 
 import difference_over_time as dot
 import process_glens_fun as pgf
@@ -47,46 +46,18 @@ import plotting_tools as plt_tls
 import fun_convert_unit as fcu
 import region_library as rlib
 
-# Example inputs
-# dataDict = {
-#     "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_o3/',
-#     "fnameCntrl": 'control_003_O3_201001-201912_202001-202912_203001-203912_204001-204912_205001-205912_206001-206912_207001-207912_208001-208912_209001-209912_annual.nc',
-#     "fnameFdbck": 'feedback_003_O3_202001-202912_203001-203912_204001-204912_205001-205912_206001-206912_207001-207912_208001-208912_209001-209912_annual.nc'
-# }
-#
-# setDict = {
-#     "startIntvl": [2010,2019],
-#     "endIntvl": [2090,2099],
-#     "cntrlPoi": [2020,2090],
-#     "fdbckPoi": [2020,2090],
-#     "timePeriod": 10,
-#     "levOfInt": 'stratosphere', #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
-#     "regOfInt": 'global',
-#     "areaAvgBool": False,
-#     "plotStyle": 'kde',
-#     "quantileOfInt": 0.67
-# }
-#
-# outDict = {
-#     "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210604_refactoringZonalAndMore/',
-#     "dpiVal": 400
-# }
-
 ## DIFFERENCE GLOBES
 
-def plot_basic_difference_globe(dataDict, setDict, outDict):
+def plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
     ''' Plot 4-panel difference globe
         (1) change over time for RCP8.5 ("Control")
         (2) change over time for SAI/GEO8.5 ("Feedback")
         (3) difference between RCP8.5 and SAI/GEO8.5 by end interval
         (4) show only where normalized values of (3) are above a given quantile
     '''
-    # Open data
-    glensDarrCntrl, glensDarrFdbck, dataKey = pgf.open_data(dataDict)
-
     # Obtain levels
-    glensCntrlLoi = pgf.obtain_levels(glensDarrCntrl, setDict["levOfInt"])
-    glensFdbckLoi = pgf.obtain_levels(glensDarrFdbck, setDict["levOfInt"])
+    glensCntrlLoi = pgf.obtain_levels(glensCntrlRlz, setDict["levOfInt"])
+    glensFdbckLoi = pgf.obtain_levels(glensFdbckRlz, setDict["levOfInt"])
 
     # Unit conversion
     # glensCntrlLoi = fcu.molmol_to_ppm(glensCntrlLoi)
@@ -113,7 +84,7 @@ def plot_basic_difference_globe(dataDict, setDict, outDict):
     cntrlStr = 'RCP8.5'
     fdbckStr = 'SAI'
     levStr = pgf.make_level_string(glensCntrlLoi, setDict["levOfInt"])
-    varStr = glensDarrCntrl.long_name
+    varStr = glensFdbckRlz.long_name
     quantileStr = str(setDict["quantileOfInt"])
 
     plt.figure(figsize=(12,2.73*2))
@@ -123,35 +94,32 @@ def plot_basic_difference_globe(dataDict, setDict, outDict):
     minVal = -diffToiCntrl.quantile(0.99).data
     maxVal = diffToiCntrl.quantile(0.99).data
 
-    plt_tls.drawOnGlobe(ax, diffToiCntrl, glensDarrCntrl.lat, glensDarrCntrl.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=True, fastBool=True, extent='max')
+    plt_tls.drawOnGlobe(ax, diffToiCntrl, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=True, fastBool=True, extent='max')
     plt.title(lastDcd + ' - ' + firstDcd + ' ' + cntrlStr + ' ' + levStr + ' ' + varStr)
 
     ax2 = plt.subplot(2,2,2,projection=mapProj)
-    plt_tls.drawOnGlobe(ax2, diffToiFdbck, glensDarrFdbck.lat, glensDarrFdbck.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=True, fastBool=True, extent='max')
+    plt_tls.drawOnGlobe(ax2, diffToiFdbck, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=True, fastBool=True, extent='max')
     plt.title(lastDcd + ' - ' + firstDcd + ' ' + fdbckStr + ' ' + levStr + ' ' + varStr)
 
     ax3 = plt.subplot(2,2,3,projection=mapProj)
-    plt_tls.drawOnGlobe(ax3, diffEndCntrlFdbck, glensDarrFdbck.lat, glensDarrFdbck.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=True, fastBool=True, extent='max')
+    plt_tls.drawOnGlobe(ax3, diffEndCntrlFdbck, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=True, fastBool=True, extent='max')
     plt.title(lastDcd + ' ' + cntrlStr + ' - ' + fdbckStr + ' ' + levStr + ' ' + varStr)
 
     ax4 = plt.subplot(2,2,4,projection=mapProj)
-    plt_tls.drawOnGlobe(ax4, diffEndCntrlFdbckAbsNormQ, glensDarrFdbck.lat, glensDarrFdbck.lon, cmapSeq, vmin=0, vmax=1, cbarBool=True, fastBool=True, extent='max')
+    plt_tls.drawOnGlobe(ax4, diffEndCntrlFdbckAbsNormQ, glensFdbckRlz.lat, glensFdbckRlz.lon, cmapSeq, vmin=0, vmax=1, cbarBool=True, fastBool=True, extent='max')
     plt.title(lastDcd + ' ' + fdbckStr + ' - ' + cntrlStr + ' ' + levStr + ' ' + '|' + 'norm' + '\u0394' + varStr + '|' + '>' + quantileStr + 'Q')
 
     savePrfx = 'globe_4p_FdbckCntrl_' #Easy modification for unique filename
-    saveStr = savePrfx + dataKey + '_' + str(setDict["levOfInt"]) + '_' + str(setDict["startIntvl"][0]) + str(setDict["startIntvl"][1]) + '_' + str(setDict["endIntvl"][0]) + str(setDict["endIntvl"][1])
+    saveStr = savePrfx + dataDict["dataKey"] + '_' + str(setDict["levOfInt"]) + '_' + str(setDict["startIntvl"][0]) + str(setDict["startIntvl"][1]) + '_' + str(setDict["endIntvl"][0]) + str(setDict["endIntvl"][1]) + '_' + dataDict["ememSave"]
     savename = outDict["savePath"] + saveStr + '.png'
     plt.savefig(savename,dpi=outDict["dpiVal"],bbox_inches='tight')
     ic(savename)
 
-def plot_single_basic_difference_globe(dataDict, setDict, outDict):
+def plot_single_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
     ''' Plot 1 panel difference globe '''
-    # Open data
-    glensDarrCntrl, glensDarrFdbck, dataKey = pgf.open_data(dataDict)
-
     # Obtain levels
-    glensCntrlLoi = pgf.obtain_levels(glensDarrCntrl, setDict["levOfInt"])
-    glensFdbckLoi = pgf.obtain_levels(glensDarrFdbck, setDict["levOfInt"])
+    glensCntrlLoi = pgf.obtain_levels(glensCntrlRlz, setDict["levOfInt"])
+    glensFdbckLoi = pgf.obtain_levels(glensFdbckRlz, setDict["levOfInt"])
 
     # Average over years
     toiStart = dot.average_over_years(glensCntrlLoi, setDict["startIntvl"][0], setDict["startIntvl"][1]) # 2010-2019 is baseline, injection begins 2020
@@ -167,7 +135,7 @@ def plot_single_basic_difference_globe(dataDict, setDict, outDict):
     lastDcd = str(setDict["endIntvl"][0]) + '-' + str(setDict["endIntvl"][1])
     sceneStr = 'RCP8.5 - SAI'
     levStr = pgf.make_level_string(glensCntrlLoi, setDict["levOfInt"])
-    varStr = glensDarrCntrl.long_name
+    varStr = glensCntrlRlz.long_name
 
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
@@ -179,18 +147,18 @@ def plot_single_basic_difference_globe(dataDict, setDict, outDict):
     maxVal = diffToiFdbck.quantile(0.99).data
     # maxVal = 7 #Override automatic colorbar maximum here
 
-    plt_tls.drawOnGlobe(ax, diffToiFdbck, glensDarrFdbck.lat, glensDarrFdbck.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=True, fastBool=True, extent='max')
+    plt_tls.drawOnGlobe(ax, diffToiFdbck, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=True, fastBool=True, extent='max')
     plt.title(lastDcd + ' ' + sceneStr + ' ' + levStr + ' ' + varStr)
     # plt.title("2010-2019 Baseline - 2090-2099 SAI [50 0] ozone") #Override automatic title generation here
 
     savePrfx = 'globe_1p_FdbckCntrl_' #Easy modification for unique filename
-    saveStr = savePrfx + dataKey + '_' + levStr + '_' + lastDcd
+    saveStr = savePrfx + dataDict["dataKey"] + '_' + levStr + '_' + lastDcd + '_' + dataDict["ememSave"]
     # saveStr = 'globe_1p_FdbckCntrl_O3_[50 0]_C2010-2019_F2090-2099' #Override automatic filename generation here
     savename = outDict["savePath"] + saveStr + '.png'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
     ic(savename)
 
-def plot_vertical_difference_globe(dataDict, setDict, outDict):
+def plot_vertical_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
     ''' Plot 4-panel difference globe for difference between RCP8.5 and SAI/GEO8.5
     values at ending interval by level
         (1) Total
@@ -198,12 +166,12 @@ def plot_vertical_difference_globe(dataDict, setDict, outDict):
         (3) 250mb to 50mb (can be modified for any layer)
         (4) Stratosphere
     '''
-    # Open data
-    glensDarrCntrl, glensDarrFdbck, dataKey = pgf.open_data(dataDict)
 
     # Unit conversion
     # glensDarrCntrl = fcu.molmol_to_ppm(glensDarrCntrl)
     # glensDarrFdbck = fcu.molmol_to_ppm(glensDarrFdbck)
+    glensDarrCntrl = glensCntrlRlz
+    glensDarrFdbck = glensFdbckRlz
 
     # Average over years
     toiEndCntrl = dot.average_over_years(glensDarrCntrl, setDict["endIntvl"][0], setDict["endIntvl"][1])
@@ -265,12 +233,12 @@ def plot_vertical_difference_globe(dataDict, setDict, outDict):
     # plt.title(lastDcd + ' ' + cntrlStr + ' - ' + fdbckStr + ' ' + '[250,50]' + ' ' + varStr)
 
     savePrfx = 'globe_4p_vertical_FdbckCntrl_' #Modify manually for differentiation
-    saveStr = savePrfx + dataKey + '_' + str(setDict["endIntvl"][0]) + str(setDict["endIntvl"][1])
+    saveStr = savePrfx + dataDict["dataKey"] + '_' + str(setDict["endIntvl"][0]) + str(setDict["endIntvl"][1]) + '_' + dataDict["ememSave"]
     savename = outDict["savePath"] + saveStr + '.png'
     plt.savefig(savename,dpi=outDict["dpiVal"],bbox_inches='tight')
     ic(savename)
 
-def plot_vertical_baseline_difference_globe(dataDict, setDict, outDict):
+def plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
     ''' Plot 4-panel difference globe for difference between baseline 2010-2019
      and SAI/GEO8.5 values at ending interval by level
         (1) Total
@@ -278,12 +246,12 @@ def plot_vertical_baseline_difference_globe(dataDict, setDict, outDict):
         (3) Input layer (250mb to 50mb by default)
         (4) Stratosphere
     '''
-    # Open data
-    glensDarrCntrl, glensDarrFdbck, dataKey = pgf.open_data(dataDict)
 
     # Unit conversion
-    glensDarrCntrl = fcu.molmol_to_ppm(glensDarrCntrl)
-    glensDarrFdbck = fcu.molmol_to_ppm(glensDarrFdbck)
+    # glensDarrCntrl = fcu.molmol_to_ppm(glensCntrlRlz)
+    # glensDarrFdbck = fcu.molmol_to_ppm(glensFdbckRlz)
+    glensDarrCntrl = glensCntrlRlz
+    glensDarrFdbck = glensFdbckRlz
 
     # Average over years
     toiStart = dot.average_over_years(glensDarrCntrl, setDict["startIntvl"][0], setDict["startIntvl"][1]) # 2010-2019 is baseline, injection begins 2020
@@ -346,21 +314,19 @@ def plot_vertical_baseline_difference_globe(dataDict, setDict, outDict):
     # plt.title(lastDcd + ' ' + cntrlStr + ' - ' + fdbckStr + ' ' + '[250,50]' + ' ' + varStr)
 
     savePrfx = 'globe_4p_vertical_baseline_' #Modify manually for differentiation
-    saveStr = savePrfx + dataKey + '_' + str(setDict["levOfInt"]) + '_' + str(setDict["startIntvl"][0]) + str(setDict["startIntvl"][1]) + '_' + str(setDict["endIntvl"][0]) + str(setDict["endIntvl"][1])
+    saveStr = savePrfx + dataDict["dataKey"] + '_' + str(setDict["levOfInt"]) + '_' + str(setDict["startIntvl"][0]) + str(setDict["startIntvl"][1]) + '_' + str(setDict["endIntvl"][0]) + str(setDict["endIntvl"][1]) + '_' + dataDict["ememSave"]
     savename = outDict["savePath"] + saveStr + '.png'
     plt.savefig(savename,dpi=outDict["dpiVal"],bbox_inches='tight')
     ic(savename)
 
 ## TIMESERIES
 
-def plot_timeseries(dataDict, setDict, outDict):
+def plot_timeseries(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
     ''' Make timeseries of GLENS output variable for RCP8.5 ("Control") and SAI/GEO8.5 ("Feedback") '''
-    # Open data
-    glensDarrCntrl, glensDarrFdbck, dataKey = pgf.open_data(dataDict)
 
-    bndDct = pgf.find_matching_year_bounds(glensDarrCntrl, glensDarrFdbck)
-    glensCntrlPoi = glensDarrCntrl[bndDct['cntrlStrtMtch']:bndDct['cntrlEndMtch']+1] #RANGES IN PYTHON ARE [)
-    glensFdbckPoi = glensDarrFdbck[bndDct['fdbckStrtMtch']:bndDct['fdbckEndMtch']+1]
+    bndDct = pgf.find_matching_year_bounds(glensCntrlRlz, glensFdbckRlz)
+    glensCntrlPoi = glensCntrlRlz[bndDct['cntrlStrtMtch']:bndDct['cntrlEndMtch']+1] #RANGES IN PYTHON ARE [)
+    glensFdbckPoi = glensFdbckRlz[bndDct['fdbckStrtMtch']:bndDct['fdbckEndMtch']+1]
 
     # Obtain levels
     glensCntrlPoi = pgf.obtain_levels(glensCntrlPoi, setDict["levOfInt"])
@@ -371,14 +337,14 @@ def plot_timeseries(dataDict, setDict, outDict):
     fdbckToPlot, locStr, locTitleStr = pgf.manage_area(glensFdbckPoi, setDict["regOfInt"], areaAvgBool=True)
 
     # Unit conversion
-    cntrlToPlot = fcu.molmol_to_ppm(cntrlToPlot)
-    fdbckToPlot = fcu.molmol_to_ppm(fdbckToPlot)
+    # cntrlToPlot = fcu.molmol_to_ppm(cntrlToPlot)
+    # fdbckToPlot = fcu.molmol_to_ppm(fdbckToPlot)
 
     # Plotting
     yStr = cntrlToPlot.units
-    varStr = glensDarrFdbck.long_name
+    varStr = glensCntrlRlz.long_name
     startStr = str(bndDct['strtYrMtch'])
-    endStr = str(bndDct['endYrMtch'])
+    endStr = '2098'#str(bndDct['endYrMtch'])
     levStr = pgf.make_level_string(glensCntrlPoi, setDict["levOfInt"])
     ic(levStr, locStr)
 
@@ -389,30 +355,22 @@ def plot_timeseries(dataDict, setDict, outDict):
     plt.legend()
     plt.ylabel(yStr)
     plt.autoscale(enable=True, axis='x', tight=True)
+    plt.xlim(2020,2098)
     plt.title(varStr + ' ' + levStr + ': ' + startStr + '-' + endStr + ' ' + locTitleStr)
 
     savePrfx = 'timeseries_' #Modify manually for differentiation
-    saveStr = savePrfx + locStr + '_' + levStr
+    saveStr = savePrfx + locStr + '_' + levStr + '_' + dataDict["ememSave"]
     savename = outDict["savePath"] + saveStr + '.png'
     plt.savefig(savename,dpi=outDict["dpiVal"],bbox_inches='tight')
     ic(savename)
 
 ## PDFs
 
-def plot_pdf(dataDict, setDict, outDict):
+def plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
     ''' Plot pdfs for RCP8.5 ("Control") and SAI ("Feedback") values for a GLENS output
     variable. Three formats are available: a kernel density estimate, a histogram,
     or a step plot.'''
     baselineFlag = True #True if plotting any data from before 2020 (during the "Baseline" period), False otherwise
-    # Open data
-    glensDarrCntrl, glensDarrFdbck, dataKey = pgf.open_data(dataDict)
-
-    # Choose ensemble member
-    cntrlFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameCntrl']))
-    fdbckFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameFdbck']))
-    ememCntrl = pgf.get_ens_mem(cntrlFiles)
-    ememFdbck = pgf.get_ens_mem(fdbckFiles)
-    glensCntrlRlz, glensFdbckRlz, ememSave = pgf.manage_realizations(setDict, glensDarrCntrl, glensDarrFdbck, ememCntrl, ememFdbck)
 
     # Obtain levels
     glensCntrlLoi = pgf.obtain_levels(glensCntrlRlz, setDict["levOfInt"])
@@ -466,7 +424,7 @@ def plot_pdf(dataDict, setDict, outDict):
     ic(labelsToPlot)
     labelsToPlot = plt_tls.generate_labels(labelsToPlot, setDict["fdbckPoi"], setDict["timePeriod"], 'SAI')
     ic(labelsToPlot)
-    varStr = glensDarrFdbck.long_name
+    varStr = glensCntrlRlz.long_name
     varSave = varStr.replace(" ","")
     levStr = pgf.make_level_string(cntrlToPlot, setDict["levOfInt"])
     timeStr = str(setDict["timePeriod"]) + 'yr'
@@ -478,7 +436,7 @@ def plot_pdf(dataDict, setDict, outDict):
         spcStr = 'nospcavg'
     unit = cntrlToPlot.attrs['units']
     savePrfx = 'pdf_' + setDict["plotStyle"] #Modify manually for differentiation
-    saveName = outDict["savePath"] + savePrfx + '_' + timeStr + '_' + varSave + '_' + levStr + '_' + locStr + '_' + spcStr + '_' + ememSave
+    saveName = outDict["savePath"] + savePrfx + '_' + timeStr + '_' + varSave + '_' + levStr + '_' + locStr + '_' + spcStr + '_' + dataDict["ememSave"]
     ic(colorsToPlot) # For troubleshooting
 
     # Make kde, histograms, or step plots
