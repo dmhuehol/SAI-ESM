@@ -1,3 +1,4 @@
+
 #!/bin/bash -l
 ### Job Name
 #PBS -N untar_2020_O3
@@ -20,5 +21,7 @@ mkdir -p $TMPDIR
 
 # Load modules
 module load python
+module load ncarenv
+ncar_pylib
 
-python plot_timeseries_script.py
+python wrap_basicplots_script.py
