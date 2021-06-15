@@ -403,40 +403,20 @@ def plot_pdf(dataDict, setDict, outDict):
     ''' Plot pdfs for RCP8.5 ("Control") and SAI ("Feedback") values for a GLENS output
     variable. Three formats are available: a kernel density estimate, a histogram,
     or a step plot.'''
-    baselineFlag = True #Set whether to plot 2010-2019 ("Baseline") from RCP8.5
+    baselineFlag = True #True if plotting any data from before 2020 (during the "Baseline" period), False otherwise
     # Open data
     glensDarrCntrl, glensDarrFdbck, dataKey = pgf.open_data(dataDict)
 
-    # Obtain levels
-    glensCntrlLoi = pgf.obtain_levels(glensDarrCntrl, setDict["levOfInt"])
-    glensFdbckLoi = pgf.obtain_levels(glensDarrFdbck, setDict["levOfInt"])
-
     # Choose ensemble member
-    realzFlag = 'mn'
-    if realzFlag = 'mn':
-        cntrlFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameCntrl']))
-        fdbckFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameFdbck']))
-        ememCntrl = pgf.get_ens_mem(cntrlFiles)
-        ememFdbck = pgf.get_ens_mem(fdbckFiles)
-        glensCntrlLoi = glensCntrlLoi.mean(dim='realization')
-        glensFdbckLoi = glensFdbckLoi.mean(dim='realization')
-        ememSaveCntrl = 'mnc' + 'r'.join(ememCntrl)
-        ememSaveFdbck = 'mnf' + 'r'.join(ememFdbck)
-        ememSave = ememSaveCntrl + '-' + ememSaveFdbck
-        ic(ememSave)
-    else:
-        try:
-            cntrlInd = 1
-            glensCntrlLoi = glensCntrlLoi[cntrlInd,:,:,:].compute()
-            activeCntrlEmem = ememCntrl[cntrlInd]
-            fdbckInd = 0
-            glensFdbckLoi = glensFdbckLoi[fdbckInd,:,:,:].compute()
-            activeFdbckEmem = ememFdbck[fdbckInd]
-            ememSave = 'rc' + activeCntrlEmem + '-' + 'rf' + activeFdbckEmem
-        except:
-            glensCntrlLoi = glensCntrlLoi
-            glensFdbckLoi = glensFdbckLoi
-            ememSave = ''
+    cntrlFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameCntrl']))
+    fdbckFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameFdbck']))
+    ememCntrl = pgf.get_ens_mem(cntrlFiles)
+    ememFdbck = pgf.get_ens_mem(fdbckFiles)
+    glensCntrlRlz, glensFdbckRlz, ememSave = pgf.manage_realizations(setDict, glensDarrCntrl, glensDarrFdbck, ememCntrl, ememFdbck)
+
+    # Obtain levels
+    glensCntrlLoi = pgf.obtain_levels(glensCntrlRlz, setDict["levOfInt"])
+    glensFdbckLoi = pgf.obtain_levels(glensFdbckRlz, setDict["levOfInt"])
 
     # Deal with area
     glensCntrlAoi, locStr, locTitleStr = pgf.manage_area(glensCntrlLoi, setDict["regOfInt"], setDict["areaAvgBool"])
@@ -498,7 +478,7 @@ def plot_pdf(dataDict, setDict, outDict):
         spcStr = 'nospcavg'
     unit = cntrlToPlot.attrs['units']
     savePrfx = 'pdf_' + setDict["plotStyle"] #Modify manually for differentiation
-    saveName = outDict["savePath"] + savePrfx + '_' + ememSave + '_' + timeStr + '_' + varSave + '_' + levStr + '_' + locStr + '_' + spcStr + '_' + ememSave
+    saveName = outDict["savePath"] + savePrfx + '_' + timeStr + '_' + varSave + '_' + levStr + '_' + locStr + '_' + spcStr + '_' + ememSave
     ic(colorsToPlot) # For troubleshooting
 
     # Make kde, histograms, or step plots

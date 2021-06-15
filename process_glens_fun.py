@@ -251,3 +251,28 @@ def get_ens_mem(files):
         emem.append(fNamePcs[1])
 
     return emem
+
+def manage_realizations(setDict, cntrlDarr, fdbckDarr, ememCntrl, ememFdbck):
+    ''' Either obtain realization of interest or calculate ensemble mean, and
+    create relevant filename '''
+    if setDict['realization'] == 'mean':
+        cntrlDarrMn = cntrlDarr.mean(dim='realization')
+        fdbckDarrMn = fdbckDarr.mean(dim='realization')
+        cntrlDarrOut = cntrlDarrMn.compute()
+        fdbckDarrOut = fdbckDarrMn.compute()
+        ememSaveCntrl = 'mnc' + 'r'.join(ememCntrl)
+        ememSaveFdbck = 'mnf' + 'r'.join(ememFdbck)
+        ememSave = ememSaveCntrl + '-' + ememSaveFdbck
+    else:
+        ememCntrlNum = list(map(int, ememCntrl))
+        rCntrl = ememCntrlNum.index(setDict['realization'])
+        cntrlDarrOut = cntrlDarr[rCntrl,:,:,:].compute()
+        ememFdbckNum = list(map(int, ememFdbck))
+        rFdbck = ememFdbckNum.index(setDict['realization'])
+        fdbckDarrOut = fdbckDarr[rFdbck,:,:,:].compute()
+
+        activeCntrlEmem = ememCntrl[rCntrl]
+        activeFdbckEmem = ememFdbck[rFdbck]
+        ememSave = 'rc' + activeCntrlEmem + '-' + 'rf' + activeFdbckEmem
+
+    return cntrlDarrOut, fdbckDarrOut, ememSave

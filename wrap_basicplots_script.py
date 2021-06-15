@@ -17,26 +17,31 @@ import basic_plot_fun as bpf
 import region_library as rlib
 
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_o3/',
-    "fnameCntrl": 'control_003_O3_201001-201912_202001-202912_203001-203912_204001-204912_205001-205912_206001-206912_207001-207912_208001-208912_209001-209912_annual.nc',
-    "fnameFdbck": 'feedback_003_O3_202001-202912_203001-203912_204001-204912_205001-205912_206001-206912_207001-207912_208001-208912_209001-209912_annual.nc'
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_U/',
+    "fnameCntrl": 'control_*',
+    "fnameFdbck": 'feedback_*'
 }
+# control_*
+# feedback_*
+# control_003_U_201001-201912_202001-202912_203001-203912_204001-204912_205001-205912_206001-206912_207001-207912_208001-208912_209001-209912_annual.nc
+# feedback_003_U_202001-202912_203001-203912_204001-204912_205001-205912_206001-206912_207001-207912_208001-208912_209001-209912_annual.nc
 
 setDict = {
+    "realization": 'mean', #number for individual member or 'mean' for ensemble mean
     "startIntvl": [2010,2019],
     "endIntvl": [2090,2099],
-    "cntrlPoi": [2020,2090],
-    "fdbckPoi": [2020,2090],
-    "timePeriod": 10,
-    "levOfInt": 'stratosphere', #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
-    "regOfInt": rlib.NoLandLatitude(),
+    "cntrlPoi": [2011,2076],
+    "fdbckPoi": [2076],
+    "timePeriod": 20,
+    "levOfInt": 50, #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
+    "regOfInt": 'global',
     "areaAvgBool": False,
     "plotStyle": 'step',
     "quantileOfInt": 0.67
 }
 
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210605_functionsAndExtremes/validate/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210615_polishingEns/',
     "dpiVal": 400
 }
 
@@ -46,5 +51,9 @@ outDict = {
 # bpf.plot_vertical_baseline_difference_globe(dataDict, setDict, outDict)
 #
 # bpf.plot_timeseries(dataDict, setDict, outDict)
-#
+
+bpf.plot_pdf(dataDict, setDict, outDict)
+# setDict["plotStyle"] = 'kde'
+# bpf.plot_pdf(dataDict, setDict, outDict)
+# setDict["plotStyle"] = 'hist'
 # bpf.plot_pdf(dataDict, setDict, outDict)
