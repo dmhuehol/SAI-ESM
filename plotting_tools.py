@@ -84,7 +84,7 @@ def add_cyclic_point(data, coord=None, axis=-1):
         return_value = new_data, new_coord
     return return_value
 
-def plot_pdf_kdeplot(handles, colors, labels, unit, saveName, dpiVal=400):
+def plot_pdf_kdeplot(handles, colors, labels, unit, savename, dpiVal=400):
     ''' Make kernel density estimates for several input handles '''
 
     plt.figure()
@@ -101,10 +101,10 @@ def plot_pdf_kdeplot(handles, colors, labels, unit, saveName, dpiVal=400):
     plt.legend(bbox_to_anchor=(0.83,-0.1), ncol=2, fontsize=8)
     plt.title(labels[np.size(labels)-1])
 
-    ic(saveName)
-    plt.savefig(saveName + '.png', dpi=dpiVal, bbox_inches='tight')
+    ic(savename)
+    plt.savefig(savename, dpi=dpiVal, bbox_inches='tight')
 
-def plot_pdf_hist(handles, colors, labels, unit, saveName, binwidth, dpiVal=400):
+def plot_pdf_hist(handles, colors, labels, unit, savename, binwidth, dpiVal=400):
     ''' Make histograms for several input handles'''
 
     plt.figure()
@@ -120,10 +120,10 @@ def plot_pdf_hist(handles, colors, labels, unit, saveName, binwidth, dpiVal=400)
     plt.legend(bbox_to_anchor=(0.83,-0.1), ncol=2, fontsize=8)
     plt.title(labels[np.size(labels)-1])
 
-    ic(saveName)
-    plt.savefig(saveName + '.png', dpi=dpiVal, bbox_inches='tight')
+    ic(savename)
+    plt.savefig(savename, dpi=dpiVal, bbox_inches='tight')
 
-def plot_pdf_step(handles, colors, labels, unit, saveName, binwidth, dpiVal=400):
+def plot_pdf_step(handles, colors, labels, unit, savename, binwidth, dpiVal=400):
     ''' Make step plots for several input handles '''
 
     plt.figure()
@@ -141,8 +141,8 @@ def plot_pdf_step(handles, colors, labels, unit, saveName, binwidth, dpiVal=400)
     plt.legend(bbox_to_anchor=(0.83,-0.1), ncol=2, fontsize=8)
     plt.title(labels[np.size(labels)-1])
 
-    ic(saveName)
-    plt.savefig(saveName + '.png', dpi=dpiVal, bbox_inches='tight')
+    ic(savename)
+    plt.savefig(savename, dpi=dpiVal, bbox_inches='tight')
 
 def select_colors(baselineFlag, nFdbck, nCntrl):
     '''Returns colors for a set number of feedback and control objects '''

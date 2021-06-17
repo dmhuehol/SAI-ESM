@@ -37,7 +37,7 @@ setDict = {
     "quantileOfInt": 0.67 #dg
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210615_polishingEns/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210616_finalPrep/2_fnamesCompleteCheck/',
     "dpiVal": 400
 }
 

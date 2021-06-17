@@ -291,3 +291,87 @@ def call_to_open(dataDict, setDict):
     cmnDict = {'dataKey': dataKey, 'ememSave': ememSave}
 
     return glensCntrlRlz, glensFdbckRlz, cmnDict
+
+def meta_book(setDict, dataDict, labelsToPlot=None, glensCntrlLoi=False, glensFdbckRlz=None, cntrlToPlot=None, bndDct=None):
+    ''' Contains all the bits and pieces for building savenames and titles '''
+
+    metaDict = {
+        "cntrlStr": 'RCP8.5',
+        "fdbckStr": 'SAI',
+        "varStr": glensFdbckRlz.long_name,
+        "varSve": glensFdbckRlz.long_name.replace(" ",""),
+        "strtStr": str(cntrlToPlot['time'].data[0].year),
+        "endStr": str(cntrlToPlot['time'].data[len(cntrlToPlot)-1].year), #str(bndDct['endYrMtch'])
+        "frstDcd": str(setDict["startIntvl"][0]) + '-' + str(setDict["startIntvl"][1]),
+        "lstDcd": str(setDict["endIntvl"][0]) + '-' + str(setDict["endIntvl"][1]),
+        "tmStr": bcf_parser(labelsToPlot),#str(setDict["timePeriod"]) + 'yr',
+        "levStr": '' if len(np.shape(glensCntrlLoi))==0 else make_level_string(glensCntrlLoi, setDict["levOfInt"]),
+        "levSve": '' if len(np.shape(glensCntrlLoi))==0 else make_level_string(glensCntrlLoi, setDict["levOfInt"]).replace(" ",""),
+        "ensStr": dataDict["ememSave"],
+        "qntlStr": str(setDict["quantileOfInt"]),
+        "yStr": cntrlToPlot.units,
+        "unit": cntrlToPlot.attrs['units'],
+        "pdfStyle": setDict["plotStyle"],
+        "spcStr": 'spcavg' if setDict["areaAvgBool"] else 'nospcavg',
+        "pid": {'g1p': 'globe_1p', 'g4p': 'globe_4p', 'ts': 'timeseries', 'pdf': 'pdf'},
+        "glbType": {'vGl': 'vertical', 'bGl': 'baseline', 'fcStr': 'FdbckCntrl'}
+    }
+
+    return metaDict
+
+def bcf_parser(labelsToPlot):
+    ''' Parse labels to make filenames '''
+
+    timeStr = list()
+    if labelsToPlot != None:
+        for lab in labelsToPlot:
+            if 'Baseline' in lab:
+                timeStr.append('b' + lab[0:9].replace("-",""))
+            elif 'RCP8.5' in lab:
+                timeStr.append('c' + lab[0:9].replace("-",""))
+            elif 'SAI' in lab:
+                timeStr.append('f' + lab[0:9].replace("-",""))
+
+    timeStr = "_".join(timeStr)
+
+    return timeStr
+
+    # # Scenario
+    # cntrlStr = 'RCP8.5'
+    # fdbckStr = 'SAI'
+    #
+    # # Variable
+    # varStr = glensFdbckRlz.long_name
+    # varSave = varStr.replace(" ","")
+    #
+    # # Time
+    # startStr = str(bndDct['strtYrMtch'])
+    # endStr = '2098'#str(bndDct['endYrMtch'])
+    # firstDcd = str(setDict["startIntvl"][0]) + '-' + str(setDict["startIntvl"][1])
+    # lastDcd = str(setDict["endIntvl"][0]) + '-' + str(setDict["endIntvl"][1])
+    # timeStr = str(setDict["timePeriod"]) + 'yr'
+    #
+    # # Level
+    # levStr = make_level_string(glensCntrlLoi, setDict["levOfInt"])
+    #
+    #
+    # # Ensemble
+    # ensStr = dataDict["ememSave"]
+    #
+    # # Plotting
+    # quantileStr = str(setDict["quantileOfInt"])
+    # yStr = cntrlToPlot.units
+    # unit = cntrlToPlot.attrs['units']
+    # pdfStyle = setDict["plotStyle"]
+    # spcStr = 'spcavg'
+    #
+    # # Plot ID
+    # globe4pStr = 'globe_4p'
+    # globe1pStr = 'globe_1p'
+    # ts = 'timeseries'
+    # pdf = 'pdf'
+    #
+    # # Globe type
+    # vGl = 'vertical'
+    # fcStr = 'FdbckCntrl'
+    # bStr = 'baseline'
