@@ -22,6 +22,6 @@ mkdir -p $TMPDIR
 # Load modules
 module load python
 module load ncarenv
-ncar_pylib
+ncar_pylib ncar_pylib_dhueholt
 
 python wrap_basicplots_script.py

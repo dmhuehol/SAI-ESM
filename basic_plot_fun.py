@@ -285,7 +285,7 @@ def plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDi
 def plot_timeseries(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
     ''' Make timeseries of GLENS output variable for RCP8.5 ("Control") and SAI/GEO8.5 ("Feedback") '''
 
-    setYear = [2020, 2098]
+    setYear = [2020, 2095]
     timeSlice = slice(cftime.DatetimeNoLeap(setYear[0], 7, 15, 12, 0, 0, 0),cftime.DatetimeNoLeap(setYear[1], 7, 15, 12, 0, 0, 0))
     glensCntrlPoi = glensCntrlRlz.sel(time=timeSlice)
     glensFdbckPoi = glensFdbckRlz.sel(time=timeSlice)
