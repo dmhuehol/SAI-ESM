@@ -105,6 +105,18 @@ def Below50S():
 
     return regDict
 
+## Arctic
+
+def ArcticCircle():
+    regDict = {
+        "regStr": 'ArcticCircle',
+        "regSaveStr": 'ArctcCrcl',
+        "regLats": np.array([66.5,90]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
 ## Asia
 
 def NortheastAsia():
@@ -141,7 +153,29 @@ def EasternEurope():
 
     return regDict
 
-## Placeholder
+### Hemispheres
+
+def NorthernHemisphere():
+    regDict = {
+        "regStr": 'NorthernHemisphere',
+        "regSaveStr": 'NHemi',
+        "regLats": np.array([0,90]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
+def SouthernHemisphere():
+    regDict = {
+        "regStr": 'SouthernHemisphere',
+        "regSaveStr": 'SHemi',
+        "regLats": np.array([-90,0]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
+### Placeholder
 
 def Globe():
     regDict = {
