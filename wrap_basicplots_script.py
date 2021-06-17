@@ -19,25 +19,25 @@ import process_glens_fun as pgf
 import region_library as rlib
 
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_U/',
+    "dataPath": '/glade/scratch/dhueholt/annual_T/',
     "fnameCntrl": 'control_*',
     "fnameFdbck": 'feedback_*'
 }
 setDict = {
-    "realization": 3, #number for individual member or 'mean' for ensemble mean | TODO: array entry to choose particular members
+    "realization": 'mean', #number for individual member or 'mean' for ensemble mean | TODO: array entry to choose particular members
     "startIntvl": [2011,2030], #dg
     "endIntvl": [2041,2060], #dg
     "cntrlPoi": [2011,2076], #pdf
     "fdbckPoi": [2076], #pdf
     "timePeriod": 20, #pdf
-    "levOfInt": 50, #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
-    "regOfInt": rlib.NoLandLatitude(), #ts, pdf
+    "levOfInt": 1000, #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
+    "regOfInt": 'global', #ts, pdf
     "areaAvgBool": False, #pdf
     "plotStyle": 'step', #pdf
     "quantileOfInt": 0.67 #dg
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210616_finalPrep/2_fnamesCompleteCheck/',
+    "savePath": '/glade/work/dhueholt/20210617_begin/',
     "dpiVal": 400
 }
 
@@ -56,3 +56,5 @@ setDict["plotStyle"] = 'kde'
 bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
 setDict["plotStyle"] = 'hist'
 bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
+
+ic('Plots completed!')
