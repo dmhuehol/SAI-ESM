@@ -8,6 +8,12 @@ Graduate Research Assistant at Colorado State University
 '''
 
 import numpy as np
+import cartopy
+import cartopy.crs as ccrs
+import matplotlib.pyplot as plt
+
+import plotting_tools as plt_tls
+
 
 ### Oceans
 
@@ -186,3 +192,25 @@ def Globe():
     }
 
     return regDict
+
+### Functions
+
+def west180_to_east360(west180):
+    ''' Convert from deg W 180 to deg E 360 (as used in GLENS) '''
+    east360 = west180 % 360 #wrap to 360 degrees
+
+    return east360
+
+def test_region(region):
+    ''' Plots box on map to verify latitude/longitudes '''
+    lats = np.linspace(region["regLats"][0], region["regLats"][1], 100)
+    lons = np.linspace(region["regLons"][0], region["regLons"][1], 100)
+    plotOnes = np.ones((len(lats), len(lons)))
+
+    CL = 0.
+    mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
+    plt.figure(figsize=(12, 2.73*2))
+    ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
+    plt_tls.drawOnGlobe(ax, plotOnes, lats, lons, cmap='viridis', vmin=0, vmax=2, cbarBool=True, fastBool=True, extent='max')
+    plt.title(region["regStr"])
+    plt.show()
