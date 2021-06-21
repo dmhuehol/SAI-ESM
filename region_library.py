@@ -195,8 +195,8 @@ def Globe():
 
 ### Functions
 
-def west180_to_east360(west180):
-    ''' Convert from deg W 180 to deg E 360 (as used in GLENS) '''
+def west180_to_360(west180):
+    ''' Convert from deg 180 to deg 360 (as used in GLENS) '''
     east360 = west180 % 360 #wrap to 360 degrees
 
     return east360
