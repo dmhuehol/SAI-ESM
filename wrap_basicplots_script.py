@@ -43,7 +43,14 @@ outDict = {
 }
 
 # Batch using loops
-for rzc in (1,2,3,21,'mean'):
+loopDict = {
+    "realizations": (1,2,3,21,'mean'),
+    "levels": (1000,),
+    "regions": ('global',),
+    "aaBools": (True,False)
+}
+
+for rzc in loopDict["realizations"]:
     setDict["realization"] = rzc
     glensCntrlRlz, glensFdbckRlz, cmnDict = pgf.call_to_open(dataDict, setDict)
     dataDict = {**dataDict, **cmnDict}
@@ -51,21 +58,27 @@ for rzc in (1,2,3,21,'mean'):
     bpf.plot_single_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
     bpf.plot_vertical_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
     bpf.plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
-    for region in ('global',):
-        setDict["regOfInt"] = region
-        setDict["plotStyle"] = 'step'
-        glensCntrlRlz, glensFdbckRlz, cmnDict = pgf.call_to_open(dataDict, setDict)
-        dataDict = {**dataDict, **cmnDict}
-        try:
+    for lev in loopDict["levels"]:
+        setDict["levOfInt"] = lev
+        for reg in loopDict["regions"]:
+            setDict["regOfInt"] = reg
+            glensCntrlRlz, glensFdbckRlz, cmnDict = pgf.call_to_open(dataDict, setDict)
+            dataDict = {**dataDict, **cmnDict}
             bpf.plot_timeseries(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
-            bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
-            setDict["plotStyle"] = 'kde'
-            bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
-            setDict["plotStyle"] = 'hist'
-            bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
-        except:
-            ic('Failed on: ' + str(rzc))
-            continue
+            for aab in loopDict["aaBools"]:
+                setDict["areaAvgBool"] = aab
+                setDict["plotStyle"] = 'step'
+                glensCntrlRlz, glensFdbckRlz, cmnDict = pgf.call_to_open(dataDict, setDict)
+                dataDict = {**dataDict, **cmnDict}
+                try:
+                    bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
+                    setDict["plotStyle"] = 'kde'
+                    bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
+                    setDict["plotStyle"] = 'hist'
+                    bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
+                except:
+                    ic('Failed on: ' + str(rzc))
+                    continue
 
 # One at a time
 # glensCntrlRlz, glensFdbckRlz, cmnDict = pgf.call_to_open(dataDict, setDict)
