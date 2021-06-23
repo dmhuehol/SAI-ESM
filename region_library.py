@@ -7,6 +7,9 @@ Written by Daniel Hueholt | May 2021
 Graduate Research Assistant at Colorado State University
 '''
 
+from icecream import ic
+import sys
+
 import numpy as np
 import cartopy
 import cartopy.crs as ccrs
@@ -106,6 +109,16 @@ def NortheastBrazil():
 
     return regDict
 
+def Sahara():
+    regDict = {
+        "regStr": 'Sahara',
+        "regSaveStr": 'Sahara',
+        "regLats": np.array([15, 30]),
+        "regLons": np.array([340, 40])
+    }
+
+    return regDict
+
 def SouthAustraliaNewZealand():
     regDict = {
         "regStr": 'South Australia/New Zealand',
@@ -126,6 +139,27 @@ def SoutheastAsia():
 
     return regDict
 
+
+def SouthernAfrica():
+    regDict = {
+        "regStr": 'Southern Africa',
+        "regSaveStr": 'SthrnAfrica',
+        "regLats": np.array([-35, -11.4]),
+        "regLons": np.array([350, 52])
+    }
+
+    return regDict
+
+def SouthEuropeMediterranean():
+    regDict = {
+        "regStr": 'South Europe/Mediterranean',
+        "regSaveStr": 'SEurMed',
+        "regLats": np.array([30, 45]),
+        "regLons": np.array([350, 40])
+    }
+
+    return regDict
+
 def TibetanPlateau():
     regDict = {
         "regStr": 'Tibetan Plateau',
@@ -135,6 +169,17 @@ def TibetanPlateau():
     }
 
     return regDict
+
+def WestAfrica():
+    regDict = {
+        "regStr": 'West Africa',
+        "regSaveStr": 'WestAfrica',
+        "regLats": np.array([-11.4, 15]),
+        "regLons": np.array([340, 25])
+    }
+
+    return regDict
+
 
 def WestAsia():
     regDict = {
@@ -280,7 +325,7 @@ def Nino34():
 
 ## Africa
 
-def SouthernAfrica():
+def SouthernAfrica_hg():
     regDict = {
         "regStr": 'SouthernAfrica',
         "regSaveStr": 'SrnAfrica',
@@ -404,15 +449,22 @@ def west180_to_360(west180):
 
 def test_region(region):
     ''' Plots box on map to verify latitude/longitudes '''
-    lats = np.linspace(region["regLats"][0], region["regLats"][1], 100)
-    lons = np.linspace(region["regLons"][0], region["regLons"][1], 100)
-    plotOnes = np.ones((len(lats), len(lons)))
+    lats = np.arange(-90,90,0.25)
+    lons = np.arange(0,360,0.25)
+    latMask = (lats>region['regLats'][0]) & (lats<region['regLats'][1])
+    if region['regLons'][0] < region['regLons'][1]:
+        lonMask = (lons>region['regLons'][0]) & (lons<region['regLons'][1])
+    else:
+        lonMask = (lons>region['regLons'][0]) | (lons<region['regLons'][1])
+    latsToPlot = lats[latMask]
+    lonsToPlot = lons[lonMask]
+    plotOnes = np.ones((len(latsToPlot),len(lonsToPlot)))
 
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12, 2.73*2))
     ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
-    plt_tls.drawOnGlobe(ax, plotOnes, lats, lons, cmap='viridis', vmin=0, vmax=2, cbarBool=True, fastBool=True, extent='max')
+    plt_tls.drawOnGlobe(ax, plotOnes, latsToPlot, lonsToPlot, cmap='viridis', vmin=0, vmax=2, cbarBool=True, fastBool=True, extent='max')
     plt.title(region["regStr"])
     # plt.show()
-    plt.savefig('/Users/dhueholt/Documents/GLENS_fig/20210622_ipccRegions/' + region["regSaveStr"] + '.png', dpi=400)
+    plt.savefig('/Users/dhueholt/Documents/GLENS_fig/20210623_regionsAndPlots/' + region["regSaveStr"] + '.png', dpi=400)

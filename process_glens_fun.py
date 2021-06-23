@@ -184,7 +184,10 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
         lats = darr['lat'] #feedback and control are on same grid, fortunately
         lons = darr['lon']
         latMask = (lats>regionToPlot['regLats'][0]) & (lats<regionToPlot['regLats'][1])
-        lonMask = (lons>regionToPlot['regLons'][0]) & (lons<regionToPlot['regLons'][1])
+        if regionToPlot['regLons'][0] < regionToPlot['regLons'][1]:
+            lonMask = (lons>regionToPlot['regLons'][0]) & (lons<regionToPlot['regLons'][1])
+        else:
+            lonMask = (lons>regionToPlot['regLons'][0]) | (lons<regionToPlot['regLons'][1]) #used when boxes cross the Prime Meridian
         darrBoxMask = darr[:,latMask,lonMask]
 
         if areaAvgBool:

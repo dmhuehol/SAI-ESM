@@ -7,10 +7,15 @@ difference based on the number of objects being drawn.
 Unless otherwise specified:
 Written by Daniel Hueholt | May 2021
 Graduate Research Assistant at Colorado State University
+drawOnGlobe written by Prof. Elizabeth Barnes at Colorado State University
+    Lightly edited by Daniel Hueholt
+add_cyclic_point copied from cartopy utils by Prof. Elizabeth Barnes at Colorado State University
+    Edited by Daniel Hueholt
 '''
 
 from icecream import ic
 import sys
+import warnings
 
 import cartopy as ct
 import cartopy.crs as ccrs
@@ -20,9 +25,6 @@ import numpy.ma as ma
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.pyplot as plt
 import seaborn as sn
-
-# drawOnGlobe written by Prof. Elizabeth Barnes at Colorado State University, lightly edited by Daniel Hueholt
-# add_cyclic_point copied from cartopy utils by Prof. Elizabeth Barnes at Colorado State University
 
 def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc=None, cbarBool=True, contourMap=[], contourVals = [], fastBool=False, extent='both'):
     ''' Draws geolocated data on a globe '''
@@ -56,8 +58,9 @@ def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc
     return cb, image
 
 def add_cyclic_point(data, coord=None, axis=-1):
-    ''' had issues with cartopy finding utils so copied for myself -EAB '''
+    ''' EAB: had issues with cartopy finding utils so copied for myself '''
 
+    reverseSlicerBool = False #DMH
     if coord is not None:
         if coord.ndim != 1:
             raise ValueError('The coordinate must be 1-dimensional.')
@@ -67,13 +70,25 @@ def add_cyclic_point(data, coord=None, axis=-1):
                              'the data array: len(coord) = {}, '
                              'data.shape[{}] = {}.'.format(
                                  len(coord), axis, data.shape[axis]))
-        delta_coord = np.diff(coord)
-        if not np.allclose(delta_coord, delta_coord[0]):
-            raise ValueError('The coordinate must be equally spaced.')
+        delta_coord = np.diff(coord) #DMH: calculate grid spacing, essentially
+        if not np.allclose(delta_coord, delta_coord[0]): #DMH: if grid spacing is not nearly uniform
+            warnings.warn('The coordinate is not equally spaced. This could be '
+                          'because multiple sub-regions making up a single '
+                          'region are being plotted (as when a region crosses '
+                          'a meridian), in which case this message can be '
+                          'ignored. Or, the underlying grid may be bad, in '
+                          'which case that is problematic. Check your data and '
+                          'be sure which applies to you!') #DMH
+            reverseSlicerBool = True #DMH
+
         new_coord = ma.concatenate((coord, coord[-1:] + delta_coord[0]))
     slicer = [slice(None)] * data.ndim
     try:
-        slicer[axis] = slice(0, 1)
+        if not reverseSlicerBool: #DMH
+            slicer[axis] = slice(0, 1) #DMH: Default behavior
+        else: #DMH
+            slicer[axis] = slice(1, 0) #DMH
+            ic('Slicer has been reversed') #DMH
     except IndexError:
         raise ValueError('The specified axis does not correspond to an '
                          'array dimension.')
