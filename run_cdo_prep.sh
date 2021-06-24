@@ -13,13 +13,13 @@
 #PBS -m abe
 ### Specify mail recipient
 #PBS -M dhueholt@rams.colostate.edu
-# exec &> logfile.txt
-#
-# export TMPDIR=/glade/scratch/dhueholt/temp
-# mkdir -p $TMPDIR
+exec &> logfile.txt
 
-# Load modules
-# module load cdo
+export TMPDIR=/glade/scratch/dhueholt/temp
+mkdir -p $TMPDIR
+
+Load modules
+module load cdo
 
 EMEM=(
 "001.cam.h0.Q.*"
@@ -45,9 +45,9 @@ EMEM=(
 "021.cam.h0.Q.*"
 )
 
-IN_PATH_CNTRL="/Users/dhueholt/Documents/GLENS_data/spcHum/"
+IN_PATH_CNTRL="/glade/scratch/dhueholt/"
 IN_TOKEN_CNTRL="*control."
-OUT_PATH_CNTRL="/Users/dhueholt/Documents/GLENS_data/spcHum/annual_Q/"
+OUT_PATH_CNTRL="/glade/scratch/dhueholt/annual_Q/"
 for em in ${EMEM[@]}; do
     echo $em
     IN_TOKEN_CNTRLEM=$IN_TOKEN_CNTRL$em
@@ -55,9 +55,9 @@ for em in ${EMEM[@]}; do
     sh do_cdo_prep.sh $IN_PATH_CNTRL $IN_TOKEN_CNTRLEM $OUT_PATH_CNTRL
 done
 
-IN_PATH_FDBCK="/Users/dhueholt/Documents/GLENS_data/spcHum/"
+IN_PATH_FDBCK="/glade/scratch/dhueholt/"
 IN_TOKEN_FDBCK="*feedback."
-OUT_PATH_FDBCK="/Users/dhueholt/Documents/GLENS_data/spcHum/annual_Q/"
+OUT_PATH_FDBCK="/glade/scratch/dhueholt/annual_Q/"
 for em in ${EMEM[@]}; do
     IN_TOKEN_FDBCKEM=$IN_TOKEN_FDBCK$em
     echo IN_TOKEN_FDBCKEM

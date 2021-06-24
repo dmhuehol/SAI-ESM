@@ -37,11 +37,11 @@ for f in $IN_CARD; do
 done
 
 ### Troubleshooting
-echo ${RUN_FNAMES[@]}
-echo ${RUN_TIMES[@]}
-echo $RUN_TYPE
-echo ${RUN_ENSNUMS[@]}
-echo $RUN_VAR
+# echo ${RUN_FNAMES[@]}
+# echo ${RUN_TIMES[@]}
+# echo $RUN_TYPE
+# echo ${RUN_ENSNUMS[@]}
+# echo $RUN_VAR
 
 OUT_FNAME="${RUN_TYPE}_${RUN_ENSNUMS[0]}_${RUN_VAR}"
 echo $OUT_FNAME
