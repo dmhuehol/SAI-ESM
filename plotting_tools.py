@@ -72,6 +72,10 @@ def add_cyclic_point(data, coord=None, axis=-1):
                                  len(coord), axis, data.shape[axis]))
         delta_coord = np.diff(coord) #DMH: calculate grid spacing, essentially
         if not np.allclose(delta_coord, delta_coord[0]): #DMH: if grid spacing is not nearly uniform
+            # ic(delta_coord - delta_coord[0])
+            # ic(delta_coord < 1)
+            # ic(coord)
+            # sys.exit('STOP')
             warnings.warn('The coordinate is not equally spaced. This could be '
                           'because multiple sub-regions making up a single '
                           'region are being plotted (as when a region crosses '

@@ -13,6 +13,7 @@ import sys
 import xarray as xr
 xr.set_options(keep_attrs=True)
 import numpy as np
+import matplotlib.path as mpth
 import glob
 
 def extract_meta_from_fname(fname):
@@ -174,7 +175,7 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
         if areaAvgBool:
             latWeights = np.cos(np.deg2rad(darr['lat']))
             darrWght = darr.weighted(latWeights)
-            darr = darrWght.mean(dim=['lat','lon'])
+            darr = darrWght.mean(dim=['lat','lon'], skipna=True)
 
     elif isinstance(regionToPlot,dict):
         ic('regional')
@@ -183,15 +184,20 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
 
         lats = darr['lat'] #feedback and control are on same grid, fortunately
         lons = darr['lon']
-        latMask = (lats>regionToPlot['regLats'][0]) & (lats<regionToPlot['regLats'][1])
-        if regionToPlot['regLons'][0] < regionToPlot['regLons'][1]:
-            lonMask = (lons>regionToPlot['regLons'][0]) & (lons<regionToPlot['regLons'][1])
-        else:
-            lonMask = (lons>regionToPlot['regLons'][0]) | (lons<regionToPlot['regLons'][1]) #used when boxes cross the Prime Meridian
-        darrBoxMask = darr[:,latMask,lonMask]
+        if len(regionToPlot['regLons'])>2: #non-rectangular region
+            gridMask = make_polygon_mask(lats, lons, regionToPlot)
+            darrBoxMask = darr.copy()
+            darrBoxMask.data[:,~gridMask] = np.nan
+        else: #rectangular region
+            latMask = (lats>regionToPlot['regLats'][0]) & (lats<regionToPlot['regLats'][1])
+            if regionToPlot['regLons'][0] < regionToPlot['regLons'][1]: #rectangle does not cross Prime Meridian
+                lonMask = (lons>regionToPlot['regLons'][0]) & (lons<regionToPlot['regLons'][1])
+            else: #rectangle crosses Prime Meridian
+                lonMask = (lons>regionToPlot['regLons'][0]) | (lons<regionToPlot['regLons'][1])
+            darrBoxMask = darr[:,latMask,lonMask]
 
         if areaAvgBool:
-            darr = darrBoxMask.mean(dim=['lat','lon'])
+            darr = darrBoxMask.mean(dim=['lat','lon'], skipna=True)
         else:
             darr = darrBoxMask
 
@@ -338,6 +344,19 @@ def bcf_parser(labelsToPlot):
     timeStr = "_".join(timeStr)
 
     return timeStr
+
+def make_polygon_mask(lats, lons, region):
+    gridLon,gridLat = np.meshgrid(lons,lats) #make 2D lonxlat grids of lon/lat
+    flatLon = np.ravel(gridLon)
+    flatLat = np.ravel(gridLat)
+    flatLatLon = np.transpose(np.vstack((flatLat,flatLon))) #Nx2
+    regionPoly = np.transpose(np.vstack((region['regLats'],region['regLons']))) #Polyx2
+
+    regionPath = mpth.Path(regionPoly) #defines the path of the region
+    flatMask = regionPath.contains_points(flatLatLon) #the heavyweight--calculates whether points from the grid are exterior to the path or not
+    gridMask = flatMask.reshape((len(lats),len(lons)))
+
+    return gridMask
 
     # # Scenario
     # cntrlStr = 'RCP8.5'

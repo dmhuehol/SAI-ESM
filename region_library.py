@@ -16,6 +16,7 @@ import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 
 import plotting_tools as plt_tls
+import process_glens_fun as pgf
 
 ### IPCC regions used in WG1-AR5
 
@@ -25,6 +26,16 @@ def AlaskaNorthwestCanada():
         "regSaveStr": 'AKNWCan',
         "regLats": np.array([60, 72.6]),
         "regLons": np.array([192, 255])
+    }
+
+    return regDict
+
+def Amazon():
+    regDict = {
+        "regStr": 'Amazon',
+        "regSaveStr": 'Amazon',
+        "regLats": np.array([-20, -1.2, 11.4, 11.4, -20]),
+        "regLons": np.array([293.6, 280.3, 291.2, 310, 310])
     }
 
     return regDict
@@ -45,6 +56,36 @@ def CanadaGreenlandIceland():
         "regSaveStr": 'CanGrnIce',
         "regLats": np.array([50, 85]),
         "regLons": np.array([255, 350])
+    }
+
+    return regDict
+
+def CentralAmericaMexico():
+    regDict = {
+        "regStr": 'Central America/Mexico',
+        "regSaveStr": 'CAmMex',
+        "regLats": np.array([11.4, -1.2, 28.6, 28.6]),
+        "regLons": np.array([291.2, 280.3, 241.7, 269.7])
+    }
+
+    return regDict
+
+def CentralEurope():
+    regDict = {
+        "regStr": 'Central Europe',
+        "regSaveStr": 'CentralEurope',
+        "regLats": np.array([45, 48, 61.3, 45]),
+        "regLons": np.array([350, 350, 40, 40])
+    }
+
+    return regDict
+
+def CentralNorthAmerica():
+    regDict = {
+        "regStr": 'Central N America',
+        "regSaveStr": 'CenNAm',
+        "regLats": np.array([28.6, 50]),
+        "regLons": np.array([255, 275])
     }
 
     return regDict
@@ -109,12 +150,32 @@ def NortheastBrazil():
 
     return regDict
 
+def NorthEurope():
+    regDict = {
+        "regStr": 'North Europe',
+        "regSaveStr": 'NorthEurope',
+        "regLats": np.array([48, 75, 75, 61.3]),
+        "regLons": np.array([350, 350, 40, 40])
+    }
+
+    return regDict
+
 def Sahara():
     regDict = {
         "regStr": 'Sahara',
         "regSaveStr": 'Sahara',
         "regLats": np.array([15, 30]),
         "regLons": np.array([340, 40])
+    }
+
+    return regDict
+
+def SmallIslandsRegionsCaribbean():
+    regDict = {
+        "regStr": 'Small islands regions: Caribbean',
+        "regSaveStr": 'SmIslCarbbn',
+        "regLats": np.array([11.4, 25, 25, 11.4]),
+        "regLons": np.array([291.2, 274.2, 300, 300])
     }
 
     return regDict
@@ -129,6 +190,16 @@ def SouthAustraliaNewZealand():
 
     return regDict
 
+def SouthAsia():
+    regDict = {
+        "regStr": 'South Asia',
+        "regSaveStr": 'SouthAsia',
+        "regLats": np.array([5, 30, 30, 20, 20, 5]),
+        "regLons": np.array([60, 60, 100, 100, 95, 95])
+    }
+
+    return regDict
+
 def SoutheastAsia():
     regDict = {
         "regStr": 'Southeast Asia',
@@ -139,6 +210,15 @@ def SoutheastAsia():
 
     return regDict
 
+def SoutheasternSouthAmerica():
+    regDict = {
+        "regStr": 'Southeastern South America',
+        "regSaveStr": 'SESAm',
+        "regLats": np.array([-20, -56.7, -56.7, -50, -20]),
+        "regLons": np.array([320.6, 320.6, 292.7, 287.9, 293.6])
+    }
+
+    return regDict
 
 def SouthernAfrica():
     regDict = {
@@ -187,6 +267,16 @@ def WestAsia():
         "regSaveStr": 'WestAsia',
         "regLats": np.array([15, 50]),
         "regLons": np.array([40, 60])
+    }
+
+    return regDict
+
+def WestCoastSouthAmerica():
+    regDict = {
+        "regStr": 'West Coast South America',
+        "regSaveStr": 'WCstSAm',
+        "regLats": np.array([-1.2, -20, -50, -56.7, -56.7, 0.5]),
+        "regLons": np.array([280.3, 293.6, 287.9, 292.7, 278, 278])
     }
 
     return regDict
@@ -449,16 +539,22 @@ def west180_to_360(west180):
 
 def test_region(region):
     ''' Plots box on map to verify latitude/longitudes '''
-    lats = np.arange(-90,90,0.25)
-    lons = np.arange(0,360,0.25)
-    latMask = (lats>region['regLats'][0]) & (lats<region['regLats'][1])
-    if region['regLons'][0] < region['regLons'][1]:
-        lonMask = (lons>region['regLons'][0]) & (lons<region['regLons'][1])
+    lats = np.arange(-90,91,1)
+    lons = np.arange(0,360,1)
+    if len(region['regLons'])>2:
+        gridMask = pgf.make_polygon_mask(lats, lons, region)
+        latsToPlot = lats
+        lonsToPlot = lons
     else:
-        lonMask = (lons>region['regLons'][0]) | (lons<region['regLons'][1])
-    latsToPlot = lats[latMask]
-    lonsToPlot = lons[lonMask]
+        latMask = (lats>region['regLats'][0]) & (lats<region['regLats'][1])
+        if region['regLons'][0] < region['regLons'][1]:
+            lonMask = (lons>region['regLons'][0]) & (lons<region['regLons'][1])
+        else:
+            lonMask = (lons>region['regLons'][0]) | (lons<region['regLons'][1])
+        latsToPlot = lats[latMask]
+        lonsToPlot = lons[lonMask]
     plotOnes = np.ones((len(latsToPlot),len(lonsToPlot)))
+    plotOnes[~gridMask] = np.nan
 
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
@@ -467,4 +563,4 @@ def test_region(region):
     plt_tls.drawOnGlobe(ax, plotOnes, latsToPlot, lonsToPlot, cmap='viridis', vmin=0, vmax=2, cbarBool=True, fastBool=True, extent='max')
     plt.title(region["regStr"])
     # plt.show()
-    plt.savefig('/Users/dhueholt/Documents/GLENS_fig/20210623_regionsAndPlots/' + region["regSaveStr"] + '.png', dpi=400)
+    plt.savefig('/Users/dhueholt/Documents/GLENS_fig/20210624_finalRegionsNewQ/' + region["regSaveStr"] + '.png', dpi=400)
