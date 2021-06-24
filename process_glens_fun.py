@@ -189,10 +189,11 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
             darrBoxMask = darr.copy()
             darrBoxMask.data[:,~gridMask] = np.nan
         elif isinstance(regionToPlot['regLons'], tuple): #non-rectangular region that crosses Prime Meridian
+            sGridMaskList = list()
             for sc in np.arange(0,len(regionToPlot['regLons'])):
-                sgridMask = pgf.make_polygon_mask(lats, lons, regionToPlot['regLats'][sc], regionToPlot['regLons'][sc])
-                sgridMaskList.append(sgridMask)
-            gridMask = np.logical_or.reduce(sgridMaskList)
+                sGridMask = make_polygon_mask(lats, lons, regionToPlot['regLats'][sc], regionToPlot['regLons'][sc])
+                sGridMaskList.append(sGridMask)
+            gridMask = np.logical_or.reduce(sGridMaskList)
             darrBoxMask = darr.copy()
             darrBoxMask.data[:,~gridMask] = np.nan
         else: #rectangular region

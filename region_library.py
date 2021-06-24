@@ -529,6 +529,28 @@ def Globe():
 
     return regDict
 
+### Atlases
+def atlas_ipcc_wg1ar5():
+    boxIPCC = (AlaskaNorthwestCanada(), CentralAsia(), CanadaGreenlandIceland(), CentralNorthAmerica(),
+               EastAfrica(), EastAsia(), EastNorthAmerica(), NorthAsia(), NorthAustralia(), NortheastBrazil(),
+               SouthAustraliaNewZealand(), SoutheastAsia(), TibetanPlateau(), WestAsia(), WestNorthAmerica(),
+               Antarctica(), Arctic(), PacificIslandsRegion2(), PacificIslandsRegion3(), SouthernTropicalPacific(),
+               WestIndianOcean())
+    boxMerCrossIPCC = (SouthEuropeMediterranean(), SouthernAfrica(), Sahara(), WestAfrica())
+    polyIPCC = (Amazon(), CentralAmericaMexico(), SmallIslandsRegionsCaribbean(), SouthAsia(),
+                SoutheasternSouthAmerica(), WestCoastSouthAmerica())
+    polyMerCrossIPCC = (CentralEurope(),NorthEurope())
+
+    ipccWg1Ar5Dict = {
+        "box": boxIPCC,
+        "boxMerCross": boxMerCrossIPCC,
+        "poly": polyIPCC,
+        "polyMerCross": polyMerCrossIPCC,
+        "allRegions": boxIPCC + boxMerCrossIPCC + polyIPCC + polyMerCrossIPCC
+    }
+
+    return ipccWg1Ar5Dict
+
 ### Functions
 
 def west180_to_360(west180):
