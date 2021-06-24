@@ -184,8 +184,15 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
 
         lats = darr['lat'] #feedback and control are on same grid, fortunately
         lons = darr['lon']
-        if len(regionToPlot['regLons'])>2: #non-rectangular region
-            gridMask = make_polygon_mask(lats, lons, regionToPlot)
+        if len(regionToPlot['regLons'])>2: #non-rectangular region that does not cross Prime Meridian
+            gridMask = make_polygon_mask(lats, lons, regionToPlot['regLats'], regionToPlot['regLons'])
+            darrBoxMask = darr.copy()
+            darrBoxMask.data[:,~gridMask] = np.nan
+        elif isinstance(regionToPlot['regLons'], tuple): #non-rectangular region that crosses Prime Meridian
+            for sc in np.arange(0,len(regionToPlot['regLons'])):
+                sgridMask = pgf.make_polygon_mask(lats, lons, regionToPlot['regLats'][sc], regionToPlot['regLons'][sc])
+                sgridMaskList.append(sgridMask)
+            gridMask = np.logical_or.reduce(sgridMaskList)
             darrBoxMask = darr.copy()
             darrBoxMask.data[:,~gridMask] = np.nan
         else: #rectangular region
@@ -345,12 +352,13 @@ def bcf_parser(labelsToPlot):
 
     return timeStr
 
-def make_polygon_mask(lats, lons, region):
+def make_polygon_mask(lats, lons, regionLats, regionLons):
+    ''' Make mask for a non-rectangular polygonal region '''
     gridLon,gridLat = np.meshgrid(lons,lats) #make 2D lonxlat grids of lon/lat
     flatLon = np.ravel(gridLon)
     flatLat = np.ravel(gridLat)
     flatLatLon = np.transpose(np.vstack((flatLat,flatLon))) #Nx2
-    regionPoly = np.transpose(np.vstack((region['regLats'],region['regLons']))) #Polyx2
+    regionPoly = np.transpose(np.vstack((regionLats,regionLons))) #Polyx2
 
     regionPath = mpth.Path(regionPoly) #defines the path of the region
     flatMask = regionPath.contains_points(flatLatLon) #the heavyweight--calculates whether points from the grid are exterior to the path or not

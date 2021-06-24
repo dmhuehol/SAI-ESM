@@ -74,8 +74,8 @@ def CentralEurope():
     regDict = {
         "regStr": 'Central Europe',
         "regSaveStr": 'CentralEurope',
-        "regLats": np.array([45, 48, 61.3, 45]),
-        "regLons": np.array([350, 350, 40, 40])
+        "regLats": (np.array([45, 48, 51, 45]), np.array([45, 51, 61.3, 45])),
+        "regLons": (np.array([350, 350, 360, 360]), np.array([-1, -1, 40, 40]))
     }
 
     return regDict
@@ -154,8 +154,8 @@ def NorthEurope():
     regDict = {
         "regStr": 'North Europe',
         "regSaveStr": 'NorthEurope',
-        "regLats": np.array([48, 75, 75, 61.3]),
-        "regLons": np.array([350, 350, 40, 40])
+        "regLats": (np.array([48, 75, 75, 51]), np.array([51, 75, 75, 61.3])),
+        "regLons": (np.array([350, 350, 360, 360]), np.array([-1, -1, 40, 40]))
     }
 
     return regDict
@@ -537,30 +537,38 @@ def west180_to_360(west180):
 
     return east360
 
-def test_region(region):
+def test_region(region, colors, fig, ax):
     ''' Plots box on map to verify latitude/longitudes '''
     lats = np.arange(-90,91,1)
     lons = np.arange(0,360,1)
-    if len(region['regLons'])>2:
-        gridMask = pgf.make_polygon_mask(lats, lons, region)
+
+    if len(region['regLons'])>2: #non-rectangular region that does not cross Prime Meridian
+        gridMask = pgf.make_polygon_mask(lats, lons, region['regLats'], region['regLons'])
         latsToPlot = lats
         lonsToPlot = lons
-    else:
+    elif isinstance(region['regLons'], tuple): #non-rectangular region that crosses Prime Meridian
+        sgridMaskList = list()
+        for sc in np.arange(0,len(region['regLons'])):
+                sgridMask = pgf.make_polygon_mask(lats, lons, region['regLats'][sc], region['regLons'][sc])
+                sgridMaskList.append(sgridMask)
+        gridMask = np.logical_or.reduce(sgridMaskList)
+        latsToPlot = lats
+        lonsToPlot = lons
+    else: #rectangular regions
         latMask = (lats>region['regLats'][0]) & (lats<region['regLats'][1])
-        if region['regLons'][0] < region['regLons'][1]:
+        if region['regLons'][0] < region['regLons'][1]: #rectangle does not cross Prime Meridian
             lonMask = (lons>region['regLons'][0]) & (lons<region['regLons'][1])
-        else:
+        else: #rectangle crosses the Prime Meridian
             lonMask = (lons>region['regLons'][0]) | (lons<region['regLons'][1])
-        latsToPlot = lats[latMask]
+        latsToPlot = lats[latMask] #rectangular regions can just grab lat/lon of interest directly
         lonsToPlot = lons[lonMask]
-    plotOnes = np.ones((len(latsToPlot),len(lonsToPlot)))
-    plotOnes[~gridMask] = np.nan
 
-    CL = 0.
-    mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
-    plt.figure(figsize=(12, 2.73*2))
-    ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
-    plt_tls.drawOnGlobe(ax, plotOnes, latsToPlot, lonsToPlot, cmap='viridis', vmin=0, vmax=2, cbarBool=True, fastBool=True, extent='max')
-    plt.title(region["regStr"])
-    # plt.show()
-    plt.savefig('/Users/dhueholt/Documents/GLENS_fig/20210624_finalRegionsNewQ/' + region["regSaveStr"] + '.png', dpi=400)
+    plotOnes = np.ones((len(latsToPlot),len(lonsToPlot)))
+    try:
+        plotOnes[~gridMask] = np.nan #non-rectangular regions must retain background grid and mask outside of region
+    except:
+        ic() #do nothing
+
+    plt_tls.drawOnGlobe(ax, plotOnes, latsToPlot, lonsToPlot, cmap=colors, vmin=0, vmax=2, cbarBool=False, fastBool=True, extent='max')
+
+    return fig, ax
