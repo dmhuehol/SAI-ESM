@@ -49,3 +49,12 @@ def molmol_to_pptr(darrMolmol):
     darrPptr.attrs['units'] = 'parts per trillion'
 
     return darrPptr
+
+### Moisture
+def kgkg_to_gkg(darrKgkg):
+    ''' Convert kg/kg to g/kg '''
+    darrGkg = darrKgkg * 1000
+    darrGkg.attrs = darrKgkg.attrs
+    darrGkg.attrs['units'] = 'g/kg'
+
+    return darrGkg
