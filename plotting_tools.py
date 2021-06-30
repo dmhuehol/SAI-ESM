@@ -107,7 +107,6 @@ def plot_pdf_kdeplot(handles, colors, labels, unit, savename, dpiVal=400):
     ''' Make kernel density estimates for several input handles '''
 
     plt.figure()
-    print('Plotting!')
     if np.size(colors) > 1:
         for ind, h in enumerate(handles):
             ax = sn.kdeplot(data=h, label=labels[ind], color=colors[ind], linewidth=2)
@@ -127,7 +126,6 @@ def plot_pdf_hist(handles, colors, labels, unit, savename, binwidth, dpiVal=400)
     ''' Make histograms for several input handles'''
 
     plt.figure()
-    print('Plotting!')
     if np.size(colors) > 1:
         for ind, h in enumerate(handles):
             ax = sn.histplot(data=h, label=labels[ind], color=colors[ind], edgecolor='#3B3B3B', stat='probability', linewidth=0.8, kde=False, binwidth=binwidth)
@@ -147,7 +145,6 @@ def plot_pdf_step(handles, colors, labels, unit, savename, binwidth, dpiVal=400)
     ''' Make step plots for several input handles '''
 
     plt.figure()
-    print('Plotting!')
     if np.size(colors) > 1:
         for ind, h in enumerate(handles):
             bins = np.arange(np.nanmin(h),np.nanmax(h),binwidth)

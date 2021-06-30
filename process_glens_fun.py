@@ -18,44 +18,25 @@ import numpy as np
 import matplotlib.path as mpth
 import glob
 
-def extract_meta_from_fname(fname):
-    ''' Extract useful metadata from GLENS output filename '''
-
-    # baselineFname = fname[len(fname):len(fname)] #only filename
-    fnamePcs = fname.split('.') #period is delimiter in filename
-    glensMeta = {"unkn1": fnamePcs[0],
-        "unkn2": fnamePcs[1],
-        "unkn3": fnamePcs[2],
-        "unkn4": fnamePcs[3],
-        "runType": fnamePcs[4],
-        "ensMemNum": int(fnamePcs[5]),
-        "unkn5": fnamePcs[6],
-        "unkn6": fnamePcs[7],
-        "dataVar": fnamePcs[8],
-        "rawDates": fnamePcs[9],
-        "strtYr": int(fnamePcs[9][0:4]),
-        "strtMnth": int(fnamePcs[9][4:6]),
-        "endYr": int(fnamePcs[9][7:11]),
-        "endMnth": int(fnamePcs[9][11:13]),
-        "extension": fnamePcs[10]
-    }
-
-    return glensMeta
-
 def discover_data_var(glensDsetCntrl):
     ''' GLENS files contain lots of variables--this finds the one with actual data! '''
 
     fileKeys = list(glensDsetCntrl.keys())
-    notDataKeys = ['time_bnds', 'date', 'datesec']
+    notDataKeys = ['time_bnds', 'date', 'datesec', 'lev_bnds', 'gw', 'ch4vmr',
+                   'co2vmr', 'ndcur', 'nscur', 'sol_tsi', 'nsteph', 'f11vmr',
+                   'n2ovmr', 'f12vmr']
+    notDataInDset = list()
     dataKey = "empty"
+    
     for cKey in fileKeys:
         if cKey in notDataKeys:
-            print('not this one: ' + cKey)
+            notDataInDset.append(cKey)
         else:
             dataKey = cKey
-            print('Data key is: ' + dataKey)
-            if dataKey == "empty":
-                sys.exit("Data discovery failed! Ending run now...")
+            print('Data key could be: ' + dataKey)
+
+    if dataKey == "empty":
+        sys.exit("Data discovery failed! Ending run now...")
 
     return dataKey
 
@@ -174,7 +155,6 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
     ''' Manage area operations: obtain global, regional, or pointal output '''
 
     if regionToPlot == 'global':
-        ic('global')
         locStr = 'global'
         locTitleStr = 'global'
 
@@ -184,7 +164,6 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
             darr = darrWght.mean(dim=['lat','lon'], skipna=True)
 
     elif isinstance(regionToPlot,dict):
-        ic('regional')
         locStr = regionToPlot['regSaveStr']
         locTitleStr = regionToPlot['regSaveStr']
 
@@ -216,7 +195,6 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
             darr = darrBoxMask
 
     elif isinstance(regionToPlot,list):
-        ic('point')
         darr = darr.sel(lat=regionToPlot[0], lon=regionToPlot[1], method="nearest")
 
         latStr = str(np.round_(darr.lat.data,decimals=2))
@@ -247,9 +225,7 @@ def isolate_change_quantile(darr, quantileOfInt):
 
 def open_data(dataDict):
     ''' Opens data and select data variable '''
-    ic(dataDict["fnameCntrl"])
     if '*' in dataDict["fnameCntrl"]:
-        ic('Multiple files')
         cntrlPath = dataDict["dataPath"] + dataDict["fnameCntrl"]
         fdbckPath = dataDict["dataPath"] + dataDict["fnameFdbck"]
         glensDsetCntrl = xr.open_mfdataset(cntrlPath,concat_dim='realization',combine='nested')
@@ -258,7 +234,6 @@ def open_data(dataDict):
         glensDarrCntrl = glensDsetCntrl[dataKey]
         glensDarrFdbck = glensDsetFdbck[dataKey]
     else:
-        ic('Single file')
         cntrlPath = dataDict["dataPath"] + dataDict["fnameCntrl"]
         fdbckPath = dataDict["dataPath"] + dataDict["fnameFdbck"]
         glensDsetCntrl = xr.open_dataset(cntrlPath)
