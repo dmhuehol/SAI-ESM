@@ -227,17 +227,21 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
     return darr, locStr, locTitleStr
 
 def isolate_change_quantile(darr, quantileOfInt):
-    ''' Isolate the largest change by a quantile cutoff '''
+    ''' Isolate the largest values by a quantile cutoff '''
     darrAbs = np.abs(darr)
     normValue = np.max(darrAbs)
     darrAbsNorm = darrAbs / normValue
     quantCut = darrAbsNorm.quantile(quantileOfInt)
-    darrAbsNormQ = darrAbsNorm
-    darrAbsNormQ.data[darrAbsNormQ.data < quantCut.data] = np.nan
 
-    darrAbsNormQ.attrs['units'] = 'dimless'
+    darrNorm = darr / np.nanmax(darr)
+    # quantCut = darrNorm.quantile(quantileOfInt)
+    # ic(quantCut.data) #troubleshooting
+    quantMask = np.logical_and(darrNorm>-quantCut, darrNorm<quantCut)
+    darrNorm.data[quantMask] = np.nan
 
-    return darrAbsNormQ
+    darrNorm.attrs['units'] = 'dimless'
+
+    return darrNorm
 
 def open_data(dataDict):
     ''' Opens data and select data variable '''

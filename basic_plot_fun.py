@@ -95,7 +95,7 @@ def plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict,
     plt.figure(figsize=(12,2.73*2))
     ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
     cmap = cmasher.viola_r
-    cmapSeq = cmocean.cm.dense
+    cmapNorm = cmasher.iceburn_r
     cbVals = [-diffToiCntrl.quantile(0.99).data, diffToiCntrl.quantile(0.99).data]
     md = pgf.meta_book(setDict, dataDict, labelsToPlot=None, glensCntrlLoi=glensCntrlLoi, glensFdbckRlz=glensFdbckRlz, cntrlToPlot=glensFdbckLoi)
 
@@ -105,7 +105,7 @@ def plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict,
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
         plt.title(md['lstDcd'] + '[r'+str(ensPrp['drc'][0])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drc'][0])+']' + ' ' + md['cntrlStr'] + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
     else:
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'] + ' ' + md['levStr'] + ' ' + md['varStr'])
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'] + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
 
     ax2 = plt.subplot(2,2,2,projection=mapProj)
     plt_tls.drawOnGlobe(ax2, diffToiFdbck, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
@@ -114,7 +114,7 @@ def plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict,
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
         plt.title(md['lstDcd'] + '[r'+str(ensPrp['drf'][0])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drf'][1])+']' + ' ' + md['fdbckStr'] + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
     else:
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'] + ' ' + md['levStr'] + ' ' + md['varStr'])
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'] + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
 
     ax3 = plt.subplot(2,2,3,projection=mapProj)
     plt_tls.drawOnGlobe(ax3, diffEndCntrlFdbck, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
@@ -123,16 +123,16 @@ def plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict,
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
         plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][0])+']' + ' - ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][0])+']' + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
     else:
-        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + ' - ' + md['fdbckStr'] + ' ' + md['levStr'] + ' ' + md['varStr'])
+        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + ' - ' + md['fdbckStr'] + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
 
     ax4 = plt.subplot(2,2,4,projection=mapProj)
-    plt_tls.drawOnGlobe(ax4, diffEndCntrlFdbckAbsNormQ, glensFdbckRlz.lat, glensFdbckRlz.lon, cmapSeq, vmin=0, vmax=1, cbarBool=True, fastBool=True, extent='max')
+    plt_tls.drawOnGlobe(ax4, diffEndCntrlFdbckAbsNormQ, glensFdbckRlz.lat, glensFdbckRlz.lon, cmapNorm, vmin=-1., vmax=1., cbarBool=True, fastBool=True, extent='max')
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']' + ' ' + ' - ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][1])+']' + ' ' + md['levStr'] + ' ' + '|' + 'norm' + '\u0394' + md['varStr'] + '|' + '>' + md['qntlStr'] + 'Q', fontsize=10)
+        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][1])+']' + ' ' + ' - ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']' + ' ' + md['levStr'] + ' ' + 'greatest third of norm. change', fontsize=10)
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][0])+']' + ' ' + ' - ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][0])+']' + ' ' + md['levStr'] + ' ' + '|' + 'norm' + '\u0394' + md['varStr'] + '|' + '>' + md['qntlStr'] + 'Q', fontsize=10)
+        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drf'][0])+']' + ' ' + ' - ' + md['fdbckStr'] + '[r'+str(ensPrp['drc'][0])+']' + ' ' + md['levStr'] + ' ' + 'greatest third of norm. change', fontsize=10)
     else:
-        plt.title(md['lstDcd'] + ' ' + md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['levStr'] + ' ' + '|' + 'norm' + '\u0394' + md['varStr'] + '|' + '>' + md['qntlStr'] + 'Q')
+        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + ' - ' + md['fdbckStr'] + ' ' + md['levStr'] + ' ' + 'greatest third of norm. change', fontsize=10)
 
     savePrfx = ''
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['fcStr']
@@ -245,7 +245,6 @@ def plot_vertical_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDi
 
     ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
     cmap = cmasher.viola_r
-    cmapSeq = cmocean.cm.dense
 
     plt_tls.drawOnGlobe(ax, diffToiCntrlFdbckTotal, glensDarrCntrl.lat, glensDarrCntrl.lon, cmap, vmin=-diffToiCntrlFdbckTotal.quantile(0.99), vmax=diffToiCntrlFdbckTotal.quantile(0.99), cbarBool=True, fastBool=True, extent='max')
     plt.title('Total column ' + md['varStr'])
@@ -321,7 +320,6 @@ def plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDi
 
     ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
     cmap = cmasher.viola_r
-    cmapSeq = cmocean.cm.dense
 
     plt_tls.drawOnGlobe(ax, diffToiCntrlFdbckTotal, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=-diffToiCntrlFdbckTotal.quantile(0.99), vmax=diffToiCntrlFdbckTotal.quantile(0.99), cbarBool=True, fastBool=True, extent='max')
     plt.title('Total column ' + md['varStr'])
