@@ -12,6 +12,8 @@ import sys
 
 import xarray as xr
 xr.set_options(keep_attrs=True)
+import dask
+dask.config.set(**{'array.slicing.split_large_chunks': True})
 import numpy as np
 import matplotlib.path as mpth
 import glob
