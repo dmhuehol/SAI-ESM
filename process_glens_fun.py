@@ -58,13 +58,17 @@ def discover_data_var(glensDsetCntrl):
     return dataKey
 
 def find_matching_year_bounds(glensCntrl,glensFdbck):
-    ''' Find indices that bound matching time periods in control and feedback data '''
+    ''' Find indices that bound matching time periods in control and feedback output '''
 
     cntrlYrs = glensCntrl['time'].dt.year.data
     fdbckYrs = glensFdbck['time'].dt.year.data
-    bothYrs,cntrlInd,fdbckInd = np.intersect1d(cntrlYrs, fdbckYrs, return_indices=True)
+    nanYrInd = np.where(np.isnan(glensCntrl[:,1,1,1])) #Years after the model completes may be present with NaN values
+    bothYrs,cntrlInd,fdbckInd = np.intersect1d(cntrlYrs, fdbckYrs, return_indices=True) #Or they may be not present at all
     firstYrInBoth = bothYrs[0]
-    lastYrInBoth = bothYrs[len(bothYrs)-1]
+    try:
+        lastYrInBoth = np.min(np.array([bothYrs[len(bothYrs)-1],cntrlYrs[nanYrInd[0][0]-1]])) #Either way, the last year is whichever method with the earliest end date
+    except:
+        lastYrInBoth = bothYrs[len(bothYrs)-1]
     bndDct = {
         "strtYrMtch": firstYrInBoth,
         "endYrMtch": lastYrInBoth,

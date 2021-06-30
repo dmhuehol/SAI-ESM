@@ -20,7 +20,7 @@ import process_glens_fun as pgf
 import region_library as rlib
 
 dataDict = {
-    "dataPath": '/glade/scratch/dhueholt/annual_T/',
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_Q/',
     "fnameCntrl": 'control_*',
     "fnameFdbck": 'feedback_*'
 }
@@ -32,21 +32,22 @@ setDict = {
     "fdbckPoi": [2041], #pdf
     "timePeriod": 20, #pdf
     "levOfInt": 1000, #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
-    "regOfInt": 'global', #ts, pdf
+    "regOfInt": rlib.AlaskaNorthwestCanada(), #ts, pdf
     "areaAvgBool": False, #pdf
     "plotStyle": 'step', #pdf
     "quantileOfInt": 0.67 #dg
 }
 outDict = {
-    "savePath": '/glade/work/dhueholt/20210617_begin/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210629_refEnsAndNewPlots/2_fullCheck/',
     "dpiVal": 400
 }
 
 # Batch using loops
+ipccWg1Ar5 = rlib.atlas_ipcc_wg1ar5()
 loopDict = {
-    "realizations": (1,2,3,21,'mean'),
+    "realizations": (3,4,'mean',),#(1,2,3,21,'mean'),
     "levels": (1000,),
-    "regions": ('global',),
+    "regions": (rlib.Amazon(),),
     "aaBools": (True,False)
 }
 
@@ -70,15 +71,12 @@ for rzc in loopDict["realizations"]:
                 setDict["plotStyle"] = 'step'
                 glensCntrlRlz, glensFdbckRlz, cmnDict = pgf.call_to_open(dataDict, setDict)
                 dataDict = {**dataDict, **cmnDict}
-                try:
-                    bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
-                    setDict["plotStyle"] = 'kde'
-                    bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
-                    setDict["plotStyle"] = 'hist'
-                    bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
-                except:
-                    ic('Failed on: ' + str(rzc))
-                    continue
+
+                bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
+                setDict["plotStyle"] = 'kde'
+                bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
+                setDict["plotStyle"] = 'hist'
+                bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
 
 # One at a time
 # glensCntrlRlz, glensFdbckRlz, cmnDict = pgf.call_to_open(dataDict, setDict)

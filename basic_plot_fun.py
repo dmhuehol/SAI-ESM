@@ -37,6 +37,7 @@ from matplotlib import cm
 import cartopy
 import cartopy.crs as ccrs
 import cmocean
+import cmasher
 import numpy as np
 import scipy.stats as stats
 import cftime
@@ -47,6 +48,13 @@ import plotting_tools as plt_tls
 import fun_convert_unit as fcu
 import region_library as rlib
 
+## GLOBAL VARIABLES
+ensPrp = {
+    "dscntntyYrs": [2030],
+    "drc": [21,4],
+    "drf": [21,21]
+}
+
 ## DIFFERENCE GLOBES
 
 def plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
@@ -56,6 +64,12 @@ def plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict,
         (3) difference between RCP8.5 and SAI/GEO8.5 by end interval
         (4) show only where normalized values of (3) are above a given quantile
     '''
+    # Check ending years before running
+    bndDct = pgf.find_matching_year_bounds(glensCntrlRlz, glensFdbckRlz)
+    if bndDct["endYrMtch"] < setDict["endIntvl"][0]:
+        print("Output ends before end interval, cancelling 4-panel FdbckCntrl globe")
+        return
+
     # Obtain levels
     glensCntrlLoi = pgf.obtain_levels(glensCntrlRlz, setDict["levOfInt"])
     glensFdbckLoi = pgf.obtain_levels(glensFdbckRlz, setDict["levOfInt"])
@@ -80,34 +94,61 @@ def plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict,
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12,2.73*2))
     ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
-    cmap = cmocean.cm.balance
+    cmap = cmasher.viola_r
     cmapSeq = cmocean.cm.dense
     cbVals = [-diffToiCntrl.quantile(0.99).data, diffToiCntrl.quantile(0.99).data]
     md = pgf.meta_book(setDict, dataDict, labelsToPlot=None, glensCntrlLoi=glensCntrlLoi, glensFdbckRlz=glensFdbckRlz, cntrlToPlot=glensFdbckLoi)
 
     plt_tls.drawOnGlobe(ax, diffToiCntrl, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'] + ' ' + md['levStr'] + ' ' + md['varStr'])
+    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
+        plt.title(md['lstDcd'] + '[r'+str(ensPrp['drc'][1])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drc'][0])+']' + ' ' + md['cntrlStr'] + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
+    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
+        plt.title(md['lstDcd'] + '[r'+str(ensPrp['drc'][0])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drc'][0])+']' + ' ' + md['cntrlStr'] + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
+    else:
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'] + ' ' + md['levStr'] + ' ' + md['varStr'])
 
     ax2 = plt.subplot(2,2,2,projection=mapProj)
     plt_tls.drawOnGlobe(ax2, diffToiFdbck, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'] + ' ' + md['levStr'] + ' ' + md['varStr'])
+    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
+        plt.title(md['lstDcd'] + '[r'+str(ensPrp['drf'][1])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drf'][1])+']' + ' ' + md['fdbckStr'] + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
+    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
+        plt.title(md['lstDcd'] + '[r'+str(ensPrp['drf'][0])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drf'][1])+']' + ' ' + md['fdbckStr'] + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
+    else:
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'] + ' ' + md['levStr'] + ' ' + md['varStr'])
 
     ax3 = plt.subplot(2,2,3,projection=mapProj)
     plt_tls.drawOnGlobe(ax3, diffEndCntrlFdbck, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + ' - ' + md['fdbckStr'] + ' ' + md['levStr'] + ' ' + md['varStr'])
+    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
+        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][1])+']' + ' - ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']' + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
+    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
+        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][0])+']' + ' - ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][0])+']' + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
+    else:
+        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + ' - ' + md['fdbckStr'] + ' ' + md['levStr'] + ' ' + md['varStr'])
 
     ax4 = plt.subplot(2,2,4,projection=mapProj)
     plt_tls.drawOnGlobe(ax4, diffEndCntrlFdbckAbsNormQ, glensFdbckRlz.lat, glensFdbckRlz.lon, cmapSeq, vmin=0, vmax=1, cbarBool=True, fastBool=True, extent='max')
-    plt.title(md['lstDcd'] + ' ' + md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['levStr'] + ' ' + '|' + 'norm' + '\u0394' + md['varStr'] + '|' + '>' + md['qntlStr'] + 'Q')
+    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
+        plt.title(md['lstDcd'] + ' ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']' + ' ' + ' - ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][1])+']' + ' ' + md['levStr'] + ' ' + '|' + 'norm' + '\u0394' + md['varStr'] + '|' + '>' + md['qntlStr'] + 'Q', fontsize=10)
+    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
+        plt.title(md['lstDcd'] + ' ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][0])+']' + ' ' + ' - ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][0])+']' + ' ' + md['levStr'] + ' ' + '|' + 'norm' + '\u0394' + md['varStr'] + '|' + '>' + md['qntlStr'] + 'Q', fontsize=10)
+    else:
+        plt.title(md['lstDcd'] + ' ' + md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['levStr'] + ' ' + '|' + 'norm' + '\u0394' + md['varStr'] + '|' + '>' + md['qntlStr'] + 'Q')
 
     savePrfx = ''
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['fcStr']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
+    plt.close()
     ic(savename)
 
 def plot_single_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
     ''' Plot 1 panel difference globe '''
+    # Check ending years before running
+    bndDct = pgf.find_matching_year_bounds(glensCntrlRlz, glensFdbckRlz)
+    if bndDct["endYrMtch"] < setDict["endIntvl"][0]:
+        print("Output ends before end interval, cancelling single FdbckCntrl difference globe")
+        return
+
     # Obtain levels
     glensCntrlLoi = pgf.obtain_levels(glensCntrlRlz, setDict["levOfInt"])
     glensFdbckLoi = pgf.obtain_levels(glensFdbckRlz, setDict["levOfInt"])
@@ -126,19 +167,27 @@ def plot_single_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, s
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12, 2.73*2))
     ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
-    cmap = cmocean.cm.balance
+    cmap = cmasher.viola_r
     cbVals = [-diffToiFdbck.quantile(0.99).data, diffToiFdbck.quantile(0.99).data]
     # cbVals = [-7, 7] #Override automatic colorbar minimum here
     md = pgf.meta_book(setDict, dataDict, labelsToPlot=None, glensCntrlLoi=glensCntrlLoi, glensFdbckRlz=glensFdbckRlz, cntrlToPlot=glensFdbckLoi)
 
     plt_tls.drawOnGlobe(ax, diffToiFdbck, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + '-' + md['fdbckStr'] + ' ' + md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']))
+    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
+        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][1])+']' + ' - ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']' + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
+    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
+        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][0])+']' + ' - ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][0])+']' + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
+    else:
+        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + '-' + md['fdbckStr'] + ' ' + md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']))
+
+
     # plt.title("2010-2019 Baseline - 2090-2099 SAI [50 0] ozone") #Override automatic title generation here
 
     savePrfx = '' #Easy modification for unique filename
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
+    plt.close()
     ic(savename)
 
 def plot_vertical_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
@@ -149,6 +198,12 @@ def plot_vertical_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDi
         (3) 250mb to 50mb (can be modified for any layer)
         (4) Stratosphere
     '''
+    # Check ending years before running
+    bndDct = pgf.find_matching_year_bounds(glensCntrlRlz, glensFdbckRlz)
+    if bndDct["endYrMtch"] < setDict["endIntvl"][0]:
+        print("Output ends before end interval, cancelling 4-panel vertical difference globe")
+        return
+
     # Unit conversion
     # glensDarrCntrl = fcu.molmol_to_ppm(glensDarrCntrl)
     # glensDarrFdbck = fcu.molmol_to_ppm(glensDarrFdbck)
@@ -180,10 +235,17 @@ def plot_vertical_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDi
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12,2.73*2))
-    ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
-    cmap = cmocean.cm.balance
-    cmapSeq = cmocean.cm.dense
     md = pgf.meta_book(setDict, dataDict, labelsToPlot=None, glensCntrlLoi=False, glensFdbckRlz=glensFdbckRlz, cntrlToPlot=glensDarrCntrl)
+    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
+        plt.suptitle(md['lstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][1])+']' + ' - ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']', fontsize=10)
+    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
+        plt.suptitle(md['lstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][0])+']' + ' - ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][0])+']', fontsize=10)
+    else:
+        plt.suptitle(md['lstDcd'] + ' ' + md['cntrlStr'] + '-' + md['fdbckStr'] + ' ' + 'Ens: ' + str(setDict['realization']), fontsize=10)
+
+    ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
+    cmap = cmasher.viola_r
+    cmapSeq = cmocean.cm.dense
 
     plt_tls.drawOnGlobe(ax, diffToiCntrlFdbckTotal, glensDarrCntrl.lat, glensDarrCntrl.lon, cmap, vmin=-diffToiCntrlFdbckTotal.quantile(0.99), vmax=diffToiCntrlFdbckTotal.quantile(0.99), cbarBool=True, fastBool=True, extent='max')
     plt.title('Total column ' + md['varStr'])
@@ -208,6 +270,7 @@ def plot_vertical_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDi
     saveStr = md['varSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['vGl'] + '_' + md['glbType']['fcStr']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
+    plt.close()
     ic(savename)
 
 def plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
@@ -250,10 +313,15 @@ def plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDi
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12,2.73*2))
-    ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
-    cmap = cmocean.cm.balance
-    cmapSeq = cmocean.cm.dense
     md = pgf.meta_book(setDict, dataDict, labelsToPlot=None, glensCntrlLoi=False, glensFdbckRlz=glensFdbckRlz, cntrlToPlot=glensDarrCntrl)
+    if (setDict["realization"] == 'mean'):
+        plt.suptitle(md['frstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][0])+']' + ' - ' + md['lstDcd'] + ' ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']' + ' ', fontsize=10)
+    else:
+        plt.suptitle(md['frstDcd'] + ' ' + md['cntrlStr'] + ' - ' + md['lstDcd'] + ' ' + md['fdbckStr'] + ' ' + 'Ens: ' + str(setDict['realization']))
+
+    ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
+    cmap = cmasher.viola_r
+    cmapSeq = cmocean.cm.dense
 
     plt_tls.drawOnGlobe(ax, diffToiCntrlFdbckTotal, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=-diffToiCntrlFdbckTotal.quantile(0.99), vmax=diffToiCntrlFdbckTotal.quantile(0.99), cbarBool=True, fastBool=True, extent='max')
     plt.title('Total column ' + md['varStr'])
@@ -278,6 +346,7 @@ def plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDi
     saveStr = savePrfx + md['varSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['vGl'] + '_' + md['glbType']['bGl']
     savename = outDict["savePath"] + saveStr + '.png'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
+    plt.close()
     ic(savename)
 
 ## TIMESERIES
@@ -312,9 +381,19 @@ def plot_timeseries(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
     yearsOfInt = glensCntrlPoi['time'].dt.year.data #bndDct['mtchYrs']
     plt.plot(yearsOfInt,cntrlToPlot.data,color='#DF8C20',label=md['cntrlStr'])
     plt.plot(yearsOfInt,fdbckToPlot.data,color='#20DFCC',label=md['fdbckStr'])
-    plt.legend()
+    b,t = plt.ylim()
+    if (setDict["realization"] == 'mean'):
+        plt.plot([ensPrp["dscntntyYrs"],ensPrp["dscntntyYrs"]],[b,t], color='#36454F', linewidth=0.5, linestyle='dashed', label='RCP8.5 ens: 21 to 2030, 4 to 2095')
+        leg = plt.legend()
+        l1,l2,l3 = leg.get_texts()
+        # ic(l1,l2,l3) #troubleshooting if the size is changed for the wrong entry
+        l3._fontproperties = l2._fontproperties.copy()
+        l3.set_fontsize(7)
+    else:
+        plt.legend()
     plt.ylabel(md['unit'])
     plt.autoscale(enable=True, axis='x', tight=True)
+    plt.autoscale(enable=True, axis='y', tight=True)
     plt.xlim(setYear[0],setYear[1])
     plt.title(md['varStr'] + ' ' + md['levStr'] + ': ' + md['strtStr'] + '-' + md['endStr'] + ' ' + locTitleStr  + ' ' + 'Ens ' + str(setDict['realization']))
 
@@ -322,6 +401,7 @@ def plot_timeseries(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['strtStr'] + md['endStr'] + '_' + locStr + '_' + md['ensStr'] + '_' + md['pid']['ts']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
+    plt.close()
     ic(savename)
 
 ## PDFs
@@ -331,6 +411,12 @@ def plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
     variable. Three formats are available: a kernel density estimate, a histogram,
     or a step plot.'''
     baselineFlag = True #True if plotting any data from before 2020 (during the "Baseline" period), False otherwise
+
+    # Check for valid periods before running
+    bndDct = pgf.find_matching_year_bounds(glensCntrlRlz, glensFdbckRlz)
+    for poic,poiv in enumerate(setDict["cntrlPoi"]):
+        if bndDct["endYrMtch"] < poiv:
+            del setDict["cntrlPoi"][poic]
 
     # Obtain levels
     glensCntrlLoi = pgf.obtain_levels(glensCntrlRlz, setDict["levOfInt"])
@@ -346,14 +432,14 @@ def plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
     # glensFdbckAoi = glensFdbckAoi - baselineMeanToRmv
 
     # Unit conversion
-    # cntrlToPlot = fcu.molmol_to_ppm(glensCntrlAoi)
-    # fdbckToPlot = fcu.molmol_to_ppm(glensFdbckAoi)
-    cntrlToPlot = glensCntrlAoi
-    fdbckToPlot = glensFdbckAoi
+    cntrlToPlot = fcu.kgkg_to_gkg(glensCntrlAoi)
+    fdbckToPlot = fcu.kgkg_to_gkg(glensFdbckAoi)
+    # cntrlToPlot = glensCntrlAoi
+    # fdbckToPlot = glensFdbckAoi
 
     iqr = stats.iqr(cntrlToPlot,nan_policy='omit')
     binwidth = (2*iqr) / np.power(np.count_nonzero(~np.isnan(cntrlToPlot)),1/3) # the Freedman-Diaconis rule (NaNs omitted as stackoverflow.com/a/21778195)
-    # binwidth = 0.5 #the Let's Not Overthink This rule
+    # binwidth = 0.1 #the Let's Not Overthink This rule
     ic(iqr, binwidth)
 
     # Extract the decades of interest from the control and feedback datasets
@@ -375,24 +461,17 @@ def plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
         colorsToPlot = plt_tls.select_colors(baselineFlag,len(setDict["cntrlPoi"])-1,len(setDict["fdbckPoi"]))
     else:
         colorsToPlot = plt_tls.select_colors(baselineFlag,len(setDict["cntrlPoi"]),len(setDict["fdbckPoi"]))
-    if baselineFlag:
-        labelsToPlot = list(['2011-2030 Baseline'])
-    else:
-        labelsToPlot = list()
-    unit = cntrlToPlot.attrs['units']
-    ic(labelsToPlot)
-    labelsToPlot = plt_tls.generate_labels(labelsToPlot, setDict["cntrlPoi"], setDict["timePeriod"], 'RCP8.5')
-    ic(labelsToPlot)
-    labelsToPlot = plt_tls.generate_labels(labelsToPlot, setDict["fdbckPoi"], setDict["timePeriod"], 'SAI')
-    ic(labelsToPlot)
+    labelsToPlot = list()
+    labelsToPlot = plt_tls.generate_labels(labelsToPlot, setDict, ensPrp, baselineFlag)
 
+    unit = cntrlToPlot.attrs['units']
     md = pgf.meta_book(setDict, dataDict, labelsToPlot, glensCntrlLoi, glensFdbckRlz, glensCntrlAoi)
     titleStr = md['varStr'] + ' ' + md['levStr'] + ' ' + locTitleStr + ' ' + 'Ens ' + str(setDict['realization'])
     labelsToPlot.append(titleStr)
     savePrfx = ''
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['tmStr'] + '_' + locStr + '_' + md['ensStr'] + '_' + md['pid']['pdf'] + '_' + md['pdfStyle'] + '_' + md['spcStr']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
-    ic(colorsToPlot) # For troubleshooting
+    # ic(colorsToPlot) # For troubleshooting
 
     # Make kde, histograms, or step plots
     if setDict["plotStyle"] == 'kde':

@@ -111,7 +111,6 @@ def plot_pdf_kdeplot(handles, colors, labels, unit, savename, dpiVal=400):
     if np.size(colors) > 1:
         for ind, h in enumerate(handles):
             ax = sn.kdeplot(data=h, label=labels[ind], color=colors[ind], linewidth=2)
-            ic(h)
             ax.set(xlabel=unit, ylabel='Density')
     else:
         ax = sn.kdeplot(data=handles, label=labels, color=colors, linewidth=2)
@@ -122,6 +121,7 @@ def plot_pdf_kdeplot(handles, colors, labels, unit, savename, dpiVal=400):
 
     ic(savename)
     plt.savefig(savename, dpi=dpiVal, bbox_inches='tight')
+    plt.close()
 
 def plot_pdf_hist(handles, colors, labels, unit, savename, binwidth, dpiVal=400):
     ''' Make histograms for several input handles'''
@@ -141,6 +141,7 @@ def plot_pdf_hist(handles, colors, labels, unit, savename, binwidth, dpiVal=400)
 
     ic(savename)
     plt.savefig(savename, dpi=dpiVal, bbox_inches='tight')
+    plt.close()
 
 def plot_pdf_step(handles, colors, labels, unit, savename, binwidth, dpiVal=400):
     ''' Make step plots for several input handles '''
@@ -149,7 +150,7 @@ def plot_pdf_step(handles, colors, labels, unit, savename, binwidth, dpiVal=400)
     print('Plotting!')
     if np.size(colors) > 1:
         for ind, h in enumerate(handles):
-            bins = np.arange(np.min(h),np.max(h),binwidth)
+            bins = np.arange(np.nanmin(h),np.nanmax(h),binwidth)
             ax = plt.hist(h, label=labels[ind], color=colors[ind], bins=bins, density=True, histtype='step')
             plt.xlabel(unit)
             plt.ylabel("Density")
@@ -162,8 +163,9 @@ def plot_pdf_step(handles, colors, labels, unit, savename, binwidth, dpiVal=400)
 
     ic(savename)
     plt.savefig(savename, dpi=dpiVal, bbox_inches='tight')
+    plt.close()
 
-def select_colors(baselineFlag, nFdbck, nCntrl):
+def select_colors(baselineFlag, nCntrl, nFdbck):
     '''Returns colors for a set number of feedback and control objects '''
 
     colorsToPlot = list()
@@ -176,13 +178,14 @@ def select_colors(baselineFlag, nFdbck, nCntrl):
 
     colorsToPlot = paint_by_numbers(colorsToPlot, cntrlColors, nCntrl)
     colorsToPlot = paint_by_numbers(colorsToPlot, fdbckColors, nFdbck)
-
     return colorsToPlot
 
 def paint_by_numbers(colorsToPlot, colList, nfc):
     ''' Choose colors for perceptual distinction given number of objects to be plotted '''
 
-    if nfc == 1:
+    if nfc == 0:
+        pass
+    elif nfc == 1:
         colorsToPlot.append(colList[3])
     elif nfc == 2:
         colorsToPlot.append(colList[1])
@@ -229,18 +232,43 @@ def paint_by_numbers(colorsToPlot, colList, nfc):
 
     return colorsToPlot
 
-def generate_labels(labelsList, intervalsToPlot, timePeriod, type):
+def generate_labels(labelsList, setDict, ensPrp, baselineFlag):
     ''' Generate labels for figure titles and output filenames '''
 
-    for cdc,cdv in enumerate(intervalsToPlot):
+    for cdc,cdv in enumerate(setDict["cntrlPoi"]):
         if cdv < 2020:
             continue #Do not auto-generate if interval starts during the 2010-2019 "Baseline" period
         startYearStr = str(cdv)
-        endYearStr = str(cdv + timePeriod - 1)
-        if cdv+timePeriod == 2100:
+        endYearStr = str(cdv + setDict["timePeriod"] - 1)
+        if cdv+setDict["timePeriod"] == 2100:
             endYearStr = str(2099)
-        labelStr = startYearStr + '-' + endYearStr + ' ' + type
+        if (setDict["realization"] == 'mean') and cdv+setDict["timePeriod"]>ensPrp["dscntntyYrs"][0]:
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'RCP8.5' + ' ' + '[r'+str(ensPrp["drc"][1])+']'
+        elif (setDict["realization"] == 'mean') and cdv+setDict["timePeriod"]<ensPrp["dscntntyYrs"][0]:
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'RCP8.5' + ' ' + '[r'+str(ensPrp["drc"][0])+']'
+        else:
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'RCP8.5'
         labelsList.append(labelStr)
+
+    for cdc,cdv in enumerate(setDict["fdbckPoi"]):
+        if cdv < 2020:
+            continue #Do not auto-generate if interval starts during the 2010-2019 "Baseline" period
+        startYearStr = str(cdv)
+        endYearStr = str(cdv + setDict["timePeriod"] - 1)
+        if cdv+setDict["timePeriod"] == 2100:
+            endYearStr = str(2099)
+        if (setDict["realization"] == 'mean') and cdv+setDict["timePeriod"]>ensPrp["dscntntyYrs"][0]:
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'SAI' + ' ' + '[r'+str(ensPrp["drf"][1])+']'
+        elif (setDict["realization"] == 'mean') and cdv+setDict["timePeriod"]<ensPrp["dscntntyYrs"][0]:
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'SAI' + ' ' + '[r'+str(ensPrp["drf"][0])+']'
+        else:
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'SAI'
+        labelsList.append(labelStr)
+
+    if baselineFlag:
+        labelsList.insert(0,'2011-2030 Baseline')
+        if (setDict["realization"] == 'mean'):
+            labelsList[0] = labelsList[0] + ' ' + '[r21]'
 
     return labelsList
 
