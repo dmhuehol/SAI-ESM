@@ -289,6 +289,13 @@ def plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDi
     diffToiCntrlFdbckLowStrat = toiStartCntrlLowStrat - toiEndFdbckLowStrat
     diffToiCntrlFdbckStrat = toiStartCntrlStrat - toiEndFdbckStrat
 
+    # ic(diffToiCntrlFdbckStrat)
+    # ic(np.min(diffToiCntrlFdbckStrat))
+    # ic(np.max(diffToiCntrlFdbckStrat))
+    # ic(diffToiCntrlFdbckStrat.quantile(0.01))
+    # ic(-diffToiCntrlFdbckStrat.quantile(0.99))
+    # sys.exit('STOP')
+
     # Plotting
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
@@ -317,7 +324,9 @@ def plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDi
     plt.title(str(layerToPlot) + ' mb' + ' ' + md['varStr'])
 
     ax4 = plt.subplot(2,2,4,projection=mapProj)
-    plt_tls.drawOnGlobe(ax4, diffToiCntrlFdbckStrat, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=-diffToiCntrlFdbckStrat.quantile(0.99), vmax=diffToiCntrlFdbckStrat.quantile(0.99), cbarBool=True, fastBool=True, extent='max')
+    v4 = plt_tls.find_widest_quantile(diffToiCntrlFdbckStrat)
+    ic(v4)
+    plt_tls.drawOnGlobe(ax4, diffToiCntrlFdbckStrat, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=v4[0], vmax=v4[1], cbarBool=True, fastBool=True, extent='max')
     plt.title('Stratosphere ' + md['varStr'])
     # plt.title(lastDcd + ' ' + cntrlStr + ' - ' + fdbckStr + ' ' + '[250,50]' + ' ' + varStr)
 

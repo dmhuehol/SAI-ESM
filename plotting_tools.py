@@ -308,3 +308,12 @@ def save_colorbar(cbarDict, savePath, saveName, dpiVal=400):
     cb.set_label(cbarDict["label"], size='large')
     # cb.set_label(cbarDict["label"], size='large', fontproperties=FiraSansThin) # Set font
     plt.savefig(savePath + saveName + '.png', dpi=dpiVal)
+
+def find_widest_quantile(darr):
+    ''' Figures out whether [0.01Q,-0.01Q] or [-0.99Q,0.99Q] is more appropriate '''
+    absQuant99 = np.abs(darr.quantile(0.99))
+    absQuant001 = np.abs(darr.quantile(0.01))
+    bigVal = np.max([absQuant99,absQuant001])
+    widestRange = np.array([-bigVal, bigVal])
+
+    return widestRange
