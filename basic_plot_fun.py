@@ -74,10 +74,6 @@ def plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict,
     glensCntrlLoi = pgf.obtain_levels(glensCntrlRlz, setDict["levOfInt"])
     glensFdbckLoi = pgf.obtain_levels(glensFdbckRlz, setDict["levOfInt"])
 
-    # Unit conversion
-    # glensCntrlLoi = fcu.molmol_to_ppm(glensCntrlLoi)
-    # glensFdbckLoi = fcu.molmol_to_ppm(glensFdbckLoi)
-
     # Average over years
     toiStart = dot.average_over_years(glensCntrlLoi, setDict["startIntvl"][0], setDict["startIntvl"][1]) # 2010-2019 is baseline, injection begins 2020
     toiEndCntrl = dot.average_over_years(glensCntrlLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
@@ -94,7 +90,7 @@ def plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict,
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12,2.73*2))
     ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
-    cmap = cmasher.viola_r
+    cmap = cmocean.cm.balance
     cmapNorm = cmasher.iceburn_r
     cbVals = [-diffToiCntrl.quantile(0.99).data, diffToiCntrl.quantile(0.99).data]
     md = pgf.meta_book(setDict, dataDict, labelsToPlot=None, glensCntrlLoi=glensCntrlLoi, glensFdbckRlz=glensFdbckRlz, cntrlToPlot=glensFdbckLoi)
@@ -159,15 +155,12 @@ def plot_single_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, s
     toiEndFdbck = dot.average_over_years(glensFdbckLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
     diffToiFdbck =  toiEndCntrl - toiEndFdbck
 
-    # Unit conversion
-    # diffToiFdbck = fcu.molmol_to_ppm(diffToiFdbck)
-
     # Plotting
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12, 2.73*2))
     ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
-    cmap = cmasher.viola_r
+    cmap = cmocean.cm.balance
     cbVals = [-diffToiFdbck.quantile(0.99).data, diffToiFdbck.quantile(0.99).data]
     # cbVals = [-7, 7] #Override automatic colorbar minimum here
     md = pgf.meta_book(setDict, dataDict, labelsToPlot=None, glensCntrlLoi=glensCntrlLoi, glensFdbckRlz=glensFdbckRlz, cntrlToPlot=glensFdbckLoi)
@@ -204,15 +197,9 @@ def plot_vertical_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDi
         print("Output ends before end interval, cancelling 4-panel vertical difference globe")
         return
 
-    # Unit conversion
-    # glensDarrCntrl = fcu.molmol_to_ppm(glensDarrCntrl)
-    # glensDarrFdbck = fcu.molmol_to_ppm(glensDarrFdbck)
-    glensDarrCntrl = glensCntrlRlz
-    glensDarrFdbck = glensFdbckRlz
-
     # Average over years
-    toiEndCntrl = dot.average_over_years(glensDarrCntrl, setDict["endIntvl"][0], setDict["endIntvl"][1])
-    toiEndFdbck = dot.average_over_years(glensDarrFdbck, setDict["endIntvl"][0], setDict["endIntvl"][1])
+    toiEndCntrl = dot.average_over_years(glensCntrlRlz, setDict["endIntvl"][0], setDict["endIntvl"][1])
+    toiEndFdbck = dot.average_over_years(glensFdbckRlz, setDict["endIntvl"][0], setDict["endIntvl"][1])
 
     # Obtain levels
     toiEndCntrlTotal = pgf.obtain_levels(toiEndCntrl, 'total')
@@ -235,7 +222,7 @@ def plot_vertical_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDi
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12,2.73*2))
-    md = pgf.meta_book(setDict, dataDict, labelsToPlot=None, glensCntrlLoi=False, glensFdbckRlz=glensFdbckRlz, cntrlToPlot=glensDarrCntrl)
+    md = pgf.meta_book(setDict, dataDict, labelsToPlot=None, glensCntrlLoi=False, glensFdbckRlz=glensFdbckRlz, cntrlToPlot=glensCntrlRlz)
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
         plt.suptitle(md['lstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][1])+']' + ' - ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']', fontsize=10)
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
@@ -244,24 +231,24 @@ def plot_vertical_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDi
         plt.suptitle(md['lstDcd'] + ' ' + md['cntrlStr'] + '-' + md['fdbckStr'] + ' ' + 'Ens: ' + str(setDict['realization']), fontsize=10)
 
     ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
-    cmap = cmasher.viola_r
+    cmap = cmocean.cm.balance
 
-    plt_tls.drawOnGlobe(ax, diffToiCntrlFdbckTotal, glensDarrCntrl.lat, glensDarrCntrl.lon, cmap, vmin=-diffToiCntrlFdbckTotal.quantile(0.99), vmax=diffToiCntrlFdbckTotal.quantile(0.99), cbarBool=True, fastBool=True, extent='max')
+    plt_tls.drawOnGlobe(ax, diffToiCntrlFdbckTotal, glensCntrlRlz.lat, glensCntrlRlz.lon, cmap, vmin=-diffToiCntrlFdbckTotal.quantile(0.99), vmax=diffToiCntrlFdbckTotal.quantile(0.99), cbarBool=True, fastBool=True, extent='max')
     plt.title('Total column ' + md['varStr'])
     # plt.title('lastDcd + ' - ' + firstDcd + ' ' + cntrlStr + ' ' + 't'otal' + ' ' + varStr)
 
     ax2 = plt.subplot(2,2,2,projection=mapProj)
-    plt_tls.drawOnGlobe(ax2, diffToiCntrlFdbckTrop, glensDarrFdbck.lat, glensDarrFdbck.lon, cmap, vmin=-diffToiCntrlFdbckTrop.quantile(0.99), vmax=diffToiCntrlFdbckTrop.quantile(0.99), cbarBool=True, fastBool=True, extent='max')
+    plt_tls.drawOnGlobe(ax2, diffToiCntrlFdbckTrop, glensCntrlRlz.lat, glensCntrlRlz.lon, cmap, vmin=-diffToiCntrlFdbckTrop.quantile(0.99), vmax=diffToiCntrlFdbckTrop.quantile(0.99), cbarBool=True, fastBool=True, extent='max')
     # plt.title(lastDcd + ' - ' + firstDcd + ' ' + fdbckStr + ' ' + 'troposphere' + ' ' + varStr)
     plt.title('Troposphere ' + md['varStr'])
 
     ax3 = plt.subplot(2,2,3,projection=mapProj)
-    plt_tls.drawOnGlobe(ax3, diffToiCntrlFdbckLowStrat, glensDarrFdbck.lat, glensDarrFdbck.lon, cmap, vmin=-diffToiCntrlFdbckLowStrat.quantile(0.99), vmax=diffToiCntrlFdbckLowStrat.quantile(0.99), cbarBool=True, fastBool=True, extent='max')
+    plt_tls.drawOnGlobe(ax3, diffToiCntrlFdbckLowStrat, glensCntrlRlz.lat, glensCntrlRlz.lon, cmap, vmin=-diffToiCntrlFdbckLowStrat.quantile(0.99), vmax=diffToiCntrlFdbckLowStrat.quantile(0.99), cbarBool=True, fastBool=True, extent='max')
     # plt.title(lastDcd + ' ' + cntrlStr + ' - ' + fdbckStr + ' ' + 'stratosphere' + ' ' + varStr)
     plt.title(str(layerToPlot) + ' mb' + ' ' + md['varStr'])
 
     ax4 = plt.subplot(2,2,4,projection=mapProj)
-    plt_tls.drawOnGlobe(ax4, diffToiCntrlFdbckStrat, glensDarrFdbck.lat, glensDarrFdbck.lon, cmap, vmin=-diffToiCntrlFdbckStrat.quantile(0.99), vmax=diffToiCntrlFdbckStrat.quantile(0.99), cbarBool=True, fastBool=True, extent='max')
+    plt_tls.drawOnGlobe(ax4, diffToiCntrlFdbckStrat, glensCntrlRlz.lat, glensCntrlRlz.lon, cmap, vmin=-diffToiCntrlFdbckStrat.quantile(0.99), vmax=diffToiCntrlFdbckStrat.quantile(0.99), cbarBool=True, fastBool=True, extent='max')
     plt.title('Stratosphere ' + md['varStr'])
     # plt.title(lastDcd + ' ' + cntrlStr + ' - ' + fdbckStr + ' ' + '[250,50]' + ' ' + varStr)
 
@@ -281,15 +268,9 @@ def plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDi
         (4) Stratosphere
     '''
 
-    # Unit conversion
-    # glensDarrCntrl = fcu.molmol_to_ppm(glensCntrlRlz)
-    # glensDarrFdbck = fcu.molmol_to_ppm(glensFdbckRlz)
-    glensDarrCntrl = glensCntrlRlz
-    glensDarrFdbck = glensFdbckRlz
-
     # Average over years
-    toiStart = dot.average_over_years(glensDarrCntrl, setDict["startIntvl"][0], setDict["startIntvl"][1]) # 2010-2019 is baseline, injection begins 2020
-    toiEndFdbck = dot.average_over_years(glensDarrFdbck, setDict["endIntvl"][0], setDict["endIntvl"][1])
+    toiStart = dot.average_over_years(glensCntrlRlz, setDict["startIntvl"][0], setDict["startIntvl"][1]) # 2010-2019 is baseline, injection begins 2020
+    toiEndFdbck = dot.average_over_years(glensFdbckRlz, setDict["endIntvl"][0], setDict["endIntvl"][1])
 
     # Obtain levels
     toiStartCntrlTotal = pgf.obtain_levels(toiStart, 'total')
@@ -312,14 +293,14 @@ def plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDi
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12,2.73*2))
-    md = pgf.meta_book(setDict, dataDict, labelsToPlot=None, glensCntrlLoi=False, glensFdbckRlz=glensFdbckRlz, cntrlToPlot=glensDarrCntrl)
+    md = pgf.meta_book(setDict, dataDict, labelsToPlot=None, glensCntrlLoi=False, glensFdbckRlz=glensFdbckRlz, cntrlToPlot=glensCntrlRlz)
     if (setDict["realization"] == 'mean'):
         plt.suptitle(md['frstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][0])+']' + ' - ' + md['lstDcd'] + ' ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']' + ' ', fontsize=10)
     else:
         plt.suptitle(md['frstDcd'] + ' ' + md['cntrlStr'] + ' - ' + md['lstDcd'] + ' ' + md['fdbckStr'] + ' ' + 'Ens: ' + str(setDict['realization']))
 
     ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
-    cmap = cmasher.viola_r
+    cmap = cmocean.cm.balance
 
     plt_tls.drawOnGlobe(ax, diffToiCntrlFdbckTotal, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=-diffToiCntrlFdbckTotal.quantile(0.99), vmax=diffToiCntrlFdbckTotal.quantile(0.99), cbarBool=True, fastBool=True, extent='max')
     plt.title('Total column ' + md['varStr'])
@@ -369,10 +350,6 @@ def plot_timeseries(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
     cntrlToPlot, locStr, locTitleStr = pgf.manage_area(glensCntrlLoi, setDict["regOfInt"], areaAvgBool=True)
     fdbckToPlot, locStr, locTitleStr = pgf.manage_area(glensFdbckLoi, setDict["regOfInt"], areaAvgBool=True)
 
-    # Unit conversion
-    # cntrlToPlot = fcu.molmol_to_ppm(cntrlToPlot)
-    # fdbckToPlot = fcu.molmol_to_ppm(fdbckToPlot)
-
     # Make timeseries
     md = pgf.meta_book(setDict, dataDict, labelsToPlot=None, glensCntrlLoi=glensCntrlLoi, glensFdbckRlz=glensFdbckRlz, cntrlToPlot=cntrlToPlot)
     plt.figure()
@@ -421,19 +398,8 @@ def plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
     glensFdbckLoi = pgf.obtain_levels(glensFdbckRlz, setDict["levOfInt"])
 
     # Deal with area
-    glensCntrlAoi, locStr, locTitleStr = pgf.manage_area(glensCntrlLoi, setDict["regOfInt"], setDict["areaAvgBool"])
-    glensFdbckAoi, locStr, locTitleStr = pgf.manage_area(glensFdbckLoi, setDict["regOfInt"], setDict["areaAvgBool"])
-
-    # Remove 2010-2019 average
-    # baselineMeanToRmv = dot.average_over_years(glensCntrlAoi,2010,2019)
-    # glensCntrlAoi = glensCntrlAoi - baselineMeanToRmv
-    # glensFdbckAoi = glensFdbckAoi - baselineMeanToRmv
-
-    # Unit conversion
-    cntrlToPlot = fcu.kgkg_to_gkg(glensCntrlAoi)
-    fdbckToPlot = fcu.kgkg_to_gkg(glensFdbckAoi)
-    # cntrlToPlot = glensCntrlAoi
-    # fdbckToPlot = glensFdbckAoi
+    cntrlToPlot, locStr, locTitleStr = pgf.manage_area(glensCntrlLoi, setDict["regOfInt"], setDict["areaAvgBool"])
+    fdbckToPlot, locStr, locTitleStr = pgf.manage_area(glensFdbckLoi, setDict["regOfInt"], setDict["areaAvgBool"])
 
     iqr = stats.iqr(cntrlToPlot,nan_policy='omit')
     binwidth = (2*iqr) / np.power(np.count_nonzero(~np.isnan(cntrlToPlot)),1/3) # the Freedman-Diaconis rule (NaNs omitted as stackoverflow.com/a/21778195)
@@ -463,7 +429,7 @@ def plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
     labelsToPlot = plt_tls.generate_labels(labelsToPlot, setDict, ensPrp, baselineFlag)
 
     unit = cntrlToPlot.attrs['units']
-    md = pgf.meta_book(setDict, dataDict, labelsToPlot, glensCntrlLoi, glensFdbckRlz, glensCntrlAoi)
+    md = pgf.meta_book(setDict, dataDict, labelsToPlot, glensCntrlLoi, glensFdbckRlz, cntrlToPlot)
     titleStr = md['varStr'] + ' ' + md['levStr'] + ' ' + locTitleStr + ' ' + 'Ens ' + str(setDict['realization'])
     labelsToPlot.append(titleStr)
     savePrfx = ''

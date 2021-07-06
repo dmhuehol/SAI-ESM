@@ -27,7 +27,7 @@ def discover_data_var(glensDsetCntrl):
                    'n2ovmr', 'f12vmr']
     notDataInDset = list()
     dataKey = "empty"
-    
+
     for cKey in fileKeys:
         if cKey in notDataKeys:
             notDataInDset.append(cKey)
@@ -289,8 +289,11 @@ def call_to_open(dataDict, setDict):
     ememCntrl = get_ens_mem(cntrlFiles)
     ememFdbck = get_ens_mem(fdbckFiles)
     glensCntrlRlz, glensFdbckRlz, ememSave = manage_realizations(setDict, glensDarrCntrl, glensDarrFdbck, ememCntrl, ememFdbck)
-
     cmnDict = {'dataKey': dataKey, 'ememSave': ememSave}
+
+    if setDict["convert"] is not None:
+        glensCntrlRlz = setDict["convert"](glensCntrlRlz)
+        glensFdbckRlz = setDict["convert"](glensFdbckRlz)
 
     return glensCntrlRlz, glensFdbckRlz, cmnDict
 

@@ -2,6 +2,11 @@
 Runs plotting functions in basic_plot_fun. This is used by run_plots_script.sh
 to submit jobs through the NCAR queue.
 
+dataDict is for inputs
+setDict sets settings related to plotting
+outDict is for outputs
+loopDict determines which images are made
+
 Written by Daniel Hueholt | June 2021
 Graduate Research Assistant at Colorado State University
 '''
@@ -14,83 +19,70 @@ from matplotlib import cm
 import cmocean
 import numpy as np
 
-import plotting_tools as plt_tls
 import basic_plot_fun as bpf
+import fun_convert_unit as fcu
 import process_glens_fun as pgf
+import plotting_tools as plt_tls
 import region_library as rlib
 
+# Call regions
+ipccWg1Ar5 = rlib.atlas_ipcc_wg1ar5()
+gnsh = ('global', rlib.NorthernHemisphere(), rlib.SouthernHemisphere())
+
+# Dictionaries
 dataDict = {
     "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_Q/',
     "fnameCntrl": 'control_*',
     "fnameFdbck": 'feedback_*'
 }
 setDict = {
-    "realization": 'mean', #number for individual member or 'mean' for ensemble mean | TODO: array entry to choose particular members
     "startIntvl": [2011,2030], #dg
     "endIntvl": [2041,2060], #dg
     "cntrlPoi": [2011,2041], #pdf
     "fdbckPoi": [2041], #pdf
     "timePeriod": 20, #pdf
-    "levOfInt": 1000, #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
-    "regOfInt": rlib.AlaskaNorthwestCanada(), #ts, pdf
-    "areaAvgBool": False, #pdf
     "plotStyle": 'step', #pdf
-    "quantileOfInt": 0.67 #dg
+    "quantileOfInt": 0.67, #dg
+    "convert": fcu.kgkg_to_gkg, #relevant unit converter or None if using default units
+    "areaAvgBool": None #TEMP
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210629_refEnsAndNewPlots/2_fullCheck/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210702_workflowAndDraft/',
     "dpiVal": 400
 }
-
-# Batch using loops
-ipccWg1Ar5 = rlib.atlas_ipcc_wg1ar5()
 loopDict = {
-    "realizations": (3,4,'mean',),#(1,2,3,21,'mean'),
-    "levels": (1000,),
-    "regions": (rlib.Amazon(),),
+    "realizations": (3,4,'mean',), #number for individual member or 'mean' for ensemble mean | TODO: array entry to choose particular members
+    "levels": (1000,), #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
+    "regions": ('global',rlib.NorthernHemisphere()),
     "aaBools": (True,False)
 }
 
-for rzc in loopDict["realizations"]:
-    setDict["realization"] = rzc
+# Verify inputs
+ic(setDict["convert"])
+ic(loopDict)
+
+# Make images
+for rlz in loopDict["realizations"]:
+    setDict["realization"] = rlz
     glensCntrlRlz, glensFdbckRlz, cmnDict = pgf.call_to_open(dataDict, setDict)
     dataDict = {**dataDict, **cmnDict}
-    bpf.plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
-    bpf.plot_single_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
     bpf.plot_vertical_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
     bpf.plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
+
     for lev in loopDict["levels"]:
         setDict["levOfInt"] = lev
+        bpf.plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
+        bpf.plot_single_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
+
         for reg in loopDict["regions"]:
             setDict["regOfInt"] = reg
-            glensCntrlRlz, glensFdbckRlz, cmnDict = pgf.call_to_open(dataDict, setDict)
-            dataDict = {**dataDict, **cmnDict}
             bpf.plot_timeseries(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
+
             for aab in loopDict["aaBools"]:
                 setDict["areaAvgBool"] = aab
                 setDict["plotStyle"] = 'step'
-                glensCntrlRlz, glensFdbckRlz, cmnDict = pgf.call_to_open(dataDict, setDict)
-                dataDict = {**dataDict, **cmnDict}
-
                 bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
                 setDict["plotStyle"] = 'kde'
                 bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
                 setDict["plotStyle"] = 'hist'
                 bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
-
-# One at a time
-# glensCntrlRlz, glensFdbckRlz, cmnDict = pgf.call_to_open(dataDict, setDict)
-# dataDict = {**dataDict, **cmnDict}
-
-# bpf.plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
-# bpf.plot_single_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
-# bpf.plot_vertical_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
-# bpf.plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
-
-# bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
-# setDict["plotStyle"] = 'kde'
-# bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
-# setDict["plotStyle"] = 'hist'
-# bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
-
-# ic('Plots completed!')
