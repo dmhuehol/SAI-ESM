@@ -58,3 +58,12 @@ def kgkg_to_gkg(darrKgkg):
     darrGkg.attrs['units'] = 'g/kg'
 
     return darrGkg
+
+### Temperature
+def kel_to_cel(darrKel):
+    ''' Convert K to deg C '''
+    darrCel = darrKel - 273.15
+    darrCel.attrs = darrKel.attrs
+    darrCel.attrs['units'] = 'deg C'
+
+    return darrCel

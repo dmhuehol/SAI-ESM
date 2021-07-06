@@ -43,7 +43,7 @@ def Amazon():
 def CentralAsia():
     regDict = {
         "regStr": 'Central Asia',
-        "regSaveStr": 'CentrlAsia',
+        "regSaveStr": 'CentralAsia',
         "regLats": np.array([30, 50]),
         "regLons": np.array([60, 75])
     }
@@ -123,7 +123,7 @@ def EastNorthAmerica():
 def NorthAsia():
     regDict = {
         "regStr": 'North Asia',
-        "regSaveStr": 'NrthAsia',
+        "regSaveStr": 'NorthAsia',
         "regLats": np.array([50, 70]),
         "regLons": np.array([40, 180])
     }
@@ -133,7 +133,7 @@ def NorthAsia():
 def NorthAustralia():
     regDict = {
         "regStr": 'North Australia',
-        "regSaveStr": 'NrthAustrla',
+        "regSaveStr": 'NorthAustrla',
         "regLats": np.array([-30, -10]),
         "regLons": np.array([110, 155])
     }
