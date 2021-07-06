@@ -325,7 +325,6 @@ def plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDi
 
     ax4 = plt.subplot(2,2,4,projection=mapProj)
     v4 = plt_tls.find_widest_quantile(diffToiCntrlFdbckStrat)
-    ic(v4)
     plt_tls.drawOnGlobe(ax4, diffToiCntrlFdbckStrat, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=v4[0], vmax=v4[1], cbarBool=True, fastBool=True, extent='max')
     plt.title('Stratosphere ' + md['varStr'])
     # plt.title(lastDcd + ' ' + cntrlStr + ' - ' + fdbckStr + ' ' + '[250,50]' + ' ' + varStr)
@@ -412,6 +411,8 @@ def plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
 
     iqr = stats.iqr(cntrlToPlot,nan_policy='omit')
     binwidth = (2*iqr) / np.power(np.count_nonzero(~np.isnan(cntrlToPlot)),1/3) # the Freedman-Diaconis rule (NaNs omitted as stackoverflow.com/a/21778195)
+    if setDict["areaAvgBool"]:
+        binwidth = binwidth/5 #binwidths need to be smaller for small N datasets
     # binwidth = 0.1 #the Let's Not Overthink This rule
     ic(iqr, binwidth)
 
