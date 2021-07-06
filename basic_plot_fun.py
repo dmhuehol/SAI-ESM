@@ -67,7 +67,7 @@ def plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict,
     # Check ending years before running
     bndDct = pgf.find_matching_year_bounds(glensCntrlRlz, glensFdbckRlz)
     if bndDct["endYrMtch"] < setDict["endIntvl"][0]:
-        print("Output ends before end interval, cancelling 4-panel FdbckCntrl globe")
+        print("Requested interval is not in input! Cancelling 4-panel FdbckCntrl globe")
         return
 
     # Obtain levels
@@ -142,7 +142,7 @@ def plot_single_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, s
     # Check ending years before running
     bndDct = pgf.find_matching_year_bounds(glensCntrlRlz, glensFdbckRlz)
     if bndDct["endYrMtch"] < setDict["endIntvl"][0]:
-        print("Output ends before end interval, cancelling single FdbckCntrl difference globe")
+        print("Requested interval is not in input! Cancelling single FdbckCntrl difference globe")
         return
 
     # Obtain levels
@@ -194,7 +194,7 @@ def plot_vertical_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDi
     # Check ending years before running
     bndDct = pgf.find_matching_year_bounds(glensCntrlRlz, glensFdbckRlz)
     if bndDct["endYrMtch"] < setDict["endIntvl"][0]:
-        print("Output ends before end interval, cancelling 4-panel vertical difference globe")
+        print("Requested interval is not in input! Cancelling 4-panel vertical difference globe.")
         return
 
     # Average over years
