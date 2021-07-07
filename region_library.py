@@ -3,7 +3,7 @@ Define useful regions for plotting to be called from other functions.
 Latitudes are in deg N, longitudes are in 360-format deg E to match the GLENS
 format.
 
-Written by Daniel Hueholt | May 2021
+Written by Daniel Hueholt | July 2021
 Graduate Research Assistant at Colorado State University
 '''
 

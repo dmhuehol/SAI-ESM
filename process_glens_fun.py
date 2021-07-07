@@ -3,7 +3,7 @@ Contains functions to process GLENS data, taking care of operations like
 extracting metadata from the filename, choosing and summing levels, or
 managing area inputs.
 
-Written by Daniel Hueholt | May 2021
+Written by Daniel Hueholt | July 2021
 Graduate Research Assistant at Colorado State University
 '''
 

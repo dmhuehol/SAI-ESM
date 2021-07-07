@@ -2,7 +2,7 @@
 Contains functions for unit conversions. Module is sectioned by type of variable,
 i.e. temperature, chemistry, etc.
 
-Written by Daniel Hueholt | May 2021
+Written by Daniel Hueholt | July 2021
 Graduate Research Assistant at Colorado State University
 '''
 

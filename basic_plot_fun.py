@@ -23,7 +23,7 @@ Plot pdfs for RCP8.5 ("Control") and SAI ("Feedback") values for a GLENS output
 variable.
 plot_pdf: plots the pdfs as histogram, step plot, or kde depending on input
 
-Written by Daniel Hueholt | June 2021
+Written by Daniel Hueholt | July 2021
 Graduate Research Assistant at Colorado State University
 '''
 
@@ -82,8 +82,9 @@ def plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict,
     # Calculate 4-panel values
     diffToiCntrl = toiEndCntrl - toiStart
     diffToiFdbck = toiEndFdbck - toiStart
-    diffEndCntrlFdbck = toiEndCntrl - toiEndFdbck
-    diffEndCntrlFdbckAbsNormQ = pgf.norm_by_absmax(diffEndCntrlFdbck)
+    diffEndFdbckCntrl = toiEndFdbck - toiEndCntrl
+    diffEndFdbckCntrlAbsNorm = pgf.norm_by_absmax(diffEndFdbckCntrl)
+    panels = (diffToiCntrl, diffToiFdbck, diffEndFdbckCntrl, diffEndFdbckCntrlAbsNorm)
 
     # Plotting
     CL = 0.
@@ -94,41 +95,42 @@ def plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict,
     cmapNorm = cmasher.get_sub_cmap('cmr.iceburn', 0, 1, N=7)#cmasher.iceburn_r
     cbVals = [-diffToiCntrl.quantile(0.99).data, diffToiCntrl.quantile(0.99).data]
     md = pgf.meta_book(setDict, dataDict, glensFdbckLoi, labelsToPlot=None)
+    plt.suptitle(md['levStr'] + ' ' + md['varStr'], fontsize=10)
 
-    plt_tls.drawOnGlobe(ax, diffToiCntrl, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    plt_tls.drawOnGlobe(ax, panels[0], glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + '[r'+str(ensPrp['drc'][1])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drc'][0])+']' + ' ' + md['cntrlStr'] + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
+        plt.title(md['lstDcd'] + '[r'+str(ensPrp['drc'][1])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drc'][0])+']' + ' ' + md['cntrlStr'], fontsize=10)
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + '[r'+str(ensPrp['drc'][0])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drc'][0])+']' + ' ' + md['cntrlStr'] + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
+        plt.title(md['lstDcd'] + '[r'+str(ensPrp['drc'][0])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drc'][0])+']' + ' ' + md['cntrlStr'], fontsize=10)
     else:
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'] + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
 
     ax2 = plt.subplot(2,2,2,projection=mapProj)
-    plt_tls.drawOnGlobe(ax2, diffToiFdbck, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    plt_tls.drawOnGlobe(ax2, panels[1], glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + '[r'+str(ensPrp['drf'][1])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drf'][1])+']' + ' ' + md['fdbckStr'] + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
+        plt.title(md['lstDcd'] + '[r'+str(ensPrp['drf'][1])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drf'][1])+']' + ' ' + md['fdbckStr'], fontsize=10)
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + '[r'+str(ensPrp['drf'][0])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drf'][1])+']' + ' ' + md['fdbckStr'] + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
+        plt.title(md['lstDcd'] + '[r'+str(ensPrp['drf'][0])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drf'][1])+']' + ' ' + md['fdbckStr'], fontsize=10)
     else:
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'] + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10)
 
     ax3 = plt.subplot(2,2,3,projection=mapProj)
-    plt_tls.drawOnGlobe(ax3, diffEndCntrlFdbck, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    plt_tls.drawOnGlobe(ax3, panels[2], glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][1])+']' + ' - ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']' + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
+        plt.title(md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']' + ' - ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][1])+']' + ' ' + md['lstDcd'], fontsize=10)
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][0])+']' + ' - ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][0])+']' + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
+        plt.title(md['fdbckStr'] + '[r'+str(ensPrp['drf'][0])+']' + ' - ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][0])+']' + ' ' + md['lstDcd'], fontsize=10)
     else:
-        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + ' - ' + md['fdbckStr'] + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
+        plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
 
     ax4 = plt.subplot(2,2,4,projection=mapProj)
-    plt_tls.drawOnGlobe(ax4, diffEndCntrlFdbckAbsNormQ, glensFdbckRlz.lat, glensFdbckRlz.lon, cmapNorm, vmin=-1., vmax=1., cbarBool=True, fastBool=True, extent='max')
+    plt_tls.drawOnGlobe(ax4, panels[3], glensFdbckRlz.lat, glensFdbckRlz.lon, cmapNorm, vmin=-1., vmax=1., cbarBool=True, fastBool=True, extent='max')
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][1])+']' + ' ' + ' - ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']' + ' ' + md['levStr'] + ' ' + 'norm. change', fontsize=10)
+        plt.title(md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']' + ' ' + ' - ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][1])+']' + ' ' + 'norm. change' + ' ' + md['lstDcd'], fontsize=10)
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drf'][0])+']' + ' ' + ' - ' + md['fdbckStr'] + '[r'+str(ensPrp['drc'][0])+']' + ' ' + md['levStr'] + ' ' + 'norm. change', fontsize=10)
+        plt.title(md['fdbckStr'] + '[r'+str(ensPrp['drf'][0])+']' + ' ' + ' - ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][0])+']' + ' ' + 'norm. change' + ' ' + md['lstDcd'], fontsize=10)
     else:
-        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + ' - ' + md['fdbckStr'] + ' ' + md['levStr'] + ' ' + 'norm. change', fontsize=10)
+        plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + 'norm. change' + ' ' + md['lstDcd'], fontsize=10)
 
     savePrfx = ''
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['fcStr']

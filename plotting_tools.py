@@ -5,7 +5,7 @@ plotting, as well, such as paint_by_numbers which chooses colors for perceptual
 difference based on the number of objects being drawn.
 
 Unless otherwise specified:
-Written by Daniel Hueholt | May 2021
+Written by Daniel Hueholt | July 2021
 Graduate Research Assistant at Colorado State University
 drawOnGlobe written by Prof. Elizabeth Barnes at Colorado State University
     Lightly edited by Daniel Hueholt
