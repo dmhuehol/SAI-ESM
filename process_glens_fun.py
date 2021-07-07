@@ -356,3 +356,13 @@ def make_polygon_mask(lats, lons, regionLats, regionLons):
     gridMask = flatMask.reshape((len(lats),len(lons)))
 
     return gridMask
+
+def norm_by_absmax(darr):
+    ''' Normalize data to within [-1,1] wrt its max magnitude '''
+    darrAbs = np.abs(darr)
+    normValue = np.max(darrAbs)
+    darrNorm = darr / normValue
+
+    darrNorm.attrs['units'] = 'dimless'
+
+    return darrNorm

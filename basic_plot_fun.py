@@ -83,7 +83,7 @@ def plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict,
     diffToiCntrl = toiEndCntrl - toiStart
     diffToiFdbck = toiEndFdbck - toiStart
     diffEndCntrlFdbck = toiEndCntrl - toiEndFdbck
-    diffEndCntrlFdbckAbsNormQ = pgf.isolate_change_quantile(diffEndCntrlFdbck, setDict["quantileOfInt"])
+    diffEndCntrlFdbckAbsNormQ = pgf.norm_by_absmax(diffEndCntrlFdbck)
 
     # Plotting
     CL = 0.
@@ -91,7 +91,7 @@ def plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict,
     plt.figure(figsize=(12,2.73*2))
     ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
     cmap = cmocean.cm.balance
-    cmapNorm = cmasher.iceburn_r
+    cmapNorm = cmasher.get_sub_cmap('cmr.iceburn', 0, 1, N=7)#cmasher.iceburn_r
     cbVals = [-diffToiCntrl.quantile(0.99).data, diffToiCntrl.quantile(0.99).data]
     md = pgf.meta_book(setDict, dataDict, glensFdbckLoi, labelsToPlot=None)
 
@@ -124,11 +124,11 @@ def plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict,
     ax4 = plt.subplot(2,2,4,projection=mapProj)
     plt_tls.drawOnGlobe(ax4, diffEndCntrlFdbckAbsNormQ, glensFdbckRlz.lat, glensFdbckRlz.lon, cmapNorm, vmin=-1., vmax=1., cbarBool=True, fastBool=True, extent='max')
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][1])+']' + ' ' + ' - ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']' + ' ' + md['levStr'] + ' ' + 'greatest third of norm. change', fontsize=10)
+        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][1])+']' + ' ' + ' - ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']' + ' ' + md['levStr'] + ' ' + 'norm. change', fontsize=10)
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drf'][0])+']' + ' ' + ' - ' + md['fdbckStr'] + '[r'+str(ensPrp['drc'][0])+']' + ' ' + md['levStr'] + ' ' + 'greatest third of norm. change', fontsize=10)
+        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drf'][0])+']' + ' ' + ' - ' + md['fdbckStr'] + '[r'+str(ensPrp['drc'][0])+']' + ' ' + md['levStr'] + ' ' + 'norm. change', fontsize=10)
     else:
-        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + ' - ' + md['fdbckStr'] + ' ' + md['levStr'] + ' ' + 'greatest third of norm. change', fontsize=10)
+        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + ' - ' + md['fdbckStr'] + ' ' + md['levStr'] + ' ' + 'norm. change', fontsize=10)
 
     savePrfx = ''
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['fcStr']
