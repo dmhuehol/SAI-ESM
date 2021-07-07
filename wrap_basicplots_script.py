@@ -7,7 +7,7 @@ setDict sets settings related to plotting
 outDict is for outputs
 loopDict determines which images are made
 
-Written by Daniel Hueholt | June 2021
+Written by Daniel Hueholt | July 2021
 Graduate Research Assistant at Colorado State University
 '''
 
@@ -22,11 +22,10 @@ import numpy as np
 import basic_plot_fun as bpf
 import fun_convert_unit as fcu
 import process_glens_fun as pgf
-import plotting_tools as plt_tls
 import region_library as rlib
 
 # Call regions
-ipccWg1Ar5 = rlib.atlas_ipcc_wg1ar5()
+ipccWg1Ar5 = rlib.atlas_ipcc_wg1ar5() #ipccWg1Ar5["allRegions"]
 gnsh = ('global', rlib.NorthernHemisphere(), rlib.SouthernHemisphere())
 
 # Dictionaries
@@ -42,24 +41,21 @@ setDict = {
     "fdbckPoi": [2041], #pdf
     "timePeriod": 20, #pdf
     "plotStyle": 'step', #pdf
-    "quantileOfInt": 0.67, #dg
     "convert": fcu.kgkg_to_gkg, #relevant unit converter or None if using default units
-    "areaAvgBool": None #TEMP
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210702_workflowAndDraft/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210707_unsnarlAndDraft/',
     "dpiVal": 400
 }
 loopDict = {
-    "realizations": (3,4,'mean',), #number for individual member or 'mean' for ensemble mean | TODO: array entry to choose particular members
-    "levels": (1000,), #'stratosphere', 'troposphere', 'total', numeric level, or list of numeric levels
-    "regions": ('global',rlib.NorthernHemisphere()),
+    "realizations": (3,4,'mean'), #number for individual member or 'mean' for ens mean of all available members
+    "levels": (1000,), #'stratosphere', 'troposphere', 'total', or numeric level(s)
+    "regions": (ipccWg1Ar5["boxMerCross"]),
     "aaBools": (True,False)
 }
 
-# Verify inputs
+# Verify inputs (troubleshooting)
 ic(setDict["convert"])
-ic(loopDict)
 
 # Make images
 for rlz in loopDict["realizations"]:

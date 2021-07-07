@@ -315,11 +315,10 @@ def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
         "levStr": make_level_string(cntrlToPlot, setDict["levOfInt"]) if "levOfInt" in setDict.keys() else '',
         "levSve": make_level_string(cntrlToPlot, setDict["levOfInt"]).replace(" ","") if "levOfInt" in setDict.keys() else '',
         "ensStr": dataDict["ememSave"],
-        "qntlStr": str(setDict["quantileOfInt"]),
         "yStr": cntrlToPlot.units,
         "unit": cntrlToPlot.attrs['units'],
         "pdfStyle": setDict["plotStyle"],
-        "spcStr": 'spcavg' if setDict["areaAvgBool"] else 'nospcavg',
+        "spcStr": make_spc_string(setDict),
         "pid": {'g1p': 'globe_1p', 'g4p': 'globe_4p', 'ts': 'timeseries', 'pdf': 'pdf'},
         "glbType": {'vGl': 'vertical', 'bGl': 'baseline', 'fcStr': 'FdbckCntrl'}
     }
@@ -366,3 +365,15 @@ def norm_by_absmax(darr):
     darrNorm.attrs['units'] = 'dimless'
 
     return darrNorm
+
+def make_spc_string(setDict):
+    ''' Make string reflecting area average Boolean '''
+    try:
+        if setDict["areaAvgBool"]:
+            spcStr = 'spcavg'
+        else:
+            spcStr = 'nospcavg'
+    except:
+        spcStr = ''
+
+    return spcStr
