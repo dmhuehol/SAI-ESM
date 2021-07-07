@@ -266,8 +266,8 @@ def manage_realizations(setDict, cntrlDarr, fdbckDarr, ememCntrl, ememFdbck):
         fdbckDarrMn = fdbckDarr.mean(dim='realization')
         cntrlDarrOut = cntrlDarrMn.compute()
         fdbckDarrOut = fdbckDarrMn.compute()
-        ememSaveCntrl = 'mnc' + 'r'.join(ememCntrl)
-        ememSaveFdbck = 'mnf' + 'r'.join(ememFdbck)
+        ememSaveCntrl = 'mnc'
+        ememSaveFdbck = 'mnf'
         ememSave = ememSaveCntrl + '-' + ememSaveFdbck
     else:
         ememCntrlNum = list(map(int, ememCntrl))
