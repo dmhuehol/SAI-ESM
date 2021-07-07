@@ -93,7 +93,7 @@ def plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict,
     cmap = cmocean.cm.balance
     cmapNorm = cmasher.iceburn_r
     cbVals = [-diffToiCntrl.quantile(0.99).data, diffToiCntrl.quantile(0.99).data]
-    md = pgf.meta_book(setDict, dataDict, labelsToPlot=None, glensCntrlLoi=glensCntrlLoi, glensFdbckRlz=glensFdbckRlz, cntrlToPlot=glensFdbckLoi)
+    md = pgf.meta_book(setDict, dataDict, glensFdbckLoi, labelsToPlot=None)
 
     plt_tls.drawOnGlobe(ax, diffToiCntrl, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
@@ -163,7 +163,7 @@ def plot_single_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, s
     cmap = cmocean.cm.balance
     cbVals = [-diffToiFdbck.quantile(0.99).data, diffToiFdbck.quantile(0.99).data]
     # cbVals = [-7, 7] #Override automatic colorbar minimum here
-    md = pgf.meta_book(setDict, dataDict, labelsToPlot=None, glensCntrlLoi=glensCntrlLoi, glensFdbckRlz=glensFdbckRlz, cntrlToPlot=glensFdbckLoi)
+    md = pgf.meta_book(setDict, dataDict, glensFdbckLoi, labelsToPlot=None)
 
     plt_tls.drawOnGlobe(ax, diffToiFdbck, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
@@ -222,7 +222,7 @@ def plot_vertical_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDi
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12,2.73*2))
-    md = pgf.meta_book(setDict, dataDict, labelsToPlot=None, glensCntrlLoi=False, glensFdbckRlz=glensFdbckRlz, cntrlToPlot=glensCntrlRlz)
+    md = pgf.meta_book(setDict, dataDict, glensCntrlRlz, labelsToPlot=None)
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
         plt.suptitle(md['lstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][1])+']' + ' - ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']', fontsize=10)
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
@@ -300,7 +300,7 @@ def plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDi
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12,2.73*2))
-    md = pgf.meta_book(setDict, dataDict, labelsToPlot=None, glensCntrlLoi=False, glensFdbckRlz=glensFdbckRlz, cntrlToPlot=glensCntrlRlz)
+    md = pgf.meta_book(setDict, dataDict, glensCntrlRlz, labelsToPlot=None)
     if (setDict["realization"] == 'mean'):
         plt.suptitle(md['frstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][0])+']' + ' - ' + md['lstDcd'] + ' ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']' + ' ', fontsize=10)
     else:
@@ -359,7 +359,7 @@ def plot_timeseries(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
     fdbckToPlot, locStr, locTitleStr = pgf.manage_area(glensFdbckLoi, setDict["regOfInt"], areaAvgBool=True)
 
     # Make timeseries
-    md = pgf.meta_book(setDict, dataDict, labelsToPlot=None, glensCntrlLoi=glensCntrlLoi, glensFdbckRlz=glensFdbckRlz, cntrlToPlot=cntrlToPlot)
+    md = pgf.meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None)
     plt.figure()
     yearsOfInt = glensCntrlPoi['time'].dt.year.data #bndDct['mtchYrs']
     plt.plot(yearsOfInt,cntrlToPlot.data,color='#DF8C20',label=md['cntrlStr'])
@@ -439,7 +439,7 @@ def plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
     labelsToPlot = plt_tls.generate_labels(labelsToPlot, setDict, ensPrp, baselineFlag)
 
     unit = cntrlToPlot.attrs['units']
-    md = pgf.meta_book(setDict, dataDict, labelsToPlot, glensCntrlLoi, glensFdbckRlz, cntrlToPlot)
+    md = pgf.meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot)
     titleStr = md['varStr'] + ' ' + md['levStr'] + ' ' + locTitleStr + ' ' + 'Ens ' + str(setDict['realization'])
     labelsToPlot.append(titleStr)
     savePrfx = ''

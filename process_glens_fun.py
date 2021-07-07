@@ -137,17 +137,20 @@ def obtain_levels(darr, levOfInt, levName='lev'):
 def make_level_string(darr, levOfInt):
     ''' Create strings describing level of data used in title and filenames. '''
 
-    if isinstance(levOfInt,str):
-        levStr = levOfInt
-    elif np.size(levOfInt)==2:
-        if (np.round_(levOfInt[0],decimals=1)==0) | (np.round_(levOfInt[1],decimals=1)==0):
-            levStr = str(np.round_(levOfInt,decimals=6)) + ' mb'
+    try:
+        if isinstance(levOfInt,str):
+            levStr = levOfInt
+        elif np.size(levOfInt)==2:
+            if (np.round_(levOfInt[0],decimals=1)==0) | (np.round_(levOfInt[1],decimals=1)==0):
+                levStr = str(np.round_(levOfInt,decimals=6)) + ' mb'
+            else:
+                levStr = str(np.round_(levOfInt,decimals=1)) + ' mb'
+        elif np.round_(darr.attrs['lev'],decimals=1) == 0:
+            levStr = str(np.round_(darr.attrs['lev'],decimals=6)) + ' mb'
         else:
-            levStr = str(np.round_(levOfInt,decimals=1)) + ' mb'
-    elif np.round_(darr.attrs['lev'],decimals=1) == 0:
-        levStr = str(np.round_(darr.attrs['lev'],decimals=6)) + ' mb'
-    else:
-        levStr = str(np.round_(darr.attrs['lev'],decimals=1)) + ' mb'
+            levStr = str(np.round_(darr.attrs['lev'],decimals=1)) + ' mb'
+    except:
+        levStr = ''
 
     return levStr
 
@@ -297,21 +300,20 @@ def call_to_open(dataDict, setDict):
 
     return glensCntrlRlz, glensFdbckRlz, cmnDict
 
-def meta_book(setDict, dataDict, labelsToPlot=None, glensCntrlLoi=False, glensFdbckRlz=None, cntrlToPlot=None, bndDct=None):
-    ''' Contains all the bits and pieces for building savenames and titles '''
-
+def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
+    ''' Compile the bits and pieces used in filenames and titles '''
     metaDict = {
         "cntrlStr": 'RCP8.5',
         "fdbckStr": 'SAI',
-        "varStr": glensFdbckRlz.long_name,
-        "varSve": glensFdbckRlz.long_name.replace(" ",""),
+        "varStr": cntrlToPlot.long_name,
+        "varSve": cntrlToPlot.long_name.replace(" ",""),
         "strtStr": str(cntrlToPlot['time'].data[0].year),
-        "endStr": str(cntrlToPlot['time'].data[len(cntrlToPlot)-1].year), #str(bndDct['endYrMtch'])
+        "endStr": str(cntrlToPlot['time'].data[len(cntrlToPlot)-1].year),
         "frstDcd": str(setDict["startIntvl"][0]) + '-' + str(setDict["startIntvl"][1]),
         "lstDcd": str(setDict["endIntvl"][0]) + '-' + str(setDict["endIntvl"][1]),
-        "tmStr": bcf_parser(labelsToPlot),#str(setDict["timePeriod"]) + 'yr',
-        "levStr": '' if len(np.shape(glensCntrlLoi))==0 else make_level_string(glensCntrlLoi, setDict["levOfInt"]),
-        "levSve": '' if len(np.shape(glensCntrlLoi))==0 else make_level_string(glensCntrlLoi, setDict["levOfInt"]).replace(" ",""),
+        "tmStr": bcf_parser(labelsToPlot),
+        "levStr": make_level_string(cntrlToPlot, setDict["levOfInt"]) if "levOfInt" in setDict.keys() else '',
+        "levSve": make_level_string(cntrlToPlot, setDict["levOfInt"]).replace(" ","") if "levOfInt" in setDict.keys() else '',
         "ensStr": dataDict["ememSave"],
         "qntlStr": str(setDict["quantileOfInt"]),
         "yStr": cntrlToPlot.units,
