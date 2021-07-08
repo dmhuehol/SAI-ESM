@@ -30,7 +30,7 @@ gnsh = ('global', rlib.NorthernHemisphere(), rlib.SouthernHemisphere())
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_Q/',
+    "dataPath": '/glade/scratch/dhueholt/annual_T/',
     "fnameCntrl": 'control_*',
     "fnameFdbck": 'feedback_*'
 }
@@ -41,17 +41,17 @@ setDict = {
     "fdbckPoi": [2041], #pdf
     "timePeriod": 20, #pdf
     "plotStyle": 'step', #pdf
-    "convert": fcu.kgkg_to_gkg, #relevant unit converter or None if using default units
+    "convert": fcu.kel_to_cel, #relevant unit converter or None if using default units
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210707_unsnarlAndDraft/',
+    "savePath": '/glade/work/dhueholt/20210708_plots/',
     "dpiVal": 400
 }
 loopDict = {
-    "realizations": (3,4,'mean'), #number for individual member or 'mean' for ens mean of all available members
+    "realizations": (1,2,3,21,'mean',), #number for individual member or 'mean' for ens mean of all available members
     "levels": (1000,), #'stratosphere', 'troposphere', 'total', or numeric level(s)
-    "regions": (ipccWg1Ar5["boxMerCross"]),
-    "aaBools": (True,False)
+    "regions": gnsh,
+    "aaBools": (False,)
 }
 
 # Verify inputs (troubleshooting)
@@ -70,15 +70,15 @@ for rlz in loopDict["realizations"]:
         bpf.plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
         bpf.plot_single_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
 
-        for reg in loopDict["regions"]:
-            setDict["regOfInt"] = reg
-            bpf.plot_timeseries(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
+        # for reg in loopDict["regions"]:
+            # setDict["regOfInt"] = reg
+            # bpf.plot_timeseries(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
 
-            for aab in loopDict["aaBools"]:
-                setDict["areaAvgBool"] = aab
-                setDict["plotStyle"] = 'step'
-                bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
-                setDict["plotStyle"] = 'kde'
-                bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
-                setDict["plotStyle"] = 'hist'
-                bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
+            # for aab in loopDict["aaBools"]:
+                # setDict["areaAvgBool"] = aab
+                # setDict["plotStyle"] = 'step'
+                # bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
+                # setDict["plotStyle"] = 'kde'
+                # bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
+                # setDict["plotStyle"] = 'hist'
+                # bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
