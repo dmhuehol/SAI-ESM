@@ -155,7 +155,7 @@ def plot_single_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, s
     toiStart = dot.average_over_years(glensCntrlLoi, setDict["startIntvl"][0], setDict["startIntvl"][1]) # 2010-2019 is baseline, injection begins 2020
     toiEndCntrl = dot.average_over_years(glensCntrlLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
     toiEndFdbck = dot.average_over_years(glensFdbckLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
-    diffToiFdbck =  toiEndCntrl - toiEndFdbck
+    diffToiFdbck = toiEndFdbck - toiEndCntrl
 
     # Plotting
     CL = 0.
@@ -163,17 +163,17 @@ def plot_single_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, s
     plt.figure(figsize=(12, 2.73*2))
     ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
     cmap = cmocean.cm.balance
-    cbVals = [-diffToiFdbck.quantile(0.99).data, diffToiFdbck.quantile(0.99).data]
+    cbVals = plt_tls.find_widest_quantile(diffToiFdbck)
     # cbVals = [-7, 7] #Override automatic colorbar minimum here
     md = pgf.meta_book(setDict, dataDict, glensFdbckLoi, labelsToPlot=None)
 
     plt_tls.drawOnGlobe(ax, diffToiFdbck, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][1])+']' + ' - ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']' + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
+        plt.title(md['lstDcd'] + ' ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']' + ' - ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][1])+']' + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][0])+']' + ' - ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][0])+']' + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
+        plt.title(md['lstDcd'] + ' ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][0])+']' + ' - ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][0])+']' + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
     else:
-        plt.title(md['lstDcd'] + ' ' + md['cntrlStr'] + '-' + md['fdbckStr'] + ' ' + md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']))
+        plt.title(md['lstDcd'] + ' ' + md['fdbckStr'] + '-' + md['cntrlStr'] + ' ' + md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']))
 
 
     # plt.title("2010-2019 Baseline - 2090-2099 SAI [50 0] ozone") #Override automatic title generation here
