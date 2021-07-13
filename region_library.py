@@ -401,6 +401,16 @@ def NoLandLatitude():
 
 ## Equatorial special regions
 
+def Tropics():
+    regDict = {
+        "regStr": 'Tropics',
+        "regSaveStr": 'Tropics',
+        "regLats": np.array([-23.45,23.45]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
 def Nino34():
     regDict = {
         "regStr": 'Nino 3.4',

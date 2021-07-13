@@ -91,7 +91,7 @@ def plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict,
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12,2.73*2))
     ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
-    cmap = cmocean.cm.balance
+    cmap = cmocean.cm.curl_r
     cmapNorm = cmasher.get_sub_cmap('cmr.iceburn', 0, 1, N=7)#cmasher.iceburn_r
     cbVals = [-diffToiCntrl.quantile(0.99).data, diffToiCntrl.quantile(0.99).data]
     md = pgf.meta_book(setDict, dataDict, glensFdbckLoi, labelsToPlot=None)
@@ -162,7 +162,7 @@ def plot_single_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, s
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12, 2.73*2))
     ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
-    cmap = cmocean.cm.balance
+    cmap = cmocean.cm.curl_r
     cbVals = plt_tls.find_widest_quantile(diffToiFdbck)
     # cbVals = [-7, 7] #Override automatic colorbar minimum here
     md = pgf.meta_book(setDict, dataDict, glensFdbckLoi, labelsToPlot=None)
@@ -232,7 +232,7 @@ def plot_vertical_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDi
         plt.suptitle(md['lstDcd'] + ' ' + md['cntrlStr'] + '-' + md['fdbckStr'] + ' ' + 'Ens: ' + str(setDict['realization']), fontsize=10)
 
     ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
-    cmap = cmocean.cm.balance
+    cmap = cmocean.cm.curl_r
 
     plt_tls.drawOnGlobe(ax, diffToiCntrlFdbckTotal, glensCntrlRlz.lat, glensCntrlRlz.lon, cmap, vmin=-diffToiCntrlFdbckTotal.quantile(0.99), vmax=diffToiCntrlFdbckTotal.quantile(0.99), cbarBool=True, fastBool=True, extent='max')
     plt.title('Total column ' + md['varStr'])
@@ -308,7 +308,7 @@ def plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDi
         plt.suptitle(md['frstDcd'] + ' ' + md['cntrlStr'] + ' - ' + md['lstDcd'] + ' ' + md['fdbckStr'] + ' ' + 'Ens: ' + str(setDict['realization']))
 
     ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
-    cmap = cmocean.cm.balance
+    cmap = cmocean.cm.curl_r
 
     plt_tls.drawOnGlobe(ax, diffToiCntrlFdbckTotal, glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=-diffToiCntrlFdbckTotal.quantile(0.99), vmax=diffToiCntrlFdbckTotal.quantile(0.99), cbarBool=True, fastBool=True, extent='max')
     plt.title('Total column ' + md['varStr'])

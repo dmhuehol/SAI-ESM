@@ -12,15 +12,6 @@ import sys
 import xarray as xr
 import numpy as np
 
-### Temperature
-def kelvin_to_celsius(darrKel):
-    darrCel = darrKel - 273.15
-    darrCel.attrs = darrKel.attrs
-    darrCel.attrs['units'] = 'celsius'
-
-    return darrCel
-
-
 ### Chemistry
 
 def molmol_to_ppm(darrMolmol):
@@ -59,6 +50,15 @@ def kgkg_to_gkg(darrKgkg):
 
     return darrGkg
 
+### Precipitation
+def m_to_cm(darrM):
+    ''' Convert meters to centimeters '''
+    darrCm = darrM * 100
+    darrCm.attrs = darrM.attrs
+    darrCm.attrs['units'] = darrCm.attrs['units'].replace("m/",'cm/')
+
+    return darrCm
+
 ### Temperature
 def kel_to_cel(darrKel):
     ''' Convert K to deg C '''
@@ -67,3 +67,14 @@ def kel_to_cel(darrKel):
     darrCel.attrs['units'] = 'deg C'
 
     return darrCel
+
+### General
+def persec_peryr(darrPerSec):
+    ''' Convert per second to per year '''
+    darrPerYr = darrPerSec * 3.154*10**7
+    darrPerYr.attrs = darrPerSec.attrs
+    darrPerYr.attrs['units'] = darrPerSec.attrs['units'].replace("/s",'/yr')
+    if "rate" in darrPerYr.attrs['long_name']:
+        darrPerYr.attrs['long_name'] = darrPerYr.attrs['long_name'].replace("rate",'')
+
+    return darrPerYr

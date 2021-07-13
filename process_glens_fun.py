@@ -45,7 +45,13 @@ def find_matching_year_bounds(glensCntrl,glensFdbck):
 
     cntrlYrs = glensCntrl['time'].dt.year.data
     fdbckYrs = glensFdbck['time'].dt.year.data
-    nanYrInd = np.where(np.isnan(glensCntrl[:,1,1,1])) #Years after the model completes may be present with NaN values
+
+    if glensCntrl.ndim == 4:
+        nanYrInd = np.where(np.isnan(glensCntrl[:,1,1,1])) #Years after the model completes may be present with NaN values
+    elif glensCntrl.ndim == 3: #time,lat,lon
+        nanYrInd = np.where(np.isnan(glensCntrl[:,1,1])) #Years after the model completes may be present with NaN values
+    else:
+        ic(glensCntrl.ndim)
     bothYrs,cntrlInd,fdbckInd = np.intersect1d(cntrlYrs, fdbckYrs, return_indices=True) #Or they may be not present at all
     firstYrInBoth = bothYrs[0]
     try:
@@ -95,6 +101,8 @@ def find_closest_level(darr, levOfInt, levName='lev'):
 
 def obtain_levels(darr, levOfInt, levName='lev'):
     ''' Obtain relevant level(s) from data based on levOfInt input '''
+    if levOfInt == None:
+        return darr
 
     levs = darr[levName].data
     if levOfInt == 'total':
@@ -295,8 +303,9 @@ def call_to_open(dataDict, setDict):
     cmnDict = {'dataKey': dataKey, 'ememSave': ememSave}
 
     if setDict["convert"] is not None:
-        glensCntrlRlz = setDict["convert"](glensCntrlRlz)
-        glensFdbckRlz = setDict["convert"](glensFdbckRlz)
+        for cnvrtr in setDict["convert"]:
+            glensCntrlRlz = cnvrtr(glensCntrlRlz)
+            glensFdbckRlz = cnvrtr(glensFdbckRlz)
 
     return glensCntrlRlz, glensFdbckRlz, cmnDict
 
