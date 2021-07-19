@@ -449,11 +449,15 @@ def plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
     # ic(colorsToPlot) # For troubleshooting
 
     # Make kde, histograms, or step plots
-    if setDict["plotStyle"] == 'kde':
-        plt_tls.plot_pdf_kdeplot(handlesToPlot, colorsToPlot, labelsToPlot, unit, savename, outDict["dpiVal"])
-    elif setDict["plotStyle"] == 'hist':
-        plt_tls.plot_pdf_hist(handlesToPlot, colorsToPlot, labelsToPlot, unit, savename, binwidth, outDict["dpiVal"])
-    elif setDict["plotStyle"] == 'step':
-        plt_tls.plot_pdf_step(handlesToPlot, colorsToPlot, labelsToPlot, unit, savename, binwidth, outDict["dpiVal"])
-    else:
-        sys.exit('Invalid plot style')
+    try:
+        if setDict["plotStyle"] == 'kde':
+            plt_tls.plot_pdf_kdeplot(handlesToPlot, colorsToPlot, labelsToPlot, unit, savename, outDict["dpiVal"])
+        elif setDict["plotStyle"] == 'hist':
+            plt_tls.plot_pdf_hist(handlesToPlot, colorsToPlot, labelsToPlot, unit, savename, binwidth, outDict["dpiVal"])
+        elif setDict["plotStyle"] == 'step':
+            plt_tls.plot_pdf_step(handlesToPlot, colorsToPlot, labelsToPlot, unit, savename, binwidth, outDict["dpiVal"])
+        else:
+            sys.exit('Invalid plot style')
+    except:
+        ic('Failed on: ' + savePrfx + saveStr)
+        pass
