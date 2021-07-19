@@ -1,6 +1,6 @@
 #!/bin/bash -l
 ### Job Name
-#PBS -N untar_2020_O3
+#PBS -N regrid_sept_IFRAC
 ### Project code
 #PBS -A P06010014
 #PBS -l walltime=30:00
@@ -13,7 +13,7 @@
 #PBS -m abe
 ### Specify mail recipient
 #PBS -M dhueholt@rams.colostate.edu
-exec &> logfile_plots.txt
+exec &> logfile_regrid.txt
 
 export TMPDIR=/glade/scratch/dhueholt/temp
 mkdir -p $TMPDIR
@@ -23,4 +23,4 @@ module load python
 module load ncarenv
 ncar_pylib ncar_pylib_dhueholt
 
-python wrap_basicplots_script.py
+python regrid_pop_script.py

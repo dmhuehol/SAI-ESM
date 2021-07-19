@@ -36,11 +36,11 @@ def regrid(dataIn,latIn,lonIn,latOut,lonOut):
     return dataInterpRg
 
 # Make list of data to index
-dataPath = '/Users/dhueholt/Documents/GLENS_data/sept_IFRAC/test/'
+dataPath = '/glade/scratch/dhueholt/sept_IFRAC/'
 strList = sorted(glob.glob(dataPath + "*.nc"))
 dataVar = 'IFRAC'
 
-inPop = '/Users/dhueholt/Documents/GLENS_data/grids/control_IFRAC_useForGrid.nc'
+inPop = '/glade/work/dhueholt/grids/control_IFRAC_useForGrid.nc'
 popLat,popLon = extract_pop_latlons(inPop)
 
 for strc, strv in enumerate(strList):
@@ -72,3 +72,4 @@ for strc, strv in enumerate(strList):
     originalFilename = strv[0:len(strv)-3]
     strOut =  originalFilename + '_RG' + '.nc' #originalfilename_RG.nc
     newDset.to_netcdf(strOut)
+    ic(strOut)
