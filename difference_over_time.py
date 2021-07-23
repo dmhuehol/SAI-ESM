@@ -5,6 +5,7 @@ can average over a given number of years.
 Written by Daniel Hueholt | May 2021
 Graduate Research Assistant at Colorado State University
 '''
+from icecream import ic
 
 import xarray as xr
 import numpy as np

@@ -78,3 +78,11 @@ def persec_peryr(darrPerSec):
         darrPerYr.attrs['long_name'] = darrPerYr.attrs['long_name'].replace("rate",'')
 
     return darrPerYr
+
+def depth_to_height(darrDepth):
+    ''' Flips sign to go from depth coordinates to height coordinates '''
+    darrHeight = darrDepth * -1
+    darrHeight.attrs = darrDepth.attrs
+    # No change to units necessary
+
+    return darrHeight
