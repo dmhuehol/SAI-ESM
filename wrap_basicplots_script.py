@@ -20,6 +20,7 @@ import cmocean
 import numpy as np
 
 import basic_plot_fun as bpf
+import ens_plot_fun as epf
 import fun_convert_unit as fcu
 import process_glens_fun as pgf
 import region_library as rlib
@@ -70,15 +71,18 @@ for rlz in loopDict["realizations"]:
         bpf.plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
         bpf.plot_single_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
 
-        # for reg in loopDict["regions"]:
-            # setDict["regOfInt"] = reg
-            # bpf.plot_timeseries(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
+        for reg in loopDict["regions"]:
+            setDict["regOfInt"] = reg
+            if rlz == 'ensplot':
+                epf.plot_ens_timeseries(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
+            else:
+                bpf.plot_timeseries(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
 
-            # for aab in loopDict["aaBools"]:
-                # setDict["areaAvgBool"] = aab
-                # setDict["plotStyle"] = 'step'
-                # bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
-                # setDict["plotStyle"] = 'kde'
-                # bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
-                # setDict["plotStyle"] = 'hist'
-                # bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
+            for aab in loopDict["aaBools"]:
+                setDict["areaAvgBool"] = aab
+                setDict["plotStyle"] = 'step'
+                bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
+                setDict["plotStyle"] = 'kde'
+                bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
+                setDict["plotStyle"] = 'hist'
+                bpf.plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
