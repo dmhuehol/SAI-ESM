@@ -277,6 +277,14 @@ def manage_realizations(setDict, cntrlDarr, fdbckDarr, ememCntrl, ememFdbck):
         ememSaveCntrl = 'mnc'
         ememSaveFdbck = 'mnf'
         ememSave = ememSaveCntrl + '-' + ememSaveFdbck
+    elif setDict['realization'] == 'ensplot':
+        cntrlDarrMn = cntrlDarr.mean(dim='realization')
+        fdbckDarrMn = fdbckDarr.mean(dim='realization')
+        cntrlDarrOut = xr.concat([cntrlDarr,cntrlDarrMn],dim='realization').compute()
+        fdbckDarrOut = xr.concat([fdbckDarr,fdbckDarrMn],dim='realization').compute()
+        ememSaveCntrl = 'ensc'
+        ememSaveFdbck = 'ensf'
+        ememSave = ememSaveCntrl + '-' + ememSaveFdbck
     else:
         ememCntrlNum = list(map(int, ememCntrl))
         rCntrl = ememCntrlNum.index(setDict['realization'])
@@ -294,7 +302,6 @@ def manage_realizations(setDict, cntrlDarr, fdbckDarr, ememCntrl, ememFdbck):
 def call_to_open(dataDict, setDict):
     ''' Common data tasks for all basic plots '''
     glensDarrCntrl, glensDarrFdbck, dataKey = open_data(dataDict)
-
     cntrlFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameCntrl']))
     fdbckFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameFdbck']))
     ememCntrl = get_ens_mem(cntrlFiles)
