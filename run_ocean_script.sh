@@ -23,4 +23,4 @@ module load python
 module load ncarenv
 ncar_pylib ncar_pylib_dhueholt
 
-python regrid_pop_script.py
+python wrap_ocean_script.py

@@ -1,6 +1,6 @@
-''' regrid_pop_script
-Regrids Parallel Ocean Model (POP) output from the B-grid to a standard lat/lon
-using interpolation.
+''' fun_regrid_pop
+Functions to regrid Parallel Ocean Model (POP) output from the B-grid to a 
+standard lat/lon using interpolation.
 
 Originally written by Emily Gordon based on code provided by Zachary Labe
 Modified by Daniel Hueholt
@@ -9,10 +9,8 @@ Modified by Daniel Hueholt
 from icecream import ic
 import sys
 
-import glob
 import numpy as np
 import xarray as xr
-import matplotlib.pyplot as plt
 import scipy.interpolate as interp
 
 def extract_pop_latlons(popFile):
@@ -35,15 +33,21 @@ def regrid(dataIn,latIn,lonIn,latOut,lonOut):
 
     return dataInterpRg
 
-# Make list of data to index
-dataPath = '/glade/scratch/dhueholt/sept_IFRAC/'
-strList = sorted(glob.glob(dataPath + "*.nc"))
-dataVar = 'IFRAC'
+def regrid_3d(dataIn,latIn,lonIn,lev,latOut,lonOut):
+    ''' Takes POP model output on a 3D B-grid (T-cells for scalars,
+    U-cells for vectors) (latInxlonInxlev) and regrids to (latOutxlonOutxlev)
+    NOT ACTUALLY IMPLEMENTED '''
 
-inPop = '/glade/work/dhueholt/grids/control_IFRAC_useForGrid.nc'
-popLat,popLon = extract_pop_latlons(inPop)
+    lonOut,latOut = np.meshgrid(lonOut,latOut) # make grid
+    dataRg = np.ravel(dataIn) # move inputs to vectors
+    lonRg = np.ravel(lonIn)
+    latRg = np.ravel(latIn)
+    dataInterpRg3d = interp.griddata((latRg,lonRg,lev),dataRg,(latOut,lonOut,lev), method='linear')
 
-for strc, strv in enumerate(strList):
+    return dataInterpRg3d
+
+def operate_regrid(inFile, dataVar, popLat, popLon):
+    ''' Carry out regridding and data processing operations from input files '''
     popDataArray = xr.open_dataset(strv,decode_times=False)
     varOfInt = popDataArray[dataVar]
     time = popDataArray.time
@@ -52,9 +56,6 @@ for strc, strv in enumerate(strList):
 
     dataRegrid = np.empty((varOfInt.shape[0],latNew.shape[0],lonNew.shape[0]))
     for bc in range(varOfInt.shape[0]):
-        if bc % 10 == 0: # progress indicator
-            prog = np.round(bc / varOfInt.shape[0],3)
-            ic(prog)
         newDat = regrid(varOfInt[bc,:,:],popLat,popLon,latNew,lonNew)
         dataRegrid[bc,:,:] = newDat
 
@@ -73,3 +74,34 @@ for strc, strv in enumerate(strList):
     strOut =  originalFilename + '_RG' + '.nc' #originalfilename_RG.nc
     newDset.to_netcdf(strOut)
     ic(strOut)
+
+def operate_regrid_direct(popDataArray, popLat, popLon):
+    ''' Carry out the regridding and data processing operations from direct
+        DataArray input '''
+    varOfInt = popDataArray.data
+    time = popDataArray.time
+    latNew = np.arange(-90,91)
+    lonNew = np.arange(0,360)
+
+    dataRegrid = np.empty((varOfInt.shape[0],latNew.shape[0],lonNew.shape[0]))
+    for bc in range(varOfInt.shape[0]):
+        newDat = regrid(varOfInt[bc,:,:],popLat,popLon,latNew,lonNew)
+        dataRegrid[bc,:,:] = newDat
+
+    dataKey = popDataArray.name
+    newDset = xr.Dataset(
+        {dataKey: (("time","lat","lon"), dataRegrid)},
+        coords={
+            "time": time,
+            "lat": latNew,
+            "lon": lonNew
+        }
+    )
+    newDset[dataKey].attrs = popDataArray.attrs
+
+    strOut = popDataArray.attrs['outFile'].replace(".nc","_RG.nc")
+    outFile = popDataArray.attrs['outPath'] + strOut
+    newDset.to_netcdf(outFile)
+    ic(strOut)
+    ic(outFile)
+    ic(newDset)
