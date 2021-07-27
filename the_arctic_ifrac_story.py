@@ -44,7 +44,7 @@ setDict = {
     "convert": None #tuple of converter(s), or None if using default units
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210722_glensOcnAndMore/figure_for_website/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210726_newfigAndG2/',
     "dpiVal": 400
 }
 loopDict = {
@@ -81,10 +81,12 @@ def plot_zchfd_timeseries_sept_arc_ifrac(glensCntrlRlz, glensFdbckRlz, dataDict,
     for label in ax.get_yticklabels():
         label.set_fontproperties(FiraSansThin)
     ax.annotate('September Arctic sea ice fraction',(0.02,0.935),(0.02,0.935),'axes fraction',fontproperties=FiraSansMed,fontsize=16,color='#000000')
-    ax.annotate('RCP8.5',(0.08,0.38),(0.08,0.38),'axes fraction',fontproperties=FiraSansMed,fontsize=14,color='#DF8C20')
-    ax.annotate('SAI',(0.43,0.82),(0.43,0.82),'axes fraction',fontproperties=FiraSansMed,fontsize=14,color='#20DFCC')
+    # ax.annotate('RCP8.5',(0.08,0.38),(0.08,0.38),'axes fraction',fontproperties=FiraSansMed,fontsize=14,color='#DF8C20')
+    # ax.annotate('SAI',(0.43,0.82),(0.43,0.82),'axes fraction',fontproperties=FiraSansMed,fontsize=14,color='#20DFCC')
     # ax.annotate('RCP8.5: Ice free by mid-century',(0.365,0.031),(0.365,0.031),'axes fraction',fontproperties=FiraSansMed,fontsize=11,color='#DF8C20')
     # ax.annotate('SAI: Ice is maintained or even recovers',(0.235,0.7),(0.235,0.7),'axes fraction',fontproperties=FiraSansMed,fontsize=11,color='#20DFCC')
+    ax.annotate('RCP8.5',(0.08,0.38),(0.08,0.38),'axes fraction',fontproperties=FiraSansMed,fontsize=12,color='#DF8C20')
+    ax.annotate('Stratospheric Aerosol Injection',(0.53,0.75),(0.53,0.75),'axes fraction',fontproperties=FiraSansMed,fontsize=12,color='#20DFCC')
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
     plt.autoscale(enable=True, axis='x', tight=True)
