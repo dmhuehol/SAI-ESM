@@ -48,7 +48,9 @@ for fc,fv in enumerate(strList):
 # Extract 2D field (as written, regridding is a 2D process)
 data2dList = list()
 if not(extract2d): #If False entry, data is already 2D (ex: SSH data)
-    data2dList = dataList
+    for darr in dataList:
+        darr.attrs['outFile'] = darr.attrs['inFile']
+        data2dList.append(darr)
 else:
     for darr in dataList:
         darr2d = extract2d(darr) #Use the fcv function input to extract 2D field (ex: UOHC from pot. temp.)
