@@ -239,21 +239,37 @@ def open_data(dataDict):
     if '*' in dataDict["fnameCntrl"]:
         cntrlPath = dataDict["dataPath"] + dataDict["fnameCntrl"]
         fdbckPath = dataDict["dataPath"] + dataDict["fnameFdbck"]
+        glens2Path = dataDict["dataPath"] + dataDict["fnameGlens2"]
         glensDsetCntrl = xr.open_mfdataset(cntrlPath,concat_dim='realization',combine='nested')
         glensDsetFdbck = xr.open_mfdataset(fdbckPath,concat_dim='realization',combine='nested')
+        try:
+            glens2Dset = xr.open_mfdataset(glens2Path,concat_dim='realization',combine='nested')
+            ic(glens2Dset)
+        except:
+            ic('No GLENS2 files located')
+            glens2Dset = None
         dataKey = discover_data_var(glensDsetCntrl)
         glensDarrCntrl = glensDsetCntrl[dataKey]
+        glensDarrCntrl.attrs['scenario'] = 'GLENS1:Control/RCP8.5'
         glensDarrFdbck = glensDsetFdbck[dataKey]
+        glensDarrFdbck.attrs['scenario'] = 'GLENS1:Feedback/SAI/GEO8.5'
+        if glens2Dset is not None:
+            glens2Darr = glens2Dset[dataKey]
+            glens2Darr.attrs['scenario'] = 'GLENS2:Feedback/SAI/GEO2-4.5'
+        else:
+            glens2Darr = None
     else:
-        cntrlPath = dataDict["dataPath"] + dataDict["fnameCntrl"]
-        fdbckPath = dataDict["dataPath"] + dataDict["fnameFdbck"]
-        glensDsetCntrl = xr.open_dataset(cntrlPath)
-        glensDsetFdbck = xr.open_dataset(fdbckPath)
-        dataKey = discover_data_var(glensDsetCntrl)
-        glensDarrCntrl = glensDsetCntrl[dataKey]
-        glensDarrFdbck = glensDsetFdbck[dataKey]
+        sys.exit("Check input! Token should have a wildcard (i.e. match multiple files).")
 
-    return glensDarrCntrl, glensDarrFdbck, dataKey
+    darrCheckList = list([glensDarrCntrl,glensDarrFdbck,glens2Darr])
+    darrList = list()
+    for d in darrCheckList: #Surely there's a better way
+        if d is None:
+            pass
+        else:
+            darrList.append(d)
+
+    return darrList, dataKey
 
 def get_ens_mem(files):
     ''' Find ensemble members from a list of files '''
@@ -266,61 +282,73 @@ def get_ens_mem(files):
 
     return emem
 
-def manage_realizations(setDict, cntrlDarr, fdbckDarr, ememCntrl, ememFdbck):
+def manage_realizations(setDict, darr, emem):
     ''' Either obtain realization of interest or calculate ensemble mean, and
     create relevant filename '''
-    if setDict['realization'] == 'mean':
-        cntrlDarrMn = cntrlDarr.mean(dim='realization')
-        fdbckDarrMn = fdbckDarr.mean(dim='realization')
-        cntrlDarrOut = cntrlDarrMn.compute()
-        fdbckDarrOut = fdbckDarrMn.compute()
-        ememSaveCntrl = 'mnc'
-        ememSaveFdbck = 'mnf'
-        ememSave = ememSaveCntrl + '-' + ememSaveFdbck
-    elif setDict['realization'] == 'ensplot':
-        cntrlDarrMn = cntrlDarr.mean(dim='realization')
-        fdbckDarrMn = fdbckDarr.mean(dim='realization')
-        cntrlDarrOut = xr.concat([cntrlDarr,cntrlDarrMn],dim='realization').compute()
-        fdbckDarrOut = xr.concat([fdbckDarr,fdbckDarrMn],dim='realization').compute()
-        ememSaveCntrl = 'ensc'
-        ememSaveFdbck = 'ensf'
-        ememSave = ememSaveCntrl + '-' + ememSaveFdbck
-    else:
-        ememCntrlNum = list(map(int, ememCntrl))
-        rCntrl = ememCntrlNum.index(setDict['realization'])
-        cntrlDarrOut = cntrlDarr[rCntrl,:,:,:].compute()
-        ememFdbckNum = list(map(int, ememFdbck))
-        rFdbck = ememFdbckNum.index(setDict['realization'])
-        fdbckDarrOut = fdbckDarr[rFdbck,:,:,:].compute()
+    try:
+        if 'GLENS1:Control' in darr.scenario:
+            scnStr = 'g1c' #glens1control
+        elif 'GLENS1:Feedback' in darr.scenario:
+            scnStr = 'g1f' #glens1feedback
+        elif 'GLENS2:Feedback' in darr.scenario:
+            scnStr = 'g2f' #glens2feedback
 
-        activeCntrlEmem = ememCntrl[rCntrl]
-        activeFdbckEmem = ememFdbck[rFdbck]
-        ememSave = 'rc' + activeCntrlEmem + '-' + 'rf' + activeFdbckEmem
+        if setDict['realization'] == 'mean': #Output DataArray of ensemble mean
+            darrMn = darr.mean(dim='realization')
+            darrOut = darrMn.compute()
+            ememSave = 'mn' + scnStr
+        elif setDict['realization'] == 'ensplot': #Output DataArray of all members and ensemble mean
+            darrMn = darr.mean(dim='realization')
+            darrOut = xr.concat([darr,darrMn],dim='realization') #Add ensemble mean as another "realization"
+            ememSave = 'ens' + scnStr
+        else: #Output DataArray of single ensemble member
+            ememNum = list(map(int, emem))
+            rInd = ememNum.index(setDict['realization'])
+            darrOut = darr[rInd,:,:,:].compute()
 
-    return cntrlDarrOut, fdbckDarrOut, ememSave
+            activeEmem = emem[rInd]
+            ememSave = scnStr + activeEmem
+    except:
+        darrOut = None
+        ememSave = ''
+
+    return darrOut, ememSave
 
 def call_to_open(dataDict, setDict):
     ''' Common data tasks for all basic plots '''
-    glensDarrCntrl, glensDarrFdbck, dataKey = open_data(dataDict)
+    darrList, dataKey = open_data(dataDict)
+
     cntrlFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameCntrl']))
     fdbckFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameFdbck']))
-    ememCntrl = get_ens_mem(cntrlFiles)
-    ememFdbck = get_ens_mem(fdbckFiles)
-    glensCntrlRlz, glensFdbckRlz, ememSave = manage_realizations(setDict, glensDarrCntrl, glensDarrFdbck, ememCntrl, ememFdbck)
+    glens2Files = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameGlens2']))
+    ememList = list()
+    for ec in (cntrlFiles, fdbckFiles, glens2Files):
+        ememList.append(get_ens_mem(ec))
+
+    rlzList = list()
+    ememStrList = list()
+    for dc,dv in enumerate(darrList):
+        rlzArr, ememStr = manage_realizations(setDict, dv, ememList[dc])
+        rlzList.append(rlzArr)
+        ememStrList.append(ememStr)
+
+    ememStrList = list(filter(None,ememStrList))
+    ememSave = '-'.join(ememStrList)
     cmnDict = {'dataKey': dataKey, 'ememSave': ememSave}
 
     if setDict["convert"] is not None:
         for cnvrtr in setDict["convert"]:
-            glensCntrlRlz = cnvrtr(glensCntrlRlz)
-            glensFdbckRlz = cnvrtr(glensFdbckRlz)
+            for rc,rv in enumerate(rlzList):
+                rlzList[rc] = cnvrtr(rv)
 
-    return glensCntrlRlz, glensFdbckRlz, cmnDict
+    return rlzList, cmnDict
 
 def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
     ''' Compile the bits and pieces used in filenames and titles '''
     metaDict = {
         "cntrlStr": 'RCP8.5',
-        "fdbckStr": 'SAI',
+        "fdbckStr": 'GEO8.5',
+        "fdbckStrG2": 'GEO2-4.5',
         "varStr": cntrlToPlot.long_name,
         "varSve": cntrlToPlot.long_name.replace(" ",""),
         "strtStr": str(cntrlToPlot['time'].data[0].year),

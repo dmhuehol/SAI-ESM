@@ -86,3 +86,11 @@ def depth_to_height(darrDepth):
     # No change to units necessary
 
     return darrHeight
+
+def fraction_to_percent(darrFrac):
+    ''' Converts fraction to percent '''
+    darrPercent = darrFrac * 100
+    darrPercent.attrs = darrFrac.attrs
+    darrPercent.attrs['units'] = 'Percent'
+
+    return darrPercent

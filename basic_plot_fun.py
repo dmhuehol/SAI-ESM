@@ -339,40 +339,43 @@ def plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDi
 
 ## TIMESERIES
 
-def plot_timeseries(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
+def plot_timeseries(rlzList, dataDict, setDict, outDict):
     ''' Make timeseries of GLENS output variable for RCP8.5 ("Control") and SAI/GEO8.5 ("Feedback") '''
-
+    # Set up data: Isolate time, level, and area of interest
     setYear = [2020, 2095]
     timeSlice = slice(cftime.DatetimeNoLeap(setYear[0], 7, 15, 12, 0, 0, 0),cftime.DatetimeNoLeap(setYear[1], 7, 15, 12, 0, 0, 0))
-    glensCntrlPoi = glensCntrlRlz.sel(time=timeSlice)
-    glensFdbckPoi = glensFdbckRlz.sel(time=timeSlice)
-    # Uncomment below to automatically pick start/end years
-    # bndDct = pgf.find_matching_year_bounds(glensCntrlRlz, glensFdbckRlz)
-    # glensCntrlPoi = glensCntrlRlz[bndDct['cntrlStrtMtch']:bndDct['cntrlEndMtch']+1] #RANGES IN PYTHON ARE [)
-    # glensFdbckPoi = glensFdbckRlz[bndDct['fdbckStrtMtch']:bndDct['fdbckEndMtch']+1]
+    rlzToPlot = list()
+    for rc,rDarr in enumerate(rlzList):
+        rlzToi = rDarr.sel(time=timeSlice)
+        rlzLoi = pgf.obtain_levels(rlzToi, setDict["levOfInt"])
+        rlzAoi, locStr, locTitleStr = pgf.manage_area(rlzLoi, setDict["regOfInt"], areaAvgBool=True)
+        rlzToPlot.append(rlzAoi)
 
-    # Obtain levels
-    glensCntrlLoi = pgf.obtain_levels(glensCntrlPoi, setDict["levOfInt"])
-    glensFdbckLoi = pgf.obtain_levels(glensFdbckPoi, setDict["levOfInt"])
-
-    # Deal with area
-    cntrlToPlot, locStr, locTitleStr = pgf.manage_area(glensCntrlLoi, setDict["regOfInt"], areaAvgBool=True)
-    fdbckToPlot, locStr, locTitleStr = pgf.manage_area(glensFdbckLoi, setDict["regOfInt"], areaAvgBool=True)
-
-    # Make timeseries
-    md = pgf.meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None)
     plt.figure()
-    yearsOfInt = glensCntrlPoi['time'].dt.year.data #bndDct['mtchYrs']
-    plt.plot(yearsOfInt,cntrlToPlot.data,color='#DF8C20',label=md['cntrlStr'])
-    plt.plot(yearsOfInt,fdbckToPlot.data,color='#20DFCC',label=md['fdbckStr'])
+    md = pgf.meta_book(setDict, dataDict, rlzToPlot[0], labelsToPlot=None)
+    for rpc,rpv in enumerate(rlzToPlot):
+        if 'GLENS1:Control' in rpv.scenario:
+            activeColor = '#DF8C20'
+            activeLabel = md['cntrlStr']
+        elif 'GLENS1:Feedback' in rpv.scenario:
+            activeColor = '#20DFCC'
+            activeLabel = md['fdbckStr']
+        elif 'GLENS2:Feedback' in rpv.scenario:
+            activeColor = '#5C68FF'
+            activeLabel = md['fdbckStrG2']
+        else:
+            sys.exit('Unknown scenario cannot be plotted!')
+        yearsOfInt = rpv['time'].dt.year.data #Otherwise the x-axis will be the cftime object, which is ugly
+        plt.plot(yearsOfInt, rpv.data, color=activeColor, label=activeLabel)
+
     b,t = plt.ylim()
     if (setDict["realization"] == 'mean'):
         plt.plot([ensPrp["dscntntyYrs"],ensPrp["dscntntyYrs"]],[b,t], color='#36454F', linewidth=0.5, linestyle='dashed', label='RCP8.5 ens: 21 to 2030, 4 to 2095')
         leg = plt.legend()
-        l1,l2,l3 = leg.get_texts()
+        lText = leg.get_texts()
         # ic(l1,l2,l3) #troubleshooting if the size is changed for the wrong entry
-        l3._fontproperties = l2._fontproperties.copy()
-        l3.set_fontsize(7)
+        lText[len(lText)-1]._fontproperties = lText[len(lText)-2]._fontproperties.copy()
+        lText[len(lText)-1].set_fontsize(7)
     else:
         plt.legend()
     plt.ylabel(md['unit'])
