@@ -32,37 +32,43 @@ ensPrp = {
     "drf": [21,21]
 }
 
-def plot_ens_spaghetti_timeseries(glensCntrlEplot, glensFdbckEplot, dataDict, setDict, outDict):
+def plot_ens_spaghetti_timeseries(rlzList, dataDict, setDict, outDict):
     ''' Make timeseries of GLENS output variable for RCP8.5 ("Control") and
     SAI/GEO8.5 ("Feedback"). Ensemble members are visualized in a familiar,
     basic spaghetti plot. '''
 
+    # Set up data: Isolate time, level, and area of interest
     setYear = [2020, 2095]
     timeSlice = slice(cftime.DatetimeNoLeap(setYear[0], 7, 15, 12, 0, 0, 0),cftime.DatetimeNoLeap(setYear[1], 7, 15, 12, 0, 0, 0))
-    glensCntrlPoi = glensCntrlEplot.sel(time=timeSlice)
-    glensFdbckPoi = glensFdbckEplot.sel(time=timeSlice)
-    # Uncomment below to automatically pick start/end years
-    # bndDct = pgf.find_matching_year_bounds(glensCntrlRlz, glensFdbckRlz)
-    # glensCntrlPoi = glensCntrlRlz[bndDct['cntrlStrtMtch']:bndDct['cntrlEndMtch']+1] #RANGES IN PYTHON ARE [)
-    # glensFdbckPoi = glensFdbckRlz[bndDct['fdbckStrtMtch']:bndDct['fdbckEndMtch']+1]
-
-    # Obtain levels
-    glensCntrlLoi = pgf.obtain_levels(glensCntrlPoi, setDict["levOfInt"])
-    glensFdbckLoi = pgf.obtain_levels(glensFdbckPoi, setDict["levOfInt"])
+    rlzToPlot = list()
+    for rc,rDarr in enumerate(rlzList):
+        rlzToi = rDarr.sel(time=timeSlice)
+        rlzLoi = pgf.obtain_levels(rlzToi, setDict["levOfInt"])
+        rlzAoi, locStr, locTitleStr = pgf.manage_area(rlzLoi, setDict["regOfInt"], areaAvgBool=True)
+        rlzToPlot.append(rlzAoi)
 
     # Make timeseries
     plt.figure()
-    yearsOfInt = glensCntrlPoi['time'].dt.year.data #bndDct['mtchYrs']
-    for rc in glensCntrlEplot['realization'].data:
-        cntrlToPlot, locStr, locTitleStr = pgf.manage_area(glensCntrlLoi[rc,:], setDict["regOfInt"], areaAvgBool=True)
-        fdbckToPlot, locStr, locTitleStr = pgf.manage_area(glensFdbckLoi[rc,:], setDict["regOfInt"], areaAvgBool=True)
-        md = pgf.meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None)
-        if rc==len(glensCntrlEplot['realization'].data)-1:
-            plt.plot(yearsOfInt,cntrlToPlot.data,color='#DF8C20')
-            plt.plot(yearsOfInt,fdbckToPlot.data,color='#20DFCC')
-        else:
-            plt.plot(yearsOfInt,cntrlToPlot.data,color='#DF8C20',linewidth=0.3)
-            plt.plot(yearsOfInt,fdbckToPlot.data,color='#20DFCC',linewidth=0.3)
+    for rsc,rsDarr in enumerate(rlzList):
+        for rc in rsDarr['realization'].data:
+            dataToPlot, locStr, locTitleStr = pgf.manage_area(rsDarr[rc,:], setDict["regOfInt"], areaAvgBool=True)
+            md = pgf.meta_book(setDict, dataDict, dataToPlot, labelsToPlot=None)
+            if 'GLENS1:Control' in dataToPlot.scenario:
+                activeColor = '#DF8C20'
+                activeLabel = md['cntrlStr']
+            elif 'GLENS1:Feedback' in dataToPlot.scenario:
+                activeColor = '#20DFCC'
+                activeLabel = md['fdbckStr']
+            elif 'GLENS2:Feedback' in dataToPlot.scenario:
+                activeColor = '#5C68FF'
+                activeLabel = md['fdbckStrG2']
+            else:
+                sys.exit('Unknown scenario cannot be plotted!')
+            yearsOfInt = dataToPlot['time'].dt.year.data #bndDct['mtchYrs']
+            if rc==len(rsDarr['realization'].data)-1:
+                plt.plot(yearsOfInt,dataToPlot.data,color=activeColor)
+            else:
+                plt.plot(yearsOfInt,dataToPlot.data,color=activeColor,linewidth=0.3)
 
     # plt.plot(yearsOfInt,cntrlToPlot.data,color='#DF8C20',label=md['cntrlStr'])
     # plt.plot(yearsOfInt,fdbckToPlot.data,color='#20DFCC',label=md['fdbckStr'])

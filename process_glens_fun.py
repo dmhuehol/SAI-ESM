@@ -40,34 +40,39 @@ def discover_data_var(glensDsetCntrl):
 
     return dataKey
 
-def find_matching_year_bounds(glensCntrl,glensFdbck):
-    ''' Find indices that bound matching time periods in control and feedback output '''
-
-    cntrlYrs = glensCntrl['time'].dt.year.data
-    fdbckYrs = glensFdbck['time'].dt.year.data
-
-    if glensCntrl.ndim == 4:
-        nanYrInd = np.where(np.isnan(glensCntrl[:,1,1,1])) #Years after the model completes may be present with NaN values
-    elif glensCntrl.ndim == 3: #time,lat,lon
-        nanYrInd = np.where(np.isnan(glensCntrl[:,1,1])) #Years after the model completes may be present with NaN values
-    else:
-        ic(glensCntrl.ndim)
-    bothYrs,cntrlInd,fdbckInd = np.intersect1d(cntrlYrs, fdbckYrs, return_indices=True) #Or they may be not present at all
-    firstYrInBoth = bothYrs[0]
-    try:
-        lastYrInBoth = np.min(np.array([bothYrs[len(bothYrs)-1],cntrlYrs[nanYrInd[0][0]-1]])) #Either way, the last year is whichever method with the earliest end date
-    except:
-        lastYrInBoth = bothYrs[len(bothYrs)-1]
-    bndDct = {
-        "strtYrMtch": firstYrInBoth,
-        "endYrMtch": lastYrInBoth,
-        "cntrlStrtMtch": cntrlInd[0],
-        "fdbckStrtMtch": fdbckInd[0],
-        "cntrlEndMtch": cntrlInd[len(cntrlInd)-1],
-        "fdbckEndMtch": fdbckInd[len(fdbckInd)-1],
-        "mtchYrs": bothYrs}
-
-    return bndDct
+# def find_matching_year_bounds(rlzList):
+#     ''' Find indices that bound matching time periods in control and feedback output '''
+# # NEED TO FIX
+#     rlzYearList = list()
+#     for rlz in rlzList:
+#     rlzYears = rlz['time'].dt.year.data
+#     rlzYearList.append(rlz)
+#
+#     if rlzList[0].ndim == 4: #rlzList[0]=it doesn't matter which scenario, and index 0 will always be present
+#         nanYrInd = np.where(np.isnan(rlzList[0][:,1,1,1])) #Years after the model completes may be present with NaN values
+#     elif rlzList[0].ndim == 3: #time,lat,lon
+#         nanYrInd = np.where(np.isnan(rlzList[0][:,1,1])) #Years after the model completes may be present with NaN values
+#     else:
+#         ic(rlzList[0].ndim)
+#         # Not giving a sys.exit() here, want whatever the error is to show up
+#
+#
+#     bothYrs,cntrlInd,fdbckInd = np.intersect1d(cntrlYrs, fdbckYrs, return_indices=True) #Or they may be not present at all
+#     firstYrInBoth = bothYrs[0]
+#     try:
+#         lastYrInBoth = np.min(np.array([bothYrs[len(bothYrs)-1],cntrlYrs[nanYrInd[0][0]-1]])) #Either way, the last year is whichever method with the earliest end date
+#     except:
+#         lastYrInBoth = bothYrs[len(bothYrs)-1]
+#     bndDct = {
+#         "strtYrMtch": firstYrInBoth,
+#         "endYrMtch": lastYrInBoth,
+#         "cntrlStrtMtch": cntrlInd[0],
+#         "fdbckStrtMtch": fdbckInd[0],
+#         "cntrlEndMtch": cntrlInd[len(cntrlInd)-1],
+#         "fdbckEndMtch": fdbckInd[len(fdbckInd)-1],
+#         "mtchYrs": bothYrs}
+#
+#     return bndDct
 
 
 def extract_doi(intervalsToPlot, years, timePeriod, darr, handlesToPlot):

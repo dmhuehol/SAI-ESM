@@ -162,19 +162,21 @@ def plot_pdf_step(handles, colors, labels, unit, savename, binwidth, dpiVal=400)
     plt.savefig(savename, dpi=dpiVal, bbox_inches='tight')
     plt.close()
 
-def select_colors(baselineFlag, nCntrl, nFdbck):
+def select_colors(baselineFlag, nCntrl, nFdbck, nGlens2):
     '''Returns colors for a set number of feedback and control objects '''
 
     colorsToPlot = list()
     baselineColor = 'slategrey'
     cntrlColors = ["#F2BABA", "#E88989", "#DF5757", "#D93636", "#D32828", "#A21F1F", "#701515", "#3F0C0C"]
     fdbckColors = ["#D2BBE8", "#B48FDA", "#9763CB", "#8346C1", "#7A3DB6", "#5C2E8A", "#3F1F5E", "#211132"]
+    glens2Colors = ["#B8B3FF", "#9090FF", "#6972FF", "#5463F9", "#495BF0", "#1744D3", "#002AB1", "#001390"]
 
     if baselineFlag:
         colorsToPlot.append(baselineColor)
 
     colorsToPlot = paint_by_numbers(colorsToPlot, cntrlColors, nCntrl)
     colorsToPlot = paint_by_numbers(colorsToPlot, fdbckColors, nFdbck)
+    colorsToPlot = paint_by_numbers(colorsToPlot, glens2Colors, nGlens2)
     return colorsToPlot
 
 def paint_by_numbers(colorsToPlot, colList, nfc):
@@ -255,11 +257,26 @@ def generate_labels(labelsList, setDict, ensPrp, baselineFlag):
         if cdv+setDict["timePeriod"] == 2100:
             endYearStr = str(2099)
         if (setDict["realization"] == 'mean') and cdv+setDict["timePeriod"]>ensPrp["dscntntyYrs"][0]:
-            labelStr = startYearStr + '-' + endYearStr + ' ' + 'SAI' + ' ' + '[r'+str(ensPrp["drf"][1])+']'
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'GEO8.5' + ' ' + '[r'+str(ensPrp["drf"][1])+']'
         elif (setDict["realization"] == 'mean') and cdv+setDict["timePeriod"]<ensPrp["dscntntyYrs"][0]:
-            labelStr = startYearStr + '-' + endYearStr + ' ' + 'SAI' + ' ' + '[r'+str(ensPrp["drf"][0])+']'
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'GEO8.5' + ' ' + '[r'+str(ensPrp["drf"][0])+']'
         else:
-            labelStr = startYearStr + '-' + endYearStr + ' ' + 'SAI'
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'GEO8.5'
+        labelsList.append(labelStr)
+
+    for cdc,cdv in enumerate(setDict["glens2Poi"]):
+        if cdv < 2020:
+            continue #Do not auto-generate if interval starts during the 2010-2019 "Baseline" period
+        startYearStr = str(cdv)
+        endYearStr = str(cdv + setDict["timePeriod"] - 1)
+        if cdv+setDict["timePeriod"] == 2100:
+            endYearStr = str(2099)
+        if (setDict["realization"] == 'mean') and cdv+setDict["timePeriod"]>ensPrp["dscntntyYrs"][0]:
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'GEO2-4.5' + ' ' + '[r'+str(ensPrp["drg2f"][1])+']'
+        elif (setDict["realization"] == 'mean') and cdv+setDict["timePeriod"]<ensPrp["dscntntyYrs"][0]:
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'GEO2-4.5' + ' ' + '[r'+str(ensPrp["drg2f"][0])+']'
+        else:
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'GEO2-4.5'
         labelsList.append(labelStr)
 
     if baselineFlag:

@@ -52,7 +52,8 @@ import region_library as rlib
 ensPrp = {
     "dscntntyYrs": [2030],
     "drc": [21,4],
-    "drf": [21,21]
+    "drf": [21,21],
+    "drg2f": [10,10]
 }
 
 ## DIFFERENCE GLOBES
@@ -393,41 +394,49 @@ def plot_timeseries(rlzList, dataDict, setDict, outDict):
 
 ## PDFs
 
-def plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
+def plot_pdf(rlzList, dataDict, setDict, outDict):
     ''' Plot pdfs for RCP8.5 ("Control") and SAI ("Feedback") values for a GLENS output
     variable. Three formats are available: a kernel density estimate, a histogram,
     or a step plot.'''
     baselineFlag = True #True if plotting any data from before 2020 (during the "Baseline" period), False otherwise
 
     # Check for valid periods before running
-    bndDct = pgf.find_matching_year_bounds(glensCntrlRlz, glensFdbckRlz)
-    for poic,poiv in enumerate(setDict["cntrlPoi"]):
-        if bndDct["endYrMtch"] < poiv:
-            del setDict["cntrlPoi"][poic]
+    # bndDct = pgf.find_matching_year_bounds(rlzList)
+    # for poic,poiv in enumerate(setDict["cntrlPoi"]):
+    #     if bndDct["endYrMtch"] < poiv:
+    #         del setDict["cntrlPoi"][poic]
 
-    # Obtain levels
-    glensCntrlLoi = pgf.obtain_levels(glensCntrlRlz, setDict["levOfInt"])
-    glensFdbckLoi = pgf.obtain_levels(glensFdbckRlz, setDict["levOfInt"])
+    # Set up data
+    rlzToPlot = list()
+    for rc,rDarr in enumerate(rlzList):
+        rlzLoi = pgf.obtain_levels(rDarr, setDict["levOfInt"])
+        rlzAoi, locStr, locTitleStr = pgf.manage_area(rlzLoi, setDict["regOfInt"], setDict["areaAvgBool"])
+        rlzToPlot.append(rlzAoi)
 
-    # Deal with area
-    cntrlToPlot, locStr, locTitleStr = pgf.manage_area(glensCntrlLoi, setDict["regOfInt"], setDict["areaAvgBool"])
-    fdbckToPlot, locStr, locTitleStr = pgf.manage_area(glensFdbckLoi, setDict["regOfInt"], setDict["areaAvgBool"])
-
-    iqr = stats.iqr(cntrlToPlot,nan_policy='omit')
-    binwidth = (2*iqr) / np.power(np.count_nonzero(~np.isnan(cntrlToPlot)),1/3) # the Freedman-Diaconis rule (NaNs omitted as stackoverflow.com/a/21778195)
+    iqr = stats.iqr(rlzToPlot[0],nan_policy='omit')
+    binwidth = (2*iqr) / np.power(np.count_nonzero(~np.isnan(rlzToPlot[0])),1/3) # the Freedman-Diaconis rule (NaNs omitted as stackoverflow.com/a/21778195)
     if setDict["areaAvgBool"]:
         binwidth = binwidth/5 #binwidths need to be smaller for small N datasets
     # binwidth = 0.1 #the Let's Not Overthink This rule
     ic(iqr, binwidth)
 
-    # Extract the decades of interest from the control and feedback datasets
-    cntrlYears = cntrlToPlot['time'].dt.year.data
-    cntrlHandlesToPlot = list()
-    cntrlHandlesToPlot = pgf.extract_doi(setDict["cntrlPoi"], cntrlYears, setDict["timePeriod"], cntrlToPlot, cntrlHandlesToPlot)
-    fdbckYears = fdbckToPlot['time'].dt.year.data
-    fdbckHandlesToPlot = list()
-    fdbckHandlesToPlot = pgf.extract_doi(setDict["fdbckPoi"], fdbckYears, setDict["timePeriod"], fdbckToPlot, fdbckHandlesToPlot)
-    handlesToPlot = cntrlHandlesToPlot + fdbckHandlesToPlot
+    # Extract the decades of interest
+    handlesToPlot = list()
+    for scnData in rlzToPlot:
+        periodsOfInt = scnData['time'].dt.year.data
+        if 'GLENS1:Control' in scnData.scenario:
+            cntrlHandlesToPlot = list()
+            cntrlHandlesToPlot = pgf.extract_doi(setDict["cntrlPoi"], periodsOfInt, setDict["timePeriod"], scnData, cntrlHandlesToPlot)
+        elif 'GLENS1:Feedback' in scnData.scenario:
+            fdbckHandlesToPlot = list()
+            fdbckHandlesToPlot = pgf.extract_doi(setDict["fdbckPoi"], periodsOfInt, setDict["timePeriod"], scnData, fdbckHandlesToPlot)
+        elif 'GLENS2:Feedback' in scnData.scenario:
+            glens2HandlesToPlot = list()
+            glens2HandlesToPlot = pgf.extract_doi(setDict["glens2Poi"], periodsOfInt, setDict["timePeriod"], scnData, glens2HandlesToPlot)
+        else:
+            ic(scnData.scenario)
+            #No sys.exit(), want to know what the error is if it fails here
+    handlesToPlot = cntrlHandlesToPlot + fdbckHandlesToPlot + glens2HandlesToPlot
 
     # If not applying a spatial average, flatten data so dimensions don't confuse plotting code
     if ~setDict["areaAvgBool"]:
@@ -436,14 +445,14 @@ def plot_pdf(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
 
     # Generate colors and strings for plots and filenames
     if baselineFlag:
-        colorsToPlot = plt_tls.select_colors(baselineFlag,len(setDict["cntrlPoi"])-1,len(setDict["fdbckPoi"]))
+        colorsToPlot = plt_tls.select_colors(baselineFlag,len(setDict["cntrlPoi"])-1,len(setDict["fdbckPoi"]),len(setDict["glens2Poi"]))
     else:
-        colorsToPlot = plt_tls.select_colors(baselineFlag,len(setDict["cntrlPoi"]),len(setDict["fdbckPoi"]))
+        colorsToPlot = plt_tls.select_colors(baselineFlag,len(setDict["cntrlPoi"]),len(setDict["fdbckPoi"]),len(setDict["glens2Poi"]))
     labelsToPlot = list()
     labelsToPlot = plt_tls.generate_labels(labelsToPlot, setDict, ensPrp, baselineFlag)
 
-    unit = cntrlToPlot.attrs['units']
-    md = pgf.meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot)
+    unit = rlzToPlot[0].attrs['units']
+    md = pgf.meta_book(setDict, dataDict, rlzToPlot[0], labelsToPlot)
     titleStr = md['varStr'] + ' ' + md['levStr'] + ' ' + locTitleStr + ' ' + 'Ens ' + str(setDict['realization'])
     labelsToPlot.append(titleStr)
     savePrfx = ''
