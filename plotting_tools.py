@@ -257,11 +257,11 @@ def generate_labels(labelsList, setDict, ensPrp, baselineFlag):
         if cdv+setDict["timePeriod"] == 2100:
             endYearStr = str(2099)
         if (setDict["realization"] == 'mean') and cdv+setDict["timePeriod"]>ensPrp["dscntntyYrs"][0]:
-            labelStr = startYearStr + '-' + endYearStr + ' ' + 'GEO8.5' + ' ' + '[r'+str(ensPrp["drf"][1])+']'
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'G1.2(8.5)' + ' ' + '[r'+str(ensPrp["drf"][1])+']'
         elif (setDict["realization"] == 'mean') and cdv+setDict["timePeriod"]<ensPrp["dscntntyYrs"][0]:
-            labelStr = startYearStr + '-' + endYearStr + ' ' + 'GEO8.5' + ' ' + '[r'+str(ensPrp["drf"][0])+']'
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'G1.2(8.5)' + ' ' + '[r'+str(ensPrp["drf"][0])+']'
         else:
-            labelStr = startYearStr + '-' + endYearStr + ' ' + 'GEO8.5'
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'G1.2(8.5)'
         labelsList.append(labelStr)
 
     for cdc,cdv in enumerate(setDict["glens2Poi"]):
@@ -272,11 +272,11 @@ def generate_labels(labelsList, setDict, ensPrp, baselineFlag):
         if cdv+setDict["timePeriod"] == 2100:
             endYearStr = str(2099)
         if (setDict["realization"] == 'mean') and cdv+setDict["timePeriod"]>ensPrp["dscntntyYrs"][0]:
-            labelStr = startYearStr + '-' + endYearStr + ' ' + 'GEO2-4.5' + ' ' + '[r'+str(ensPrp["drg2f"][1])+']'
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'G1.5(2-4.5)' + ' ' + '[r'+str(ensPrp["drg2f"][1])+']'
         elif (setDict["realization"] == 'mean') and cdv+setDict["timePeriod"]<ensPrp["dscntntyYrs"][0]:
-            labelStr = startYearStr + '-' + endYearStr + ' ' + 'GEO2-4.5' + ' ' + '[r'+str(ensPrp["drg2f"][0])+']'
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'G1.5(2-4.5)' + ' ' + '[r'+str(ensPrp["drg2f"][0])+']'
         else:
-            labelStr = startYearStr + '-' + endYearStr + ' ' + 'GEO2-4.5'
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'G1.5(2-4.5)'
         labelsList.append(labelStr)
 
     if baselineFlag:

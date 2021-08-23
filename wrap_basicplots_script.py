@@ -31,24 +31,26 @@ gnsht = ('global', rlib.Arctic(), rlib.SouthernHemisphere(),)
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/sept_IFRAC/AllVersions/',
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_TSA/',
     "fnameCntrl": 'control_*',
     "fnameFdbck": 'feedback_*',
-    "fnameGlens2": '*SSP245*'#'*SSP245*',
+    "fnameGlens2": '*SSP245*',
+    "fnameCmip6": '*ssp245*'
 }
 setDict = {
-    "toPlot": ('GLENS1:Control', 'GLENS1:Feedback', 'GLENS2:Feedback'),
-    "startIntvl": [2011,2030], #dg
+    "toPlot": ('GLENS1:Control', 'GLENS1:Feedback', 'GLENS2:Feedback', 'CMIP6:Control'),
+    "landmaskFlag": 'land',
+    "startIntvl": [2015,2030], #dg
     "endIntvl": [2041,2060], #dg
     "cntrlPoi": [2011,2041], #pdf
     "fdbckPoi": [2041], #pdf
     "glens2Poi": [2041], #pdf
     "timePeriod": 20, #pdf
     "plotStyle": 'step', #pdf
-    "convert": (fcu.fraction_to_percent,) #TUPLE of converter(s), or None if using default units
+    "convert": None #TUPLE of converter(s), or None if using default units
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210730_addGlens2/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210823_maskAndFinish/',
     "dpiVal": 400
 }
 loopDict = {
@@ -71,21 +73,21 @@ for rlz in loopDict["realizations"]:
 
     for lev in loopDict["levels"]:
         setDict["levOfInt"] = lev
-        # bpf.plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
+        bpf.plot_basic_difference_globe(rlzList, dataDict, setDict, outDict)
         # bpf.plot_single_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
 
-        for reg in loopDict["regions"]:
-            setDict["regOfInt"] = reg
-            # if rlz == 'ensplot':
-            #     epf.plot_ens_spaghetti_timeseries(rlzList, dataDict, setDict, outDict)
-            # else:
-            #     bpf.plot_timeseries(rlzList, dataDict, setDict, outDict)
-
-            for aab in loopDict["aaBools"]:
-                setDict["areaAvgBool"] = aab
-                setDict["plotStyle"] = 'step'
-                bpf.plot_pdf(rlzList, dataDict, setDict, outDict)
-                setDict["plotStyle"] = 'kde'
-                bpf.plot_pdf(rlzList, dataDict, setDict, outDict)
-                setDict["plotStyle"] = 'hist'
-                bpf.plot_pdf(rlzList, dataDict, setDict, outDict)
+        # for reg in loopDict["regions"]:
+        #     setDict["regOfInt"] = reg
+        #     if rlz == 'ensplot':
+        #         epf.plot_ens_spaghetti_timeseries(rlzList, dataDict, setDict, outDict)
+        #     else:
+        #         bpf.plot_timeseries(rlzList, dataDict, setDict, outDict)
+        #
+        #     for aab in loopDict["aaBools"]:
+        #         setDict["areaAvgBool"] = aab
+        #         setDict["plotStyle"] = 'step'
+        #         bpf.plot_pdf(rlzList, dataDict, setDict, outDict)
+        #         setDict["plotStyle"] = 'kde'
+        #         bpf.plot_pdf(rlzList, dataDict, setDict, outDict)
+        #         setDict["plotStyle"] = 'hist'
+        #         bpf.plot_pdf(rlzList, dataDict, setDict, outDict)

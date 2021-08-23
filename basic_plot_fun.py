@@ -53,12 +53,13 @@ ensPrp = {
     "dscntntyYrs": [2030],
     "drc": [21,4],
     "drf": [21,21],
-    "drg2f": [10,10]
+    "drg2f": [10,10],
+    "drc6c": [4,5]
 }
 
 ## DIFFERENCE GLOBES
 
-def plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
+def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     ''' Plot 4-panel difference globe
         (1) change over time for RCP8.5 ("Control")
         (2) change over time for SAI/GEO8.5 ("Feedback")
@@ -66,39 +67,49 @@ def plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict,
         (4) show only where normalized values of (3) are above a given quantile
     '''
     # Check ending years before running
-    bndDct = pgf.find_matching_year_bounds(glensCntrlRlz, glensFdbckRlz)
-    if bndDct["endYrMtch"] < setDict["endIntvl"][0]:
-        print("Requested interval is not in input! Cancelling 4-panel FdbckCntrl globe")
-        return
+    # bndDct = pgf.find_matching_year_bounds(glensCntrlRlz, glensFdbckRlz)
+    # if bndDct["endYrMtch"] < setDict["endIntvl"][0]:
+    #     print("Requested interval is not in input! Cancelling 4-panel FdbckCntrl globe")
+    #     return
 
     # Obtain levels
-    glensCntrlLoi = pgf.obtain_levels(glensCntrlRlz, setDict["levOfInt"])
-    glensFdbckLoi = pgf.obtain_levels(glensFdbckRlz, setDict["levOfInt"])
-
-    # Average over years
-    toiStart = dot.average_over_years(glensCntrlLoi, setDict["startIntvl"][0], setDict["startIntvl"][1]) # 2010-2019 is baseline, injection begins 2020
-    toiEndCntrl = dot.average_over_years(glensCntrlLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
-    toiEndFdbck = dot.average_over_years(glensFdbckLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+    toiStart = list()
+    toiEnd = list()
+    trackScn = list()
+    for rc,rDarr in enumerate(rlzList):
+        rlzLoi = pgf.obtain_levels(rDarr, setDict["levOfInt"])
+        if 'Control' in rlzLoi.attrs['scenario']:
+            toiStartLp = dot.average_over_years(rlzLoi, setDict["startIntvl"][0], setDict["startIntvl"][1])
+            toiEndLp = dot.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+            toiStart.append(toiStartLp)
+        else:
+            toiEndLp = dot.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+        trackScn.append(rlzLoi.attrs['scenario'])
+        toiEnd.append(toiEndLp)
 
     # Calculate 4-panel values
-    diffToiCntrl = toiEndCntrl - toiStart
-    diffToiFdbck = toiEndFdbck - toiStart
-    diffEndFdbckCntrl = toiEndFdbck - toiEndCntrl
-    diffEndFdbckCntrlAbsNorm = pgf.norm_by_absmax(diffEndFdbckCntrl)
-    panels = (diffToiCntrl, diffToiFdbck, diffEndFdbckCntrl, diffEndFdbckCntrlAbsNorm)
+    diffToiR85 = toiEnd[0] - toiStart[0]
+    diffToiS245 = toiEnd[3] - toiStart[1]
+    wrldAvrtdG12R85 = toiEnd[1] - toiEnd[0]
+    wrldAvrtdG15S245 = toiEnd[2].data - toiEnd[3].data #Account for subtle format differences between CESM2-WACCM SSP2-4.5 and SCIRIS runs
+    wrldAvrtdG15S245.attrs = toiEnd[2].attrs
+    # scnrsCmprd = toiEnd[2] - toiEnd[1]
+
+    panels = (diffToiR85, diffToiS245, wrldAvrtdG12R85, wrldAvrtdG15S245)
 
     # Plotting
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12,2.73*2))
     ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
-    cmap = cmocean.cm.curl_r
-    cmapNorm = cmasher.get_sub_cmap('cmr.iceburn', 0, 1, N=7)#cmasher.iceburn_r
-    cbVals = [-diffToiCntrl.quantile(0.99).data, diffToiCntrl.quantile(0.99).data]
-    md = pgf.meta_book(setDict, dataDict, glensFdbckLoi, labelsToPlot=None)
+    cmap = cmocean.cm.balance
+    cbVals = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
+    md = pgf.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
     plt.suptitle(md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']), fontsize=10)
+    lats = rlzList[0].lat
+    lons = rlzList[1].lon
 
-    plt_tls.drawOnGlobe(ax, panels[0], glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    plt_tls.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
         plt.title(md['lstDcd'] + '[r'+str(ensPrp['drc'][1])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drc'][0])+']' + ' ' + md['cntrlStr'], fontsize=10)
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
@@ -107,16 +118,16 @@ def plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict,
         plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
 
     ax2 = plt.subplot(2,2,2,projection=mapProj)
-    plt_tls.drawOnGlobe(ax2, panels[1], glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    plt_tls.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + '[r'+str(ensPrp['drf'][1])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drf'][1])+']' + ' ' + md['fdbckStr'], fontsize=10)
+        plt.title(md['lstDcd'] + '[r'+str(ensPrp['drc6c'][1])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drc6c'][0])+']' + ' ' + md['ssp245Str'], fontsize=10)
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + '[r'+str(ensPrp['drf'][0])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drf'][1])+']' + ' ' + md['fdbckStr'], fontsize=10)
+        plt.title(md['lstDcd'] + '[r'+str(ensPrp['drc6c'][0])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drc6c'][0])+']' + ' ' + md['ssp245Str'], fontsize=10)
     else:
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10)
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['ssp245Str'], fontsize=10)
 
     ax3 = plt.subplot(2,2,3,projection=mapProj)
-    plt_tls.drawOnGlobe(ax3, panels[2], glensFdbckRlz.lat, glensFdbckRlz.lon, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    plt_tls.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
         plt.title(md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']' + ' - ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][1])+']' + ' ' + md['lstDcd'], fontsize=10)
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
@@ -125,13 +136,13 @@ def plot_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict,
         plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
 
     ax4 = plt.subplot(2,2,4,projection=mapProj)
-    plt_tls.drawOnGlobe(ax4, panels[3], glensFdbckRlz.lat, glensFdbckRlz.lon, cmapNorm, vmin=-1., vmax=1., cbarBool=True, fastBool=True, extent='max')
+    plt_tls.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']' + ' ' + ' - ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][1])+']' + ' ' + 'norm. change' + ' ' + md['lstDcd'], fontsize=10)
+        plt.title(md['fdbckStrG2'] + '[r'+str(ensPrp['drg2f'][1])+']' + ' - ' + md['ssp245Str'] + '[r'+str(ensPrp['drc'][1])+']' + ' ' + md['lstDcd'], fontsize=10)
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['fdbckStr'] + '[r'+str(ensPrp['drf'][0])+']' + ' ' + ' - ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][0])+']' + ' ' + 'norm. change' + ' ' + md['lstDcd'], fontsize=10)
+        plt.title(md['fdbckStrG2'] + '[r'+str(ensPrp['drg2f'][0])+']' + ' - ' + md['ssp245Str'] + '[r'+str(ensPrp['drc'][0])+']' + ' ' + md['lstDcd'], fontsize=10)
     else:
-        plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + 'norm. change' + ' ' + md['lstDcd'], fontsize=10)
+        plt.title(md['fdbckStrG2'] + ' - ' + md['ssp245Str'] + ' ' + md['lstDcd'], fontsize=10)
 
     savePrfx = ''
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['fcStr']
@@ -163,7 +174,7 @@ def plot_single_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, s
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12, 2.73*2))
     ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
-    cmap = cmocean.cm.curl_r
+    cmap = 'RdBu'#cmocean.cm.curl_r
     cbVals = plt_tls.find_widest_quantile(diffToiFdbck)
     # cbVals = [-7, 7] #Override automatic colorbar minimum here
     md = pgf.meta_book(setDict, dataDict, glensFdbckLoi, labelsToPlot=None)
@@ -185,23 +196,29 @@ def plot_single_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, s
     plt.close()
     ic(savename)
 
-def plot_vertical_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
-    ''' Plot 4-panel difference globe for difference between RCP8.5 and SAI/GEO8.5
-    values at ending interval by level
+def plot_vertical_difference_globe(rlzList, dataDict, setDict, outDict):
+    ''' Plot 4-panel difference globe for difference between two scenario
+    values (i.e. baseline - SAI[RCP]) at ending interval by level
         (1) Total
         (2) Troposphere
         (3) 250mb to 50mb (can be modified for any layer)
         (4) Stratosphere
     '''
     # Check ending years before running
-    bndDct = pgf.find_matching_year_bounds(glensCntrlRlz, glensFdbckRlz)
-    if bndDct["endYrMtch"] < setDict["endIntvl"][0]:
-        print("Requested interval is not in input! Cancelling 4-panel vertical difference globe.")
-        return
-
+    # bndDct = pgf.find_matching_year_bounds(glensCntrlRlz, glensFdbckRlz)
+    # if bndDct["endYrMtch"] < setDict["endIntvl"][0]:
+    #     print("Requested interval is not in input! Cancelling 4-panel vertical difference globe.")
+    #     return
+    rlzRfr = rlzList[0]
+    rlzFdbck = rlzList[1]
     # Average over years
-    toiEndCntrl = dot.average_over_years(glensCntrlRlz, setDict["endIntvl"][0], setDict["endIntvl"][1])
-    toiEndFdbck = dot.average_over_years(glensFdbckRlz, setDict["endIntvl"][0], setDict["endIntvl"][1])
+    rlzToiEnd = list()
+    for rc,rDarr in enumerate(rlzList):
+        activeRlz = dot.average_over_years(rDarr, setDict["endIntvl"][0], setDict["endIntvl"][1])
+        rlzToiEnd.append(activeRlz)
+
+    # toiEndCntrl = dot.average_over_years(glensCntrlRlz, setDict["endIntvl"][0], setDict["endIntvl"][1])
+    # toiEndFdbck = dot.average_over_years(glensFdbckRlz, setDict["endIntvl"][0], setDict["endIntvl"][1])
 
     # Obtain levels
     toiEndCntrlTotal = pgf.obtain_levels(toiEndCntrl, 'total')
@@ -364,6 +381,9 @@ def plot_timeseries(rlzList, dataDict, setDict, outDict):
         elif 'GLENS2:Feedback' in rpv.scenario:
             activeColor = '#5C68FF'
             activeLabel = md['fdbckStrG2']
+        elif 'CMIP6:Control' in rpv.scenario:
+            activeColor = '#FED8B1'
+            activeLabel = md['ssp245Str']
         else:
             sys.exit('Unknown scenario cannot be plotted!')
         yearsOfInt = rpv['time'].dt.year.data #Otherwise the x-axis will be the cftime object, which is ugly

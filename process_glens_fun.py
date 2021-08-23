@@ -18,13 +18,15 @@ import numpy as np
 import matplotlib.path as mpth
 import glob
 
+import matplotlib.pyplot as plt
+
 def discover_data_var(glensDsetCntrl):
     ''' GLENS files contain lots of variables--this finds the one with actual data! '''
 
     fileKeys = list(glensDsetCntrl.keys())
     notDataKeys = ['time_bnds', 'date', 'datesec', 'lev_bnds', 'gw', 'ch4vmr',
                    'co2vmr', 'ndcur', 'nscur', 'sol_tsi', 'nsteph', 'f11vmr',
-                   'n2ovmr', 'f12vmr']
+                   'n2ovmr', 'f12vmr', 'lon_bnds', 'lat_bnds']
     notDataInDset = list()
     dataKey = "empty"
 
@@ -109,6 +111,10 @@ def obtain_levels(darr, levOfInt, levName='lev'):
     if levOfInt == None:
         return darr
 
+    if 'plev' in darr.dims: #CMIP6
+        levName = 'plev'
+        levOfInt = levOfInt * 100
+
     levs = darr[levName].data
     if levOfInt == 'total':
         darr = darr.sum(dim=levName)
@@ -143,7 +149,10 @@ def obtain_levels(darr, levOfInt, levName='lev'):
     else:
         indClosest = find_closest_level(darr, levOfInt, levName=levName)
         darr.attrs[levName] = darr[levName].data[indClosest]
-        darr = darr.sel(lev=darr.attrs[levName])
+        try:
+            darr = darr.sel(lev=darr.attrs[levName])
+        except: #This is horrible
+            darr = darr.sel(plev=darr.attrs[levName])
 
     return darr
 
@@ -239,34 +248,51 @@ def isolate_change_quantile(darr, quantileOfInt):
 
     return darrNorm
 
-def open_data(dataDict):
+def open_data(dataDict, setDict):
     ''' Opens data and select data variable '''
     if '*' in dataDict["fnameCntrl"]:
         cntrlPath = dataDict["dataPath"] + dataDict["fnameCntrl"]
         fdbckPath = dataDict["dataPath"] + dataDict["fnameFdbck"]
         glens2Path = dataDict["dataPath"] + dataDict["fnameGlens2"]
-        glensDsetCntrl = xr.open_mfdataset(cntrlPath,concat_dim='realization',combine='nested')
-        glensDsetFdbck = xr.open_mfdataset(fdbckPath,concat_dim='realization',combine='nested')
+        cmip6Path = dataDict["dataPath"] + dataDict["fnameCmip6"]
+        glensDsetCntrl = xr.open_mfdataset(cntrlPath, concat_dim='realization', combine='nested')
+        glensDsetFdbck = xr.open_mfdataset(fdbckPath, concat_dim='realization', combine='nested')
         try:
-            glens2Dset = xr.open_mfdataset(glens2Path,concat_dim='realization',combine='nested')
-            ic(glens2Dset)
+            glens2Dset = xr.open_mfdataset(glens2Path, concat_dim='realization', combine='nested')
         except:
             ic('No GLENS2 files located')
             glens2Dset = None
+        try:
+            cmip6Dset = xr.open_mfdataset(cmip6Path, concat_dim='realization', combine='nested')
+        except:
+            ic('No CMIP6 files located')
+            cmip6Dset = None
+        if setDict['landmaskFlag'] == 'land':
+            glensDsetCntrl = glensDsetCntrl.where(glensDsetCntrl.landmask > 0)
+            glensDsetFdbck = glensDsetFdbck.where(glensDsetFdbck.landmask > 0)
+            glens2Dset = glens2Dset.where(glens2Dset.landmask > 0)
+            cesmMask = xr.open_dataset('/Users/dhueholt/Documents/Summery_Summary/daniel_mask.nc')
+            cmip6Dset = cmip6Dset.where(cesmMask.imask>0)
         dataKey = discover_data_var(glensDsetCntrl)
         glensDarrCntrl = glensDsetCntrl[dataKey]
         glensDarrCntrl.attrs['scenario'] = 'GLENS1:Control/RCP8.5'
         glensDarrFdbck = glensDsetFdbck[dataKey]
-        glensDarrFdbck.attrs['scenario'] = 'GLENS1:Feedback/SAI/GEO8.5'
+        glensDarrFdbck.attrs['scenario'] = 'GLENS1:Feedback/SAI/G1.2[8.5]'
         if glens2Dset is not None:
             glens2Darr = glens2Dset[dataKey]
-            glens2Darr.attrs['scenario'] = 'GLENS2:Feedback/SAI/GEO2-4.5'
+            glens2Darr.attrs['scenario'] = 'GLENS2:Feedback/SAI/G1.5[4.5]'
         else:
             glens2Darr = None
+        if cmip6Dset is not None:
+            dataKeyCmip6 = discover_data_var(cmip6Dset) #CMIP6 has unique variable names
+            cmip6Darr = cmip6Dset[dataKeyCmip6]
+            cmip6Darr.attrs['scenario'] = 'CMIP6:Control/SSP2-4.5'
+        else:
+            cmip6Darr = None
     else:
         sys.exit("Check input! Token should have a wildcard (i.e. match multiple files).")
 
-    darrCheckList = list([glensDarrCntrl,glensDarrFdbck,glens2Darr])
+    darrCheckList = list([glensDarrCntrl,glensDarrFdbck,glens2Darr,cmip6Darr])
     darrList = list()
     for d in darrCheckList: #Surely there's a better way
         if d is None:
@@ -297,6 +323,8 @@ def manage_realizations(setDict, darr, emem):
             scnStr = 'g1f' #glens1feedback
         elif 'GLENS2:Feedback' in darr.scenario:
             scnStr = 'g2f' #glens2feedback
+        elif 'CMIP6:Control' in darr.scenario:
+            scnStr = 'c6c' #cmip6control
 
         if setDict['realization'] == 'mean': #Output DataArray of ensemble mean
             darrMn = darr.mean(dim='realization')
@@ -321,13 +349,14 @@ def manage_realizations(setDict, darr, emem):
 
 def call_to_open(dataDict, setDict):
     ''' Common data tasks for all basic plots '''
-    darrList, dataKey = open_data(dataDict)
+    darrList, dataKey = open_data(dataDict, setDict)
 
     cntrlFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameCntrl']))
     fdbckFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameFdbck']))
     glens2Files = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameGlens2']))
+    cmip6Files = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameCmip6']))
     ememList = list()
-    for ec in (cntrlFiles, fdbckFiles, glens2Files):
+    for ec in (cntrlFiles, fdbckFiles, glens2Files, cmip6Files):
         ememList.append(get_ens_mem(ec))
 
     rlzList = list()
@@ -352,8 +381,9 @@ def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
     ''' Compile the bits and pieces used in filenames and titles '''
     metaDict = {
         "cntrlStr": 'RCP8.5',
-        "fdbckStr": 'GEO8.5',
-        "fdbckStrG2": 'GEO2-4.5',
+        "ssp245Str": 'SSP2-4.5',
+        "fdbckStr": 'G1.2(8.5)',
+        "fdbckStrG2": 'G1.5(2-4.5)',
         "varStr": cntrlToPlot.long_name,
         "varSve": cntrlToPlot.long_name.replace(" ",""),
         "strtStr": str(cntrlToPlot['time'].data[0].year),
@@ -426,3 +456,10 @@ def make_spc_string(setDict):
         spcStr = ''
 
     return spcStr
+
+def apply_landmask(dset):
+    ''' Apply embedded landmask to GLENS or SCIRIS output '''
+    dset['landmask'] = dset['landmask'].fillna(0) #Change nan values to 0 for consistency
+
+
+    return dsetMasked

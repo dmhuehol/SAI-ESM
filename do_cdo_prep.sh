@@ -27,13 +27,24 @@ RUN_TIMES=()
 RUN_ENSNUMS=()
 for f in $IN_CARD; do
   ACTIVE_FNAME=${f:$PATH_LENGTH}
-  RUN_FNAMES+=( $ACTIVE_FNAME )
-  ACTIVE_TIME=$(echo $ACTIVE_FNAME | cut -d'.' -f10)
-  RUN_TIMES+=( $ACTIVE_TIME )
-  ACTIVE_ENSNUM=$(echo $ACTIVE_FNAME | cut -d'.' -f6)
-  RUN_ENSNUMS+=( $ACTIVE_ENSNUM )
-  RUN_TYPE=$(echo $ACTIVE_FNAME | cut -d'.' -f5)
-  RUN_VAR=$(echo $ACTIVE_FNAME | cut -d'.' -f9)
+  if [[ "$ACTIVE_FNAME" == *"CESM2-WACCM"* ]]; then #CMIP6 format
+    ACTIVE_FNAME=${ACTIVE_FNAME//_/.}
+    RUN_FNAMES+=( $ACTIVE_FNAME )
+    ACTIVE_TIME=$(echo $ACTIVE_FNAME | cut -d'.' -f7)
+    RUN_TIMES+=( $ACTIVE_TIME )
+    ACTIVE_ENSNUM=$(echo $ACTIVE_FNAME | cut -d'.' -f5)
+    RUN_ENSNUMS+=( $ACTIVE_ENSNUM )
+    RUN_TYPE=$(echo $ACTIVE_FNAME | cut -d'.' -f4)
+    RUN_VAR=$(echo $ACTIVE_FNAME | cut -d'.' -f1)
+  else #GLENS or SCIRIS format
+    RUN_FNAMES+=( $ACTIVE_FNAME )
+    ACTIVE_TIME=$(echo $ACTIVE_FNAME | cut -d'.' -f10)
+    RUN_TIMES+=( $ACTIVE_TIME )
+    ACTIVE_ENSNUM=$(echo $ACTIVE_FNAME | cut -d'.' -f6)
+    RUN_ENSNUMS+=( $ACTIVE_ENSNUM )
+    RUN_TYPE=$(echo $ACTIVE_FNAME | cut -d'.' -f5)
+    RUN_VAR=$(echo $ACTIVE_FNAME | cut -d'.' -f9)
+  fi
 done
 
 ### Troubleshooting
@@ -44,7 +55,7 @@ done
 # echo $RUN_VAR
 
 OUT_FNAME="${RUN_TYPE}_${RUN_ENSNUMS[0]}_${RUN_VAR}"
-echo $OUT_FNAME
+# echo $OUT_FNAME
 for t in ${RUN_TIMES[@]}; do
   OUT_FNAME="${OUT_FNAME}_${t}"
 done

@@ -7,46 +7,71 @@ from multiprocessing import Process
 import numpy as np
 import subprocess
 
-inPath = '/Users/dhueholt/Documents/GLENS_data/annual_PREC/*_00*PRECC*.nc'
-inList = sorted(glob(inPath))
-# ic(inList)
-# sys.exit('STOP')
-
 def cdo_annual(IN_PATH, IN_TOKEN, OUT_PATH):
-    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/GLENS/GLENS/do_cdo_prep.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    subprocess.run(['sh', '/glade/u/home/dhueholt/glens_scripts/GLENS/do_cdo_prep.sh', IN_PATH, IN_TOKEN, OUT_PATH])
     return None
 
-EMEM=list([
-"001",
-"002",
-"003",
-"004",
-"005",
-"006",
-"007",
-"008",
-"009",
-"010",
-"011",
-"012",
-"013",
-"014",
-"015",
-"016",
-"017",
-"018",
-"019",
-"020",
-"021"]
-)
-identOfInt = '.pop.h.SSH.*'
-EMEM = [r + identOfInt for r in EMEM]
+def return_emem_list(inType):
+    if inType == "GLENS":
+        EMEM=list([
+        ".001.",
+        ".002.",
+        ".003.",
+        ".004.",
+        ".005.",
+        ".006.",
+        ".007.",
+        ".008.",
+        ".009.",
+        ".010.",
+        ".011.",
+        ".012.",
+        ".013.",
+        ".014.",
+        ".015.",
+        ".016.",
+        ".017.",
+        ".018.",
+        ".019.",
+        ".020.",
+        ".021."]
+        )
+    elif inType == "SCIRIS":
+        EMEM=list([
+        ".001.",
+        ".002.",
+        ".003.",
+        ".004.",
+        ".005.",
+        ".006.",
+        ".007.",
+        ".008.",
+        ".009.",
+        ".010."]
+        )
+    elif inType == "CMIP6":
+        EMEM=list([
+        "r1",
+        "r2",
+        "r3",
+        "r4",
+        "r5"]
+        )
+    else:
+        sys.exit('Unrecognized type!')
+
+    identOfInt = '*' #*, or something unique if folder of data has multiple variables
+    EMEM = [r + identOfInt for r in EMEM]
+
+    return EMEM
+
+EMEM = return_emem_list('GLENS')
 nProc = 5
 
 # Shell inputs
-IN_PATH = '/glade/scratch/dhueholt/monthly_IAGE/'
-IN_TOKEN = ['*control*','*feedback*']
-OUT_PATH = '/glade/scratch/dhueholt/annual_IAGE/'
+IN_PATH = '/glade/scratch/dhueholt/ssp245/monthly_TSA/'
+IN_TOKEN = ['*control*','*feedback*','*ssp245*'] #['*control*','*feedback*','*ssp245*','*CESM2-WACCM*'] #GLENS, SCIRIS, CMIP6
+OUT_PATH = '/glade/scratch/dhueholt/ssp245/annual_TSA/'
 
 if __name__== '__main__':
         lengthFiles = np.size(EMEM)
