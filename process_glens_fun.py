@@ -1,9 +1,8 @@
 ''' process_glens_fun
-Contains functions to process GLENS data, taking care of operations like
-extracting metadata from the filename, choosing and summing levels, or
-managing area inputs.
+Contains functions for operations like extracting metadata from filenames,
+choosing and summing levels, or managing area inputs.
 
-Written by Daniel Hueholt | July 2021
+Written by Daniel Hueholt | August 2021
 Graduate Research Assistant at Colorado State University
 '''
 
@@ -18,17 +17,17 @@ import numpy as np
 import matplotlib.path as mpth
 import glob
 
-import matplotlib.pyplot as plt
-
-def discover_data_var(glensDsetCntrl):
-    ''' GLENS files contain lots of variables--this finds the one with actual data! '''
-
-    fileKeys = list(glensDsetCntrl.keys())
+def discover_data_var(dset):
+    ''' Find the data variable from among the many variables in a dataset '''
+    fileKeys = list(dset.keys())
     notDataKeys = ['time_bnds', 'date', 'datesec', 'lev_bnds', 'gw', 'ch4vmr',
                    'co2vmr', 'ndcur', 'nscur', 'sol_tsi', 'nsteph', 'f11vmr',
-                   'n2ovmr', 'f12vmr', 'lon_bnds', 'lat_bnds']
+                   'n2ovmr', 'f12vmr', 'lon_bnds', 'lat_bnds', 'ZSOI', 'BSW',
+                   'WATSAT', 'landmask', 'ZLAKE', 'DZLAKE', 'SUCSAT',
+                   'landfrac', 'topo', 'DZSOI', 'area', 'pftmask', 'HKSAT',
+                   'nstep', 'mdcur', 'mscur', 'mcdate', 'mcsec']
     notDataInDset = list()
-    dataKey = "empty"
+    dataKey = None
 
     for cKey in fileKeys:
         if cKey in notDataKeys:
@@ -37,63 +36,25 @@ def discover_data_var(glensDsetCntrl):
             dataKey = cKey
             print('Data key could be: ' + dataKey)
 
-    if dataKey == "empty":
+    if dataKey is None:
         sys.exit("Data discovery failed! Ending run now...")
 
     return dataKey
 
-# def find_matching_year_bounds(rlzList):
-#     ''' Find indices that bound matching time periods in control and feedback output '''
-# # NEED TO FIX
-#     rlzYearList = list()
-#     for rlz in rlzList:
-#     rlzYears = rlz['time'].dt.year.data
-#     rlzYearList.append(rlz)
-#
-#     if rlzList[0].ndim == 4: #rlzList[0]=it doesn't matter which scenario, and index 0 will always be present
-#         nanYrInd = np.where(np.isnan(rlzList[0][:,1,1,1])) #Years after the model completes may be present with NaN values
-#     elif rlzList[0].ndim == 3: #time,lat,lon
-#         nanYrInd = np.where(np.isnan(rlzList[0][:,1,1])) #Years after the model completes may be present with NaN values
-#     else:
-#         ic(rlzList[0].ndim)
-#         # Not giving a sys.exit() here, want whatever the error is to show up
-#
-#
-#     bothYrs,cntrlInd,fdbckInd = np.intersect1d(cntrlYrs, fdbckYrs, return_indices=True) #Or they may be not present at all
-#     firstYrInBoth = bothYrs[0]
-#     try:
-#         lastYrInBoth = np.min(np.array([bothYrs[len(bothYrs)-1],cntrlYrs[nanYrInd[0][0]-1]])) #Either way, the last year is whichever method with the earliest end date
-#     except:
-#         lastYrInBoth = bothYrs[len(bothYrs)-1]
-#     bndDct = {
-#         "strtYrMtch": firstYrInBoth,
-#         "endYrMtch": lastYrInBoth,
-#         "cntrlStrtMtch": cntrlInd[0],
-#         "fdbckStrtMtch": fdbckInd[0],
-#         "cntrlEndMtch": cntrlInd[len(cntrlInd)-1],
-#         "fdbckEndMtch": fdbckInd[len(fdbckInd)-1],
-#         "mtchYrs": bothYrs}
-#
-#     return bndDct
-
-
-def extract_doi(intervalsToPlot, years, timePeriod, darr, handlesToPlot):
-    ''' Extract time intervals (usually decades) from GLENS data '''
-
-    for cdc,cdv in enumerate(intervalsToPlot):
-        startInd = np.where(years==cdv)[0][0]
-        if cdv+timePeriod == 2100:
+def extract_intvl(intervalsToPlot, years, timePeriod, darr, handlesToPlot):
+    ''' Extract intervals of interest '''
+    for intvl in intervalsToPlot:
+        startInd = np.where(years==intvl)[0][0]
+        if intvl+timePeriod == 2100:
             endInd = len(years)
         else:
-            endInd = np.where(years==cdv+timePeriod)[0][0]
-        # handlesToPlot[cdv]["data"] = darr[startInd:endInd]
-        handlesToPlot.append(darr[startInd:endInd])
+            endInd = np.where(years==intvl+timePeriod)[0][0]
+        handlesToPlot.append(darr.isel(time=np.arange(startInd,endInd)))
 
     return handlesToPlot
 
 def find_closest_level(darr, levOfInt, levName='lev'):
     ''' Find the index of the level which is closest to an input value '''
-
     levs = darr[levName].data
     levDiffs = np.abs(levs - levOfInt)
     closestVal = np.min(levDiffs)
@@ -118,8 +79,11 @@ def obtain_levels(darr, levOfInt, levName='lev'):
     levs = darr[levName].data
     if levOfInt == 'total':
         darr = darr.sum(dim=levName)
-    elif levOfInt == 'troposphere':
-        indTpause = find_closest_level(darr, 200, levName=levName) #simple split on 200hPa for now
+    elif levOfInt == 'troposphere': #simple split on 200hPa for now
+        if levName == 'plev':
+            indTpause = find_closest_level(darr, 20000, levName=levName)
+        else:
+            indTpause = find_closest_level(darr, 200, levName='lev')
         levMask = levs > levs[indTpause]
         if np.ndim(darr) == 3:
             darr = darr[levMask,:,:]
@@ -128,7 +92,10 @@ def obtain_levels(darr, levOfInt, levName='lev'):
             darr = darr[:,levMask,:,:]
             darr = darr.sum(dim=levName)
     elif levOfInt == 'stratosphere':
-        indTpause = find_closest_level(darr, 200, levName=levName) #simple split on 200hPa for now
+        if levName == 'plev':
+            indTpause = find_closest_level(darr, 20000, levName=levName)
+        else:
+            indTpause = find_closest_level(darr, 200, levName='lev')
         levMask = levs <= levs[indTpause]
         if np.ndim(darr) == 3:
             darr = darr[levMask,:,:]
@@ -157,8 +124,7 @@ def obtain_levels(darr, levOfInt, levName='lev'):
     return darr
 
 def make_level_string(darr, levOfInt):
-    ''' Create strings describing level of data used in title and filenames. '''
-
+    ''' Create pressure level strings for use in title and filenames. '''
     try:
         if isinstance(levOfInt,str):
             levStr = levOfInt
@@ -172,135 +138,71 @@ def make_level_string(darr, levOfInt):
         else:
             levStr = str(np.round_(darr.attrs['lev'],decimals=1)) + ' mb'
     except:
-        levStr = ''
+        levStr = '' #e.g. 2m variables that have only one level
 
     return levStr
 
 def manage_area(darr, regionToPlot, areaAvgBool=True):
     ''' Manage area operations: obtain global, regional, or pointal output '''
-
     if regionToPlot == 'global':
         locStr = 'global'
         locTitleStr = 'global'
-
         if areaAvgBool:
             latWeights = np.cos(np.deg2rad(darr['lat']))
             darrWght = darr.weighted(latWeights)
             darr = darrWght.mean(dim=['lat','lon'], skipna=True)
 
-    elif isinstance(regionToPlot,dict):
+    elif isinstance(regionToPlot,dict): #region_library objects
         locStr = regionToPlot['regSaveStr']
         locTitleStr = regionToPlot['regSaveStr']
 
-        lats = darr['lat'] #feedback and control are on same grid, fortunately
+        lats = darr['lat'] #GLENS, SCIRIS, and SSP2-4.5 Control are all on the same grid to within 10^-6
         lons = darr['lon']
         if len(regionToPlot['regLons'])>2: #non-rectangular region that does not cross Prime Meridian
             gridMask = make_polygon_mask(lats, lons, regionToPlot['regLats'], regionToPlot['regLons'])
-            darrBoxMask = darr.copy()
-            darrBoxMask.data[:,~gridMask] = np.nan
+            darrMask = darr.copy()
+            try:
+                darrMask.data[:,~gridMask] = np.nan
+            except:
+                darrMask.data[:,:,~gridMask] = np.nan #Can't use .sel since gridMask is two-dimensional
         elif isinstance(regionToPlot['regLons'], tuple): #non-rectangular region that crosses Prime Meridian
             sGridMaskList = list()
             for sc in np.arange(0,len(regionToPlot['regLons'])):
                 sGridMask = make_polygon_mask(lats, lons, regionToPlot['regLats'][sc], regionToPlot['regLons'][sc])
                 sGridMaskList.append(sGridMask)
             gridMask = np.logical_or.reduce(sGridMaskList)
-            darrBoxMask = darr.copy()
-            darrBoxMask.data[:,~gridMask] = np.nan
+            darrMask = darr.copy()
+            try:
+                darrMask.data[:,~gridMask] = np.nan
+            except:
+                darrMask.data[:,:,~gridMask] = np.nan #Can't use .sel since gridMask is two-dimensional
         else: #rectangular region
             latMask = (lats>regionToPlot['regLats'][0]) & (lats<regionToPlot['regLats'][1])
             if regionToPlot['regLons'][0] < regionToPlot['regLons'][1]: #rectangle does not cross Prime Meridian
                 lonMask = (lons>regionToPlot['regLons'][0]) & (lons<regionToPlot['regLons'][1])
             else: #rectangle crosses Prime Meridian
                 lonMask = (lons>regionToPlot['regLons'][0]) | (lons<regionToPlot['regLons'][1])
-            darrBoxMask = darr[:,latMask,lonMask]
+            latsOfInt = lats[latMask]
+            lonsOfInt = lons[lonMask]
+            darrMask = darr.sel(lat=latsOfInt,lon=lonsOfInt)
 
         if areaAvgBool:
-            darr = darrBoxMask.mean(dim=['lat','lon'], skipna=True)
+            darr = darrMask.mean(dim=['lat','lon'], skipna=True)
         else:
-            darr = darrBoxMask
+            darr = darrMask
 
-    elif isinstance(regionToPlot,list):
+    elif isinstance(regionToPlot,list): #List of lat/lon (must be rectangular and not crossing the Prime Meridian)
         darr = darr.sel(lat=regionToPlot[0], lon=regionToPlot[1], method="nearest")
 
         latStr = str(np.round_(darr.lat.data,decimals=2))
         lonStr = str(np.round_(darr.lon.data,decimals=2))
         locStr = latStr + '_' + lonStr
         locTitleStr = '(' + latStr + ',' + lonStr + ')'
+
     else:
         sys.exit('Invalid region! Check value for regionToPlot.')
 
     return darr, locStr, locTitleStr
-
-def isolate_change_quantile(darr, quantileOfInt):
-    ''' Isolate the largest values by a quantile cutoff '''
-    darrAbs = np.abs(darr)
-    normValue = np.max(darrAbs)
-    darrAbsNorm = darrAbs / normValue
-    quantCut = darrAbsNorm.quantile(quantileOfInt)
-
-    darrNorm = darr / np.nanmax(darr)
-    # quantCut = darrNorm.quantile(quantileOfInt)
-    # ic(quantCut.data) #troubleshooting
-    quantMask = np.logical_and(darrNorm>-quantCut, darrNorm<quantCut)
-    darrNorm.data[quantMask] = np.nan
-
-    darrNorm.attrs['units'] = 'dimless'
-
-    return darrNorm
-
-def open_data(dataDict, setDict):
-    ''' Opens data and select data variable '''
-    if '*' in dataDict["fnameCntrl"]:
-        cntrlPath = dataDict["dataPath"] + dataDict["fnameCntrl"]
-        fdbckPath = dataDict["dataPath"] + dataDict["fnameFdbck"]
-        glens2Path = dataDict["dataPath"] + dataDict["fnameGlens2"]
-        cmip6Path = dataDict["dataPath"] + dataDict["fnameCmip6"]
-        glensDsetCntrl = xr.open_mfdataset(cntrlPath, concat_dim='realization', combine='nested')
-        glensDsetFdbck = xr.open_mfdataset(fdbckPath, concat_dim='realization', combine='nested')
-        try:
-            glens2Dset = xr.open_mfdataset(glens2Path, concat_dim='realization', combine='nested')
-        except:
-            ic('No GLENS2 files located')
-            glens2Dset = None
-        try:
-            cmip6Dset = xr.open_mfdataset(cmip6Path, concat_dim='realization', combine='nested')
-        except:
-            ic('No CMIP6 files located')
-            cmip6Dset = None
-        if setDict['landmaskFlag'] == 'land':
-            glensDsetCntrl = glensDsetCntrl.where(glensDsetCntrl.landmask > 0)
-            glensDsetFdbck = glensDsetFdbck.where(glensDsetFdbck.landmask > 0)
-            glens2Dset = glens2Dset.where(glens2Dset.landmask > 0)
-            cesmMask = xr.open_dataset('/Users/dhueholt/Documents/Summery_Summary/daniel_mask.nc')
-            cmip6Dset = cmip6Dset.where(cesmMask.imask>0)
-        dataKey = discover_data_var(glensDsetCntrl)
-        glensDarrCntrl = glensDsetCntrl[dataKey]
-        glensDarrCntrl.attrs['scenario'] = 'GLENS1:Control/RCP8.5'
-        glensDarrFdbck = glensDsetFdbck[dataKey]
-        glensDarrFdbck.attrs['scenario'] = 'GLENS1:Feedback/SAI/G1.2[8.5]'
-        if glens2Dset is not None:
-            glens2Darr = glens2Dset[dataKey]
-            glens2Darr.attrs['scenario'] = 'GLENS2:Feedback/SAI/G1.5[4.5]'
-        else:
-            glens2Darr = None
-        if cmip6Dset is not None:
-            dataKeyCmip6 = discover_data_var(cmip6Dset) #CMIP6 has unique variable names
-            cmip6Darr = cmip6Dset[dataKeyCmip6]
-            cmip6Darr.attrs['scenario'] = 'CMIP6:Control/SSP2-4.5'
-        else:
-            cmip6Darr = None
-    else:
-        sys.exit("Check input! Token should have a wildcard (i.e. match multiple files).")
-
-    darrCheckList = list([glensDarrCntrl,glensDarrFdbck,glens2Darr,cmip6Darr])
-    darrList = list()
-    for d in darrCheckList: #Surely there's a better way
-        if d is None:
-            pass
-        else:
-            darrList.append(d)
-
-    return darrList, dataKey
 
 def get_ens_mem(files):
     ''' Find ensemble members from a list of files '''
@@ -314,17 +216,22 @@ def get_ens_mem(files):
     return emem
 
 def manage_realizations(setDict, darr, emem):
-    ''' Either obtain realization of interest or calculate ensemble mean, and
-    create relevant filename '''
+    ''' Obtain realization of interest or calculate ensemble mean, then create
+    relevant filename. This, meta_book, and open_data have substantial
+    hard-coding and require reworking when a new model run is added.
+    '''
     try:
-        if 'GLENS1:Control' in darr.scenario:
-            scnStr = 'g1c' #glens1control
-        elif 'GLENS1:Feedback' in darr.scenario:
-            scnStr = 'g1f' #glens1feedback
-        elif 'GLENS2:Feedback' in darr.scenario:
-            scnStr = 'g2f' #glens2feedback
-        elif 'CMIP6:Control' in darr.scenario:
-            scnStr = 'c6c' #cmip6control
+        if 'GLENS:Control' in darr.scenario:
+            scnStr = 'gc' #glenscontrol
+        elif 'GLENS:Feedback' in darr.scenario:
+            scnStr = 'gf' #glensfeedback
+        elif 'SCIRIS:Feedback' in darr.scenario:
+            scnStr = 'sci' #sciris
+        elif 'SCIRIS:Control' in darr.scenario:
+            scnStr = 's245c' #ssp245control
+        else:
+            ic('Unknown scenario!')
+            #No sys.exit(); want to know what the error is
 
         if setDict['realization'] == 'mean': #Output DataArray of ensemble mean
             darrMn = darr.mean(dim='realization')
@@ -332,7 +239,7 @@ def manage_realizations(setDict, darr, emem):
             ememSave = 'mn' + scnStr
         elif setDict['realization'] == 'ensplot': #Output DataArray of all members and ensemble mean
             darrMn = darr.mean(dim='realization')
-            darrOut = xr.concat([darr,darrMn],dim='realization') #Add ensemble mean as another "realization"
+            darrOut = xr.concat([darr,darrMn],dim='realization').compute() #Add ensemble mean as another "realization"
             ememSave = 'ens' + scnStr
         else: #Output DataArray of single ensemble member
             ememNum = list(map(int, emem))
@@ -347,22 +254,79 @@ def manage_realizations(setDict, darr, emem):
 
     return darrOut, ememSave
 
+def open_data(dataDict, setDict):
+    ''' Opens data and select data variable. This, manage_realizations, and
+    meta_book have substantial hard-coding and require reworking when a new
+    model run is added.
+    '''
+    if '*' in dataDict["idGlensCntrl"]:
+        cntrlPath = dataDict["dataPath"] + dataDict["idGlensCntrl"]
+        fdbckPath = dataDict["dataPath"] + dataDict["idGlensFdbck"]
+        scirisPath = dataDict["dataPath"] + dataDict["idSciris"]
+        s245CntrlPath = dataDict["dataPath"] + dataDict["idS245Cntrl"]
+
+        glensCntrlDset = xr.open_mfdataset(cntrlPath, concat_dim='realization', combine='nested')
+        glensFdbckDset = xr.open_mfdataset(fdbckPath, concat_dim='realization', combine='nested')
+        try:
+            scirisDset = xr.open_mfdataset(scirisPath, concat_dim='realization', combine='nested')
+        except:
+            ic('No SCIRIS files located')
+            scirisDset = None
+        try:
+            s245CntrlDset = xr.open_mfdataset(s245CntrlPath, concat_dim='realization', combine='nested')
+        except:
+            ic('No SSP2-4.5 Control files located')
+            s245CntrlDset = None
+
+        if setDict['landmaskFlag'] == 'land':
+            glensCntrlDset = glensCntrlDset.where(glensCntrlDset.landmask > 0)
+            glensFdbckDset = glensFdbckDset.where(glensFdbckDset.landmask > 0)
+            if scirisDset is not None:
+                scirisDset = scirisDset.where(scirisDset.landmask > 0)
+            if s245CntrlDset is not None:
+                cesmMask = xr.open_dataset(dataDict["idCesmMask"])
+                s245CntrlDset = s245CntrlDset.where(cesmMask.imask > 0)
+
+        dataKey = discover_data_var(glensCntrlDset)
+        glensCntrlDarr = glensCntrlDset[dataKey]
+        glensCntrlDarr.attrs['scenario'] = 'GLENS:Control/RCP8.5'
+        glensFdbckDarr = glensFdbckDset[dataKey]
+        glensFdbckDarr.attrs['scenario'] = 'GLENS:Feedback/SAI/G1.2(8.5)'
+        if scirisDset is not None:
+            scirisDarr = scirisDset[dataKey]
+            scirisDarr.attrs['scenario'] = 'SCIRIS:Feedback/SAI/G1.5(4.5)'
+        else:
+            scirisDarr = None
+        if s245CntrlDset is not None:
+            dataKeyCmip6 = discover_data_var(s245CntrlDset) #CMIP6 has unique variable names tied to CMIP6 conventions specifically, not its status as the control for SCIRIS
+            s245CntrlDarr = s245CntrlDset[dataKeyCmip6]
+            s245CntrlDarr.attrs['scenario'] = 'CMIP6_CESM2WACCM/SCIRIS:Control/SSP2-4.5'
+        else:
+            s245CntrlDarr = None
+    else:
+        sys.exit("Check input! Token should have a wildcard (i.e. match multiple files).")
+
+    darrCheckList = list([glensCntrlDarr,glensFdbckDarr,scirisDarr,s245CntrlDarr])
+    darrList = [d for d in darrCheckList if d is not None]
+
+    return darrList, dataKey
+
 def call_to_open(dataDict, setDict):
     ''' Common data tasks for all basic plots '''
     darrList, dataKey = open_data(dataDict, setDict)
 
-    cntrlFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameCntrl']))
-    fdbckFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameFdbck']))
-    glens2Files = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameGlens2']))
-    cmip6Files = sorted(glob.glob(dataDict['dataPath'] + dataDict['fnameCmip6']))
-    ememList = list()
-    for ec in (cntrlFiles, fdbckFiles, glens2Files, cmip6Files):
-        ememList.append(get_ens_mem(ec))
+    glensCntrlFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['idGlensCntrl']))
+    glensFdbckFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['idGlensFdbck']))
+    scirisFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['idSciris']))
+    s245CntrlFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['idS245Cntrl']))
 
+    ememList = list()
+    for ec in (glensCntrlFiles, glensFdbckFiles, scirisFiles, s245CntrlFiles):
+        ememList.append(get_ens_mem(ec))
     rlzList = list()
     ememStrList = list()
-    for dc,dv in enumerate(darrList):
-        rlzArr, ememStr = manage_realizations(setDict, dv, ememList[dc])
+    for dc,darr in enumerate(darrList):
+        rlzArr, ememStr = manage_realizations(setDict, darr, ememList[dc])
         rlzList.append(rlzArr)
         ememStrList.append(ememStr)
 
@@ -378,12 +342,15 @@ def call_to_open(dataDict, setDict):
     return rlzList, cmnDict
 
 def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
-    ''' Compile the bits and pieces used in filenames and titles '''
+    ''' Compile bits and pieces for filenames and titles. As many as possible
+    are derived automatically, but some are manual and require reworking when
+    a new model run is added.
+    '''
     metaDict = {
         "cntrlStr": 'RCP8.5',
-        "ssp245Str": 'SSP2-4.5',
         "fdbckStr": 'G1.2(8.5)',
-        "fdbckStrG2": 'G1.5(2-4.5)',
+        "scirisStr": 'G1.5(2-4.5)',
+        "s245Cntrl": 'SSP2-4.5',
         "varStr": cntrlToPlot.long_name,
         "varSve": cntrlToPlot.long_name.replace(" ",""),
         "strtStr": str(cntrlToPlot['time'].data[0].year),
@@ -406,7 +373,6 @@ def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
 
 def bcf_parser(labelsToPlot):
     ''' Parse labels to make filenames '''
-
     timeStr = list()
     if labelsToPlot != None:
         for lab in labelsToPlot:
@@ -416,7 +382,6 @@ def bcf_parser(labelsToPlot):
                 timeStr.append('c' + lab[0:9].replace("-",""))
             elif 'SAI' in lab:
                 timeStr.append('f' + lab[0:9].replace("-",""))
-
     timeStr = "_".join(timeStr)
 
     return timeStr
@@ -435,31 +400,64 @@ def make_polygon_mask(lats, lons, regionLats, regionLons):
 
     return gridMask
 
+def average_over_years(darr, startYear, endYear):
+    ''' Take average over a period of time '''
+    datasetYears = darr['time'].dt.year.data
+    startInd = int(np.where(datasetYears == startYear)[0])
+    endInd = int(np.where(datasetYears == endYear)[0])
+    intrvlOfInt = darr[startInd:endInd]
+    darrMeanToi = intrvlOfInt.mean(dim='time')
+
+    return darrMeanToi
+
 def norm_by_absmax(darr):
-    ''' Normalize data to within [-1,1] wrt its max magnitude '''
+    ''' Normalize data to within [-1,1] with respect to its max magnitude '''
     darrAbs = np.abs(darr)
     normValue = np.max(darrAbs)
     darrNorm = darr / normValue
-
     darrNorm.attrs['units'] = 'dimless'
 
     return darrNorm
 
 def make_spc_string(setDict):
-    ''' Make string reflecting area average Boolean '''
-    try:
+    ''' Describe area average Boolean or dimensions of variability '''
+    if "dimOfVrblty" in setDict.keys():
+        spcStr = 'rlz' + str(setDict["dimOfVrblty"]['rlzBool'])[0] + 'tm' + str(setDict["dimOfVrblty"]['timeBool'])[0] + 'spc' + str(setDict["dimOfVrblty"]['spcBool'])[0]
+    elif "areaAvgBool" in setDict.keys():
         if setDict["areaAvgBool"]:
             spcStr = 'spcavg'
         else:
             spcStr = 'nospcavg'
-    except:
+    else:
         spcStr = ''
 
     return spcStr
 
-def apply_landmask(dset):
-    ''' Apply embedded landmask to GLENS or SCIRIS output '''
-    dset['landmask'] = dset['landmask'].fillna(0) #Change nan values to 0 for consistency
+def make_dov_title(dovDict):
+    ''' Describe dimensions of variability for title '''
+    dovStr = ''
+    comma = ','
+    for key in dovDict.keys():
+        if dovDict[key]:
+            dovStr = dovStr + key[:-4] + comma
+    if dovStr[len(dovStr)-1] == ',':
+        dovStr = dovStr[:-1]
 
+    return dovStr
 
-    return dsetMasked
+def isolate_change_quantile(darr, quantileOfInt):
+    ''' Isolate the largest values by a quantile cutoff '''
+    darrAbs = np.abs(darr)
+    normValue = np.max(darrAbs)
+    darrAbsNorm = darrAbs / normValue
+    quantCut = darrAbsNorm.quantile(quantileOfInt)
+
+    darrNorm = darr / np.nanmax(darr)
+    # quantCut = darrNorm.quantile(quantileOfInt)
+    # ic(quantCut.data) #troubleshooting
+    quantMask = np.logical_and(darrNorm>-quantCut, darrNorm<quantCut)
+    darrNorm.data[quantMask] = np.nan
+
+    darrNorm.attrs['units'] = 'dimless'
+
+    return darrNorm

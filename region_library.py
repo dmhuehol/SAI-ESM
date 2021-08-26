@@ -561,6 +561,22 @@ def atlas_ipcc_wg1ar5():
 
     return ipccWg1Ar5Dict
 
+def atlas_all_types():
+    box = AlaskaNorthwestCanada()
+    boxMerCross = Sahara()
+    poly = Amazon()
+    polyMerCross = CentralEurope()
+
+    aatDict = {
+        "box": box,
+        "boxMerCross": boxMerCross,
+        "poly": poly,
+        "polyMerCross": polyMerCross,
+        "allRegions": [box,boxMerCross,poly,polyMerCross]
+    }
+
+    return aatDict
+
 ### Functions
 
 def west180_to_360(west180):

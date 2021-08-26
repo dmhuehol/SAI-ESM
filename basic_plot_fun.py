@@ -42,7 +42,6 @@ import numpy as np
 import scipy.stats as stats
 import cftime
 
-import difference_over_time as dot
 import process_glens_fun as pgf
 import plotting_tools as plt_tls
 import fun_convert_unit as fcu
@@ -51,49 +50,43 @@ import region_library as rlib
 ## GLOBAL VARIABLES
 ensPrp = {
     "dscntntyYrs": [2030],
-    "drc": [21,4],
-    "drf": [21,21],
-    "drg2f": [10,10],
-    "drc6c": [4,5]
+    "drc": [21,4], #GLENS Control
+    "drf": [21,21], #GLENS Feedback
+    "drsci": [10,10], #SCIRIS
+    "drs245": [4,5] #SSP2-4.5 Control
 }
 
 ## DIFFERENCE GLOBES
 
 def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     ''' Plot 4-panel difference globe
-        (1) change over time for RCP8.5 ("Control")
-        (2) change over time for SAI/GEO8.5 ("Feedback")
-        (3) difference between RCP8.5 and SAI/GEO8.5 by end interval
-        (4) show only where normalized values of (3) are above a given quantile
+        (1) change over time for RCP8.5 (GLENS control)
+        (2) change over time for SSP2-4.5 (SCIRIS control)
+        (3) diff between RCP8.5 and G1.2(8.5) for end interval (world avoided)
+        (4) diff between SSP2-4.5 and G1.5(4.5) for end interval (world avoided)
     '''
-    # Check ending years before running
-    # bndDct = pgf.find_matching_year_bounds(glensCntrlRlz, glensFdbckRlz)
-    # if bndDct["endYrMtch"] < setDict["endIntvl"][0]:
-    #     print("Requested interval is not in input! Cancelling 4-panel FdbckCntrl globe")
-    #     return
-
-    # Obtain levels
-    toiStart = list()
-    toiEnd = list()
-    trackScn = list()
+    toiStart = dict()
+    toiEnd = dict()
     for rc,rDarr in enumerate(rlzList):
         rlzLoi = pgf.obtain_levels(rDarr, setDict["levOfInt"])
+        shrtScn = rlzLoi.scenario.split('/')[len(rlzLoi.scenario.split('/'))-1]
         if 'Control' in rlzLoi.attrs['scenario']:
-            toiStartLp = dot.average_over_years(rlzLoi, setDict["startIntvl"][0], setDict["startIntvl"][1])
-            toiEndLp = dot.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
-            toiStart.append(toiStartLp)
+            toiStartLp = pgf.average_over_years(rlzLoi, setDict["startIntvl"][0], setDict["startIntvl"][1])
+            toiEndLp = pgf.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+            toiStart[shrtScn] = toiStartLp
         else:
-            toiEndLp = dot.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
-        trackScn.append(rlzLoi.attrs['scenario'])
-        toiEnd.append(toiEndLp)
+            toiEndLp = pgf.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+        toiEnd[shrtScn] = toiEndLp
 
-    # Calculate 4-panel values
-    diffToiR85 = toiEnd[0] - toiStart[0]
-    diffToiS245 = toiEnd[3] - toiStart[1]
-    wrldAvrtdG12R85 = toiEnd[1] - toiEnd[0]
-    wrldAvrtdG15S245 = toiEnd[2].data - toiEnd[3].data #Account for subtle format differences between CESM2-WACCM SSP2-4.5 and SCIRIS runs
-    wrldAvrtdG15S245.attrs = toiEnd[2].attrs
-    # scnrsCmprd = toiEnd[2] - toiEnd[1]
+    # Set up panels
+    diffToiR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
+    diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
+    wrldAvrtdG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
+    #CESM2-WACCM SSP2-4.5 uses CMIP6 variable names which are often different
+    #than in SCIRIS; subtracting the two DataArrays directly results in nonsense
+    wrldAvrtdG15S245 = toiEnd['G1.5(4.5)'].copy() #Duplicate pre-existing array to retain SCIRIS attributes and shape
+    wrldAvrtdG15S245.data = toiEnd['G1.5(4.5)'].data - toiEnd['SSP2-4.5'].data #Subtract the data only
+    # scnrsCmprd = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare SCIRIS/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
 
     panels = (diffToiR85, diffToiS245, wrldAvrtdG12R85, wrldAvrtdG15S245)
 
@@ -120,11 +113,11 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     ax2 = plt.subplot(2,2,2,projection=mapProj)
     plt_tls.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + '[r'+str(ensPrp['drc6c'][1])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drc6c'][0])+']' + ' ' + md['ssp245Str'], fontsize=10)
+        plt.title(md['lstDcd'] + '[r'+str(ensPrp['drs245'][1])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drs245'][0])+']' + ' ' + md['s245Cntrl'], fontsize=10)
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + '[r'+str(ensPrp['drc6c'][0])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drc6c'][0])+']' + ' ' + md['ssp245Str'], fontsize=10)
+        plt.title(md['lstDcd'] + '[r'+str(ensPrp['drs245'][0])+']' + ' - ' + md['frstDcd'] + '[r'+str(ensPrp['drs245'][0])+']' + ' ' + md['s245Cntrl'], fontsize=10)
     else:
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['ssp245Str'], fontsize=10)
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
 
     ax3 = plt.subplot(2,2,3,projection=mapProj)
     plt_tls.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
@@ -138,11 +131,11 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     ax4 = plt.subplot(2,2,4,projection=mapProj)
     plt_tls.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['fdbckStrG2'] + '[r'+str(ensPrp['drg2f'][1])+']' + ' - ' + md['ssp245Str'] + '[r'+str(ensPrp['drc'][1])+']' + ' ' + md['lstDcd'], fontsize=10)
+        plt.title(md['scirisStr'] + '[r'+str(ensPrp['drsci'][1])+']' + ' - ' + md['s245Cntrl'] + '[r'+str(ensPrp['drc'][1])+']' + ' ' + md['lstDcd'], fontsize=10)
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['fdbckStrG2'] + '[r'+str(ensPrp['drg2f'][0])+']' + ' - ' + md['ssp245Str'] + '[r'+str(ensPrp['drc'][0])+']' + ' ' + md['lstDcd'], fontsize=10)
+        plt.title(md['scirisStr'] + '[r'+str(ensPrp['drsci'][0])+']' + ' - ' + md['s245Cntrl'] + '[r'+str(ensPrp['drc'][0])+']' + ' ' + md['lstDcd'], fontsize=10)
     else:
-        plt.title(md['fdbckStrG2'] + ' - ' + md['ssp245Str'] + ' ' + md['lstDcd'], fontsize=10)
+        plt.title(md['scirisStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
 
     savePrfx = ''
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['fcStr']
@@ -153,20 +146,14 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
 
 def plot_single_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict):
     ''' Plot 1 panel difference globe '''
-    # Check ending years before running
-    bndDct = pgf.find_matching_year_bounds(glensCntrlRlz, glensFdbckRlz)
-    if bndDct["endYrMtch"] < setDict["endIntvl"][0]:
-        print("Requested interval is not in input! Cancelling single FdbckCntrl difference globe")
-        return
-
     # Obtain levels
     glensCntrlLoi = pgf.obtain_levels(glensCntrlRlz, setDict["levOfInt"])
     glensFdbckLoi = pgf.obtain_levels(glensFdbckRlz, setDict["levOfInt"])
 
     # Average over years
-    toiStart = dot.average_over_years(glensCntrlLoi, setDict["startIntvl"][0], setDict["startIntvl"][1]) # 2010-2019 is baseline, injection begins 2020
-    toiEndCntrl = dot.average_over_years(glensCntrlLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
-    toiEndFdbck = dot.average_over_years(glensFdbckLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+    toiStart = pgf.average_over_years(glensCntrlLoi, setDict["startIntvl"][0], setDict["startIntvl"][1]) # 2010-2019 is baseline, injection begins 2020
+    toiEndCntrl = pgf.average_over_years(glensCntrlLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+    toiEndFdbck = pgf.average_over_years(glensFdbckLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
     diffToiFdbck = toiEndFdbck - toiEndCntrl
 
     # Plotting
@@ -204,21 +191,16 @@ def plot_vertical_difference_globe(rlzList, dataDict, setDict, outDict):
         (3) 250mb to 50mb (can be modified for any layer)
         (4) Stratosphere
     '''
-    # Check ending years before running
-    # bndDct = pgf.find_matching_year_bounds(glensCntrlRlz, glensFdbckRlz)
-    # if bndDct["endYrMtch"] < setDict["endIntvl"][0]:
-    #     print("Requested interval is not in input! Cancelling 4-panel vertical difference globe.")
-    #     return
     rlzRfr = rlzList[0]
     rlzFdbck = rlzList[1]
     # Average over years
     rlzToiEnd = list()
     for rc,rDarr in enumerate(rlzList):
-        activeRlz = dot.average_over_years(rDarr, setDict["endIntvl"][0], setDict["endIntvl"][1])
+        activeRlz = pgf.average_over_years(rDarr, setDict["endIntvl"][0], setDict["endIntvl"][1])
         rlzToiEnd.append(activeRlz)
 
-    # toiEndCntrl = dot.average_over_years(glensCntrlRlz, setDict["endIntvl"][0], setDict["endIntvl"][1])
-    # toiEndFdbck = dot.average_over_years(glensFdbckRlz, setDict["endIntvl"][0], setDict["endIntvl"][1])
+    # toiEndCntrl = pgf.average_over_years(glensCntrlRlz, setDict["endIntvl"][0], setDict["endIntvl"][1])
+    # toiEndFdbck = pgf.average_over_years(glensFdbckRlz, setDict["endIntvl"][0], setDict["endIntvl"][1])
 
     # Obtain levels
     toiEndCntrlTotal = pgf.obtain_levels(toiEndCntrl, 'total')
@@ -288,8 +270,8 @@ def plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDi
     '''
 
     # Average over years
-    toiStart = dot.average_over_years(glensCntrlRlz, setDict["startIntvl"][0], setDict["startIntvl"][1]) # 2010-2019 is baseline, injection begins 2020
-    toiEndFdbck = dot.average_over_years(glensFdbckRlz, setDict["endIntvl"][0], setDict["endIntvl"][1])
+    toiStart = pgf.average_over_years(glensCntrlRlz, setDict["startIntvl"][0], setDict["startIntvl"][1]) # 2010-2019 is baseline, injection begins 2020
+    toiEndFdbck = pgf.average_over_years(glensFdbckRlz, setDict["endIntvl"][0], setDict["endIntvl"][1])
 
     # Obtain levels
     toiStartCntrlTotal = pgf.obtain_levels(toiStart, 'total')
@@ -358,7 +340,7 @@ def plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDi
 ## TIMESERIES
 
 def plot_timeseries(rlzList, dataDict, setDict, outDict):
-    ''' Make timeseries of GLENS output variable for RCP8.5 ("Control") and SAI/GEO8.5 ("Feedback") '''
+    ''' Make a simple timeseries of output variable '''
     # Set up data: Isolate time, level, and area of interest
     setYear = [2020, 2095]
     timeSlice = slice(cftime.DatetimeNoLeap(setYear[0], 7, 15, 12, 0, 0, 0),cftime.DatetimeNoLeap(setYear[1], 7, 15, 12, 0, 0, 0))
@@ -372,18 +354,18 @@ def plot_timeseries(rlzList, dataDict, setDict, outDict):
     plt.figure()
     md = pgf.meta_book(setDict, dataDict, rlzToPlot[0], labelsToPlot=None)
     for rpc,rpv in enumerate(rlzToPlot):
-        if 'GLENS1:Control' in rpv.scenario:
-            activeColor = '#DF8C20'
+        if 'GLENS:Control' in rpv.scenario:
+            activeColor = '#D93636'
             activeLabel = md['cntrlStr']
-        elif 'GLENS1:Feedback' in rpv.scenario:
-            activeColor = '#20DFCC'
+        elif 'GLENS:Feedback' in rpv.scenario:
+            activeColor = '#8346C1'
             activeLabel = md['fdbckStr']
-        elif 'GLENS2:Feedback' in rpv.scenario:
-            activeColor = '#5C68FF'
-            activeLabel = md['fdbckStrG2']
-        elif 'CMIP6:Control' in rpv.scenario:
-            activeColor = '#FED8B1'
-            activeLabel = md['ssp245Str']
+        elif 'SCIRIS:Feedback' in rpv.scenario:
+            activeColor = '#12D0B2'
+            activeLabel = md['scirisStr']
+        elif 'SCIRIS:Control' in rpv.scenario:
+            activeColor = '#F8A53D'
+            activeLabel = md['s245Cntrl']
         else:
             sys.exit('Unknown scenario cannot be plotted!')
         yearsOfInt = rpv['time'].dt.year.data #Otherwise the x-axis will be the cftime object, which is ugly
@@ -391,12 +373,11 @@ def plot_timeseries(rlzList, dataDict, setDict, outDict):
 
     b,t = plt.ylim()
     if (setDict["realization"] == 'mean'):
-        plt.plot([ensPrp["dscntntyYrs"],ensPrp["dscntntyYrs"]],[b,t], color='#36454F', linewidth=0.5, linestyle='dashed', label='RCP8.5 ens: 21 to 2030, 4 to 2095')
+        plt.plot([ensPrp["dscntntyYrs"],ensPrp["dscntntyYrs"]],[b,t], color='#36454F', linewidth=0.5, linestyle='dashed')
         leg = plt.legend()
-        lText = leg.get_texts()
-        # ic(l1,l2,l3) #troubleshooting if the size is changed for the wrong entry
-        lText[len(lText)-1]._fontproperties = lText[len(lText)-2]._fontproperties.copy()
-        lText[len(lText)-1].set_fontsize(7)
+        # lText = leg.get_texts()
+        # lText[len(lText)-1]._fontproperties = lText[len(lText)-2]._fontproperties.copy() #Change text size for ensemble discontinuity label
+        # lText[len(lText)-1].set_fontsize(7)
     else:
         plt.legend()
     plt.ylabel(md['unit'])
@@ -415,16 +396,9 @@ def plot_timeseries(rlzList, dataDict, setDict, outDict):
 ## PDFs
 
 def plot_pdf(rlzList, dataDict, setDict, outDict):
-    ''' Plot pdfs for RCP8.5 ("Control") and SAI ("Feedback") values for a GLENS output
-    variable. Three formats are available: a kernel density estimate, a histogram,
-    or a step plot.'''
+    ''' Plot pdfs for an output variable. Three formats are available: a kernel
+    density estimate, a histogram, or a step plot.'''
     baselineFlag = True #True if plotting any data from before 2020 (during the "Baseline" period), False otherwise
-
-    # Check for valid periods before running
-    # bndDct = pgf.find_matching_year_bounds(rlzList)
-    # for poic,poiv in enumerate(setDict["cntrlPoi"]):
-    #     if bndDct["endYrMtch"] < poiv:
-    #         del setDict["cntrlPoi"][poic]
 
     # Set up data
     rlzToPlot = list()
@@ -444,19 +418,22 @@ def plot_pdf(rlzList, dataDict, setDict, outDict):
     handlesToPlot = list()
     for scnData in rlzToPlot:
         periodsOfInt = scnData['time'].dt.year.data
-        if 'GLENS1:Control' in scnData.scenario:
+        if 'GLENS:Control' in scnData.scenario:
             cntrlHandlesToPlot = list()
-            cntrlHandlesToPlot = pgf.extract_doi(setDict["cntrlPoi"], periodsOfInt, setDict["timePeriod"], scnData, cntrlHandlesToPlot)
-        elif 'GLENS1:Feedback' in scnData.scenario:
+            cntrlHandlesToPlot = pgf.extract_intvl(setDict["cntrlPoi"], periodsOfInt, setDict["timePeriod"], scnData, cntrlHandlesToPlot)
+        elif 'GLENS:Feedback' in scnData.scenario:
             fdbckHandlesToPlot = list()
-            fdbckHandlesToPlot = pgf.extract_doi(setDict["fdbckPoi"], periodsOfInt, setDict["timePeriod"], scnData, fdbckHandlesToPlot)
-        elif 'GLENS2:Feedback' in scnData.scenario:
-            glens2HandlesToPlot = list()
-            glens2HandlesToPlot = pgf.extract_doi(setDict["glens2Poi"], periodsOfInt, setDict["timePeriod"], scnData, glens2HandlesToPlot)
+            fdbckHandlesToPlot = pgf.extract_intvl(setDict["fdbckPoi"], periodsOfInt, setDict["timePeriod"], scnData, fdbckHandlesToPlot)
+        elif 'SCIRIS:Feedback' in scnData.scenario:
+            scirisHandlesToPlot = list()
+            scirisHandlesToPlot = pgf.extract_intvl(setDict["scirisPoi"], periodsOfInt, setDict["timePeriod"], scnData, scirisHandlesToPlot)
+        elif 'SCIRIS:Control' in scnData.scenario:
+            s245CntrlHandlesToPlot = list()
+            s245CntrlHandlesToPlot = pgf.extract_intvl(setDict["s245CntrlPoi"], periodsOfInt, setDict["timePeriod"], scnData, s245CntrlHandlesToPlot)
         else:
             ic(scnData.scenario)
             #No sys.exit(), want to know what the error is if it fails here
-    handlesToPlot = cntrlHandlesToPlot + fdbckHandlesToPlot + glens2HandlesToPlot
+    handlesToPlot = cntrlHandlesToPlot + fdbckHandlesToPlot + scirisHandlesToPlot + s245CntrlHandlesToPlot
 
     # If not applying a spatial average, flatten data so dimensions don't confuse plotting code
     if ~setDict["areaAvgBool"]:
@@ -465,9 +442,9 @@ def plot_pdf(rlzList, dataDict, setDict, outDict):
 
     # Generate colors and strings for plots and filenames
     if baselineFlag:
-        colorsToPlot = plt_tls.select_colors(baselineFlag,len(setDict["cntrlPoi"])-1,len(setDict["fdbckPoi"]),len(setDict["glens2Poi"]))
+        colorsToPlot = plt_tls.select_colors(baselineFlag,len(setDict["cntrlPoi"])-1,len(setDict["fdbckPoi"]),len(setDict["scirisPoi"]),len(setDict["s245CntrlPoi"]))
     else:
-        colorsToPlot = plt_tls.select_colors(baselineFlag,len(setDict["cntrlPoi"]),len(setDict["fdbckPoi"]),len(setDict["glens2Poi"]))
+        colorsToPlot = plt_tls.select_colors(baselineFlag,len(setDict["cntrlPoi"]),len(setDict["fdbckPoi"]),len(setDict["scirisPoi"]),len(setDict["s245CntrlPoi"]))
     labelsToPlot = list()
     labelsToPlot = plt_tls.generate_labels(labelsToPlot, setDict, ensPrp, baselineFlag)
 
