@@ -50,7 +50,7 @@ def plot_ens_spaghetti_timeseries(rlzList, dataDict, setDict, outDict):
     plt.figure()
     for rsc,rsDarr in enumerate(rlzList):
         for rc in rsDarr['realization'].data:
-            dataToPlot, locStr, locTitleStr = pgf.manage_area(rsDarr[rc,:], setDict["regOfInt"], areaAvgBool=True)
+            dataToPlot, locStr, locTitleStr = pgf.manage_area(rsDarr.sel(realization=rc), setDict["regOfInt"], areaAvgBool=True)
             md = pgf.meta_book(setDict, dataDict, dataToPlot, labelsToPlot=None)
             if 'GLENS:Control' in dataToPlot.scenario:
                 activeColor = '#D93636'
@@ -79,10 +79,67 @@ def plot_ens_spaghetti_timeseries(rlzList, dataDict, setDict, outDict):
     plt.autoscale(enable=True, axis='x', tight=True)
     plt.autoscale(enable=True, axis='y', tight=True)
     plt.xlim(setYear[0],setYear[1])
-    plt.title(md['varStr'] + ' ' + md['levStr'] + ': ' + str(setYear[0]) + '-' + str(setYear[1]) + ' ' + locTitleStr  + ' ' + 'Ens ' + str(setDict['realization']))
+    plt.title(md['varStr'] + ' ' + md['levStr'] + ': ' + str(setYear[0]) + '-' + str(setYear[1]) + ' ' + locTitleStr  + ' ' + 'spaghetti')
 
     savePrfx = ''
-    saveStr = md['varSve'] + '_' + md['levSve'] + '_' + str(setYear[0]) + str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + md['pid']['ts']
+    saveStr = md['varSve'] + '_' + md['levSve'] + '_' + str(setYear[0]) + str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + md['ensPid']['spg']
+    savename = outDict["savePath"] + savePrfx + saveStr + '.png'
+    plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
+    plt.close()
+    ic(savename)
+
+def plot_ens_spread_timeseries(rlzList, dataDict, setDict, outDict):
+    ''' Make a timeseries of output variable. Ensemble variability is visualized
+    as the spread between max and min at each timestep. '''
+    # Set up data: Isolate time, level, and area of interest
+    setYear = [2020, 2095]
+    timeSlice = slice(cftime.DatetimeNoLeap(setYear[0], 7, 15, 12, 0, 0, 0),cftime.DatetimeNoLeap(setYear[1], 7, 15, 12, 0, 0, 0))
+    rlzToPlot = list()
+    for rc,rDarr in enumerate(rlzList):
+        rlzToi = rDarr.sel(time=timeSlice)
+        rlzLoi = pgf.obtain_levels(rlzToi, setDict["levOfInt"])
+        rlzAoi, locStr, locTitleStr = pgf.manage_area(rlzLoi, setDict["regOfInt"], areaAvgBool=True)
+        rlzToPlot.append(rlzAoi)
+
+    # Make timeseries
+    fig, ax = plt.subplots()
+    for rsc,rsDarr in enumerate(rlzList):
+        dataAoi, locStr, locTitleStr = pgf.manage_area(rsDarr, setDict["regOfInt"], areaAvgBool=True)
+        rlzMax = dataAoi.max(dim='realization')
+        rlzMin = dataAoi.min(dim='realization')
+        rlzMn = dataAoi[len(dataAoi['realization'])-1] #last member is ensemble mean
+        md = pgf.meta_book(setDict, dataDict, rlzMn, labelsToPlot=None)
+        if 'GLENS:Control' in rsDarr.scenario:
+            activeColor = '#D93636'
+            activeLabel = md['cntrlStr']
+        elif 'GLENS:Feedback' in rsDarr.scenario:
+            activeColor = '#8346C1'
+            activeLabel = md['fdbckStr']
+        elif 'SCIRIS:Feedback' in rsDarr.scenario:
+            activeColor = '#12D0B2'
+            activeLabel = md['scirisStr']
+        elif 'SCIRIS:Control' in rsDarr.scenario:
+            activeColor = '#F8A53D'
+            activeLabel = md['s245Cntrl']
+        else:
+            sys.exit('Unknown scenario cannot be plotted!')
+        yearsOfInt = rlzMn['time'].dt.year.data #bndDct['mtchYrs']
+        # plt.plot(yearsOfInt,rlzMax.data,color=activeColor,linewidth=0.3)
+        # plt.plot(yearsOfInt,rlzMin.data,color=activeColor,linewidth=0.3)
+        plt.plot(yearsOfInt,rlzMn.data,color=activeColor,label=activeLabel)
+        ax.fill_between(yearsOfInt, rlzMax.data, rlzMin.data, color=activeColor, alpha=0.2, linewidth=0)
+
+    b,t = plt.ylim()
+    plt.plot([ensPrp["dscntntyYrs"],ensPrp["dscntntyYrs"]],[b,t], color='#36454F', linewidth=0.5, linestyle='dashed')
+    leg = plt.legend()
+    plt.ylabel(md['unit'])
+    plt.autoscale(enable=True, axis='x', tight=True)
+    plt.autoscale(enable=True, axis='y', tight=True)
+    plt.xlim(setYear[0],setYear[1])
+    plt.title(md['varStr'] + ' ' + md['levStr'] + ': ' + str(setYear[0]) + '-' + str(setYear[1]) + ' ' + locTitleStr  + ' ' + 'spread')
+
+    savePrfx = ''
+    saveStr = md['varSve'] + '_' + md['levSve'] + '_' + str(setYear[0]) + str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + md['ensPid']['sprd']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
     plt.close()

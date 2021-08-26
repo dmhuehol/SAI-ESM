@@ -187,7 +187,10 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
             darrMask = darr.sel(lat=latsOfInt,lon=lonsOfInt)
 
         if areaAvgBool:
-            darr = darrMask.mean(dim=['lat','lon'], skipna=True)
+            latWeights = np.cos(np.deg2rad(darrMask['lat']))
+            darrWght = darrMask.weighted(latWeights)
+            darr = darrWght.mean(dim=['lat','lon'], skipna=True)
+            # darr = darrMask.mean(dim=['lat','lon'], skipna=True)
         else:
             darr = darrMask
 
@@ -366,6 +369,7 @@ def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
         "pdfStyle": setDict["plotStyle"],
         "spcStr": make_spc_string(setDict),
         "pid": {'g1p': 'globe_1p', 'g4p': 'globe_4p', 'ts': 'timeseries', 'pdf': 'pdf'},
+        "ensPid": {'spg': 'spghtti', 'sprd': 'spread'},
         "glbType": {'vGl': 'vertical', 'bGl': 'baseline', 'fcStr': 'FdbckCntrl'}
     }
 

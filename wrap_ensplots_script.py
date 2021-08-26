@@ -25,7 +25,7 @@ import region_library as rlib
 
 # Call regions
 ipccWg1Ar5 = rlib.atlas_ipcc_wg1ar5() #ipccWg1Ar5["allRegions"]
-gnsht = ('global', rlib.Arctic(), rlib.SouthernHemisphere(),)
+gnsht = ('global', rlib.Arctic(), rlib.NorthernHemisphere(), rlib.SouthernHemisphere(),)
 
 # Dictionaries
 dataDict = {
@@ -51,12 +51,12 @@ setDict = {
     "realization": 'ensplot'
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210825_refactoringAndFigs/2_pdfs/ens/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210826_figs/',
     "dpiVal": 400
 }
 loopDict = {
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": ('global',rlib.Tropics(),rlib.EastNorthAmerica(),rlib.AlaskaNorthwestCanada(),rlib.Sahara(),rlib.Amazon(),rlib.CentralEurope()),#('global',rlib.Arctic(),rlib.EastNorthAmerica()),
+    "regions": (rlib.WestAsia(),),#('global',rlib.Arctic(),rlib.EastNorthAmerica()),
 }
 
 # Verify inputs (troubleshooting)
@@ -70,6 +70,7 @@ for lev in loopDict["levels"]:
     for reg in loopDict["regions"]:
         setDict["regOfInt"] = reg
         # epf.plot_ens_spaghetti_timeseries(rlzList, dataDict, setDict, outDict)
+        epf.plot_ens_spread_timeseries(rlzList, dataDict, setDict, outDict)
         setDict["plotStyle"] = 'step'
         epf.plot_ens_pdf(rlzList, dataDict, setDict, outDict)
         setDict["plotStyle"] = 'kde'
