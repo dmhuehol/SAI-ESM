@@ -34,11 +34,12 @@ dataDict = {
     "idGlensFdbck": 'feedback_*', #'feedback_*'
     "idSciris": '*SSP245*', #'*SSP245*'
     "idS245Cntrl": '*ssp245*', #'*ssp245*'
+    "idS245Hist": '*historical*', #'*historical*'
     "idCesmMask": '/Users/dhueholt/Documents/Summery_Summary/daniel_mask.nc'
 }
 setDict = {
     "landmaskFlag": 'land',
-    "startIntvl": [2015,2030], #dg
+    "startIntvl": [2011,2030], #dg
     "endIntvl": [2041,2060], #dg
     "cntrlPoi": [2011,2041], #pdf
     "fdbckPoi": [2041], #pdf
@@ -51,12 +52,12 @@ setDict = {
     "realization": 'ensplot'
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210826_figs/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210902_historical/',
     "dpiVal": 400
 }
 loopDict = {
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": (rlib.WestAsia(),),#('global',rlib.Arctic(),rlib.EastNorthAmerica()),
+    "regions": ('global',rlib.Arctic(),),#('global',rlib.Arctic(),rlib.EastNorthAmerica()),
 }
 
 # Verify inputs (troubleshooting)
@@ -69,7 +70,7 @@ for lev in loopDict["levels"]:
     setDict["levOfInt"] = lev
     for reg in loopDict["regions"]:
         setDict["regOfInt"] = reg
-        # epf.plot_ens_spaghetti_timeseries(rlzList, dataDict, setDict, outDict)
+        epf.plot_ens_spaghetti_timeseries(rlzList, dataDict, setDict, outDict)
         epf.plot_ens_spread_timeseries(rlzList, dataDict, setDict, outDict)
         setDict["plotStyle"] = 'step'
         epf.plot_ens_pdf(rlzList, dataDict, setDict, outDict)

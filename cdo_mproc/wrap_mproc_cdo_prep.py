@@ -57,6 +57,12 @@ def return_emem_list(inType):
         "r4",
         "r5"]
         )
+    elif inType == "historical":
+        EMEM=list([
+        ".001.",
+        ".002.",
+        ".003."]
+        )
     else:
         sys.exit('Unrecognized type!')
 

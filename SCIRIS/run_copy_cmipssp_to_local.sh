@@ -18,22 +18,40 @@ exec &> logfile_ssp245_copy.txt
 export TMPDIR=/glade/scratch/dhueholt/temp
 mkdir -p $TMPDIR
 
+### Directory where output is stored
 OUT_PATH="/glade/scratch/dhueholt/ssp245/"
 
-CMN_PATH="/glade/collections/cdg/data/CMIP6/ScenarioMIP/NCAR/CESM2-WACCM/ssp245/"
-EMEM=(
+### Futures
+CMN_PATHF="/glade/collections/cdg/data/CMIP6/ScenarioMIP/NCAR/CESM2-WACCM/ssp245/"
+EMEMF=(
 "r1"
 "r2"
 "r3"
 "r4"
 "r5"
 )
-CMN_FOLD_STR="i1p1f1"
-# CMN_PATH + CMN_FOLD_STR + EMEM = directory structure for each ens member
-CMN_SUB_PATH="/Amon/tas/gn/latest/"
-IN_TOKEN="*.nc"
+CMN_FOLD_STRF="i1p1f1"
+# CMN_PATHF + CMN_FOLD_STRF + EMEMF = directory structure for each ens member
+CMN_SUB_PATHF="/Amon/tas/gn/latest/"
+IN_TOKENF="*.nc"
 
-for em in ${EMEM[@]}; do
-    FILE_TO_COPY=$CMN_PATH$em$CMN_FOLD_STR$CMN_SUB_PATH$IN_TOKEN
-    cp $FILE_TO_COPY $OUT_PATH
+for emf in ${EMEMF[@]}; do
+    FILE_TO_COPYF=$CMN_PATHF$emf$CMN_FOLD_STRF$CMN_SUB_PATHF$IN_TOKENF
+    cp $FILE_TO_COPYF $OUT_PATH
+done
+
+### Historical
+CMN_PATHH="/glade/campaign/collections/cmip/CMIP6/timeseries-cmip6/b.e21.BWHIST.f09_g17.CMIP6-historical-WACCM."
+EMEMH=(
+"001"
+"002"
+"003"
+)
+CMN_SUB_PATHH="/atm/proc/tseries/month_1/"
+# CMN_PATHH + EMEMH + CMN_SUB_PATHH = directory structure for each ens member
+IN_TOKENH="*.TREFHT.*" #* .VARNAME.*
+
+for emh in ${EMEMH[@]}; do
+    FILE_TO_COPYH=$CMN_PATHH$emh$CMN_SUB_PATHH$IN_TOKENH
+    cp $FILE_TO_COPYH $OUT_PATH
 done

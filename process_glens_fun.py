@@ -267,6 +267,7 @@ def open_data(dataDict, setDict):
         fdbckPath = dataDict["dataPath"] + dataDict["idGlensFdbck"]
         scirisPath = dataDict["dataPath"] + dataDict["idSciris"]
         s245CntrlPath = dataDict["dataPath"] + dataDict["idS245Cntrl"]
+        s245HistPath = dataDict["dataPath"] + dataDict["idS245Hist"]
 
         glensCntrlDset = xr.open_mfdataset(cntrlPath, concat_dim='realization', combine='nested')
         glensFdbckDset = xr.open_mfdataset(fdbckPath, concat_dim='realization', combine='nested')
@@ -277,9 +278,11 @@ def open_data(dataDict, setDict):
             scirisDset = None
         try:
             s245CntrlDset = xr.open_mfdataset(s245CntrlPath, concat_dim='realization', combine='nested')
+            s245HistDset = xr.open_mfdataset(s245HistPath, concat_dim='realization', combine='nested')
         except:
-            ic('No SSP2-4.5 Control files located')
+            ic('Could not locate SSP2-4.5 Control and Historical files')
             s245CntrlDset = None
+            s245HistDset = None
 
         if setDict['landmaskFlag'] == 'land':
             glensCntrlDset = glensCntrlDset.where(glensCntrlDset.landmask > 0)
@@ -289,6 +292,7 @@ def open_data(dataDict, setDict):
             if s245CntrlDset is not None:
                 cesmMask = xr.open_dataset(dataDict["idCesmMask"])
                 s245CntrlDset = s245CntrlDset.where(cesmMask.imask > 0)
+                s245HistDset = s245HistDset.where(cesmMask.imask > 0)
 
         dataKey = discover_data_var(glensCntrlDset)
         glensCntrlDarr = glensCntrlDset[dataKey]
@@ -303,13 +307,15 @@ def open_data(dataDict, setDict):
         if s245CntrlDset is not None:
             dataKeyCmip6 = discover_data_var(s245CntrlDset) #CMIP6 has unique variable names tied to CMIP6 conventions specifically, not its status as the control for SCIRIS
             s245CntrlDarr = s245CntrlDset[dataKeyCmip6]
-            s245CntrlDarr.attrs['scenario'] = 'CMIP6_CESM2WACCM/SCIRIS:Control/SSP2-4.5'
+            s245HistDarr = s245HistDset['TREFHT'] #Historical output uses the same dataKey as GLENS/ARISE
+            s245Darr = combine_hist_fut(s245HistDarr, s245CntrlDarr)
+            s245Darr.attrs['scenario'] = 'CMIP6_CESM2WACCM/SCIRIS:Control+Historical/SSP2-4.5'
         else:
-            s245CntrlDarr = None
+            s245Darr = None
     else:
         sys.exit("Check input! Token should have a wildcard (i.e. match multiple files).")
 
-    darrCheckList = list([glensCntrlDarr,glensFdbckDarr,scirisDarr,s245CntrlDarr])
+    darrCheckList = list([glensCntrlDarr,glensFdbckDarr,scirisDarr,s245Darr])
     darrList = [d for d in darrCheckList if d is not None]
 
     return darrList, dataKey
@@ -465,3 +471,31 @@ def isolate_change_quantile(darr, quantileOfInt):
     darrNorm.attrs['units'] = 'dimless'
 
     return darrNorm
+
+def combine_hist_fut(darrHist, darrCntrl):
+    ''' Combine historical and future output into a single DataArray '''
+    darrHistForFormat = darrHist.sel(realization=0)
+    darrHistNan = copy_blank_darr(darrHistForFormat)
+    darrCombine = darrHistNan.copy()
+
+    cntrlRlz = darrCntrl['realization']
+    for rc in cntrlRlz:
+        try:
+            activeHist = darrHist.sel(realization=rc)
+            activeCntrl = darrCntrl.sel(realization=rc)
+            activeDarr = xr.concat((activeHist,activeCntrl), dim='time')
+        except:
+            activeCntrl = darrCntrl.sel(realization=rc)
+            activeDarr = xr.concat((darrHistNan,activeCntrl), dim='time')
+        darrCombine = xr.concat((darrCombine,activeDarr), dim='realization')
+    darrCombine = darrCombine.sel(realization=np.arange(1,len(cntrlRlz)))
+
+    return darrCombine
+
+def copy_blank_darr(darr):
+    ''' Make a copy of a DataArray with blank data but the same structure '''
+    darrShape = np.shape(darr.data)
+    darrNan = np.full(darrShape, np.nan)
+    darrOut = darr.copy(data=darrNan)
+
+    return darrOut

@@ -37,7 +37,7 @@ def plot_ens_spaghetti_timeseries(rlzList, dataDict, setDict, outDict):
     ''' Make a simple timeseries of output variable. Ensemble members are
     visualized in a familiar, basic spaghetti plot. '''
     # Set up data: Isolate time, level, and area of interest
-    setYear = [2020, 2095]
+    setYear = [2010, 2095]
     timeSlice = slice(cftime.DatetimeNoLeap(setYear[0], 7, 15, 12, 0, 0, 0),cftime.DatetimeNoLeap(setYear[1], 7, 15, 12, 0, 0, 0))
     rlzToPlot = list()
     for rc,rDarr in enumerate(rlzList):
@@ -92,7 +92,7 @@ def plot_ens_spread_timeseries(rlzList, dataDict, setDict, outDict):
     ''' Make a timeseries of output variable. Ensemble variability is visualized
     as the spread between max and min at each timestep. '''
     # Set up data: Isolate time, level, and area of interest
-    setYear = [2020, 2095]
+    setYear = [2010, 2095]
     timeSlice = slice(cftime.DatetimeNoLeap(setYear[0], 7, 15, 12, 0, 0, 0),cftime.DatetimeNoLeap(setYear[1], 7, 15, 12, 0, 0, 0))
     rlzToPlot = list()
     for rc,rDarr in enumerate(rlzList):

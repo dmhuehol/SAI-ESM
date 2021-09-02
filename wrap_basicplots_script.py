@@ -27,7 +27,7 @@ import region_library as rlib
 # Call regions
 ipccWg1Ar5 = rlib.atlas_ipcc_wg1ar5() #ipccWg1Ar5["allRegions"]
 testAllTypes = rlib.atlas_all_types() #testAllTypes["allRegions"]
-gnsht = ('global', rlib.Arctic(), rlib.SouthernHemisphere(),)
+gnsht = ('global', rlib.Arctic(), rlib.NorthernHemisphere(), rlib.SouthernHemisphere(),)
 
 # Dictionaries
 dataDict = {
@@ -36,11 +36,12 @@ dataDict = {
     "idGlensFdbck": 'feedback_*', #'feedback_*'
     "idSciris": '*SSP245*', #'*SSP245*'
     "idS245Cntrl": '*ssp245*', #'*ssp245*'
+    "idS245Hist": '*historical*', #'*historical*'
     "idCesmMask": '/Users/dhueholt/Documents/Summery_Summary/daniel_mask.nc'
 }
 setDict = {
     "landmaskFlag": 'land',
-    "startIntvl": [2015,2030], #dg
+    "startIntvl": [2011,2030], #dg
     "endIntvl": [2041,2060], #dg
     "cntrlPoi": [2011,2041], #pdf
     "fdbckPoi": [2041], #pdf
@@ -51,13 +52,13 @@ setDict = {
     "convert": None #TUPLE of converter(s), or None if using default units
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210825_refactoringAndFigs/2_pdfs/basic/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210902_historical/',
     "dpiVal": 400
 }
 loopDict = {
     "realizations": ('mean',), #number for individual member, 'mean' for ens mean of all available members
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": ('global',rlib.Tropics(),rlib.EastNorthAmerica(),rlib.AlaskaNorthwestCanada(),rlib.Sahara(),rlib.Amazon(),rlib.CentralEurope()),#('global',rlib.Arctic(),rlib.EastNorthAmerica()),
+    "regions": ('global',),#('global',rlib.Arctic(),rlib.EastNorthAmerica()),
     "aaBools": (True,)
 }
 

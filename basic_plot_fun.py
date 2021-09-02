@@ -342,7 +342,7 @@ def plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDi
 def plot_timeseries(rlzList, dataDict, setDict, outDict):
     ''' Make a simple timeseries of output variable '''
     # Set up data: Isolate time, level, and area of interest
-    setYear = [2020, 2095]
+    setYear = [2010, 2095]
     timeSlice = slice(cftime.DatetimeNoLeap(setYear[0], 7, 15, 12, 0, 0, 0),cftime.DatetimeNoLeap(setYear[1], 7, 15, 12, 0, 0, 0))
     rlzToPlot = list()
     for rc,rDarr in enumerate(rlzList):
