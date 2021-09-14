@@ -285,14 +285,31 @@ def open_data(dataDict, setDict):
             s245HistDset = None
 
         if setDict['landmaskFlag'] == 'land':
-            glensCntrlDset = glensCntrlDset.where(glensCntrlDset.landmask > 0)
-            glensFdbckDset = glensFdbckDset.where(glensFdbckDset.landmask > 0)
+            activeMaskDset = xr.open_dataset(dataDict["idMask"])
+            try:
+                activeMask = activeMaskDset.landmask
+            except:
+                activeMask = activeMaskDset.imask
+            glensCntrlDset = glensCntrlDset.where(activeMask > 0)
+            glensFdbckDset = glensFdbckDset.where(activeMask > 0)
             if scirisDset is not None:
-                scirisDset = scirisDset.where(scirisDset.landmask > 0)
+                scirisDset = scirisDset.where(activeMask > 0)
             if s245CntrlDset is not None:
-                cesmMask = xr.open_dataset(dataDict["idCesmMask"])
-                s245CntrlDset = s245CntrlDset.where(cesmMask.imask > 0)
-                s245HistDset = s245HistDset.where(cesmMask.imask > 0)
+                s245CntrlDset = s245CntrlDset.where(activeMask > 0)
+                s245HistDset = s245HistDset.where(activeMask > 0)
+        elif setDict['landmaskFlag'] == 'ocean':
+            activeMaskDset = xr.open_dataset(dataDict["idMask"])
+            try:
+                activeMask = activeMaskDset.landmask
+            except:
+                activeMask = activeMaskDset.imask
+            glensCntrlDset = glensCntrlDset.where(activeMask == 0)
+            glensFdbckDset = glensFdbckDset.where(activeMask == 0)
+            if scirisDset is not None:
+                scirisDset = scirisDset.where(activeMask == 0)
+            if s245CntrlDset is not None:
+                s245CntrlDset = s245CntrlDset.where(activeMask == 0)
+                s245HistDset = s245HistDset.where(activeMask == 0)
 
         dataKey = discover_data_var(glensCntrlDset)
         glensCntrlDarr = glensCntrlDset[dataKey]
@@ -360,8 +377,8 @@ def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
         "fdbckStr": 'G1.2(8.5)',
         "scirisStr": 'G1.5(2-4.5)',
         "s245Cntrl": 'SSP2-4.5',
-        "varStr": cntrlToPlot.long_name,
-        "varSve": cntrlToPlot.long_name.replace(" ",""),
+        "varStr": var_str_lookup(cntrlToPlot.long_name, setDict, strType='title'),
+        "varSve": var_str_lookup(cntrlToPlot.long_name, setDict, strType='save'),
         "strtStr": str(cntrlToPlot['time'].data[0].year),
         "endStr": str(cntrlToPlot['time'].data[len(cntrlToPlot)-1].year),
         "frstDcd": str(setDict["startIntvl"][0]) + '-' + str(setDict["startIntvl"][1]),
@@ -499,3 +516,32 @@ def copy_blank_darr(darr):
     darrOut = darr.copy(data=darrNan)
 
     return darrOut
+
+def var_str_lookup(longName, setDict, strType='title'):
+    ''' For known variables, give a better name than the default '''
+    if longName == 'Reference height temperature':
+        if strType == 'title':
+            outStr = '2m air temperature'
+        elif strType == 'save':
+            outStr = '2mtemp'
+        else:
+            outStr = None
+    else:
+        outStr = longName
+
+    if setDict["landmaskFlag"] == 'land':
+        if strType == 'title':
+            outStr = outStr + ' ' + 'land'
+        elif strType == 'save':
+            outStr = outStr + 'land'
+        else:
+            outStr = None
+    elif setDict["landmaskFlag"] == 'ocean':
+        if strType == 'title':
+            outStr = outStr + ' ' + 'ocean'
+        elif strType == 'save':
+            outStr = outStr + 'ocean'
+        else:
+            outStr = None
+
+    return outStr

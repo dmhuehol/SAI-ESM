@@ -25,6 +25,10 @@ boxMerCrossIPCC = (rlib.SouthEuropeMediterranean(), rlib.SouthernAfrica(), rlib.
 polyIPCC = (rlib.Amazon(), rlib.CentralAmericaMexico(), rlib.SmallIslandsRegionsCaribbean(), rlib.SouthAsia(),
             rlib.SoutheasternSouthAmerica(), rlib.WestCoastSouthAmerica())
 polyMerCrossIPCC = (rlib.CentralEurope(),rlib.NorthEurope())
+insets = (rlib.Sahara(),rlib.NorthEurope(),rlib.SoutheasternSouthAmerica(),rlib.SouthAsia(),
+          rlib.SouthernAfrica(),rlib.WestNorthAmerica(),rlib.EastAsia(),
+          rlib.CentralAmericaMexico(),rlib.SoutheastAsia(),rlib.NorthAtlanticWarmingHole(),
+          rlib.AustralianContinent())
 
 # The same 9 colors repeated a bunch of times
 colors = ('viridis','magma','Purples_r', 'Greens_r','Greys_r','Oranges_r','spring','winter','cool',
@@ -37,8 +41,8 @@ mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
 fig = plt.figure(figsize=(12, 2.73*2))
 ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
 
-for rc,reg in enumerate(boxIPCC + boxMerCrossIPCC + polyIPCC + polyMerCrossIPCC):
+for rc,reg in enumerate(insets):
     ic(reg)
     fig,ax = rlib.test_region(reg,colors[rc],fig,ax)
-plt.title("WG1-AR5 IPCC regions")
-plt.savefig('/Users/dhueholt/Documents/GLENS_fig/20210624_finalRegionsNewQ/map_IPCCWG1AR5.png', dpi=400)
+# plt.title("WG1-AR5 IPCC regions")
+plt.savefig('/Users/dhueholt/Documents/GLENS_fig/20210909_T2m/map_insetregions2.png', dpi=400)

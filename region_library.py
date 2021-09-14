@@ -365,6 +365,16 @@ def GulfOfMexico():
 
     return regDict
 
+def NorthAtlanticWarmingHole():
+    regDict = {
+        "regStr": 'North Atlantic Warming Hole',
+        "regSaveStr": 'NAWH',
+        "regLats": np.array([40,65]),
+        "regLons": np.array([300,350])
+    }
+
+    return regDict
+
 ## South Indian Ocean
 
 def LeeuwinCurrent():
@@ -487,8 +497,8 @@ def AustralianContinent():
     regDict = {
         "regStr": 'Australia',
         "regSaveStr": 'Australia',
-        "regLats": np.array([-43,-12]),
-        "regLons": np.array([111,115])
+        "regLats": np.array([-45,-10]),
+        "regLons": np.array([111,160])
     }
 
     return regDict

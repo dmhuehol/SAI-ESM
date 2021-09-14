@@ -19,6 +19,11 @@ import numpy as np
 import scipy.stats as stats
 import cftime
 
+import matplotlib.font_manager as fm
+fontPath = '/Users/dhueholt/Library/Fonts/'  # the location of the font file
+for font in fm.findSystemFonts(fontPath):
+    fm.fontManager.addfont(font)
+
 import process_glens_fun as pgf
 import plotting_tools as plt_tls
 import fun_convert_unit as fcu
@@ -102,6 +107,10 @@ def plot_ens_spread_timeseries(rlzList, dataDict, setDict, outDict):
         rlzToPlot.append(rlzAoi)
 
     # Make timeseries
+    if setDict["insetFlag"] == 2:
+        plt.rcParams.update({'font.size': 18})
+        plt.rcParams.update({'font.family': 'Fira Sans'})
+        plt.rcParams.update({'font.weight': 'bold'})
     fig, ax = plt.subplots()
     for rsc,rsDarr in enumerate(rlzList):
         dataAoi, locStr, locTitleStr = pgf.manage_area(rsDarr, setDict["regOfInt"], areaAvgBool=True)
@@ -109,36 +118,62 @@ def plot_ens_spread_timeseries(rlzList, dataDict, setDict, outDict):
         rlzMin = dataAoi.min(dim='realization')
         rlzMn = dataAoi[len(dataAoi['realization'])-1] #last member is ensemble mean
         md = pgf.meta_book(setDict, dataDict, rlzMn, labelsToPlot=None)
+        yearsOfInt = rlzMn['time'].dt.year.data #bndDct['mtchYrs']
         if 'GLENS:Control' in rsDarr.scenario:
             activeColor = '#D93636'
             activeLabel = md['cntrlStr']
+            # plt.plot(yearsOfInt[0:20],rlzMn.data[0:20],color=activeColor,label=activeLabel)
+            # plt.plot(yearsOfInt[20:],rlzMn.data[20:],color=activeColor,linestyle='dotted')
         elif 'GLENS:Feedback' in rsDarr.scenario:
             activeColor = '#8346C1'
             activeLabel = md['fdbckStr']
+            # plt.plot(yearsOfInt,rlzMn.data,color=activeColor,label=activeLabel)
         elif 'SCIRIS:Feedback' in rsDarr.scenario:
             activeColor = '#12D0B2'
             activeLabel = md['scirisStr']
+            # plt.plot(yearsOfInt,rlzMn.data,color=activeColor,label=activeLabel)
         elif 'SCIRIS:Control' in rsDarr.scenario:
             activeColor = '#F8A53D'
             activeLabel = md['s245Cntrl']
+            # plt.plot(yearsOfInt[0:175],rlzMn.data[0:175],color=activeColor,linestyle='dotted')
+            # plt.plot(yearsOfInt[175:],rlzMn.data[175:],color=activeColor,label=activeLabel)
         else:
             sys.exit('Unknown scenario cannot be plotted!')
-        yearsOfInt = rlzMn['time'].dt.year.data #bndDct['mtchYrs']
+
         # plt.plot(yearsOfInt,rlzMax.data,color=activeColor,linewidth=0.3)
         # plt.plot(yearsOfInt,rlzMin.data,color=activeColor,linewidth=0.3)
-        plt.plot(yearsOfInt,rlzMn.data,color=activeColor,label=activeLabel)
-        ax.fill_between(yearsOfInt, rlzMax.data, rlzMin.data, color=activeColor, alpha=0.2, linewidth=0)
+        plt.plot(yearsOfInt,rlzMn.data,color=activeColor,label=activeLabel,linewidth=2)
+        ax.fill_between(yearsOfInt, rlzMax.data, rlzMin.data, color=activeColor, alpha=0.3, linewidth=0)
 
     b,t = plt.ylim()
-    plt.plot([ensPrp["dscntntyYrs"],ensPrp["dscntntyYrs"]],[b,t], color='#36454F', linewidth=0.5, linestyle='dashed')
-    leg = plt.legend()
-    plt.ylabel(md['unit'])
+    # plt.plot([ensPrp["dscntntyYrs"],ensPrp["dscntntyYrs"]],[b,t], color='#36454F', linewidth=0.5, linestyle='dashed')
+    plt.plot(2015,b+0.1,color='#F8A53D',marker='v')
+    plt.plot(2030,b+0.1,color='#D93636',marker='v')
+    plt.plot([2020,2020],[b,t], color='#8346C1', linewidth=0.7, linestyle='dashed')
+    plt.plot([2035,2035],[b,t], color='#12D0B2', linewidth=0.7, linestyle='dashed')
     plt.autoscale(enable=True, axis='x', tight=True)
     plt.autoscale(enable=True, axis='y', tight=True)
     plt.xlim(setYear[0],setYear[1])
-    plt.title(md['varStr'] + ' ' + md['levStr'] + ': ' + str(setYear[0]) + '-' + str(setYear[1]) + ' ' + locTitleStr  + ' ' + 'spread')
+    if setDict["insetFlag"] == 0:
+        plt.ylabel(md['unit'])
+        leg = plt.legend()
+        plt.title(md['varStr'] + ' ' + md['levStr'] + str(setYear[0]) + '-' + str(setYear[1]) + ' ' + locTitleStr  + ' ' + 'spread')
+        savePrfx = ''
+    elif setDict["insetFlag"] == 1:
+        savePrfx = 'INSETQUAL_'
+        ax.axis('off')
+    else:
+        savePrfx = 'INSET_'
+        plt.xticks([2010,2030,2050,2070,2090])
+        plt.yticks(np.arange(-30,100,2))
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        plt.ylim([b,t])
+        # plt.ylim([-10,-3])
+        # ax.spines['bottom'].set_visible(False)
+        # ax.spines['left'].set_visible(False)
 
-    savePrfx = ''
+    savePrfx = savePrfx + ''
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + str(setYear[0]) + str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + md['ensPid']['sprd']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')

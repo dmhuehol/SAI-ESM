@@ -31,16 +31,16 @@ gnsht = ('global', rlib.Arctic(), rlib.NorthernHemisphere(), rlib.SouthernHemisp
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_TSA/',
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_T2m/',
     "idGlensCntrl": 'control_*', #'control_*'
     "idGlensFdbck": 'feedback_*', #'feedback_*'
     "idSciris": '*SSP245*', #'*SSP245*'
     "idS245Cntrl": '*ssp245*', #'*ssp245*'
     "idS245Hist": '*historical*', #'*historical*'
-    "idCesmMask": '/Users/dhueholt/Documents/Summery_Summary/daniel_mask.nc'
+    "idMask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc'
 }
 setDict = {
-    "landmaskFlag": 'land',
+    "landmaskFlag": 'ocean',
     "startIntvl": [2011,2030], #dg
     "endIntvl": [2041,2060], #dg
     "cntrlPoi": [2011,2041], #pdf
@@ -49,11 +49,11 @@ setDict = {
     "s245CntrlPoi": [2041], #pdf
     "timePeriod": 20, #pdf
     "plotStyle": 'step', #pdf
-    "convert": None #TUPLE of converter(s), or None if using default units
+    "convert": (fcu.kel_to_cel,) #TUPLE of converter(s), or None if using default units
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210902_historical/',
-    "dpiVal": 400
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210914_tempAndPrecip/2_tempRegions_planetary/',
+    "dpiVal": 800
 }
 loopDict = {
     "realizations": ('mean',), #number for individual member, 'mean' for ens mean of all available members
@@ -76,17 +76,17 @@ for rlz in loopDict["realizations"]:
     for lev in loopDict["levels"]:
         setDict["levOfInt"] = lev
         bpf.plot_basic_difference_globe(rlzList, dataDict, setDict, outDict)
-        # bpf.plot_single_basic_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict)
-
-        for reg in loopDict["regions"]:
-            setDict["regOfInt"] = reg
-            bpf.plot_timeseries(rlzList, dataDict, setDict, outDict)
-
-            for aab in loopDict["aaBools"]:
-                setDict["areaAvgBool"] = aab
-                setDict["plotStyle"] = 'step'
-                bpf.plot_pdf(rlzList, dataDict, setDict, outDict)
-                setDict["plotStyle"] = 'kde'
-                bpf.plot_pdf(rlzList, dataDict, setDict, outDict)
-                setDict["plotStyle"] = 'hist'
-                bpf.plot_pdf(rlzList, dataDict, setDict, outDict)
+        # bpf.plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict)
+    #
+    #     for reg in loopDict["regions"]:
+    #         setDict["regOfInt"] = reg
+    #         bpf.plot_timeseries(rlzList, dataDict, setDict, outDict)
+    #
+    #         for aab in loopDict["aaBools"]:
+    #             setDict["areaAvgBool"] = aab
+    #             setDict["plotStyle"] = 'step'
+    #             bpf.plot_pdf(rlzList, dataDict, setDict, outDict)
+    #             setDict["plotStyle"] = 'kde'
+    #             bpf.plot_pdf(rlzList, dataDict, setDict, outDict)
+    #             setDict["plotStyle"] = 'hist'
+    #             bpf.plot_pdf(rlzList, dataDict, setDict, outDict)
