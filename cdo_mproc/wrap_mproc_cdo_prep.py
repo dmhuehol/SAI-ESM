@@ -18,27 +18,27 @@ import numpy as np
 import subprocess
 
 def cdo_annualmean(IN_PATH, IN_TOKEN, OUT_PATH):
-    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/GLENS/GLENS/cdo_scripts/do_cdo_annualmean.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/GLENS/GLENS/cdo_mproc/cdo_bees/do_cdo_annualmean.sh', IN_PATH, IN_TOKEN, OUT_PATH])
     return None
 
 def cdo_seleimnsn(IN_PATH, IN_TOKEN, OUT_PATH):
-    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/GLENS/GLENS/cdo_scripts/do_cdo_seleimnsn.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/GLENS/GLENS/cdo_mproc/cdo_bees/do_cdo_seleimnsn.sh', IN_PATH, IN_TOKEN, OUT_PATH])
     return None
 
 def cdo_seleirainy(IN_PATH, IN_TOKEN, OUT_PATH):
-    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/GLENS/GLENS/cdo_scripts/do_cdo_seleirainy.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/GLENS/GLENS/cdo_mproc/cdo_bees/do_cdo_seleirainy.sh', IN_PATH, IN_TOKEN, OUT_PATH])
     return None
 
 def cdo_selfeb(IN_PATH, IN_TOKEN, OUT_PATH):
-    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/GLENS/GLENS/cdo_scripts/do_cdo_selfeb.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/GLENS/GLENS/cdo_mproc/cdo_bees/do_cdo_selfeb.sh', IN_PATH, IN_TOKEN, OUT_PATH])
     return None
 
 def cdo_sellevel(IN_PATH, IN_TOKEN, OUT_PATH, IN_LEV=500):
-    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/GLENS/GLENS/cdo_scripts/do_cdo_select_lev.sh', IN_PATH, IN_TOKEN, IN_LEV, OUT_PATH])
+    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/GLENS/GLENS/cdo_mproc/cdo_bees/do_cdo_select_lev.sh', IN_PATH, IN_TOKEN, IN_LEV, OUT_PATH])
     return None
 
 def cdo_selsept(IN_PATH, IN_TOKEN, OUT_PATH):
-    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/GLENS/GLENS/cdo_scripts/do_cdo_selsept.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/GLENS/GLENS/cdo_mproc/cdo_bees/do_cdo_selsept.sh', IN_PATH, IN_TOKEN, OUT_PATH])
     return None
 
 def return_emem_list(inType):

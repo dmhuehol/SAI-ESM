@@ -59,7 +59,7 @@ setDict = {
     "insetFlag": 2
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211007_gcc/3_500TEMP/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211008_refactoring/',
     "dpiVal": 800
 }
 loopDict = {

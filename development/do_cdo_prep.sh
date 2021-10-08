@@ -1,5 +1,7 @@
 #######################################
 # Merge GLENS monthly netcdf files, shift time, and calculate annual mean.
+# IN PRACTICE, this is accomplished through the cdo_mproc functions. But, this
+# one-off version is useful for troubleshooting or starting new scripts.
 # Output files are named automatically as:
 # type_ensnumber_variable_YYYYMM-YYYYMM[first]_..._YYYYMM-YYYYMM[last].nc
 # Globals:
