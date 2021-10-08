@@ -68,6 +68,23 @@ def kel_to_cel(darrKel):
 
     return darrCel
 
+### CMIP6 to GLENS/ARISE
+def flux_to_prect(darrFlux):
+    ''' Convert surface precipitation fluxes to rates '''
+    darrPrect = darrFlux / 1000.
+    darrPrect.attrs = darrFlux.attrs
+    darrPrect.attrs['units'] = 'm/s'
+
+    return darrPrect
+
+def perc_to_frac(darrPerc):
+    ''' Convert percent to fraction '''
+    darrFrac = darrPerc / 100.
+    darrFrac.attrs = darrPerc.attrs
+    darrFrac.attrs['units'] = 'fraction'
+
+    return darrFrac
+
 ### General
 def persec_peryr(darrPerSec):
     ''' Convert per second to per year '''

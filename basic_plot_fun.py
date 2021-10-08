@@ -95,12 +95,12 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12,2.73*2))
     ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
-    cmap = cmocean.cm.balance
-    # cbVals = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
-    cbVals = [-3,3] #Override automatic colorbar range here
+    cmap = cmocean.cm.curl_r
+    cbVals = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
+    # cbVals = [-25,25] #Override automatic colorbar range here
     md = pgf.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
-    # plt.suptitle(md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']), fontsize=10)
-    plt.suptitle('2m temperature ens mean', fontsize=10) #Override automatic supertitle here
+    plt.suptitle(md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']), fontsize=10)
+    # plt.suptitle('2m temperature ens mean', fontsize=10) #Override automatic supertitle here
     lats = rlzList[0].lat
     lons = rlzList[0].lon
 
@@ -200,8 +200,9 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     savePrfx = '' #Easy modification for unique filename
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
     # savename = outDict["savePath"] + savePrfx + saveStr + '.png'
-    savename = outDict["savePath"] + 'blankmap.png'
-    plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
+    savename = outDict["savePath"] + 'blankmap.eps'
+    # plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
+    plt.savefig(savename,format='eps')
     plt.close()
     ic(savename)
 
@@ -355,6 +356,96 @@ def plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDi
     savePrfx = ''
     saveStr = savePrfx + md['varSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['vGl'] + '_' + md['glbType']['bGl']
     savename = outDict["savePath"] + saveStr + '.png'
+    plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
+    plt.close()
+    ic(savename)
+
+def plot_basic_difference_polar(rlzList, dataDict, setDict, outDict):
+    ''' Plot 4-panel difference map with polar projection
+        (1) change over time for RCP8.5 (GLENS control)
+        (2) change over time for SSP2-4.5 (SCIRIS control)
+        (3) diff between RCP8.5 and G1.2(8.5) for end interval (world avoided)
+        (4) diff between SSP2-4.5 and G1.5(4.5) for end interval (world avoided)
+    '''
+    toiStart = dict()
+    toiEnd = dict()
+    for rc,rDarr in enumerate(rlzList):
+        rlzLoi = pgf.obtain_levels(rDarr, setDict["levOfInt"])
+        shrtScn = rlzLoi.scenario.split('/')[len(rlzLoi.scenario.split('/'))-1]
+        if 'Control' in rlzLoi.attrs['scenario']:
+            toiStartLp = pgf.average_over_years(rlzLoi, setDict["startIntvl"][0], setDict["startIntvl"][1])
+            toiEndLp = pgf.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+            toiStart[shrtScn] = toiStartLp
+        else:
+            toiEndLp = pgf.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+        toiEnd[shrtScn] = toiEndLp
+
+    # Set up panels
+    diffToiR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
+    diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
+    wrldAvrtdG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
+    #CESM2-WACCM SSP2-4.5 uses CMIP6 variable names which are often different
+    #than in SCIRIS; subtracting the two DataArrays directly results in nonsense
+    wrldAvrtdG15S245 = toiEnd['G1.5(4.5)'].copy() #Duplicate pre-existing array to retain SCIRIS attributes and shape
+    wrldAvrtdG15S245.data = toiEnd['G1.5(4.5)'].data - toiEnd['SSP2-4.5'].data #Subtract the data only
+    # scnrsCmprd = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare SCIRIS/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
+
+    panels = (diffToiR85, diffToiS245, wrldAvrtdG12R85, wrldAvrtdG15S245)
+
+    # Plotting
+    CL = 0.
+    mapProj = cartopy.crs.Orthographic(0, 90)#N: (0,90) S: (180,-90)
+    savePrfx = 'NPOLE_'
+    # mapProj = cartopy.crs.Orthographic(180, -90)
+    # savePrfx = 'SPOLE_'
+    plt.figure(figsize=(12,2.73*2))
+    ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
+    cmap = cmocean.cm.curl_r
+    # cbVals = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
+    cbVals = [-1,1] #Override automatic colorbar range here
+    md = pgf.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
+    # plt.suptitle(md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']), fontsize=10)
+    plt.suptitle('Feb ice thickness ens mean', fontsize=10) #Override automatic supertitle here
+    lats = rlzList[0].lat
+    lons = rlzList[0].lon
+
+    plt_tls.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
+    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
+    else:
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
+
+    ax2 = plt.subplot(2,2,2,projection=mapProj)
+    plt_tls.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
+    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
+    else:
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
+
+    ax3 = plt.subplot(2,2,3,projection=mapProj)
+    plt_tls.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
+        plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
+    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
+        plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
+    else:
+        plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
+
+    ax4 = plt.subplot(2,2,4,projection=mapProj)
+    plt_tls.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
+        plt.title(md['scirisStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
+    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
+        plt.title(md['scirisStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
+    else:
+        plt.title(md['scirisStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
+
+    saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['fcStr']
+    savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
     plt.close()
     ic(savename)

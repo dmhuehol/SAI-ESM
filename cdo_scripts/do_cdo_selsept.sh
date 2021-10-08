@@ -36,7 +36,7 @@ for f in $IN_CARD; do
     RUN_ENSNUMS+=( $ACTIVE_ENSNUM )
     RUN_TYPE=$(echo $ACTIVE_FNAME | cut -d'.' -f4)
     RUN_VAR=$(echo $ACTIVE_FNAME | cut -d'.' -f1)
-  elif [[ "$ACTIVE_FNAME" == *"CMIP6"* ]]; then #CMIP6 format (unprocessed)
+  elif [[ "$ACTIVE_FNAME" == *"CMIP6-SSP2-4.5"* ]]; then #CESM format (unprocessed)
       ACTIVE_FNAME=${ACTIVE_FNAME//_/.}
       RUN_FNAMES+=( $ACTIVE_FNAME )
       ACTIVE_TIME=$(echo $ACTIVE_FNAME | cut -d'.' -f12)
@@ -45,6 +45,15 @@ for f in $IN_CARD; do
       RUN_ENSNUMS+=( $ACTIVE_ENSNUM )
       RUN_TYPE=$(echo $ACTIVE_FNAME | cut -d'.' -f3)
       RUN_VAR=$(echo $ACTIVE_FNAME | cut -d'.' -f11)
+  elif [[ "$ACTIVE_FNAME" == *"CMIP6-historical"* ]]; then #CESM historical format (unprocessed)
+      ACTIVE_FNAME=${ACTIVE_FNAME//_/.}
+      RUN_FNAMES+=( $ACTIVE_FNAME )
+      ACTIVE_TIME=$(echo $ACTIVE_FNAME | cut -d'.' -f11)
+      RUN_TIMES+=( $ACTIVE_TIME )
+      ACTIVE_ENSNUM=$(echo $ACTIVE_FNAME | cut -d'.' -f7)
+      RUN_ENSNUMS+=( $ACTIVE_ENSNUM )
+      RUN_TYPE=$(echo $ACTIVE_FNAME | cut -d'.' -f3)
+      RUN_VAR=$(echo $ACTIVE_FNAME | cut -d'.' -f10)
   else #GLENS or SCIRIS format
     RUN_FNAMES+=( $ACTIVE_FNAME )
     ACTIVE_TIME=$(echo $ACTIVE_FNAME | cut -d'.' -f10)
@@ -72,7 +81,6 @@ echo $OUT_FNAME
 
 OUT_MERGE="${OUT_PATH}${OUT_FNAME}_merge.nc"
 OUT_SHIFT="${OUT_PATH}${OUT_FNAME}_shift.nc"
-OUT_ANNUAL="${OUT_PATH}${OUT_FNAME}_annual.nc"
+OUT_SEPT="${OUT_PATH}${OUT_FNAME}_sept.nc"
 
-# cdo -L -yearmonmean -shifttime,'-1days' -mergetime ${IN_CARD} ${OUT_ANNUAL}
-cdo -L -selmon,2 -mergetime ${IN_CARD} ${OUT_ANNUAL}
+cdo -L -selmon,9 -mergetime ${IN_CARD} ${OUT_SEPT}

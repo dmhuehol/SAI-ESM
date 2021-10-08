@@ -1,5 +1,5 @@
 ''' fun_regrid_pop
-Functions to regrid Parallel Ocean Model (POP) output from the B-grid to a 
+Functions to regrid Parallel Ocean Model (POP) output from the B-grid to a
 standard lat/lon using interpolation.
 
 Originally written by Emily Gordon based on code provided by Zachary Labe
@@ -13,11 +13,11 @@ import numpy as np
 import xarray as xr
 import scipy.interpolate as interp
 
-def extract_pop_latlons(popFile):
+def extract_pop_latlons(popFile,latName,lonName):
     ''' Extract lat/lons from the POP grid '''
     popgrid = xr.open_dataset(popFile)
-    popLat = np.asarray(popgrid.TLAT.data)
-    popLon = np.asarray(popgrid.TLONG.data)
+    popLat = np.asarray(popgrid[latName].data)
+    popLon = np.asarray(popgrid[lonName].data)
 
     return popLat, popLon
 
@@ -82,9 +82,15 @@ def operate_regrid_direct(popDataArray, popLat, popLon):
     time = popDataArray.time
     latNew = np.arange(-90,91)
     lonNew = np.arange(0,360)
+    # popLat[popLat>90] = np.nan
+    # popLon[popLon>360] = np.nan
 
     dataRegrid = np.empty((varOfInt.shape[0],latNew.shape[0],lonNew.shape[0]))
     for bc in range(varOfInt.shape[0]):
+        # ic(varOfInt[bc,:,:])
+        # ic(popLat,popLon)
+        # ic(latNew,lonNew)
+        # sys.exit('STOP')
         newDat = regrid(varOfInt[bc,:,:],popLat,popLon,latNew,lonNew)
         dataRegrid[bc,:,:] = newDat
 

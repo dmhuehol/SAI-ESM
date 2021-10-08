@@ -25,7 +25,8 @@ import region_library as rlib
 
 # Call regions
 ipccWg1Ar5 = rlib.atlas_ipcc_wg1ar5() #ipccWg1Ar5["allRegions"]
-gnsht = ('global', rlib.Arctic(), rlib.Antarctica(), rlib.Tropics(), rlib.NorthernHemisphere(), rlib.SouthernHemisphere(),)
+seaIcyRegions = rlib.atlas_seaicy_regions()
+planetary = ('global', rlib.Tropics(), rlib.NorthernHemisphere(), rlib.SouthernHemisphere(),)
 otherRegions = (rlib.NorthAtlanticWarmingHole(),rlib.AustralianContinent())
 insets = (rlib.Sahara(),rlib.NorthEurope(),rlib.Amazon(),rlib.WestAsia(),
           rlib.SouthernAfrica(),rlib.WestNorthAmerica(),rlib.EastAsia(),
@@ -34,12 +35,12 @@ insets = (rlib.Sahara(),rlib.NorthEurope(),rlib.Amazon(),rlib.WestAsia(),
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_T2m/',
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_500TEMP/regrid/',
     "idGlensCntrl": 'control_*', #'control_*'
     "idGlensFdbck": 'feedback_*', #'feedback_*'
-    "idSciris": '*SSP245*', #'*SSP245*'
-    "idS245Cntrl": '*ssp245*', #'*ssp245*'
-    "idS245Hist": '*historical*', #'*historical*'
+    "idSciris": '*SSP245-TSMLT-GAUSS*', #'*SSP245*'
+    "idS245Cntrl": '*BWSSP245*', #'*ssp245*'
+    "idS245Hist": '*BWHIST*', #'*historical*'
     "idMask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc' #cesm_component_mask.nc
 }
 setDict = {
@@ -53,24 +54,28 @@ setDict = {
     "timePeriod": 20, #pdf
     "plotStyle": 'step', #pdf
     "dimOfVrblty": {'rlzBool':True,'timeBool':True,'spcBool':False}, #pdf
-    "convert": (fcu.kel_to_cel,), #TUPLE of converter(s), or None if using default units
+    "convert": None, #TUPLE of converter(s), or None if using default units
     "realization": 'ensplot',
-    "insetFlag": 0
+    "insetFlag": 2
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210914_tempAndPrecip/3_tempRegions_other/',
-    "dpiVal": 400
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211007_gcc/3_500TEMP/',
+    "dpiVal": 800
 }
 loopDict = {
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": otherRegions,#('global',rlib.Arctic(),rlib.EastNorthAmerica()),
+    "regions": ('global',)
 }
 
 # Verify inputs (troubleshooting)
-ic(setDict["convert"])
+ic(dataDict)
+ic(setDict)
+ic(outDict)
+# ic(setDict["convert"])
 
 # Make images
 rlzList, cmnDict = pgf.call_to_open(dataDict, setDict)
+# rlzList = pgf.period_month_avg(rlzList)
 dataDict = {**dataDict, **cmnDict}
 for lev in loopDict["levels"]:
     setDict["levOfInt"] = lev
@@ -78,9 +83,9 @@ for lev in loopDict["levels"]:
         setDict["regOfInt"] = reg
         # epf.plot_ens_spaghetti_timeseries(rlzList, dataDict, setDict, outDict)
         epf.plot_ens_spread_timeseries(rlzList, dataDict, setDict, outDict)
-        setDict["plotStyle"] = 'step'
-        epf.plot_ens_pdf(rlzList, dataDict, setDict, outDict)
-        setDict["plotStyle"] = 'kde'
-        epf.plot_ens_pdf(rlzList, dataDict, setDict, outDict)
-        setDict["plotStyle"] = 'hist'
-        epf.plot_ens_pdf(rlzList, dataDict, setDict, outDict)
+        # setDict["plotStyle"] = 'step'
+        # epf.plot_ens_pdf(rlzList, dataDict, setDict, outDict)
+        # setDict["plotStyle"] = 'kde'
+        # epf.plot_ens_pdf(rlzList, dataDict, setDict, outDict)
+        # setDict["plotStyle"] = 'hist'
+        # epf.plot_ens_pdf(rlzList, dataDict, setDict, outDict)

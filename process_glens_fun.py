@@ -17,6 +17,8 @@ import numpy as np
 import matplotlib.path as mpth
 import glob
 
+import fun_convert_unit as fcu
+
 def discover_data_var(dset):
     ''' Find the data variable from among the many variables in a dataset '''
     fileKeys = list(dset.keys())
@@ -257,6 +259,54 @@ def manage_realizations(setDict, darr, emem):
 
     return darrOut, ememSave
 
+def open_data_new(inID, dataDict, setDict, outDict):
+    ''' Potential new version of open_data which opens one type of file at a
+    time to be more modular '''
+    inPath = dataDict["dataPath"] + inID
+    inDset = xr.open_mfdataset(inPath, concat_dim='realization', combine='nested')
+    maskDset = apply_mask(inDset, dataDict, setDict)
+    dataKey = discover_data_var(maskDset)
+    maskDarr = maskDset[dataKey]
+    scnDarr = bind_scenario(maskDarr)
+
+def apply_mask(dset, dataDict, setDict):
+    if setDict['landmaskFlag'] is not None:
+        activeMaskDset = xr.open_dataset(dataDict["idMask"])
+        try:
+            activeMask = activeMaskDset.landmask
+        except:
+            activeMask = activeMaskDset.imask
+
+        if setDict['landmaskFlag'] == 'land':
+            maskDset = dset.where(activeMask > 0)
+        elif setDict['landmaskFlag'] == 'ocean':
+            maskDset = dset.where(activeMask == 0)
+        else:
+            ic('Invalid landmaskFlag! Continuing with no mask applied')
+            maskDset = dset
+    else:
+        ic('landmaskFlag is None, no mask applied')
+        maskDset = dset
+
+    return maskDset
+
+def bind_scenario(darr, inID):
+    if 'control_' in inID:
+        darr.attrs['scenario'] = 'GLENS:Control/RCP8.5'
+    elif 'feedback_' in inID:
+        darr.attrs['scenario'] = 'GLENS:Feedback/SAI/G1.2(8.5)'
+    elif 'SSP245-TSMLT-GAUSS' in inID:
+        darr.attrs['scenario'] = 'ARISE:Feedback/SAI/G1.5(4.5)'
+    elif 'SSP245cmip6' in inID:
+        darr.attrs['scenario'] = 'CESM2-WACCM/ARISE:Control/SSP2-4.5'
+    elif 'historical' in inID:
+        darr.attrs['scenario'] = 'CESM2-WACCM/:Control/Historical'
+    else:
+        ic('Unable to match scenario, binding empty string to array')
+        darr.attrs['scenario'] = ''
+
+    return darr
+
 def open_data(dataDict, setDict):
     ''' Opens data and select data variable. This, manage_realizations, and
     meta_book have substantial hard-coding and require reworking when a new
@@ -324,7 +374,13 @@ def open_data(dataDict, setDict):
         if s245CntrlDset is not None:
             dataKeyCmip6 = discover_data_var(s245CntrlDset) #CMIP6 has unique variable names tied to CMIP6 conventions specifically, not its status as the control for SCIRIS
             s245CntrlDarr = s245CntrlDset[dataKeyCmip6]
-            s245HistDarr = s245HistDset['TREFHT'] #Historical output uses the same dataKey as GLENS/ARISE
+            # s245CntrlDarr = convert_for_consistency(s245CntrlDarr) #CMIP6 often has different unit standards but is used as the ARISE control so we make do
+            try:
+                s245HistDarr = s245HistDset[dataKey] #Historical output uses the same dataKey as GLENS/ARISE
+            except:
+                s245HistDarr = s245HistDset['SST'] #At times, must be set manually
+            # ic(s245CntrlDarr, s245HistDarr)
+            # sys.exit('STOP')
             s245Darr = combine_hist_fut(s245HistDarr, s245CntrlDarr)
             s245Darr.attrs['scenario'] = 'CMIP6_CESM2WACCM/SCIRIS:Control+Historical/SSP2-4.5'
         else:
@@ -526,6 +582,16 @@ def var_str_lookup(longName, setDict, strType='title'):
             outStr = '2mtemp'
         else:
             outStr = None
+    elif ((longName == 'Total precipitation (liq+ice)') or (longName == 'Total (convective and large-scale) precipitation  (liq + ice)')):
+        if strType == 'title':
+            outStr = 'Total precipitation (liq+ice)'
+        elif strType == 'save':
+            outStr = 'TotalPrecip(liq+ice)'
+    elif longName == 'Ice Fraction from Coupler':
+        if strType == 'title':
+            outStr = 'Ice Fraction from Coupler'
+        elif strType == 'save':
+            outStr = 'IceFracCoupler'
     else:
         outStr = longName
 
@@ -545,3 +611,27 @@ def var_str_lookup(longName, setDict, strType='title'):
             outStr = None
 
     return outStr
+
+def convert_for_consistency(inDarr):
+    ''' CMIP6 has different unit standards, but the CESM2-WACCM CMIP6 run is
+        used as the ARISE control. It's therefore necessary to convert this
+        output so it's consistent. These conversions are not automatic and are
+        purely determined by trial and error. '''
+    if inDarr.standard_name == 'precipitation_flux':
+        consistentDarr = fcu.flux_to_prect(inDarr)
+    elif inDarr.standard_name == 'sea_ice_area_fraction':
+        consistentDarr = fcu.perc_to_frac(inDarr)
+    else:
+        ic('Unknown CMIP6 variable! No unit conversion applied.')
+        consistentDarr = inDarr
+
+    return consistentDarr
+
+def period_month_avg(darrList):
+    darrPerAvgList = list()
+    for darr in darrList:
+        darrPerAvg = darr.groupby("time.year").mean()
+        darrPerAvg = darrPerAvg.rename({'year':'time'})
+        darrPerAvgList.append(darrPerAvg)
+
+    return darrPerAvgList

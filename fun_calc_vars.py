@@ -11,10 +11,12 @@ import numpy as np
 import xarray as xr
 
 def sst_from_ptmp(darr):
+    levName = 'z_t'
     levs = darr[levName].data
     levMask = levs == 500
-    darrSurf = activeDarr[:,levMask,:,:]
-    return None
+    darrSurf = darr[:,levMask,:,:]
+    
+    return darrSurf
 
 def uohc_from_ptmp(darr):
     ''' Sum upper 2000 meters of ocean potential temperature to obtain upper

@@ -295,7 +295,7 @@ def Antarctica():
     regDict = {
         "regStr": 'Antarctica',
         "regSaveStr": 'Antarctica',
-        "regLats": np.array([-90, -50]),
+        "regLats": np.array([-90, -50]), #[-90,-50]
         "regLons": np.array([0, 360])
     }
 
@@ -467,6 +467,16 @@ def Below50S():
 
     return regDict
 
+def AntarcticaSouthernOcn():
+    regDict = {
+        "regStr": 'AntarcticaSouthernOcn',
+        "regSaveStr": 'AntSthOcn',
+        "regLats": ([-80,-55]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
 ## Arctic
 
 def ArcticCircle():
@@ -474,6 +484,36 @@ def ArcticCircle():
         "regStr": 'ArcticCircle',
         "regSaveStr": 'ArctcCrcl',
         "regLats": np.array([66.5,90]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
+def NorthHemiSeaIce():
+    regDict = {
+        "regStr": 'NorthHemiSeaIce',
+        "regSaveStr": 'NHemiSeaIce',
+        "regLats": np.array([45,90]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
+def HudsonBay():
+    regDict = {
+        "regStr": 'HudsonBay',
+        "regSaveStr": 'HudsonBay',
+        "regLats": np.array([51,65]),
+        "regLons": np.array([266,284])
+    }
+
+    return regDict
+
+def Subarctic():
+    regDict = {
+        "regStr": 'SubArctic',
+        "regSaveStr": 'Subarctic',
+        "regLats": np.array([45,70]),
         "regLons": np.array([0,360])
     }
 
@@ -487,6 +527,16 @@ def NortheastAsia():
         "regSaveStr": 'NortheastAsia',
         "regLats": np.array([40,70]),
         "regLons": np.array([106,115])
+    }
+
+    return regDict
+
+def AsianMonsoonRegion():
+    regDict = {
+        "regStr": 'AsianMonsoon',
+        "regSaveStr": 'AsianMonsoon',
+        "regLats": np.array([10,35]),
+        "regLons": np.array([60,160])
     }
 
     return regDict
@@ -570,6 +620,11 @@ def atlas_ipcc_wg1ar5():
     }
 
     return ipccWg1Ar5Dict
+
+def atlas_seaicy_regions():
+    seaIcyReg = (Arctic(), Subarctic(), Antarctica(), HudsonBay(), NorthHemiSeaIce())
+
+    return seaIcyReg
 
 def atlas_all_types():
     box = AlaskaNorthwestCanada()

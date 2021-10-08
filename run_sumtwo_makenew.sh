@@ -13,14 +13,14 @@
 #PBS -m abe
 ### Specify mail recipient
 #PBS -M dhueholt@rams.colostate.edu
-exec &> logfile.txt
-
-export TMPDIR=/glade/scratch/dhueholt/temp
-mkdir -p $TMPDIR
-
-### Load modules
-module load cdo
-module load nco
+# exec &> logfile.txt
+#
+# export TMPDIR=/glade/scratch/dhueholt/temp
+# mkdir -p $TMPDIR
+#
+# ### Load modules
+# module load cdo
+# module load nco
 
 EMEM=(
 "001_"
@@ -51,10 +51,10 @@ SCENARIO=(
 "feedback"
 )
 
-IN_PATH="/glade/scratch/dhueholt/annual_PREC/"
+IN_PATH="/Users/dhueholt/Documents/GLENS_data/eimnsn_PREC/"
 IN_VARNAME1=PRECC
 IN_VARNAME2=PRECL
-OUT_PATH="/glade/scratch/dhueholt/annual_PREC/"
+OUT_PATH="/Users/dhueholt/Documents/GLENS_data/eimnsn_PRECT/"
 OUT_VARNAME=PRECT
 OUT_LONGNAME='Total precipitation (liq+ice)'
 

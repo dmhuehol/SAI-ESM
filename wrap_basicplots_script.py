@@ -27,20 +27,20 @@ import region_library as rlib
 # Call regions
 ipccWg1Ar5 = rlib.atlas_ipcc_wg1ar5() #ipccWg1Ar5["allRegions"]
 testAllTypes = rlib.atlas_all_types() #testAllTypes["allRegions"]
-gnsht = ('global', rlib.Arctic(), rlib.NorthernHemisphere(), rlib.SouthernHemisphere(),)
+gnsht = ('global', rlib.Arctic(), rlib.HudsonBay(), rlib.NorthernHemisphere(), rlib.SouthernHemisphere(),)
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_T2m/',
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/feb_hi/',
     "idGlensCntrl": 'control_*', #'control_*'
     "idGlensFdbck": 'feedback_*', #'feedback_*'
-    "idSciris": '*SSP245*', #'*SSP245*'
-    "idS245Cntrl": '*ssp245*', #'*ssp245*'
-    "idS245Hist": '*historical*', #'*historical*'
+    "idSciris": '*SSP245-TSMLT-GAUSS*', #'*SSP245*'
+    "idS245Cntrl": '*BWSSP245*', #'*ssp245*'
+    "idS245Hist": '*BWHIST*', #'*historical*'
     "idMask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc'
 }
 setDict = {
-    "landmaskFlag": 'ocean',
+    "landmaskFlag": None,
     "startIntvl": [2011,2030], #dg
     "endIntvl": [2041,2060], #dg
     "cntrlPoi": [2011,2041], #pdf
@@ -49,21 +49,24 @@ setDict = {
     "s245CntrlPoi": [2041], #pdf
     "timePeriod": 20, #pdf
     "plotStyle": 'step', #pdf
-    "convert": (fcu.kel_to_cel,) #TUPLE of converter(s), or None if using default units
+    "convert": None #TUPLE of converter(s), or None if using default units
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210914_tempAndPrecip/2_tempRegions_planetary/',
-    "dpiVal": 800
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211005_gcc/',
+    "dpiVal": 400
 }
 loopDict = {
     "realizations": ('mean',), #number for individual member, 'mean' for ens mean of all available members
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": ('global',),#('global',rlib.Arctic(),rlib.EastNorthAmerica()),
+    "regions": (rlib.Antarctica(),),#('global',rlib.Arctic(),rlib.EastNorthAmerica()),
     "aaBools": (True,)
 }
 
 # Verify inputs (troubleshooting)
-ic(setDict["convert"])
+ic(dataDict)
+ic(setDict)
+ic(outDict)
+# ic(setDict["convert"])
 
 # Make images
 for rlz in loopDict["realizations"]:
@@ -75,8 +78,9 @@ for rlz in loopDict["realizations"]:
 
     for lev in loopDict["levels"]:
         setDict["levOfInt"] = lev
-        bpf.plot_basic_difference_globe(rlzList, dataDict, setDict, outDict)
-        # bpf.plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict)
+        # bpf.plot_basic_difference_globe(rlzList, dataDict, setDict, outDict)
+        # bpf.plot_basic_difference_polar(rlzList, dataDict, setDict, outDict)
+        bpf.plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict)
     #
     #     for reg in loopDict["regions"]:
     #         setDict["regOfInt"] = reg

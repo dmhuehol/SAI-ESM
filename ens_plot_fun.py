@@ -97,7 +97,7 @@ def plot_ens_spread_timeseries(rlzList, dataDict, setDict, outDict):
     ''' Make a timeseries of output variable. Ensemble variability is visualized
     as the spread between max and min at each timestep. '''
     # Set up data: Isolate time, level, and area of interest
-    setYear = [2010, 2095]
+    setYear = [2010,2095]#[2010, 2095]
     timeSlice = slice(cftime.DatetimeNoLeap(setYear[0], 7, 15, 12, 0, 0, 0),cftime.DatetimeNoLeap(setYear[1], 7, 15, 12, 0, 0, 0))
     rlzToPlot = list()
     for rc,rDarr in enumerate(rlzList):
@@ -146,9 +146,13 @@ def plot_ens_spread_timeseries(rlzList, dataDict, setDict, outDict):
         ax.fill_between(yearsOfInt, rlzMax.data, rlzMin.data, color=activeColor, alpha=0.3, linewidth=0)
 
     b,t = plt.ylim()
+    # b = 0 #Override automatic b
+    # t = 0.45 #Override automatic t
     # plt.plot([ensPrp["dscntntyYrs"],ensPrp["dscntntyYrs"]],[b,t], color='#36454F', linewidth=0.5, linestyle='dashed')
-    plt.plot(2015,b+0.1,color='#F8A53D',marker='v')
-    plt.plot(2030,b+0.1,color='#D93636',marker='v')
+    # plt.plot(2015,b+(abs(b-t))*0.01,color='#F8A53D',marker='v')
+    plt.plot(2015,3.07,color='#F8A53D',marker='v')
+    # plt.plot(2030,b+(abs(b-t))*0.01,color='#D93636',marker='v')
+    plt.plot(2030,3.07,color='#D93636',marker='v')
     plt.plot([2020,2020],[b,t], color='#8346C1', linewidth=0.7, linestyle='dashed')
     plt.plot([2035,2035],[b,t], color='#12D0B2', linewidth=0.7, linestyle='dashed')
     plt.autoscale(enable=True, axis='x', tight=True)
@@ -158,25 +162,38 @@ def plot_ens_spread_timeseries(rlzList, dataDict, setDict, outDict):
         plt.ylabel(md['unit'])
         leg = plt.legend()
         plt.title(md['varStr'] + ' ' + md['levStr'] + str(setYear[0]) + '-' + str(setYear[1]) + ' ' + locTitleStr  + ' ' + 'spread')
+        # plt.title('SST 2010-2095 ' + locTitleStr + ' spread') #Override automatic title generation
         savePrfx = ''
+        # plt.ylim([0.6,0.9])
+        plt.ylim([b,t])
     elif setDict["insetFlag"] == 1:
         savePrfx = 'INSETQUAL_'
         ax.axis('off')
     else:
         savePrfx = 'INSET_'
         plt.xticks([2010,2030,2050,2070,2090])
-        plt.yticks(np.arange(-30,100,2))
+        # plt.yticks(np.arange(-30,100,2))
+        plt.yticks(np.arange(0,100,10)) #Ice thickness
+        plt.yticks(np.arange(0,100,2)) #Air temperature
+        plt.yticks(np.arange(100,300,30)) #Monsoon precip
+        plt.yticks(np.arange(25,33,2)) #Tropical SST
+        plt.yticks(np.arange(10,50,1)) #Global SST
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
-        plt.ylim([b,t])
-        # plt.ylim([-10,-3])
+        # plt.ylim([b,t])
+        # plt.ylim([10,30])
+        plt.ylim([18.5,22.5])
+        plt.ylabel('\u00B0C')
+        # plt.ylabel('cm')
         # ax.spines['bottom'].set_visible(False)
         # ax.spines['left'].set_visible(False)
 
     savePrfx = savePrfx + ''
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + str(setYear[0]) + str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + md['ensPid']['sprd']
-    savename = outDict["savePath"] + savePrfx + saveStr + '.png'
-    plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
+    # saveStr = 'SST' + '_' + md['levSve'] + '_' + str(setYear[0]) + str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + md['ensPid']['sprd']
+    savename = outDict["savePath"] + savePrfx + saveStr + '.pdf'
+    # plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
+    plt.savefig(savename,format='pdf')
     plt.close()
     ic(savename)
 
