@@ -19,15 +19,14 @@ import cmocean
 import cmasher
 import numpy as np
 
-import difference_over_time as dot
 import process_glens_fun as pgf
 import plotting_tools as plt_tls
 import fun_convert_unit as fcu
 
 # Inputs
-dataPath = '/Users/dhueholt/Documents/GLENS_data/annual_o3/'
-filenameCntrl = 'control_003_O3_201001-201912_202001-202912_203001-203912_204001-204912_205001-205912_206001-206912_207001-207912_208001-208912_209001-209912_annual.nc'
-filenameFdbck = 'feedback_003_O3_202001-202912_203001-203912_204001-204912_205001-205912_206001-206912_207001-207912_208001-208912_209001-209912_annual.nc'
+dataPath = '/Users/dhueholt/Documents/GLENS_data/annual_U/'
+filenameCntrl = 'control_003_U_201001-201912_202001-202912_203001-203912_204001-204912_205001-205912_206001-206912_207001-207912_208001-208912_209001-209912_annual.nc'
+filenameFdbck = 'feedback_003_U_202001-202912_203001-203912_204001-204912_205001-205912_206001-206912_207001-207912_208001-208912_209001-209912_annual.nc'
 cntrlPath = dataPath + filenameCntrl
 fdbckPath = dataPath + filenameFdbck
 
@@ -35,7 +34,7 @@ startInt = [2010,2019]
 finalInt = [2090,2099]
 levOfInt = 'stratosphere'
 
-savePath = '/Users/dhueholt/Documents/GLENS_fig/20210603_ncarAndZonal/zonal/'
+savePath = '/Users/dhueholt/Documents/GLENS_fig/20210604_refactoringZonalAndMore/'
 savePrfx = 'zonmn_FdbckCntrl_'
 dpi_val = 400
 
@@ -67,9 +66,9 @@ def zonal_mean():
     glensFdbckZnAvg = fcu.molmol_to_ppm(glensFdbckZnAvg)
 
     # Time mean
-    toiStart = dot.average_over_years(glensCntrlZnAvg, startInt[0], startInt[1]) # 2010-2019 is baseline, injection begins 2020
-    toiEndCntrl = dot.average_over_years(glensCntrlZnAvg, finalInt[0], finalInt[1])
-    toiEndFdbck = dot.average_over_years(glensFdbckZnAvg, finalInt[0], finalInt[1])
+    toiStart = pgf.average_over_years(glensCntrlZnAvg, startInt[0], startInt[1]) # 2010-2019 is baseline, injection begins 2020
+    toiEndCntrl = pgf.average_over_years(glensCntrlZnAvg, finalInt[0], finalInt[1])
+    toiEndFdbck = pgf.average_over_years(glensFdbckZnAvg, finalInt[0], finalInt[1])
 
     # Plotting
     yStr = glensCntrlZnAvg.units
@@ -107,13 +106,15 @@ def zonal_mean_height():
     glensFdbckZnAvg = glensDarrFdbck.mean(dim='lon')
 
     # Unit conversion
-    glensCntrlZnAvg = fcu.molmol_to_ppm(glensCntrlZnAvg)
-    glensFdbckZnAvg = fcu.molmol_to_ppm(glensFdbckZnAvg)
+    # glensCntrlZnAvg = fcu.molmol_to_ppm(glensCntrlZnAvg)
+    # glensFdbckZnAvg = fcu.molmol_to_ppm(glensFdbckZnAvg)
 
     # Time mean
-    toiStart = dot.average_over_years(glensCntrlZnAvg, startInt[0], startInt[1]) # 2010-2019 is baseline, injection begins 2020
-    toiEndCntrl = dot.average_over_years(glensCntrlZnAvg, finalInt[0], finalInt[1])
-    toiEndFdbck = dot.average_over_years(glensFdbckZnAvg, finalInt[0], finalInt[1])
+    toiStart = pgf.average_over_years(glensCntrlZnAvg, startInt[0], startInt[1]) # 2010-2019 is baseline, injection begins 2020
+    toiEndCntrl = pgf.average_over_years(glensCntrlZnAvg, finalInt[0], finalInt[1])
+    toiEndFdbck = pgf.average_over_years(glensFdbckZnAvg, finalInt[0], finalInt[1])
+    ic(toiStart)
+    sys.exit('STOP')
 
     # Calculate
     diffEndCntrlFdbck = toiEndCntrl.data - toiEndFdbck.data
@@ -126,15 +127,15 @@ def zonal_mean_height():
     levs = glensCntrlZnAvg['lev'].data
 
     plt.figure()
-    # conSet = plt.contour(lats,levs, toiStart.data,levels=np.arange(0,15,2), colors='black', linewidths=0.75)
-    # conSet = plt.contour(lats,levs, toiEndFdbck.data,levels=np.arange(0,15,2), colors='black', linewidths=0.75)
-    # conSet = plt.contour(lats,levs, toiEndCntrl.data,levels=np.arange(0,15,2), colors='black', linewidths=0.75)
-    conSet = plt.contour(lats,levs, diffEndCntrlFdbck,levels=np.arange(-1,1,0.5), colors='white', linewidths=0.75)
-    plt.clabel(conSet,fmt='%1.1f')
-    # plt.contourf(lats,levs, toiStart.data, levels=np.arange(0,15), cmap='Oranges')
-    plt.contourf(lats,levs, diffEndCntrlFdbck, levels=np.arange(-2,2,0.5), cmap=cmasher.cm.iceburn)
-    # plt.contourf(lats,levs, toiEndCntrl.data, levels=np.arange(0,15), cmap='Reds')
-    # plt.contourf(lats,levs, toiEndFdbck.data, levels=np.arange(0,15), cmap='Purples')
+    # conSet = plt.contour(lats,levs, toiStart.data, levels=(15,30,45), colors='black', linewidths=0.75)
+    # conSet = plt.contour(lats,levs, toiEndFdbck.data,levels=(15,30,45), colors='black', linewidths=0.75)
+    # conSet = plt.contour(lats,levs, toiEndCntrl.data,levels=(15,30,45), colors='black', linewidths=0.75)
+    conSet = plt.contour(lats,levs, diffEndCntrlFdbck,levels=(-9,-6,-3,3,6,9), colors='white', linewidths=0.75)
+    plt.clabel(conSet,fmt='%d')
+    # plt.contourf(lats,levs, toiStart.data, cmap='Oranges')
+    plt.contourf(lats,levs, diffEndCntrlFdbck, cmap=cmasher.cm.seaweed)
+    # plt.contourf(lats,levs, toiEndCntrl.data, cmap='Reds')
+    # plt.contourf(lats,levs, toiEndFdbck.data, cmap='Purples')
 
     # plt.legend()
     plt.ylabel(yStr)
