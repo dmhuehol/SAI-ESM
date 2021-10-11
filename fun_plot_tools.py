@@ -1,4 +1,4 @@
-''' plotting_tools
+''' fun_plot_tools
 Contains functions for plotting, e.g. drawing data on a globe, making kernel
 density estimates, histograms, or step plots. Also includes functions related to
 plotting, such as functions to choose colors or generate labels.

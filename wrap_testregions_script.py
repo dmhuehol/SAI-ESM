@@ -13,7 +13,6 @@ import cartopy
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 
-import process_glens_fun as pgf
 import region_library as rlib
 
 boxIPCC = (rlib.AlaskaNorthwestCanada(), rlib.CentralAsia(), rlib.CanadaGreenlandIceland(), rlib.CentralNorthAmerica(),

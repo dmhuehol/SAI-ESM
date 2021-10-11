@@ -1,5 +1,5 @@
 ''' wrap_basicplots_script
-Runs plotting functions in basic_plot_fun. This is used by run_plots_script.sh
+Runs plotting functions in fun_basic_plot. This is used by run_plots_script.sh
 to submit jobs through the NCAR queue.
 
 dataDict is for inputs
@@ -19,9 +19,9 @@ from matplotlib import cm
 import cmocean
 import numpy as np
 
-import basic_plot_fun as bpf
+import fun_basic_plot as fbp
 import fun_convert_unit as fcu
-import process_glens_fun as pgf
+import fun_process_data as fpd
 import region_library as rlib
 
 # Call regions
@@ -52,7 +52,7 @@ setDict = {
     "convert": None #TUPLE of converter(s), or None if using default units
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211005_gcc/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211011_refactoring/',
     "dpiVal": 400
 }
 loopDict = {
@@ -71,26 +71,26 @@ ic(outDict)
 # Make images
 for rlz in loopDict["realizations"]:
     setDict["realization"] = rlz
-    rlzList, cmnDict = pgf.call_to_open(dataDict, setDict)
+    rlzList, cmnDict = fpd.call_to_open(dataDict, setDict)
     dataDict = {**dataDict, **cmnDict}
-    # bpf.plot_vertical_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict) #comment if running variable with no levels
-    # bpf.plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict) #comment out if running variable with no levels
+    # fbp.plot_vertical_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict) #comment if running variable with no levels
+    # fbp.plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict) #comment out if running variable with no levels
 
     for lev in loopDict["levels"]:
         setDict["levOfInt"] = lev
-        # bpf.plot_basic_difference_globe(rlzList, dataDict, setDict, outDict)
-        # bpf.plot_basic_difference_polar(rlzList, dataDict, setDict, outDict)
-        bpf.plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict)
+        # fbp.plot_basic_difference_globe(rlzList, dataDict, setDict, outDict)
+        fbp.plot_basic_difference_polar(rlzList, dataDict, setDict, outDict)
+        # fbp.plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict)
     #
     #     for reg in loopDict["regions"]:
     #         setDict["regOfInt"] = reg
-    #         bpf.plot_timeseries(rlzList, dataDict, setDict, outDict)
+    #         fbp.plot_timeseries(rlzList, dataDict, setDict, outDict)
     #
     #         for aab in loopDict["aaBools"]:
     #             setDict["areaAvgBool"] = aab
     #             setDict["plotStyle"] = 'step'
-    #             bpf.plot_pdf(rlzList, dataDict, setDict, outDict)
+    #             fbp.plot_pdf(rlzList, dataDict, setDict, outDict)
     #             setDict["plotStyle"] = 'kde'
-    #             bpf.plot_pdf(rlzList, dataDict, setDict, outDict)
+    #             fbp.plot_pdf(rlzList, dataDict, setDict, outDict)
     #             setDict["plotStyle"] = 'hist'
-    #             bpf.plot_pdf(rlzList, dataDict, setDict, outDict)
+    #             fbp.plot_pdf(rlzList, dataDict, setDict, outDict)

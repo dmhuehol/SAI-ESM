@@ -19,8 +19,7 @@ import cmocean
 import cmasher
 import numpy as np
 
-import process_glens_fun as pgf
-import plotting_tools as plt_tls
+import fun_process_data as fpd
 import fun_convert_unit as fcu
 
 # Inputs
@@ -41,7 +40,7 @@ dpi_val = 400
 # Open data
 glensDsetCntrl = xr.open_dataset(cntrlPath)
 glensDsetFdbck = xr.open_dataset(fdbckPath)
-dataKey = pgf.discover_data_var(glensDsetCntrl)
+dataKey = fpd.discover_data_var(glensDsetCntrl)
 glensDarrCntrl = glensDsetCntrl[dataKey]
 glensDarrFdbck = glensDsetFdbck[dataKey]
 
@@ -49,8 +48,8 @@ def zonal_mean():
     ''' Plot zonal mean, time mean of a given variable '''
     # Obtain levels
     try:
-        glensCntrlLoi = pgf.obtain_levels(glensDarrCntrl, levOfInt)
-        glensFdbckLoi = pgf.obtain_levels(glensDarrFdbck, levOfInt)
+        glensCntrlLoi = fpd.obtain_levels(glensDarrCntrl, levOfInt)
+        glensFdbckLoi = fpd.obtain_levels(glensDarrFdbck, levOfInt)
         levCheck = 1
     except:
         glensCntrlLoi = glensDarrCntrl
@@ -66,9 +65,9 @@ def zonal_mean():
     glensFdbckZnAvg = fcu.molmol_to_ppm(glensFdbckZnAvg)
 
     # Time mean
-    toiStart = pgf.average_over_years(glensCntrlZnAvg, startInt[0], startInt[1]) # 2010-2019 is baseline, injection begins 2020
-    toiEndCntrl = pgf.average_over_years(glensCntrlZnAvg, finalInt[0], finalInt[1])
-    toiEndFdbck = pgf.average_over_years(glensFdbckZnAvg, finalInt[0], finalInt[1])
+    toiStart = fpd.average_over_years(glensCntrlZnAvg, startInt[0], startInt[1]) # 2010-2019 is baseline, injection begins 2020
+    toiEndCntrl = fpd.average_over_years(glensCntrlZnAvg, finalInt[0], finalInt[1])
+    toiEndFdbck = fpd.average_over_years(glensFdbckZnAvg, finalInt[0], finalInt[1])
 
     # Plotting
     yStr = glensCntrlZnAvg.units
@@ -110,9 +109,9 @@ def zonal_mean_height():
     # glensFdbckZnAvg = fcu.molmol_to_ppm(glensFdbckZnAvg)
 
     # Time mean
-    toiStart = pgf.average_over_years(glensCntrlZnAvg, startInt[0], startInt[1]) # 2010-2019 is baseline, injection begins 2020
-    toiEndCntrl = pgf.average_over_years(glensCntrlZnAvg, finalInt[0], finalInt[1])
-    toiEndFdbck = pgf.average_over_years(glensFdbckZnAvg, finalInt[0], finalInt[1])
+    toiStart = fpd.average_over_years(glensCntrlZnAvg, startInt[0], startInt[1]) # 2010-2019 is baseline, injection begins 2020
+    toiEndCntrl = fpd.average_over_years(glensCntrlZnAvg, finalInt[0], finalInt[1])
+    toiEndFdbck = fpd.average_over_years(glensFdbckZnAvg, finalInt[0], finalInt[1])
     ic(toiStart)
     sys.exit('STOP')
 

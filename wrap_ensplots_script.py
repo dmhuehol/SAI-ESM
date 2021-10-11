@@ -1,5 +1,5 @@
 ''' wrap_ensplots_script
-Runs ensemble plotting functions in ens_plot_fun.
+Runs ensemble plotting functions in fun_ens_plot.
 
 dataDict is for inputs
 setDict sets settings related to plotting
@@ -18,9 +18,9 @@ from matplotlib import cm
 import cmocean
 import numpy as np
 
-import ens_plot_fun as epf
+import fun_ens_plot as fep
 import fun_convert_unit as fcu
-import process_glens_fun as pgf
+import fun_process_data as fpd
 import region_library as rlib
 
 # Call regions
@@ -59,7 +59,7 @@ setDict = {
     "insetFlag": 2
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211008_refactoring/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211011_refactoring/',
     "dpiVal": 800
 }
 loopDict = {
@@ -74,18 +74,18 @@ ic(outDict)
 # ic(setDict["convert"])
 
 # Make images
-rlzList, cmnDict = pgf.call_to_open(dataDict, setDict)
-# rlzList = pgf.period_month_avg(rlzList)
+rlzList, cmnDict = fpd.call_to_open(dataDict, setDict)
+# rlzList = fpd.period_month_avg(rlzList)
 dataDict = {**dataDict, **cmnDict}
 for lev in loopDict["levels"]:
     setDict["levOfInt"] = lev
     for reg in loopDict["regions"]:
         setDict["regOfInt"] = reg
-        # epf.plot_ens_spaghetti_timeseries(rlzList, dataDict, setDict, outDict)
-        epf.plot_ens_spread_timeseries(rlzList, dataDict, setDict, outDict)
+        # fep.plot_ens_spaghetti_timeseries(rlzList, dataDict, setDict, outDict)
+        fep.plot_ens_spread_timeseries(rlzList, dataDict, setDict, outDict)
         # setDict["plotStyle"] = 'step'
-        # epf.plot_ens_pdf(rlzList, dataDict, setDict, outDict)
+        # fep.plot_ens_pdf(rlzList, dataDict, setDict, outDict)
         # setDict["plotStyle"] = 'kde'
-        # epf.plot_ens_pdf(rlzList, dataDict, setDict, outDict)
+        # fep.plot_ens_pdf(rlzList, dataDict, setDict, outDict)
         # setDict["plotStyle"] = 'hist'
-        # epf.plot_ens_pdf(rlzList, dataDict, setDict, outDict)
+        # fep.plot_ens_pdf(rlzList, dataDict, setDict, outDict)

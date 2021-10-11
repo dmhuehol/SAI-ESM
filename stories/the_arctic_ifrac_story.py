@@ -1,6 +1,7 @@
 ''' the_arctic_ifrac_story
 Makes Arctic ice timeseries with maximum aesthetics, used on Barnes Group
-website in 2021
+website in July 2021. This is CURRENTLY BROKEN as it is no longer in sync with
+the current data I/O code.
 Written by Daniel Hueholt | July 2021
 Graduate Research Assistant at Colorado State University
 '''
@@ -27,9 +28,7 @@ import cartopy.crs as ccrs
 import numpy as np
 import cftime
 
-import difference_over_time as dot
-import process_glens_fun as pgf
-import plotting_tools as plt_tls
+import fun_process_data as fpd
 import fun_convert_unit as fcu
 import region_library as rlib
 
@@ -37,14 +36,14 @@ import region_library as rlib
 # Dictionaries
 dataDict = {
     "dataPath": '/Users/dhueholt/Documents/GLENS_data/sept_IFRAC/emrg/',
-    "fnameCntrl": 'control_*',
-    "fnameFdbck": 'feedback_*'
+    "idGlensCntrl": 'control_*',
+    "idGlensFdbck": 'feedback_*',
 }
 setDict = {
     "convert": None #tuple of converter(s), or None if using default units
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20210726_newfigAndG2/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211011_refactoring/', #20210726_newfigAndG2
     "dpiVal": 400
 }
 loopDict = {

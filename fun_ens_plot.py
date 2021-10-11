@@ -1,4 +1,4 @@
-''' ens_plot_fun
+''' fun_ens_plot
 Contains functions to plot data with ensemble visualizations.
 Written by Daniel Hueholt | July 2021
 Graduate Research Assistant at Colorado State University
@@ -24,8 +24,8 @@ fontPath = '/Users/dhueholt/Library/Fonts/'  # the location of the font file
 for font in fm.findSystemFonts(fontPath):
     fm.fontManager.addfont(font)
 
-import process_glens_fun as pgf
-import plotting_tools as plt_tls
+import fun_process_data as fpd
+import fun_plot_tools as fpt
 import fun_convert_unit as fcu
 import region_library as rlib
 
@@ -47,16 +47,16 @@ def plot_ens_spaghetti_timeseries(rlzList, dataDict, setDict, outDict):
     rlzToPlot = list()
     for rc,rDarr in enumerate(rlzList):
         rlzToi = rDarr.sel(time=timeSlice)
-        rlzLoi = pgf.obtain_levels(rlzToi, setDict["levOfInt"])
-        rlzAoi, locStr, locTitleStr = pgf.manage_area(rlzLoi, setDict["regOfInt"], areaAvgBool=True)
+        rlzLoi = fpd..obtain_levels(rlzToi, setDict["levOfInt"])
+        rlzAoi, locStr, locTitleStr = fpd.manage_area(rlzLoi, setDict["regOfInt"], areaAvgBool=True)
         rlzToPlot.append(rlzAoi)
 
     # Make timeseries
     plt.figure()
     for rsc,rsDarr in enumerate(rlzList):
         for rc in rsDarr['realization'].data:
-            dataToPlot, locStr, locTitleStr = pgf.manage_area(rsDarr.sel(realization=rc), setDict["regOfInt"], areaAvgBool=True)
-            md = pgf.meta_book(setDict, dataDict, dataToPlot, labelsToPlot=None)
+            dataToPlot, locStr, locTitleStr = fpd.manage_area(rsDarr.sel(realization=rc), setDict["regOfInt"], areaAvgBool=True)
+            md = fpd.meta_book(setDict, dataDict, dataToPlot, labelsToPlot=None)
             if 'GLENS:Control' in dataToPlot.scenario:
                 activeColor = '#D93636'
                 activeLabel = md['cntrlStr']
@@ -102,8 +102,8 @@ def plot_ens_spread_timeseries(rlzList, dataDict, setDict, outDict):
     rlzToPlot = list()
     for rc,rDarr in enumerate(rlzList):
         rlzToi = rDarr.sel(time=timeSlice)
-        rlzLoi = pgf.obtain_levels(rlzToi, setDict["levOfInt"])
-        rlzAoi, locStr, locTitleStr = pgf.manage_area(rlzLoi, setDict["regOfInt"], areaAvgBool=True)
+        rlzLoi = fpd.obtain_levels(rlzToi, setDict["levOfInt"])
+        rlzAoi, locStr, locTitleStr = fpd.manage_area(rlzLoi, setDict["regOfInt"], areaAvgBool=True)
         rlzToPlot.append(rlzAoi)
 
     # Make timeseries
@@ -113,11 +113,11 @@ def plot_ens_spread_timeseries(rlzList, dataDict, setDict, outDict):
         plt.rcParams.update({'font.weight': 'bold'})
     fig, ax = plt.subplots()
     for rsc,rsDarr in enumerate(rlzList):
-        dataAoi, locStr, locTitleStr = pgf.manage_area(rsDarr, setDict["regOfInt"], areaAvgBool=True)
+        dataAoi, locStr, locTitleStr = fpd.manage_area(rsDarr, setDict["regOfInt"], areaAvgBool=True)
         rlzMax = dataAoi.max(dim='realization')
         rlzMin = dataAoi.min(dim='realization')
         rlzMn = dataAoi[len(dataAoi['realization'])-1] #last member is ensemble mean
-        md = pgf.meta_book(setDict, dataDict, rlzMn, labelsToPlot=None)
+        md = fpd.meta_book(setDict, dataDict, rlzMn, labelsToPlot=None)
         yearsOfInt = rlzMn['time'].dt.year.data #bndDct['mtchYrs']
         if 'GLENS:Control' in rsDarr.scenario:
             activeColor = '#D93636'
@@ -210,8 +210,8 @@ def plot_ens_pdf(rlzList, dataDict, setDict, outDict):
     # Set up data
     rlzToPlot = list()
     for rc,rDarr in enumerate(rlzList):
-        rlzLoi = pgf.obtain_levels(rDarr, setDict["levOfInt"])
-        rlzAoi, locStr, locTitleStr = pgf.manage_area(rlzLoi, setDict["regOfInt"], not setDict["dimOfVrblty"]['spcBool'])
+        rlzLoi = fpd.obtain_levels(rDarr, setDict["levOfInt"])
+        rlzAoi, locStr, locTitleStr = fpd.manage_area(rlzLoi, setDict["regOfInt"], not setDict["dimOfVrblty"]['spcBool'])
         rlzToPlot.append(rlzAoi)
 
     mnRlzInd = len(rlzToPlot[0]['realization'])-1
@@ -229,16 +229,16 @@ def plot_ens_pdf(rlzList, dataDict, setDict, outDict):
         periodsOfInt = scnData['time'].dt.year.data
         if 'GLENS:Control' in scnData.scenario:
             cntrlHandlesToPlot = list()
-            cntrlHandlesToPlot = pgf.extract_intvl(setDict["cntrlPoi"], periodsOfInt, setDict["timePeriod"], scnData, cntrlHandlesToPlot)
+            cntrlHandlesToPlot = fpd.extract_intvl(setDict["cntrlPoi"], periodsOfInt, setDict["timePeriod"], scnData, cntrlHandlesToPlot)
         elif 'GLENS:Feedback' in scnData.scenario:
             fdbckHandlesToPlot = list()
-            fdbckHandlesToPlot = pgf.extract_intvl(setDict["fdbckPoi"], periodsOfInt, setDict["timePeriod"], scnData, fdbckHandlesToPlot)
+            fdbckHandlesToPlot = fpd.extract_intvl(setDict["fdbckPoi"], periodsOfInt, setDict["timePeriod"], scnData, fdbckHandlesToPlot)
         elif 'SCIRIS:Feedback' in scnData.scenario:
             scirisHandlesToPlot = list()
-            scirisHandlesToPlot = pgf.extract_intvl(setDict["scirisPoi"], periodsOfInt, setDict["timePeriod"], scnData, scirisHandlesToPlot)
+            scirisHandlesToPlot = fpd.extract_intvl(setDict["scirisPoi"], periodsOfInt, setDict["timePeriod"], scnData, scirisHandlesToPlot)
         elif 'SCIRIS:Control' in scnData.scenario:
             s245CntrlHandlesToPlot = list()
-            s245CntrlHandlesToPlot = pgf.extract_intvl(setDict["s245CntrlPoi"], periodsOfInt, setDict["timePeriod"], scnData, s245CntrlHandlesToPlot)
+            s245CntrlHandlesToPlot = fpd.extract_intvl(setDict["s245CntrlPoi"], periodsOfInt, setDict["timePeriod"], scnData, s245CntrlHandlesToPlot)
         else:
             ic(scnData.scenario)
             #No sys.exit(), want to know what the error is if it fails here
@@ -254,15 +254,15 @@ def plot_ens_pdf(rlzList, dataDict, setDict, outDict):
 
     # Generate colors and strings for plots and filenames
     if baselineFlag:
-        colorsToPlot = plt_tls.select_colors(baselineFlag,len(setDict["cntrlPoi"])-1,len(setDict["fdbckPoi"]),len(setDict["scirisPoi"]),len(setDict["s245CntrlPoi"]))
+        colorsToPlot = fpt.select_colors(baselineFlag,len(setDict["cntrlPoi"])-1,len(setDict["fdbckPoi"]),len(setDict["scirisPoi"]),len(setDict["s245CntrlPoi"]))
     else:
-        colorsToPlot = plt_tls.select_colors(baselineFlag,len(setDict["cntrlPoi"]),len(setDict["fdbckPoi"]),len(setDict["scirisPoi"]),len(setDict["s245CntrlPoi"]))
+        colorsToPlot = fpt.select_colors(baselineFlag,len(setDict["cntrlPoi"]),len(setDict["fdbckPoi"]),len(setDict["scirisPoi"]),len(setDict["s245CntrlPoi"]))
     labelsToPlot = list()
-    labelsToPlot = plt_tls.generate_labels(labelsToPlot, setDict, ensPrp, baselineFlag)
+    labelsToPlot = fpt.generate_labels(labelsToPlot, setDict, ensPrp, baselineFlag)
 
     unit = rlzToPlot[0].attrs['units']
-    md = pgf.meta_book(setDict, dataDict, rlzToPlot[0], labelsToPlot)
-    titleStr = md['varStr'] + ' ' + md['levStr'] + ' ' + locTitleStr + ' ' + 'PDF:' + pgf.make_dov_title(setDict["dimOfVrblty"])
+    md = fpd.meta_book(setDict, dataDict, rlzToPlot[0], labelsToPlot)
+    titleStr = md['varStr'] + ' ' + md['levStr'] + ' ' + locTitleStr + ' ' + 'PDF:' + fpd.make_dov_title(setDict["dimOfVrblty"])
     labelsToPlot.append(titleStr)
     savePrfx = ''
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['tmStr'] + '_' + locStr + '_' + md['ensStr'] + '_' + md['pid']['pdf'] + '_' + md['pdfStyle'] + '_' + md['spcStr']
@@ -272,11 +272,11 @@ def plot_ens_pdf(rlzList, dataDict, setDict, outDict):
     # Make kde, histograms, or step plots
     try:
         if setDict["plotStyle"] == 'kde':
-            plt_tls.plot_pdf_kdeplot(handlesToPlot, colorsToPlot, labelsToPlot, unit, savename, outDict["dpiVal"])
+            fpt.plot_pdf_kdeplot(handlesToPlot, colorsToPlot, labelsToPlot, unit, savename, outDict["dpiVal"])
         elif setDict["plotStyle"] == 'hist':
-            plt_tls.plot_pdf_hist(handlesToPlot, colorsToPlot, labelsToPlot, unit, savename, binwidth, outDict["dpiVal"])
+            fpt.plot_pdf_hist(handlesToPlot, colorsToPlot, labelsToPlot, unit, savename, binwidth, outDict["dpiVal"])
         elif setDict["plotStyle"] == 'step':
-            plt_tls.plot_pdf_step(handlesToPlot, colorsToPlot, labelsToPlot, unit, savename, binwidth, outDict["dpiVal"])
+            fpt.plot_pdf_step(handlesToPlot, colorsToPlot, labelsToPlot, unit, savename, binwidth, outDict["dpiVal"])
         else:
             sys.exit('Invalid plot style')
     except:

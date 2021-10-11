@@ -24,7 +24,7 @@ import xarray as xr
 
 import fun_calc_vars as fcv
 import fun_regrid_pop as frp
-import process_glens_fun as pgf
+import fun_process_data as fpd
 
 # Inputs
 dataPath = '/Users/dhueholt/Documents/GLENS_data/annual_500TEMP/'#'/glade/scratch/dhueholt/ssp245/sept_IFRAC/'
@@ -39,7 +39,7 @@ dataList = list()
 for fc,fv in enumerate(strList):
     glensDset = xr.open_dataset(fv) #Open files separately as times may be mismatched
     if fc == 0:
-        dataVar = pgf.discover_data_var(glensDset) #Automatically detect data variable
+        dataVar = fpd.discover_data_var(glensDset) #Automatically detect data variable
     glensDarr = glensDset[dataVar]
     glensDarr.attrs['inFile'] = fv.replace(dataPath,"")
     glensDarr.attrs['outPath'] = outPath

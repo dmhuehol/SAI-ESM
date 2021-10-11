@@ -15,8 +15,8 @@ import cartopy
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 
-import plotting_tools as plt_tls
-import process_glens_fun as pgf
+import fun_plot_tools as fpt
+import fun_process_data as fpd
 
 ### IPCC regions used in WG1-AR5
 
@@ -656,13 +656,13 @@ def test_region(region, colors, fig, ax):
     lons = np.arange(0,360,1)
 
     if len(region['regLons'])>2: #non-rectangular region that does not cross Prime Meridian
-        gridMask = pgf.make_polygon_mask(lats, lons, region['regLats'], region['regLons'])
+        gridMask = fpd.make_polygon_mask(lats, lons, region['regLats'], region['regLons'])
         latsToPlot = lats
         lonsToPlot = lons
     elif isinstance(region['regLons'], tuple): #non-rectangular region that crosses Prime Meridian
         sgridMaskList = list()
         for sc in np.arange(0,len(region['regLons'])):
-                sgridMask = pgf.make_polygon_mask(lats, lons, region['regLats'][sc], region['regLons'][sc])
+                sgridMask = fpd.make_polygon_mask(lats, lons, region['regLats'][sc], region['regLons'][sc])
                 sgridMaskList.append(sgridMask)
         gridMask = np.logical_or.reduce(sgridMaskList)
         latsToPlot = lats
@@ -682,6 +682,6 @@ def test_region(region, colors, fig, ax):
     except:
         ic() #do nothing
 
-    plt_tls.drawOnGlobe(ax, plotOnes, latsToPlot, lonsToPlot, cmap=colors, vmin=0, vmax=2, cbarBool=False, fastBool=True, extent='max')
+    fpt.drawOnGlobe(ax, plotOnes, latsToPlot, lonsToPlot, cmap=colors, vmin=0, vmax=2, cbarBool=False, fastBool=True, extent='max')
 
     return fig, ax
