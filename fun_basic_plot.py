@@ -68,14 +68,14 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     toiStart = dict()
     toiEnd = dict()
     for rc,rDarr in enumerate(rlzList):
-        rlzLoi = fpc.obtain_levels(rDarr, setDict["levOfInt"])
+        rlzLoi = fpd.obtain_levels(rDarr, setDict["levOfInt"])
         shrtScn = rlzLoi.scenario.split('/')[len(rlzLoi.scenario.split('/'))-1]
         if 'Control' in rlzLoi.attrs['scenario']:
-            toiStartLp = fpc.average_over_years(rlzLoi, setDict["startIntvl"][0], setDict["startIntvl"][1])
-            toiEndLp = fpc.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+            toiStartLp = fpd.average_over_years(rlzLoi, setDict["startIntvl"][0], setDict["startIntvl"][1])
+            toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
             toiStart[shrtScn] = toiStartLp
         else:
-            toiEndLp = fpc.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+            toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
         toiEnd[shrtScn] = toiEndLp
 
     # Set up panels
@@ -98,7 +98,7 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     cmap = cmocean.cm.curl_r
     cbVals = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
     # cbVals = [-25,25] #Override automatic colorbar range here
-    md = fpc.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
+    md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
     plt.suptitle(md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']), fontsize=10)
     # plt.suptitle('2m temperature ens mean', fontsize=10) #Override automatic supertitle here
     lats = rlzList[0].lat
@@ -151,14 +151,14 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     toiStart = dict()
     toiEnd = dict()
     for rc,rDarr in enumerate(rlzList):
-        rlzLoi = fpc.obtain_levels(rDarr, setDict["levOfInt"])
+        rlzLoi = fpd.obtain_levels(rDarr, setDict["levOfInt"])
         shrtScn = rlzLoi.scenario.split('/')[len(rlzLoi.scenario.split('/'))-1]
         if 'Control' in rlzLoi.attrs['scenario']:
-            toiStartLp = fpc.average_over_years(rlzLoi, setDict["startIntvl"][0], setDict["startIntvl"][1])
-            toiEndLp = fpc.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+            toiStartLp = fpd.average_over_years(rlzLoi, setDict["startIntvl"][0], setDict["startIntvl"][1])
+            toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
             toiStart[shrtScn] = toiStartLp
         else:
-            toiEndLp = fpc.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+            toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
         toiEnd[shrtScn] = toiEndLp
 
     # Set up panels
@@ -183,7 +183,7 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     cmap = 'RdBu'#cmocean.cm.curl_r
     # cbVals = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
     cbVals = [-3,3] #Override automatic colorbar range here
-    md = fpc.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
+    md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
     lats = rlzList[0].lat
     lons = rlzList[0].lon
 
@@ -219,22 +219,22 @@ def plot_vertical_difference_globe(rlzList, dataDict, setDict, outDict):
     # Average over years
     rlzToiEnd = list()
     for rc,rDarr in enumerate(rlzList):
-        activeRlz = fpc.average_over_years(rDarr, setDict["endIntvl"][0], setDict["endIntvl"][1])
+        activeRlz = fpd.average_over_years(rDarr, setDict["endIntvl"][0], setDict["endIntvl"][1])
         rlzToiEnd.append(activeRlz)
 
-    # toiEndCntrl = fpc.average_over_years(glensCntrlRlz, setDict["endIntvl"][0], setDict["endIntvl"][1])
-    # toiEndFdbck = fpc.average_over_years(glensFdbckRlz, setDict["endIntvl"][0], setDict["endIntvl"][1])
+    # toiEndCntrl = fpd.average_over_years(glensCntrlRlz, setDict["endIntvl"][0], setDict["endIntvl"][1])
+    # toiEndFdbck = fpd.average_over_years(glensFdbckRlz, setDict["endIntvl"][0], setDict["endIntvl"][1])
 
     # Obtain levels
-    toiEndCntrlTotal = fpc.obtain_levels(toiEndCntrl, 'total')
-    toiEndFdbckTotal = fpc.obtain_levels(toiEndFdbck, 'total')
-    toiEndCntrlTrop = fpc.obtain_levels(toiEndCntrl, 'troposphere')
-    toiEndFdbckTrop = fpc.obtain_levels(toiEndFdbck, 'troposphere')
-    toiEndCntrlStrat = fpc.obtain_levels(toiEndCntrl, 'stratosphere')
-    toiEndFdbckStrat = fpc.obtain_levels(toiEndFdbck, 'stratosphere')
+    toiEndCntrlTotal = fpd.obtain_levels(toiEndCntrl, 'total')
+    toiEndFdbckTotal = fpd.obtain_levels(toiEndFdbck, 'total')
+    toiEndCntrlTrop = fpd.obtain_levels(toiEndCntrl, 'troposphere')
+    toiEndFdbckTrop = fpd.obtain_levels(toiEndFdbck, 'troposphere')
+    toiEndCntrlStrat = fpd.obtain_levels(toiEndCntrl, 'stratosphere')
+    toiEndFdbckStrat = fpd.obtain_levels(toiEndFdbck, 'stratosphere')
     layerToPlot = [250,50]
-    toiEndCntrlLowStrat = fpc.obtain_levels(toiEndCntrl, layerToPlot)
-    toiEndFdbckLowStrat = fpc.obtain_levels(toiEndFdbck, layerToPlot)
+    toiEndCntrlLowStrat = fpd.obtain_levels(toiEndCntrl, layerToPlot)
+    toiEndFdbckLowStrat = fpd.obtain_levels(toiEndFdbck, layerToPlot)
 
     # Calculate 4-panel values
     diffToiCntrlFdbckTotal = toiEndCntrlTotal - toiEndFdbckTotal
@@ -246,7 +246,7 @@ def plot_vertical_difference_globe(rlzList, dataDict, setDict, outDict):
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12,2.73*2))
-    md = fpc.meta_book(setDict, dataDict, glensCntrlRlz, labelsToPlot=None)
+    md = fpd.meta_book(setDict, dataDict, glensCntrlRlz, labelsToPlot=None)
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
         plt.suptitle(md['lstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][1])+']' + ' - ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']', fontsize=10)
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
@@ -293,19 +293,19 @@ def plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDi
     '''
 
     # Average over years
-    toiStart = fpc.average_over_years(glensCntrlRlz, setDict["startIntvl"][0], setDict["startIntvl"][1]) # 2010-2019 is baseline, injection begins 2020
-    toiEndFdbck = fpc.average_over_years(glensFdbckRlz, setDict["endIntvl"][0], setDict["endIntvl"][1])
+    toiStart = fpd.average_over_years(glensCntrlRlz, setDict["startIntvl"][0], setDict["startIntvl"][1]) # 2010-2019 is baseline, injection begins 2020
+    toiEndFdbck = fpd.average_over_years(glensFdbckRlz, setDict["endIntvl"][0], setDict["endIntvl"][1])
 
     # Obtain levels
-    toiStartCntrlTotal = fpc.obtain_levels(toiStart, 'total')
-    toiEndFdbckTotal = fpc.obtain_levels(toiEndFdbck, 'total')
-    toiStartCntrlTrop = fpc.obtain_levels(toiStart, 'troposphere')
-    toiEndFdbckTrop = fpc.obtain_levels(toiEndFdbck, 'troposphere')
-    toiStartCntrlStrat = fpc.obtain_levels(toiStart, 'stratosphere')
-    toiEndFdbckStrat = fpc.obtain_levels(toiEndFdbck, 'stratosphere')
+    toiStartCntrlTotal = fpd.obtain_levels(toiStart, 'total')
+    toiEndFdbckTotal = fpd.obtain_levels(toiEndFdbck, 'total')
+    toiStartCntrlTrop = fpd.obtain_levels(toiStart, 'troposphere')
+    toiEndFdbckTrop = fpd.obtain_levels(toiEndFdbck, 'troposphere')
+    toiStartCntrlStrat = fpd.obtain_levels(toiStart, 'stratosphere')
+    toiEndFdbckStrat = fpd.obtain_levels(toiEndFdbck, 'stratosphere')
     layerToPlot = [250,50]
-    toiStartCntrlLowStrat = fpc.obtain_levels(toiStart, layerToPlot)
-    toiEndFdbckLowStrat = fpc.obtain_levels(toiEndFdbck, layerToPlot)
+    toiStartCntrlLowStrat = fpd.obtain_levels(toiStart, layerToPlot)
+    toiEndFdbckLowStrat = fpd.obtain_levels(toiEndFdbck, layerToPlot)
 
     # Calculate 4-panel values
     diffToiCntrlFdbckTotal = toiStartCntrlTotal - toiEndFdbckTotal
@@ -324,7 +324,7 @@ def plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDi
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12,2.73*2))
-    md = fpc.meta_book(setDict, dataDict, glensCntrlRlz, labelsToPlot=None)
+    md = fpd.meta_book(setDict, dataDict, glensCntrlRlz, labelsToPlot=None)
     if (setDict["realization"] == 'mean'):
         plt.suptitle(md['frstDcd'] + ' ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][0])+']' + ' - ' + md['lstDcd'] + ' ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']' + ' ', fontsize=10)
     else:
@@ -370,14 +370,14 @@ def plot_basic_difference_polar(rlzList, dataDict, setDict, outDict):
     toiStart = dict()
     toiEnd = dict()
     for rc,rDarr in enumerate(rlzList):
-        rlzLoi = fpc.obtain_levels(rDarr, setDict["levOfInt"])
+        rlzLoi = fpd.obtain_levels(rDarr, setDict["levOfInt"])
         shrtScn = rlzLoi.scenario.split('/')[len(rlzLoi.scenario.split('/'))-1]
         if 'Control' in rlzLoi.attrs['scenario']:
-            toiStartLp = fpc.average_over_years(rlzLoi, setDict["startIntvl"][0], setDict["startIntvl"][1])
-            toiEndLp = fpc.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+            toiStartLp = fpd.average_over_years(rlzLoi, setDict["startIntvl"][0], setDict["startIntvl"][1])
+            toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
             toiStart[shrtScn] = toiStartLp
         else:
-            toiEndLp = fpc.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+            toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
         toiEnd[shrtScn] = toiEndLp
 
     # Set up panels
@@ -403,7 +403,7 @@ def plot_basic_difference_polar(rlzList, dataDict, setDict, outDict):
     cmap = cmocean.cm.curl_r
     # cbVals = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
     cbVals = [-1,1] #Override automatic colorbar range here
-    md = fpc.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
+    md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
     # plt.suptitle(md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']), fontsize=10)
     plt.suptitle('Feb ice thickness ens mean', fontsize=10) #Override automatic supertitle here
     lats = rlzList[0].lat
@@ -460,12 +460,12 @@ def plot_timeseries(rlzList, dataDict, setDict, outDict):
     rlzToPlot = list()
     for rc,rDarr in enumerate(rlzList):
         rlzToi = rDarr.sel(time=timeSlice)
-        rlzLoi = fpc.obtain_levels(rlzToi, setDict["levOfInt"])
-        rlzAoi, locStr, locTitleStr = fpc.manage_area(rlzLoi, setDict["regOfInt"], areaAvgBool=True)
+        rlzLoi = fpd.obtain_levels(rlzToi, setDict["levOfInt"])
+        rlzAoi, locStr, locTitleStr = fpd.manage_area(rlzLoi, setDict["regOfInt"], areaAvgBool=True)
         rlzToPlot.append(rlzAoi)
 
     plt.figure()
-    md = fpc.meta_book(setDict, dataDict, rlzToPlot[0], labelsToPlot=None)
+    md = fpd.meta_book(setDict, dataDict, rlzToPlot[0], labelsToPlot=None)
     for rpc,rpv in enumerate(rlzToPlot):
         if 'GLENS:Control' in rpv.scenario:
             activeColor = '#D93636'
@@ -516,8 +516,8 @@ def plot_pdf(rlzList, dataDict, setDict, outDict):
     # Set up data
     rlzToPlot = list()
     for rc,rDarr in enumerate(rlzList):
-        rlzLoi = fpc.obtain_levels(rDarr, setDict["levOfInt"])
-        rlzAoi, locStr, locTitleStr = fpc.manage_area(rlzLoi, setDict["regOfInt"], setDict["areaAvgBool"])
+        rlzLoi = fpd.obtain_levels(rDarr, setDict["levOfInt"])
+        rlzAoi, locStr, locTitleStr = fpd.manage_area(rlzLoi, setDict["regOfInt"], setDict["areaAvgBool"])
         rlzToPlot.append(rlzAoi)
 
     iqr = stats.iqr(rlzToPlot[0],nan_policy='omit')
@@ -533,16 +533,16 @@ def plot_pdf(rlzList, dataDict, setDict, outDict):
         periodsOfInt = scnData['time'].dt.year.data
         if 'GLENS:Control' in scnData.scenario:
             cntrlHandlesToPlot = list()
-            cntrlHandlesToPlot = fpc.extract_intvl(setDict["cntrlPoi"], periodsOfInt, setDict["timePeriod"], scnData, cntrlHandlesToPlot)
+            cntrlHandlesToPlot = fpd.extract_intvl(setDict["cntrlPoi"], periodsOfInt, setDict["timePeriod"], scnData, cntrlHandlesToPlot)
         elif 'GLENS:Feedback' in scnData.scenario:
             fdbckHandlesToPlot = list()
-            fdbckHandlesToPlot = fpc.extract_intvl(setDict["fdbckPoi"], periodsOfInt, setDict["timePeriod"], scnData, fdbckHandlesToPlot)
+            fdbckHandlesToPlot = fpd.extract_intvl(setDict["fdbckPoi"], periodsOfInt, setDict["timePeriod"], scnData, fdbckHandlesToPlot)
         elif 'SCIRIS:Feedback' in scnData.scenario:
             scirisHandlesToPlot = list()
-            scirisHandlesToPlot = fpc.extract_intvl(setDict["scirisPoi"], periodsOfInt, setDict["timePeriod"], scnData, scirisHandlesToPlot)
+            scirisHandlesToPlot = fpd.extract_intvl(setDict["scirisPoi"], periodsOfInt, setDict["timePeriod"], scnData, scirisHandlesToPlot)
         elif 'SCIRIS:Control' in scnData.scenario:
             s245CntrlHandlesToPlot = list()
-            s245CntrlHandlesToPlot = fpc.extract_intvl(setDict["s245CntrlPoi"], periodsOfInt, setDict["timePeriod"], scnData, s245CntrlHandlesToPlot)
+            s245CntrlHandlesToPlot = fpd.extract_intvl(setDict["s245CntrlPoi"], periodsOfInt, setDict["timePeriod"], scnData, s245CntrlHandlesToPlot)
         else:
             ic(scnData.scenario)
             #No sys.exit(), want to know what the error is if it fails here
@@ -562,7 +562,7 @@ def plot_pdf(rlzList, dataDict, setDict, outDict):
     labelsToPlot = fpt.generate_labels(labelsToPlot, setDict, ensPrp, baselineFlag)
 
     unit = rlzToPlot[0].attrs['units']
-    md = fpc.meta_book(setDict, dataDict, rlzToPlot[0], labelsToPlot)
+    md = fpd.meta_book(setDict, dataDict, rlzToPlot[0], labelsToPlot)
     titleStr = md['varStr'] + ' ' + md['levStr'] + ' ' + locTitleStr + ' ' + 'Ens ' + str(setDict['realization'])
     labelsToPlot.append(titleStr)
     savePrfx = ''

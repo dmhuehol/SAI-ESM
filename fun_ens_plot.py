@@ -47,7 +47,7 @@ def plot_ens_spaghetti_timeseries(rlzList, dataDict, setDict, outDict):
     rlzToPlot = list()
     for rc,rDarr in enumerate(rlzList):
         rlzToi = rDarr.sel(time=timeSlice)
-        rlzLoi = fpd..obtain_levels(rlzToi, setDict["levOfInt"])
+        rlzLoi = fpd.obtain_levels(rlzToi, setDict["levOfInt"])
         rlzAoi, locStr, locTitleStr = fpd.manage_area(rlzLoi, setDict["regOfInt"], areaAvgBool=True)
         rlzToPlot.append(rlzAoi)
 

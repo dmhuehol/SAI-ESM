@@ -73,16 +73,3 @@ for dc, dv in enumerate(data2dList):
             shard.start()
         filesRemaining = lenDat - dc - 1
         numleft = ic(filesRemaining) #Cheap "progress bar"
-
-# for strc, strv in enumerate(strList):
-#     lengthFiles = np.size(strList)
-#     if __name__== '__main__':
-#         p = Process(target=operate_regrid, args=(strv, dataVar, popLat, popLon))
-#         if strc % nProc == 0 and strc != 0:
-#             p.start()
-#             p.join()
-#             p.close()
-#         else:
-#             p.start()
-#         numleft = lengthFiles - strc - 1
-#         ic(numleft)

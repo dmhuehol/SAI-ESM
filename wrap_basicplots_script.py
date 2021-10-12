@@ -52,7 +52,7 @@ setDict = {
     "convert": None #TUPLE of converter(s), or None if using default units
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211011_refactoring/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211012_syncWithCasperPlusExtremes/1_testBeforeSync/',
     "dpiVal": 400
 }
 loopDict = {
