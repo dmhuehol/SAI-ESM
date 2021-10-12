@@ -38,7 +38,7 @@ dataDict = {
     "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_500TEMP/regrid/',
     "idGlensCntrl": 'control_*', #'control_*'
     "idGlensFdbck": 'feedback_*', #'feedback_*'
-    "idSciris": '*SSP245-TSMLT-GAUSS*', #'*SSP245*'
+    "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245*'
     "idS245Cntrl": '*BWSSP245*', #'*ssp245*'
     "idS245Hist": '*BWHIST*', #'*historical*'
     "idMask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc' #cesm_component_mask.nc
@@ -49,7 +49,7 @@ setDict = {
     "endIntvl": [2041,2060], #dg
     "cntrlPoi": [2011,2041], #pdf
     "fdbckPoi": [2041], #pdf
-    "scirisPoi": [2041], #pdf
+    "arisePoi": [2041], #pdf
     "s245CntrlPoi": [2041], #pdf
     "timePeriod": 20, #pdf
     "plotStyle": 'step', #pdf

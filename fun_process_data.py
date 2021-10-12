@@ -158,7 +158,7 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
         locStr = regionToPlot['regSaveStr']
         locTitleStr = regionToPlot['regSaveStr']
 
-        lats = darr['lat'] #GLENS, SCIRIS, and SSP2-4.5 Control are all on the same grid to within 10^-6
+        lats = darr['lat'] #GLENS, ARISE, and SSP2-4.5 Control are all on the same grid to within 10^-6
         lons = darr['lon']
         if len(regionToPlot['regLons'])>2: #non-rectangular region that does not cross Prime Meridian
             gridMask = make_polygon_mask(lats, lons, regionToPlot['regLats'], regionToPlot['regLons'])
@@ -230,9 +230,9 @@ def manage_realizations(setDict, darr, emem):
             scnStr = 'gc' #glenscontrol
         elif 'GLENS:Feedback' in darr.scenario:
             scnStr = 'gf' #glensfeedback
-        elif 'SCIRIS:Feedback' in darr.scenario:
-            scnStr = 'sci' #sciris
-        elif 'SCIRIS:Control' in darr.scenario:
+        elif 'ARISE:Feedback' in darr.scenario:
+            scnStr = 'ari' #arise
+        elif 'ARISE:Control' in darr.scenario:
             scnStr = 's245c' #ssp245control
         else:
             ic('Unknown scenario!')
@@ -315,17 +315,17 @@ def open_data(dataDict, setDict):
     if '*' in dataDict["idGlensCntrl"]:
         cntrlPath = dataDict["dataPath"] + dataDict["idGlensCntrl"]
         fdbckPath = dataDict["dataPath"] + dataDict["idGlensFdbck"]
-        scirisPath = dataDict["dataPath"] + dataDict["idSciris"]
+        arisePath = dataDict["dataPath"] + dataDict["idArise"]
         s245CntrlPath = dataDict["dataPath"] + dataDict["idS245Cntrl"]
         s245HistPath = dataDict["dataPath"] + dataDict["idS245Hist"]
 
         glensCntrlDset = xr.open_mfdataset(cntrlPath, concat_dim='realization', combine='nested')
         glensFdbckDset = xr.open_mfdataset(fdbckPath, concat_dim='realization', combine='nested')
         try:
-            scirisDset = xr.open_mfdataset(scirisPath, concat_dim='realization', combine='nested')
+            ariseDset = xr.open_mfdataset(arisePath, concat_dim='realization', combine='nested')
         except:
-            ic('No SCIRIS files located')
-            scirisDset = None
+            ic('No ARISE files located')
+            ariseDset = None
         try:
             s245CntrlDset = xr.open_mfdataset(s245CntrlPath, concat_dim='realization', combine='nested')
             s245HistDset = xr.open_mfdataset(s245HistPath, concat_dim='realization', combine='nested')
@@ -342,8 +342,8 @@ def open_data(dataDict, setDict):
                 activeMask = activeMaskDset.imask
             glensCntrlDset = glensCntrlDset.where(activeMask > 0)
             glensFdbckDset = glensFdbckDset.where(activeMask > 0)
-            if scirisDset is not None:
-                scirisDset = scirisDset.where(activeMask > 0)
+            if ariseDset is not None:
+                ariseDset = ariseDset.where(activeMask > 0)
             if s245CntrlDset is not None:
                 s245CntrlDset = s245CntrlDset.where(activeMask > 0)
                 s245HistDset = s245HistDset.where(activeMask > 0)
@@ -355,8 +355,8 @@ def open_data(dataDict, setDict):
                 activeMask = activeMaskDset.imask
             glensCntrlDset = glensCntrlDset.where(activeMask == 0)
             glensFdbckDset = glensFdbckDset.where(activeMask == 0)
-            if scirisDset is not None:
-                scirisDset = scirisDset.where(activeMask == 0)
+            if ariseDset is not None:
+                ariseDset = ariseDset.where(activeMask == 0)
             if s245CntrlDset is not None:
                 s245CntrlDset = s245CntrlDset.where(activeMask == 0)
                 s245HistDset = s245HistDset.where(activeMask == 0)
@@ -366,13 +366,13 @@ def open_data(dataDict, setDict):
         glensCntrlDarr.attrs['scenario'] = 'GLENS:Control/RCP8.5'
         glensFdbckDarr = glensFdbckDset[dataKey]
         glensFdbckDarr.attrs['scenario'] = 'GLENS:Feedback/SAI/G1.2(8.5)'
-        if scirisDset is not None:
-            scirisDarr = scirisDset[dataKey]
-            scirisDarr.attrs['scenario'] = 'SCIRIS:Feedback/SAI/G1.5(4.5)'
+        if ariseDset is not None:
+            ariseDarr = ariseDset[dataKey]
+            ariseDarr.attrs['scenario'] = 'ARISE:Feedback/SAI/G1.5(4.5)'
         else:
-            scirisDarr = None
+            ariseDarr = None
         if s245CntrlDset is not None:
-            dataKeyCmip6 = discover_data_var(s245CntrlDset) #CMIP6 has unique variable names tied to CMIP6 conventions specifically, not its status as the control for SCIRIS
+            dataKeyCmip6 = discover_data_var(s245CntrlDset) #CMIP6 has unique variable names tied to CMIP6 conventions specifically, not its status as the control for ARISE
             s245CntrlDarr = s245CntrlDset[dataKeyCmip6]
             # s245CntrlDarr = convert_for_consistency(s245CntrlDarr) #CMIP6 often has different unit standards but is used as the ARISE control so we make do
             try:
@@ -382,13 +382,13 @@ def open_data(dataDict, setDict):
             # ic(s245CntrlDarr, s245HistDarr)
             # sys.exit('STOP')
             s245Darr = combine_hist_fut(s245HistDarr, s245CntrlDarr)
-            s245Darr.attrs['scenario'] = 'CMIP6_CESM2WACCM/SCIRIS:Control+Historical/SSP2-4.5'
+            s245Darr.attrs['scenario'] = 'CMIP6_CESM2WACCM/ARISE:Control+Historical/SSP2-4.5'
         else:
             s245Darr = None
     else:
         sys.exit("Check input! Token should have a wildcard (i.e. match multiple files).")
 
-    darrCheckList = list([glensCntrlDarr,glensFdbckDarr,scirisDarr,s245Darr])
+    darrCheckList = list([glensCntrlDarr,glensFdbckDarr,ariseDarr,s245Darr])
     darrList = [d for d in darrCheckList if d is not None]
 
     return darrList, dataKey
@@ -399,11 +399,11 @@ def call_to_open(dataDict, setDict):
 
     glensCntrlFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['idGlensCntrl']))
     glensFdbckFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['idGlensFdbck']))
-    scirisFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['idSciris']))
+    ariseFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['idArise']))
     s245CntrlFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['idS245Cntrl']))
 
     ememList = list()
-    for ec in (glensCntrlFiles, glensFdbckFiles, scirisFiles, s245CntrlFiles):
+    for ec in (glensCntrlFiles, glensFdbckFiles, ariseFiles, s245CntrlFiles):
         ememList.append(get_ens_mem(ec))
     rlzList = list()
     ememStrList = list()
@@ -431,7 +431,7 @@ def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
     metaDict = {
         "cntrlStr": 'RCP8.5',
         "fdbckStr": 'G1.2(8.5)',
-        "scirisStr": 'G1.5(2-4.5)',
+        "ariseStr": 'G1.5(2-4.5)',
         "s245Cntrl": 'SSP2-4.5',
         "varStr": var_str_lookup(cntrlToPlot.long_name, setDict, strType='title'),
         "varSve": var_str_lookup(cntrlToPlot.long_name, setDict, strType='save'),

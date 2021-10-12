@@ -55,7 +55,7 @@ for f in $IN_CARD; do
       RUN_ENSNUMS+=( $ACTIVE_ENSNUM )
       RUN_TYPE=$(echo $ACTIVE_FNAME | cut -d'.' -f3)
       RUN_VAR=$(echo $ACTIVE_FNAME | cut -d'.' -f10)
-  else #GLENS or SCIRIS format
+  else #GLENS or ARISE format
     RUN_FNAMES+=( $ACTIVE_FNAME )
     ACTIVE_TIME=$(echo $ACTIVE_FNAME | cut -d'.' -f10)
     RUN_TIMES+=( $ACTIVE_TIME )

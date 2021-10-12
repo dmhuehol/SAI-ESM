@@ -34,7 +34,7 @@ ensPrp = {
     "dscntntyYrs": [2030],
     "drc": [21,4], #GLENS Control
     "drf": [21,21], #GLENS Feedback
-    "drsci": [10,10], #SCIRIS
+    "drsci": [10,10], #ARISE
     "drs245": [4,5] #SSP2-4.5 Control
 }
 
@@ -63,10 +63,10 @@ def plot_ens_spaghetti_timeseries(rlzList, dataDict, setDict, outDict):
             elif 'GLENS:Feedback' in dataToPlot.scenario:
                 activeColor = '#8346C1'
                 activeLabel = md['fdbckStr']
-            elif 'SCIRIS:Feedback' in dataToPlot.scenario:
+            elif 'ARISE:Feedback' in dataToPlot.scenario:
                 activeColor = '#12D0B2'
-                activeLabel = md['scirisStr']
-            elif 'SCIRIS:Control' in dataToPlot.scenario:
+                activeLabel = md['ariseStr']
+            elif 'ARISE:Control' in dataToPlot.scenario:
                 activeColor = '#F8A53D'
                 activeLabel = md['s245Cntrl']
             else:
@@ -128,11 +128,11 @@ def plot_ens_spread_timeseries(rlzList, dataDict, setDict, outDict):
             activeColor = '#8346C1'
             activeLabel = md['fdbckStr']
             # plt.plot(yearsOfInt,rlzMn.data,color=activeColor,label=activeLabel)
-        elif 'SCIRIS:Feedback' in rsDarr.scenario:
+        elif 'ARISE:Feedback' in rsDarr.scenario:
             activeColor = '#12D0B2'
-            activeLabel = md['scirisStr']
+            activeLabel = md['ariseStr']
             # plt.plot(yearsOfInt,rlzMn.data,color=activeColor,label=activeLabel)
-        elif 'SCIRIS:Control' in rsDarr.scenario:
+        elif 'ARISE:Control' in rsDarr.scenario:
             activeColor = '#F8A53D'
             activeLabel = md['s245Cntrl']
             # plt.plot(yearsOfInt[0:175],rlzMn.data[0:175],color=activeColor,linestyle='dotted')
@@ -233,16 +233,16 @@ def plot_ens_pdf(rlzList, dataDict, setDict, outDict):
         elif 'GLENS:Feedback' in scnData.scenario:
             fdbckHandlesToPlot = list()
             fdbckHandlesToPlot = fpd.extract_intvl(setDict["fdbckPoi"], periodsOfInt, setDict["timePeriod"], scnData, fdbckHandlesToPlot)
-        elif 'SCIRIS:Feedback' in scnData.scenario:
-            scirisHandlesToPlot = list()
-            scirisHandlesToPlot = fpd.extract_intvl(setDict["scirisPoi"], periodsOfInt, setDict["timePeriod"], scnData, scirisHandlesToPlot)
-        elif 'SCIRIS:Control' in scnData.scenario:
+        elif 'ARISE:Feedback' in scnData.scenario:
+            ariseHandlesToPlot = list()
+            ariseHandlesToPlot = fpd.extract_intvl(setDict["arisePoi"], periodsOfInt, setDict["timePeriod"], scnData, ariseHandlesToPlot)
+        elif 'ARISE:Control' in scnData.scenario:
             s245CntrlHandlesToPlot = list()
             s245CntrlHandlesToPlot = fpd.extract_intvl(setDict["s245CntrlPoi"], periodsOfInt, setDict["timePeriod"], scnData, s245CntrlHandlesToPlot)
         else:
             ic(scnData.scenario)
             #No sys.exit(), want to know what the error is if it fails here
-    handlesToPlot = cntrlHandlesToPlot + fdbckHandlesToPlot + scirisHandlesToPlot + s245CntrlHandlesToPlot
+    handlesToPlot = cntrlHandlesToPlot + fdbckHandlesToPlot + ariseHandlesToPlot + s245CntrlHandlesToPlot
     if not setDict["dimOfVrblty"]['timeBool']:
         handlesToPlot = [h.mean(dim='time') for h in handlesToPlot]
     if not setDict["dimOfVrblty"]['rlzBool']:
@@ -254,9 +254,9 @@ def plot_ens_pdf(rlzList, dataDict, setDict, outDict):
 
     # Generate colors and strings for plots and filenames
     if baselineFlag:
-        colorsToPlot = fpt.select_colors(baselineFlag,len(setDict["cntrlPoi"])-1,len(setDict["fdbckPoi"]),len(setDict["scirisPoi"]),len(setDict["s245CntrlPoi"]))
+        colorsToPlot = fpt.select_colors(baselineFlag,len(setDict["cntrlPoi"])-1,len(setDict["fdbckPoi"]),len(setDict["arisePoi"]),len(setDict["s245CntrlPoi"]))
     else:
-        colorsToPlot = fpt.select_colors(baselineFlag,len(setDict["cntrlPoi"]),len(setDict["fdbckPoi"]),len(setDict["scirisPoi"]),len(setDict["s245CntrlPoi"]))
+        colorsToPlot = fpt.select_colors(baselineFlag,len(setDict["cntrlPoi"]),len(setDict["fdbckPoi"]),len(setDict["arisePoi"]),len(setDict["s245CntrlPoi"]))
     labelsToPlot = list()
     labelsToPlot = fpt.generate_labels(labelsToPlot, setDict, ensPrp, baselineFlag)
 

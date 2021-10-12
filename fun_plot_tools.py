@@ -157,23 +157,23 @@ def plot_pdf_step(handles, colors, labels, unit, savename, binwidth, dpiVal=400)
     plt.savefig(savename, dpi=dpiVal, bbox_inches='tight')
     plt.close()
 
-def select_colors(baselineFlag, nCntrl, nFdbck, nSciris, nS245Cntrl):
+def select_colors(baselineFlag, nCntrl, nFdbck, nArise, nS245Cntrl):
     '''Returns colors for a set number of feedback and control objects '''
 
     colorsToPlot = list()
     baselineColor = '#788697'
     #GLENS Cntrl/Fdbck luminances: 80.484,67.169,55.274,49.081,46.343,35.522,23.790,11.597
-    #SCIRIS/SSP2-4.5  luminances: 90,85,80,75,70,65,60,55
+    #ARISE/SSP2-4.5  luminances: 90,85,80,75,70,65,60,55
     cntrlColors = ["#F2BABA", "#E88989", "#DF5757", "#D93636", "#D32828", "#A21F1F", "#701515", "#3F0C0C"]
     fdbckColors = ["#D2BBE8", "#B48FDA", "#9763CB", "#8346C1", "#7A3DB6", "#5C2E8A", "#3F1F5E", "#211132"]
-    scirisColors = ["#5BFCDC", "#48EDCE", "#33DFC0", "#12D0B2", "#00C2A5", "#00B498", "#00A68B", "#00997E"]
+    ariseColors = ["#5BFCDC", "#48EDCE", "#33DFC0", "#12D0B2", "#00C2A5", "#00B498", "#00A68B", "#00997E"]
     s245CntrlColors = ["#FFCF65", "#FFC158", "#FFB34A", "#F8A53D", "#E8982E", "#D98B1F", "#CA7E0C", "#BB7100"]
     if baselineFlag:
         colorsToPlot.append(baselineColor)
 
     colorsToPlot = paint_by_numbers(colorsToPlot, cntrlColors, nCntrl)
     colorsToPlot = paint_by_numbers(colorsToPlot, fdbckColors, nFdbck)
-    colorsToPlot = paint_by_numbers(colorsToPlot, scirisColors, nSciris)
+    colorsToPlot = paint_by_numbers(colorsToPlot, ariseColors, nArise)
     colorsToPlot = paint_by_numbers(colorsToPlot, s245CntrlColors, nS245Cntrl)
 
     return colorsToPlot
@@ -263,7 +263,7 @@ def generate_labels(labelsList, setDict, ensPrp, baselineFlag):
             labelStr = startYearStr + '-' + endYearStr + ' ' + 'G1.2(8.5)'
         labelsList.append(labelStr)
 
-    for cdc,cdv in enumerate(setDict["scirisPoi"]):
+    for cdc,cdv in enumerate(setDict["arisePoi"]):
         if cdv < 2020:
             continue #Do not auto-generate if interval starts during the 2010-2019 "Baseline" period
         startYearStr = str(cdv)

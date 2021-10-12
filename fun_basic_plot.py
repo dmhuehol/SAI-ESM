@@ -52,7 +52,7 @@ ensPrp = {
     "dscntntyYrs": [2030],
     "drc": [21,4], #GLENS Control
     "drf": [21,21], #GLENS Feedback
-    "drsci": [10,10], #SCIRIS
+    "drsci": [10,10], #ARISE
     "drs245": [5,5] #SSP2-4.5 Control
 }
 
@@ -61,7 +61,7 @@ ensPrp = {
 def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     ''' Plot 4-panel difference globe
         (1) change over time for RCP8.5 (GLENS control)
-        (2) change over time for SSP2-4.5 (SCIRIS control)
+        (2) change over time for SSP2-4.5 (ARISE control)
         (3) diff between RCP8.5 and G1.2(8.5) for end interval (world avoided)
         (4) diff between SSP2-4.5 and G1.5(4.5) for end interval (world avoided)
     '''
@@ -83,10 +83,10 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
     wrldAvrtdG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
     #CESM2-WACCM SSP2-4.5 uses CMIP6 variable names which are often different
-    #than in SCIRIS; subtracting the two DataArrays directly results in nonsense
-    wrldAvrtdG15S245 = toiEnd['G1.5(4.5)'].copy() #Duplicate pre-existing array to retain SCIRIS attributes and shape
+    #than in ARISE; subtracting the two DataArrays directly results in nonsense
+    wrldAvrtdG15S245 = toiEnd['G1.5(4.5)'].copy() #Duplicate pre-existing array to retain ARISE attributes and shape
     wrldAvrtdG15S245.data = toiEnd['G1.5(4.5)'].data - toiEnd['SSP2-4.5'].data #Subtract the data only
-    # scnrsCmprd = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare SCIRIS/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
+    # scnrsCmprd = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
 
     panels = (diffToiR85, diffToiS245, wrldAvrtdG12R85, wrldAvrtdG15S245)
 
@@ -133,11 +133,11 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     ax4 = plt.subplot(2,2,4,projection=mapProj)
     fpt.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['scirisStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
+        plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['scirisStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
+        plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
     else:
-        plt.title(md['scirisStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
+        plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
 
     savePrfx = ''
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['fcStr']
@@ -166,10 +166,10 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
     wrldAvrtdG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
     #CESM2-WACCM SSP2-4.5 uses CMIP6 variable names which are often different
-    #than in SCIRIS; subtracting the two DataArrays directly results in nonsense
-    wrldAvrtdG15S245 = toiEnd['G1.5(4.5)'].copy() #Duplicate pre-existing array to retain SCIRIS attributes and shape
+    #than in ARISE; subtracting the two DataArrays directly results in nonsense
+    wrldAvrtdG15S245 = toiEnd['G1.5(4.5)'].copy() #Duplicate pre-existing array to retain ARISE attributes and shape
     wrldAvrtdG15S245.data = toiEnd['G1.5(4.5)'].data - toiEnd['SSP2-4.5'].data #Subtract the data only
-    # scnrsCmprd = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare SCIRIS/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
+    # scnrsCmprd = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
     blank = toiEnd['G1.5(4.5)'].copy()
     blank.data = toiEnd['G1.5(4.5)'] - toiEnd['G1.5(4.5)']
 
@@ -363,7 +363,7 @@ def plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDi
 def plot_basic_difference_polar(rlzList, dataDict, setDict, outDict):
     ''' Plot 4-panel difference map with polar projection
         (1) change over time for RCP8.5 (GLENS control)
-        (2) change over time for SSP2-4.5 (SCIRIS control)
+        (2) change over time for SSP2-4.5 (ARISE control)
         (3) diff between RCP8.5 and G1.2(8.5) for end interval (world avoided)
         (4) diff between SSP2-4.5 and G1.5(4.5) for end interval (world avoided)
     '''
@@ -385,10 +385,10 @@ def plot_basic_difference_polar(rlzList, dataDict, setDict, outDict):
     diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
     wrldAvrtdG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
     #CESM2-WACCM SSP2-4.5 uses CMIP6 variable names which are often different
-    #than in SCIRIS; subtracting the two DataArrays directly results in nonsense
-    wrldAvrtdG15S245 = toiEnd['G1.5(4.5)'].copy() #Duplicate pre-existing array to retain SCIRIS attributes and shape
+    #than in ARISE; subtracting the two DataArrays directly results in nonsense
+    wrldAvrtdG15S245 = toiEnd['G1.5(4.5)'].copy() #Duplicate pre-existing array to retain ARISE attributes and shape
     wrldAvrtdG15S245.data = toiEnd['G1.5(4.5)'].data - toiEnd['SSP2-4.5'].data #Subtract the data only
-    # scnrsCmprd = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare SCIRIS/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
+    # scnrsCmprd = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
 
     panels = (diffToiR85, diffToiS245, wrldAvrtdG12R85, wrldAvrtdG15S245)
 
@@ -438,11 +438,11 @@ def plot_basic_difference_polar(rlzList, dataDict, setDict, outDict):
     ax4 = plt.subplot(2,2,4,projection=mapProj)
     fpt.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['scirisStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
+        plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['scirisStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
+        plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
     else:
-        plt.title(md['scirisStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
+        plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
 
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['fcStr']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
@@ -473,10 +473,10 @@ def plot_timeseries(rlzList, dataDict, setDict, outDict):
         elif 'GLENS:Feedback' in rpv.scenario:
             activeColor = '#8346C1'
             activeLabel = md['fdbckStr']
-        elif 'SCIRIS:Feedback' in rpv.scenario:
+        elif 'ARISE:Feedback' in rpv.scenario:
             activeColor = '#12D0B2'
-            activeLabel = md['scirisStr']
-        elif 'SCIRIS:Control' in rpv.scenario:
+            activeLabel = md['ariseStr']
+        elif 'ARISE:Control' in rpv.scenario:
             activeColor = '#F8A53D'
             activeLabel = md['s245Cntrl']
         else:
@@ -537,16 +537,16 @@ def plot_pdf(rlzList, dataDict, setDict, outDict):
         elif 'GLENS:Feedback' in scnData.scenario:
             fdbckHandlesToPlot = list()
             fdbckHandlesToPlot = fpd.extract_intvl(setDict["fdbckPoi"], periodsOfInt, setDict["timePeriod"], scnData, fdbckHandlesToPlot)
-        elif 'SCIRIS:Feedback' in scnData.scenario:
-            scirisHandlesToPlot = list()
-            scirisHandlesToPlot = fpd.extract_intvl(setDict["scirisPoi"], periodsOfInt, setDict["timePeriod"], scnData, scirisHandlesToPlot)
-        elif 'SCIRIS:Control' in scnData.scenario:
+        elif 'ARISE:Feedback' in scnData.scenario:
+            ariseHandlesToPlot = list()
+            ariseHandlesToPlot = fpd.extract_intvl(setDict["arisePoi"], periodsOfInt, setDict["timePeriod"], scnData, ariseHandlesToPlot)
+        elif 'ARISE:Control' in scnData.scenario:
             s245CntrlHandlesToPlot = list()
             s245CntrlHandlesToPlot = fpd.extract_intvl(setDict["s245CntrlPoi"], periodsOfInt, setDict["timePeriod"], scnData, s245CntrlHandlesToPlot)
         else:
             ic(scnData.scenario)
             #No sys.exit(), want to know what the error is if it fails here
-    handlesToPlot = cntrlHandlesToPlot + fdbckHandlesToPlot + scirisHandlesToPlot + s245CntrlHandlesToPlot
+    handlesToPlot = cntrlHandlesToPlot + fdbckHandlesToPlot + ariseHandlesToPlot + s245CntrlHandlesToPlot
 
     # If not applying a spatial average, flatten data so dimensions don't confuse plotting code
     if ~setDict["areaAvgBool"]:
@@ -555,9 +555,9 @@ def plot_pdf(rlzList, dataDict, setDict, outDict):
 
     # Generate colors and strings for plots and filenames
     if baselineFlag:
-        colorsToPlot = fpt.select_colors(baselineFlag,len(setDict["cntrlPoi"])-1,len(setDict["fdbckPoi"]),len(setDict["scirisPoi"]),len(setDict["s245CntrlPoi"]))
+        colorsToPlot = fpt.select_colors(baselineFlag,len(setDict["cntrlPoi"])-1,len(setDict["fdbckPoi"]),len(setDict["arisePoi"]),len(setDict["s245CntrlPoi"]))
     else:
-        colorsToPlot = fpt.select_colors(baselineFlag,len(setDict["cntrlPoi"]),len(setDict["fdbckPoi"]),len(setDict["scirisPoi"]),len(setDict["s245CntrlPoi"]))
+        colorsToPlot = fpt.select_colors(baselineFlag,len(setDict["cntrlPoi"]),len(setDict["fdbckPoi"]),len(setDict["arisePoi"]),len(setDict["s245CntrlPoi"]))
     labelsToPlot = list()
     labelsToPlot = fpt.generate_labels(labelsToPlot, setDict, ensPrp, baselineFlag)
 
