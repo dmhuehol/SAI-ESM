@@ -62,12 +62,12 @@ def plot_zchfd_timeseries_sept_arc_ifrac(glensCntrlRlz, glensFdbckRlz, dataDict,
     glensFdbckPoi = glensFdbckRlz.sel(time=timeSlice)
 
     # Obtain levels
-    glensCntrlLoi = pgf.obtain_levels(glensCntrlPoi, setDict["levOfInt"])
-    glensFdbckLoi = pgf.obtain_levels(glensFdbckPoi, setDict["levOfInt"])
+    glensCntrlLoi = fpd.obtain_levels(glensCntrlPoi, setDict["levOfInt"])
+    glensFdbckLoi = fpd.obtain_levels(glensFdbckPoi, setDict["levOfInt"])
 
     # Deal with area
-    cntrlToPlot, locStr, locTitleStr = pgf.manage_area(glensCntrlLoi, setDict["regOfInt"], areaAvgBool=True)
-    fdbckToPlot, locStr, locTitleStr = pgf.manage_area(glensFdbckLoi, setDict["regOfInt"], areaAvgBool=True)
+    cntrlToPlot, locStr, locTitleStr = fpd.manage_area(glensCntrlLoi, setDict["regOfInt"], areaAvgBool=True)
+    fdbckToPlot, locStr, locTitleStr = fpd.manage_area(glensFdbckLoi, setDict["regOfInt"], areaAvgBool=True)
 
     # Make timeseries
     fig,ax = plt.subplots()
@@ -101,7 +101,7 @@ def plot_zchfd_timeseries_sept_arc_ifrac(glensCntrlRlz, glensFdbckRlz, dataDict,
 # Make images
 for rlz in loopDict["realizations"]:
     setDict["realization"] = 'mean'
-    glensCntrlRlz, glensFdbckRlz, cmnDict = pgf.call_to_open(dataDict, setDict)
+    glensCntrlRlz, glensFdbckRlz, cmnDict = fpd.call_to_open(dataDict, setDict)
     dataDict = {**dataDict, **cmnDict}
     for lev in loopDict["levels"]:
         setDict["levOfInt"] = lev
