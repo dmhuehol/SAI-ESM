@@ -1,6 +1,6 @@
 #!/bin/bash -l
 ### Job Name
-#PBS -N copy_sciris_tsa
+#PBS -N copy_arise_tsa
 ### Project code
 #PBS -A P06010014
 #PBS -l walltime=30:00
@@ -18,7 +18,7 @@ exec &> logfile_g2copy.txt
 export TMPDIR=/glade/scratch/dhueholt/temp
 mkdir -p $TMPDIR
 
-OUT_PATH="/glade/scratch/dhueholt/SCIRIS/monthly_TSA/"
+OUT_PATH="/glade/scratch/dhueholt/ARISE/monthly_TSA/"
 
 CMN_PATH="/glade/campaign/cesm/development/wawg/WACCM6-TSMLT-GEO/SAI1/"
 CMN_FOLD_STR="b.e21.BW.f09_g17.SSP245-TSMLT-GAUSS-DEFAULT."

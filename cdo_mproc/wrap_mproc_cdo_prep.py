@@ -66,7 +66,7 @@ def return_emem_list(inType):
         ".020.",
         ".021."]
         )
-    elif inType == "SCIRIS":
+    elif inType == "ARISE":
         EMEM=list([
         ".001.",
         ".002.",
