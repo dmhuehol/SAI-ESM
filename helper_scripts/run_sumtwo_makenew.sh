@@ -1,18 +1,18 @@
-#!/bin/bash -l
-### Job Name
-#PBS -N make_PRECCPRECL_PRECT
-### Project code
-#PBS -A P06010014
-#PBS -l walltime=8:30:00
-#PBS -q casper
-### Merge output and error files
-#PBS -j oe
-### Select 1 nodes with 1 CPUs each
-#PBS -l select=1:ncpus=1:mem=50GB
-### Send email on abort, begin and end
-#PBS -m abe
-### Specify mail recipient
-#PBS -M dhueholt@rams.colostate.edu
+# !/bin/bash -l
+# ## Job Name
+# PBS -N make_PRECCPRECL_PRECT
+# ## Project code
+# PBS -A P06010014
+# PBS -l walltime=8:30:00
+# PBS -q casper
+# ## Merge output and error files
+# PBS -j oe
+# ## Select 1 nodes with 1 CPUs each
+# PBS -l select=1:ncpus=1:mem=50GB
+# ## Send email on abort, begin and end
+# PBS -m abe
+# ## Specify mail recipient
+# PBS -M dhueholt@rams.colostate.edu
 exec &> logfile.txt
 
 export TMPDIR=/glade/scratch/dhueholt/temp

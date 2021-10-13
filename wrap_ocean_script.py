@@ -24,14 +24,14 @@ import xarray as xr
 
 import fun_calc_vars as fcv
 import fun_regrid_pop as frp
-import process_glens_fun as pgf
+import fun_process_data as fpd
 
 # Inputs
-dataPath = '/Users/dhueholt/Documents/GLENS_data/annual_OCNTEMP/'
-outPath = '/Users/dhueholt/Documents/GLENS_data/annual_OCNTEMP/end_to_end_test/'
+dataPath = '/Users/dhueholt/Documents/GLENS_data/annual_500TEMP/'#'/glade/scratch/dhueholt/ssp245/sept_IFRAC/'
+outPath = '/Users/dhueholt/Documents/GLENS_data/annual_500TEMP/regrid/'#'/glade/scratch/dhueholt/sept_IFRAC/regrid/'
 dataVar = 'TEMP' #Manually set data variable
-extract2d = fcv.uohc_from_ptmp #fun_calc_vars function handle or False
-nProc = 2 #Spawn nProc+1 (due to zero indexing) processes for regridding
+extract2d = False #fun_calc_vars function handle or False
+nProc = 5 #Spawn nProc+1 (due to zero indexing) processes for regridding
 
 # Open files
 strList = sorted(glob.glob(dataPath + "*.nc"))
@@ -39,7 +39,7 @@ dataList = list()
 for fc,fv in enumerate(strList):
     glensDset = xr.open_dataset(fv) #Open files separately as times may be mismatched
     if fc == 0:
-        dataVar = pgf.discover_data_var(glensDset) #Automatically detect data variable
+        dataVar = fpd.discover_data_var(glensDset) #Automatically detect data variable
     glensDarr = glensDset[dataVar]
     glensDarr.attrs['inFile'] = fv.replace(dataPath,"")
     glensDarr.attrs['outPath'] = outPath
@@ -57,8 +57,9 @@ else:
         data2dList.append(darr2d)
 
 # Regrid to standard lat/lon and save
-inPop = '/Users/dhueholt/Documents/GLENS_data/grids/control_IFRAC_useForGrid.nc'
-popLat,popLon = frp.extract_pop_latlons(inPop)
+inPop = '/Users/dhueholt/Documents/GLENS_data/grids/control_IFRAC_useForGrid.nc' #'/glade/work/dhueholt/grids/control_IFRAC_useForGrid.nc'
+inNames = ['TLAT','TLONG'] #'TLAT','TLONG' for POP, 'lat', 'lon'
+popLat,popLon = frp.extract_pop_latlons(inPop,inNames[0],inNames[1])
 
 for dc, dv in enumerate(data2dList):
     lenDat = len(data2dList)
@@ -72,16 +73,3 @@ for dc, dv in enumerate(data2dList):
             shard.start()
         filesRemaining = lenDat - dc - 1
         numleft = ic(filesRemaining) #Cheap "progress bar"
-
-# for strc, strv in enumerate(strList):
-#     lengthFiles = np.size(strList)
-#     if __name__== '__main__':
-#         p = Process(target=operate_regrid, args=(strv, dataVar, popLat, popLon))
-#         if strc % nProc == 0 and strc != 0:
-#             p.start()
-#             p.join()
-#             p.close()
-#         else:
-#             p.start()
-#         numleft = lengthFiles - strc - 1
-#         ic(numleft)

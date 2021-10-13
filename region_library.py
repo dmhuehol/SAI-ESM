@@ -1,9 +1,9 @@
 ''' region_library
-Define useful regions for plotting to be called from other functions.
-Latitudes are in deg N, longitudes are in 360-format deg E to match the GLENS
-format.
+Define regions for plotting to be called elsewhere. Latitudes in deg N,
+longitudes in 360-format deg E to match CESM format. Contains useful
+plotting/testing functions at end of file.
 
-Written by Daniel Hueholt | July 2021
+Written by Daniel Hueholt
 Graduate Research Assistant at Colorado State University
 '''
 
@@ -15,8 +15,8 @@ import cartopy
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 
-import plotting_tools as plt_tls
-import process_glens_fun as pgf
+import fun_plot_tools as fpt
+import fun_process_data as fpd
 
 ### IPCC regions used in WG1-AR5
 
@@ -295,7 +295,7 @@ def Antarctica():
     regDict = {
         "regStr": 'Antarctica',
         "regSaveStr": 'Antarctica',
-        "regLats": np.array([-90, -50]),
+        "regLats": np.array([-90, -50]), #[-90,-50]
         "regLons": np.array([0, 360])
     }
 
@@ -361,6 +361,16 @@ def GulfOfMexico():
         "regSaveStr": 'GulfOfMexico',
         "regLats": np.array([19.5,30]),
         "regLons": np.array([263,280])
+    }
+
+    return regDict
+
+def NorthAtlanticWarmingHole():
+    regDict = {
+        "regStr": 'North Atlantic Warming Hole',
+        "regSaveStr": 'NAWH',
+        "regLats": np.array([40,65]),
+        "regLons": np.array([300,350])
     }
 
     return regDict
@@ -457,6 +467,16 @@ def Below50S():
 
     return regDict
 
+def AntarcticaSouthernOcn():
+    regDict = {
+        "regStr": 'AntarcticaSouthernOcn',
+        "regSaveStr": 'AntSthOcn',
+        "regLats": ([-80,-55]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
 ## Arctic
 
 def ArcticCircle():
@@ -464,6 +484,36 @@ def ArcticCircle():
         "regStr": 'ArcticCircle',
         "regSaveStr": 'ArctcCrcl',
         "regLats": np.array([66.5,90]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
+def NorthHemiSeaIce():
+    regDict = {
+        "regStr": 'NorthHemiSeaIce',
+        "regSaveStr": 'NHemiSeaIce',
+        "regLats": np.array([45,90]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
+def HudsonBay():
+    regDict = {
+        "regStr": 'HudsonBay',
+        "regSaveStr": 'HudsonBay',
+        "regLats": np.array([51,65]),
+        "regLons": np.array([266,284])
+    }
+
+    return regDict
+
+def Subarctic():
+    regDict = {
+        "regStr": 'SubArctic',
+        "regSaveStr": 'Subarctic',
+        "regLats": np.array([45,70]),
         "regLons": np.array([0,360])
     }
 
@@ -481,14 +531,24 @@ def NortheastAsia():
 
     return regDict
 
+def AsianMonsoonRegion():
+    regDict = {
+        "regStr": 'AsianMonsoon',
+        "regSaveStr": 'AsianMonsoon',
+        "regLats": np.array([10,35]),
+        "regLons": np.array([60,160])
+    }
+
+    return regDict
+
 ## Australia
 
 def AustralianContinent():
     regDict = {
         "regStr": 'Australia',
         "regSaveStr": 'Australia',
-        "regLats": np.array([-43,-12]),
-        "regLons": np.array([111,115])
+        "regLats": np.array([-45,-10]),
+        "regLons": np.array([111,160])
     }
 
     return regDict
@@ -561,6 +621,27 @@ def atlas_ipcc_wg1ar5():
 
     return ipccWg1Ar5Dict
 
+def atlas_seaicy_regions():
+    seaIcyReg = (Arctic(), Subarctic(), Antarctica(), HudsonBay(), NorthHemiSeaIce())
+
+    return seaIcyReg
+
+def atlas_all_types():
+    box = AlaskaNorthwestCanada()
+    boxMerCross = Sahara()
+    poly = Amazon()
+    polyMerCross = CentralEurope()
+
+    aatDict = {
+        "box": box,
+        "boxMerCross": boxMerCross,
+        "poly": poly,
+        "polyMerCross": polyMerCross,
+        "allRegions": [box,boxMerCross,poly,polyMerCross]
+    }
+
+    return aatDict
+
 ### Functions
 
 def west180_to_360(west180):
@@ -575,13 +656,13 @@ def test_region(region, colors, fig, ax):
     lons = np.arange(0,360,1)
 
     if len(region['regLons'])>2: #non-rectangular region that does not cross Prime Meridian
-        gridMask = pgf.make_polygon_mask(lats, lons, region['regLats'], region['regLons'])
+        gridMask = fpd.make_polygon_mask(lats, lons, region['regLats'], region['regLons'])
         latsToPlot = lats
         lonsToPlot = lons
     elif isinstance(region['regLons'], tuple): #non-rectangular region that crosses Prime Meridian
         sgridMaskList = list()
         for sc in np.arange(0,len(region['regLons'])):
-                sgridMask = pgf.make_polygon_mask(lats, lons, region['regLats'][sc], region['regLons'][sc])
+                sgridMask = fpd.make_polygon_mask(lats, lons, region['regLats'][sc], region['regLons'][sc])
                 sgridMaskList.append(sgridMask)
         gridMask = np.logical_or.reduce(sgridMaskList)
         latsToPlot = lats
@@ -601,6 +682,6 @@ def test_region(region, colors, fig, ax):
     except:
         ic() #do nothing
 
-    plt_tls.drawOnGlobe(ax, plotOnes, latsToPlot, lonsToPlot, cmap=colors, vmin=0, vmax=2, cbarBool=False, fastBool=True, extent='max')
+    fpt.drawOnGlobe(ax, plotOnes, latsToPlot, lonsToPlot, cmap=colors, vmin=0, vmax=2, cbarBool=False, fastBool=True, extent='max')
 
     return fig, ax

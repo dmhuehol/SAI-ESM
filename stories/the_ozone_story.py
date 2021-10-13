@@ -1,6 +1,6 @@
 """theOzoneStory
 This makes figures showing change in stratospheric ozone in maxed out aesthetics
-format.
+format. Designed in June 2021 to conclude the use of ozone as our test variable.
 
 Written by Daniel Hueholt | June 2021
 Graduate Research Assistant at Colorado State University
@@ -26,10 +26,10 @@ from matplotlib import cm
 import cartopy
 import cartopy.crs as ccrs
 import numpy as np
+import cftime
 
-import difference_over_time as dot
-import process_glens_fun as pgf
-import plotting_tools as plt_tls
+import fun_process_data as fpd
+import fun_plot_tools as fpt
 import fun_convert_unit as fcu
 
 # Inputs
@@ -45,11 +45,11 @@ finalInt = [2090,2099]
 # Open data
 glensDsetCntrl = xr.open_dataset(cntrlPath)
 glensDsetFdbck = xr.open_dataset(fdbckPath)
-dataKey = pgf.discover_data_var(glensDsetCntrl)
+dataKey = fpd.discover_data_var(glensDsetCntrl)
 glensDarrCntrl = glensDsetCntrl[dataKey]
 glensDarrFdbck = glensDsetFdbck[dataKey]
 
-savePath='/Users/dhueholt/Documents/GLENS_fig/20210602_OzoneAndRefinements/'
+savePath='/Users/dhueholt/Documents/GLENS_fig/20211011_refactoring/' #20210602_OzoneAndRefinements
 dpi_val = 800
 
 def to3s_cbar():
@@ -72,12 +72,12 @@ def to3s_dg(levOfInt,tStr):
     savePrfx='NORM_globe_1p_FdbckCntrl_'
 
     # Obtain levels
-    glensCntrlLoi = pgf.obtain_levels(glensDarrCntrl, levOfInt)
-    glensFdbckLoi = pgf.obtain_levels(glensDarrFdbck, levOfInt)
+    glensCntrlLoi = fpd.obtain_levels(glensDarrCntrl, levOfInt)
+    glensFdbckLoi = fpd.obtain_levels(glensDarrFdbck, levOfInt)
 
     # Average over years
-    toiStart = dot.average_over_years(glensCntrlLoi, startInt[0], startInt[1]) # 2010-2019 is baseline, injection begins 2020
-    toiEndFdbck = dot.average_over_years(glensFdbckLoi, finalInt[0], finalInt[1])
+    toiStart = fpd.average_over_years(glensCntrlLoi, startInt[0], startInt[1]) # 2010-2019 is baseline, injection begins 2020
+    toiEndFdbck = fpd.average_over_years(glensFdbckLoi, finalInt[0], finalInt[1])
     diffToiFdbck =  toiEndFdbck - toiStart
 
     # Unit conversion
@@ -87,7 +87,7 @@ def to3s_dg(levOfInt,tStr):
 
     # Plotting
     lastDcd = str(finalInt[0]) + '-' + str(finalInt[1])
-    levStr = pgf.make_level_string(glensCntrlLoi, levOfInt)
+    levStr = fpd.make_level_string(glensCntrlLoi, levOfInt)
 
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
@@ -97,7 +97,7 @@ def to3s_dg(levOfInt,tStr):
     minVal = -15
     maxVal = 15
 
-    plt_tls.drawOnGlobe(ax, diffToiFdbckPlotNorm, glensDarrFdbck.lat, glensDarrFdbck.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=False, fastBool=True, extent='max')
+    fpt.drawOnGlobe(ax, diffToiFdbckPlotNorm, glensDarrFdbck.lat, glensDarrFdbck.lon, cmap, vmin=minVal, vmax=maxVal, cbarBool=False, fastBool=True, extent='max')
     plt.title(tStr,fontproperties=FiraSansMed,fontsize=18) #Override automatic title generation here
     saveStr = savePrfx + dataKey + '_' + levStr + '_' + lastDcd
     savename = savePath + saveStr + '.png'
@@ -111,17 +111,19 @@ def to3s_ts():
     saveFile = 'timeseries_O3_'
     saveName = savePath + saveFile
 
-    bndDct = pgf.find_matching_year_bounds(glensDarrCntrl, glensDarrFdbck)
-    glensCntrlPoi = glensDarrCntrl[bndDct['cntrlStrtMtch']:bndDct['cntrlEndMtch']+1] #RANGES IN PYTHON ARE [)
-    glensFdbckPoi = glensDarrFdbck[bndDct['fdbckStrtMtch']:bndDct['fdbckEndMtch']+1]
+    setYear = [2010, 2095]
+    timeSlice = slice(cftime.DatetimeNoLeap(setYear[0], 7, 15, 12, 0, 0, 0),cftime.DatetimeNoLeap(setYear[1], 7, 15, 12, 0, 0, 0))
+    # bndDct = fpd.find_matching_year_bounds(glensDarrCntrl, glensDarrFdbck)
+    glensCntrlPoi = glensDarrCntrl.sel(time=timeSlice)
+    glensFdbckPoi = glensDarrFdbck.sel(time=timeSlice)
 
     # Obtain levels
-    glensCntrlPoi = pgf.obtain_levels(glensCntrlPoi, levOfInt)
-    glensFdbckPoi = pgf.obtain_levels(glensFdbckPoi, levOfInt)
+    glensCntrlPoi = fpd.obtain_levels(glensCntrlPoi, levOfInt)
+    glensFdbckPoi = fpd.obtain_levels(glensFdbckPoi, levOfInt)
 
     # Deal with area
-    cntrlToPlot, locStr, locTitleStr = pgf.manage_area(glensCntrlPoi, regionToPlot, areaAvgBool=True)
-    fdbckToPlot, locStr, locTitleStr = pgf.manage_area(glensFdbckPoi, regionToPlot, areaAvgBool=True)
+    cntrlToPlot, locStr, locTitleStr = fpd.manage_area(glensCntrlPoi, regionToPlot, areaAvgBool=True)
+    fdbckToPlot, locStr, locTitleStr = fpd.manage_area(glensFdbckPoi, regionToPlot, areaAvgBool=True)
 
     # Unit conversion
     cntrlToPlot = fcu.molmol_to_ppm(cntrlToPlot)
@@ -129,12 +131,14 @@ def to3s_ts():
 
     # Plotting
     yStr = 'parts per million'
-    levStr = pgf.make_level_string(glensCntrlPoi, levOfInt)
+    levStr = fpd.make_level_string(glensCntrlPoi, levOfInt)
 
     # Make timeseries
     fig, ax = plt.subplots()
-    plt.plot(bndDct['mtchYrs'],cntrlToPlot.data,color='#DF8C20',label='RCP8.5') #These are the cuckooColormap colors
-    plt.plot(bndDct['mtchYrs'],fdbckToPlot.data,color='#20DFCC',label='SAI')
+    yearsOfIntCntrl = cntrlToPlot['time'].dt.year.data #Otherwise the x-axis will be the cftime object, which is ugly
+    yearsOfIntFdbck = fdbckToPlot['time'].dt.year.data #Otherwise the x-axis will be the cftime object, which is ugly
+    plt.plot(yearsOfIntCntrl,cntrlToPlot.data,color='#DF8C20',label='RCP8.5') #These are the cuckooColormap colors
+    plt.plot(yearsOfIntFdbck,fdbckToPlot.data,color='#20DFCC',label='SAI')
     ax.annotate('Global stratospheric ozone concentration',(0.02,0.935),(0.02,0.935),'axes fraction',fontproperties=FiraSansMed,fontsize=11,color='#000000')
     ax.annotate('RCP8.5',(0.236,0.482),(0.236,0.482),'axes fraction',fontproperties=FiraSansMed,fontsize=11,color='#DF8C20')
     ax.annotate('SAI',(0.419,0.28),(0.419,0.28),'axes fraction',fontproperties=FiraSansMed,fontsize=11,color='#20DFCC')

@@ -1,7 +1,6 @@
 #######################################
-# Use CDO to sum the data from two files to make a new variable.
-# New variable name and new attributes are required as inputs and
-# applied using NCO.
+# Use CDO to sum data from two files to make a new variable.
+# New variable name and attributes are required as inputs and applied using NCO.
 # Globals:
 #   None
 # Arguments:

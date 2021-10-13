@@ -1,6 +1,6 @@
 #!/bin/bash -l
 ### Job Name
-#PBS -N untar_2020_O3
+#PBS -N untar_glens_tsa
 ### Project code
 #PBS -A P06010014
 #PBS -l walltime=30:00
@@ -17,14 +17,14 @@
 export TMPDIR=/glade/scratch/dhueholt/temp
 mkdir -p $TMPDIR
 
-TAR_PATH_CNTRL="/glade/campaign/cesm/collections/GLENS/Control/atm/proc/tseries/monthly/O3/"
-TAR_PATH_FDBCK="/glade/campaign/cesm/collections/GLENS/Feedback/atm/proc/tseries/monthly/O3/"
-OUT_PATH="/glade/scratch/dhueholt/"
+TAR_PATH_CNTRL="/glade/campaign/cesm/collections/GLENS/Control/lnd/proc/tseries/monthly/TSA/"
+TAR_PATH_FDBCK="/glade/campaign/cesm/collections/GLENS/Feedback/lnd/proc/tseries/monthly/TSA/"
+OUT_PATH="/glade/scratch/dhueholt/monthly_TSA/"
 
-for CNTRLF in "$TAR_PATH_CNTRL"*021*.tar; do
+for CNTRLF in "$TAR_PATH_CNTRL"*.tar; do
     tar -C $OUT_PATH -xvf "$CNTRLF"
 done
 
-for FDBCKF in "$TAR_PATH_FDBCK"*021*.tar; do
+for FDBCKF in "$TAR_PATH_FDBCK"*.tar; do
     tar -C $OUT_PATH -xvf "$FDBCKF"
 done

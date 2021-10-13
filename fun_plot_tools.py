@@ -1,11 +1,10 @@
-''' plotting_tools
-Contains functions to plot GLENS data, e.g. drawing data on a globe, making kernel
-density estimates, histograms, step plots, etc. Includes functions related to
-plotting, as well, such as paint_by_numbers which chooses colors for perceptual
-difference based on the number of objects being drawn.
+''' fun_plot_tools
+Contains functions for plotting, e.g. drawing data on a globe, making kernel
+density estimates, histograms, or step plots. Also includes functions related to
+plotting, such as functions to choose colors or generate labels.
 
 Unless otherwise specified:
-Written by Daniel Hueholt | July 2021
+Written by Daniel Hueholt
 Graduate Research Assistant at Colorado State University
 drawOnGlobe written by Prof. Elizabeth Barnes at Colorado State University
     Lightly edited by Daniel Hueholt
@@ -28,9 +27,8 @@ import seaborn as sn
 
 def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc=None, cbarBool=True, contourMap=[], contourVals = [], fastBool=False, extent='both'):
     ''' Draws geolocated data on a globe '''
-
     data_crs = ct.crs.PlateCarree()
-    data_cyc, lons_cyc = add_cyclic_point(data, coord=lons) #fixes white line by adding point#data,lons#ct.util.add_cyclic_point(data, coord=lons) #fixes white line by adding point
+    data_cyc, lons_cyc = add_cyclic_point(data, coord=lons) #fixes white line by adding point
 
     ax.set_global()
     ax.coastlines(linewidth = 1.2, color='black')
@@ -72,10 +70,7 @@ def add_cyclic_point(data, coord=None, axis=-1):
                                  len(coord), axis, data.shape[axis]))
         delta_coord = np.diff(coord) #DMH: calculate grid spacing, essentially
         if not np.allclose(delta_coord, delta_coord[0]): #DMH: if grid spacing is not nearly uniform
-            # ic(delta_coord - delta_coord[0])
-            # ic(delta_coord < 1)
-            # ic(coord)
-            # sys.exit('STOP')
+            # ic(delta_coord - delta_coord[0], delta_coord < 1, coord) #troubleshooting
             warnings.warn('The coordinate is not equally spaced. This could be '
                           'because multiple sub-regions making up a single '
                           'region are being plotted (as when a region crosses '
@@ -162,19 +157,25 @@ def plot_pdf_step(handles, colors, labels, unit, savename, binwidth, dpiVal=400)
     plt.savefig(savename, dpi=dpiVal, bbox_inches='tight')
     plt.close()
 
-def select_colors(baselineFlag, nCntrl, nFdbck):
+def select_colors(baselineFlag, nCntrl, nFdbck, nArise, nS245Cntrl):
     '''Returns colors for a set number of feedback and control objects '''
 
     colorsToPlot = list()
-    baselineColor = 'slategrey'
+    baselineColor = '#788697'
+    #GLENS Cntrl/Fdbck luminances: 80.484,67.169,55.274,49.081,46.343,35.522,23.790,11.597
+    #ARISE/SSP2-4.5  luminances: 90,85,80,75,70,65,60,55
     cntrlColors = ["#F2BABA", "#E88989", "#DF5757", "#D93636", "#D32828", "#A21F1F", "#701515", "#3F0C0C"]
     fdbckColors = ["#D2BBE8", "#B48FDA", "#9763CB", "#8346C1", "#7A3DB6", "#5C2E8A", "#3F1F5E", "#211132"]
-
+    ariseColors = ["#5BFCDC", "#48EDCE", "#33DFC0", "#12D0B2", "#00C2A5", "#00B498", "#00A68B", "#00997E"]
+    s245CntrlColors = ["#FFCF65", "#FFC158", "#FFB34A", "#F8A53D", "#E8982E", "#D98B1F", "#CA7E0C", "#BB7100"]
     if baselineFlag:
         colorsToPlot.append(baselineColor)
 
     colorsToPlot = paint_by_numbers(colorsToPlot, cntrlColors, nCntrl)
     colorsToPlot = paint_by_numbers(colorsToPlot, fdbckColors, nFdbck)
+    colorsToPlot = paint_by_numbers(colorsToPlot, ariseColors, nArise)
+    colorsToPlot = paint_by_numbers(colorsToPlot, s245CntrlColors, nS245Cntrl)
+
     return colorsToPlot
 
 def paint_by_numbers(colorsToPlot, colList, nfc):
@@ -255,11 +256,41 @@ def generate_labels(labelsList, setDict, ensPrp, baselineFlag):
         if cdv+setDict["timePeriod"] == 2100:
             endYearStr = str(2099)
         if (setDict["realization"] == 'mean') and cdv+setDict["timePeriod"]>ensPrp["dscntntyYrs"][0]:
-            labelStr = startYearStr + '-' + endYearStr + ' ' + 'SAI' + ' ' + '[r'+str(ensPrp["drf"][1])+']'
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'G1.2(8.5)' + ' ' + '[r'+str(ensPrp["drf"][1])+']'
         elif (setDict["realization"] == 'mean') and cdv+setDict["timePeriod"]<ensPrp["dscntntyYrs"][0]:
-            labelStr = startYearStr + '-' + endYearStr + ' ' + 'SAI' + ' ' + '[r'+str(ensPrp["drf"][0])+']'
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'G1.2(8.5)' + ' ' + '[r'+str(ensPrp["drf"][0])+']'
         else:
-            labelStr = startYearStr + '-' + endYearStr + ' ' + 'SAI'
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'G1.2(8.5)'
+        labelsList.append(labelStr)
+
+    for cdc,cdv in enumerate(setDict["arisePoi"]):
+        if cdv < 2020:
+            continue #Do not auto-generate if interval starts during the 2010-2019 "Baseline" period
+        startYearStr = str(cdv)
+        endYearStr = str(cdv + setDict["timePeriod"] - 1)
+        if cdv+setDict["timePeriod"] == 2100:
+            endYearStr = str(2099)
+        if (setDict["realization"] == 'mean') and cdv+setDict["timePeriod"]>ensPrp["dscntntyYrs"][0]:
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'G1.5(2-4.5)' + ' ' + '[r'+str(ensPrp["drsci"][1])+']'
+        elif (setDict["realization"] == 'mean') and cdv+setDict["timePeriod"]<ensPrp["dscntntyYrs"][0]:
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'G1.5(2-4.5)' + ' ' + '[r'+str(ensPrp["drsci"][0])+']'
+        else:
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'G1.5(2-4.5)'
+        labelsList.append(labelStr)
+
+    for cdc,cdv in enumerate(setDict["s245CntrlPoi"]):
+        if cdv < 2020:
+            continue #Do not auto-generate if interval starts during the 2010-2019 "Baseline" period
+        startYearStr = str(cdv)
+        endYearStr = str(cdv + setDict["timePeriod"] - 1)
+        if cdv+setDict["timePeriod"] == 2100:
+            endYearStr = str(2099)
+        if (setDict["realization"] == 'mean') and cdv+setDict["timePeriod"]>ensPrp["dscntntyYrs"][0]:
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'SSP2-4.5' + ' ' + '[r'+str(ensPrp["drs245"][1])+']'
+        elif (setDict["realization"] == 'mean') and cdv+setDict["timePeriod"]<ensPrp["dscntntyYrs"][0]:
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'SSP2-4.5' + ' ' + '[r'+str(ensPrp["drs245"][0])+']'
+        else:
+            labelStr = startYearStr + '-' + endYearStr + ' ' + 'SSP2-4.5'
         labelsList.append(labelStr)
 
     if baselineFlag:
