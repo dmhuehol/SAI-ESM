@@ -7,7 +7,7 @@ setDict sets settings related to plotting
 outDict is for outputs
 loopDict determines which images are made
 
-Written by Daniel Hueholt | July 2021
+Written by Daniel Hueholt | October 2021
 Graduate Research Assistant at Colorado State University
 '''
 

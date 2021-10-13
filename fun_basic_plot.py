@@ -1,29 +1,26 @@
 ''' fun_basic_plot
-Contains the basic plotting functions for GLENS output variables:
-difference globes, timeseries, and pdfs. The same three dictionary inputs (defining
-the input files, plot settings, and output images, respectively) are used for
-each function.
+Contains the basic plotting functions for GLENS/ARISE summary: difference
+globes, timeseries, and pdfs. The same three dictionary inputs (defining the
+input files, plot settings, and output, respectively) are used by each function.
 
 --DIFFERENCE GLOBES--
-Functions to plot differences between RCP8.5 ("Control") and SAI/GEO8.5 ("Feedback")
-scenarios for a GLENS output variable on a 4-panel globe. Equal Earth map
-projection used by default.
+Functions to plot "world avoided" scenarios for GLENS and ARISE on a 4-panel
+globe. Equal Earth map projection used by default.
 plot_basic_difference_globe: 4 panels showing different plots wrt scenario
+plot_basic_difference_polar: 4 panels showing different plots wrt scenario in polar map projection
 plot_single_basic_difference_globe: 1 panel plot, flexible
-plot_vertical_difference_globe: 4 panels showing different plots wrt height (RCP - SAI)
-plot_vertical_baseline_difference_globe: 4 panels showing different plots wrt height (BASELINE - SAI)
+CURRENTLY NONFUNCTIONAL: plot_vertical_difference_globe: 4 panels showing different plots wrt height (RCP - SAI)
+CURRENTLY NONFUNCTIONAL: plot_vertical_baseline_difference_globe: 4 panels showing different plots wrt height (BASELINE - SAI)
 
 --TIMESERIES--
-Make timeseries showing progression of both RCP8.5 ("Control") and SAI/GEO8.5
-("Feedback") for a GLENS output variable.
+Make timeseries showing control and SAI scenarios for GLENS and ARISE.
 plot_timeseries: plots a timeseries
 
 --PDFs--
-Plot pdfs for RCP8.5 ("Control") and SAI ("Feedback") values for a GLENS output
-variable.
+Plot pdfs for control and SAI scenarios for GLENS and ARISE.
 plot_pdf: plots the pdfs as histogram, step plot, or kde depending on input
 
-Written by Daniel Hueholt | July 2021
+Written by Daniel Hueholt | October 2021
 Graduate Research Assistant at Colorado State University
 '''
 

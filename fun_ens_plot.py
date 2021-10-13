@@ -1,6 +1,16 @@
 ''' fun_ens_plot
 Contains functions to plot data with ensemble visualizations.
-Written by Daniel Hueholt | July 2021
+
+--TIMESERIES--
+plot_ens_spaghetti_timeseries: plots a timeseries with each member visualized
+as its own line, this is the classic "spaghetti plot"
+plot_ens_spread_timeseries: plots timeseries with ensemble mean shown as line
+and spread between max and min member shaded
+
+--PDFs--
+plot_ens_pdf: plot pdfs with different realizations as a degree of freedom
+
+Written by Daniel Hueholt
 Graduate Research Assistant at Colorado State University
 '''
 

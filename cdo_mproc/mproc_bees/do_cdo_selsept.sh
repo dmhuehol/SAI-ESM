@@ -1,7 +1,7 @@
 #######################################
-# Merge GLENS monthly netcdf files, shift time, and calculate annual mean.
+# Merge monthly netcdf files and extract September data.
 # Output files are named automatically as:
-# type_ensnumber_variable_YYYYMM-YYYYMM[first]_..._YYYYMM-YYYYMM[last].nc
+# type_ensnumber_variable_YYYYMM-YYYYMM[first]_..._YYYYMM-YYYYMM[last]_sept.nc
 # Globals:
 #   None
 # Arguments:

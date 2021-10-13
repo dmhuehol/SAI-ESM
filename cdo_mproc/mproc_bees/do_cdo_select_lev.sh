@@ -1,5 +1,5 @@
 #######################################
-# Select surface level from ocean variables in GLENS.
+# Select surface level from CESM ocean variables.
 # Output files have the same name as the original file, but have the level
 # appended to the beginning of the variable string.
 # Globals:

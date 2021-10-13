@@ -1,5 +1,5 @@
 #######################################
-# Merge GLENS monthly netcdf files, shift time, and calculate annual mean.
+# Merge CESM monthly netcdf files, shift time, and calculate annual mean.
 # Output files are named automatically as:
 # type_ensnumber_variable_YYYYMM-YYYYMM[first]_..._YYYYMM-YYYYMM[last].nc
 # Globals:

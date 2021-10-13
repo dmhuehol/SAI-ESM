@@ -1,7 +1,7 @@
 ''' wrap_testregions_script
 Runs region testing function to plot input regions on a map.
 
-Written by Daniel Hueholt | June 2021
+Written by Daniel Hueholt | September 2021
 Graduate Research Assistant at Colorado State University
 '''
 

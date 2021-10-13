@@ -1,8 +1,8 @@
 #######################################
-# Merge monthly netcdf files and extract March-September (East Indian
-# climatological rainy season [premonsoon+monsoon])
+# Merge monthly netcdf files and extract June-September (East Indian
+# dynamical monsoon season, e.g. Ananthakrishnan and Soman 1988)
 # Output files are named automatically as:
-# type_ensnumber_variable_YYYYMM-YYYYMM[first]_..._YYYYMM-YYYYMM[last].nc
+# type_ensnumber_variable_YYYYMM-YYYYMM[first]_..._YYYYMM-YYYYMM[last]_eimnsn.nc
 # Globals:
 #   None
 # Arguments:

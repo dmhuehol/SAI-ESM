@@ -4,7 +4,7 @@ density estimates, histograms, or step plots. Also includes functions related to
 plotting, such as functions to choose colors or generate labels.
 
 Unless otherwise specified:
-Written by Daniel Hueholt | August 2021
+Written by Daniel Hueholt
 Graduate Research Assistant at Colorado State University
 drawOnGlobe written by Prof. Elizabeth Barnes at Colorado State University
     Lightly edited by Daniel Hueholt

@@ -1,8 +1,8 @@
-''' process_glens_fun
+''' fun_process_data
 Contains functions for operations like extracting metadata from filenames,
 choosing and summing levels, or managing area inputs.
 
-Written by Daniel Hueholt | August 2021
+Written by Daniel Hueholt
 Graduate Research Assistant at Colorado State University
 '''
 

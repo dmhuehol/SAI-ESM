@@ -1,26 +1,26 @@
-#!/bin/bash -l
-### Job Name
-#PBS -N make_PRECCPRECL_PRECT
-### Project code
-#PBS -A P06010014
-#PBS -l walltime=8:30:00
-#PBS -q casper
-### Merge output and error files
-#PBS -j oe
-### Select 1 nodes with 1 CPUs each
-#PBS -l select=1:ncpus=1:mem=50GB
-### Send email on abort, begin and end
-#PBS -m abe
-### Specify mail recipient
-#PBS -M dhueholt@rams.colostate.edu
-# exec &> logfile.txt
-#
-# export TMPDIR=/glade/scratch/dhueholt/temp
-# mkdir -p $TMPDIR
-#
-# ### Load modules
-# module load cdo
-# module load nco
+# !/bin/bash -l
+# ## Job Name
+# PBS -N make_PRECCPRECL_PRECT
+# ## Project code
+# PBS -A P06010014
+# PBS -l walltime=8:30:00
+# PBS -q casper
+# ## Merge output and error files
+# PBS -j oe
+# ## Select 1 nodes with 1 CPUs each
+# PBS -l select=1:ncpus=1:mem=50GB
+# ## Send email on abort, begin and end
+# PBS -m abe
+# ## Specify mail recipient
+# PBS -M dhueholt@rams.colostate.edu
+exec &> logfile.txt
+
+export TMPDIR=/glade/scratch/dhueholt/temp
+mkdir -p $TMPDIR
+
+### Load modules
+module load cdo
+module load nco
 
 EMEM=(
 "001_"
@@ -51,10 +51,10 @@ SCENARIO=(
 "feedback"
 )
 
-IN_PATH="/Users/dhueholt/Documents/GLENS_data/eimnsn_PREC/"
+IN_PATH="/glade/scratch/dhueholt/annual_PREC/"
 IN_VARNAME1=PRECC
 IN_VARNAME2=PRECL
-OUT_PATH="/Users/dhueholt/Documents/GLENS_data/eimnsn_PRECT/"
+OUT_PATH="/glade/scratch/dhueholt/annual_PREC/"
 OUT_VARNAME=PRECT
 OUT_LONGNAME='Total precipitation (liq+ice)'
 

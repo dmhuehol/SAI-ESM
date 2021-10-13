@@ -1,6 +1,9 @@
 ''' plot_zonal_mean
 Makes figures related to zonal mean values, such as zonal mean, time mean
-figures or zonal mean-height contour plots.
+figures or zonal mean-height contour plots. This is CURRENTLY NONFUNCTIONAL as
+it is out of step with current import/processing code and has no support for
+ARISE. However, the methodology here can serve as a skeleton and will eventually
+be updated.
 
 Written by Daniel Hueholt | June 2021
 Graduate Research Assistant at Colorado State University

@@ -1,9 +1,9 @@
 ''' region_library
-Define useful regions for plotting to be called from other functions.
-Latitudes are in deg N, longitudes are in 360-format deg E to match the GLENS
-format.
+Define regions for plotting to be called elsewhere. Latitudes in deg N,
+longitudes in 360-format deg E to match CESM format. Contains useful
+plotting/testing functions at end of file.
 
-Written by Daniel Hueholt | July 2021
+Written by Daniel Hueholt
 Graduate Research Assistant at Colorado State University
 '''
 

@@ -1,5 +1,5 @@
 #######################################
-# Move files into proper directories
+# Move files into proper directories for IPCC regions.
 # Written by Daniel Hueholt
 # Graduate Research Assistant at Colorado State University
 #######################################

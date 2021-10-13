@@ -1,9 +1,8 @@
 '''  wrap_mproc_cdo_prep
 Runs functions to process data into friendlier forms, i.e. selecting months or
-calculating annual mean values. Uses multiprocessing for efficiency.
-
-After running, output data is ready for regridding (wrap_ocean_script) or
-plotting (wrap_basicplots_script, wrap_ensplots_script).
+calculating annual mean values. Uses multiprocessing for efficiency. After
+running, output data is ready for regridding (wrap_ocean_script) or plotting
+(wrap_basicplots_script, wrap_ensplots_script).
 
 Written by Daniel Hueholt
 Graduate Research Assistant at Colorado State University

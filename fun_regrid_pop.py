@@ -87,10 +87,6 @@ def operate_regrid_direct(popDataArray, popLat, popLon):
 
     dataRegrid = np.empty((varOfInt.shape[0],latNew.shape[0],lonNew.shape[0]))
     for bc in range(varOfInt.shape[0]):
-        # ic(varOfInt[bc,:,:])
-        # ic(popLat,popLon)
-        # ic(latNew,lonNew)
-        # sys.exit('STOP')
         newDat = regrid(varOfInt[bc,:,:],popLat,popLon,latNew,lonNew)
         dataRegrid[bc,:,:] = newDat
 
@@ -108,6 +104,4 @@ def operate_regrid_direct(popDataArray, popLat, popLon):
     strOut = popDataArray.attrs['outFile'].replace(".nc","_RG.nc")
     outFile = popDataArray.attrs['outPath'] + strOut
     newDset.to_netcdf(outFile)
-    ic(strOut)
-    ic(outFile)
-    ic(newDset)
+    ic(strOut, outFile, newDset)
