@@ -1,5 +1,5 @@
 # SAI-CESM
-Repository for code analyzing stratospheric aerosol injection model output utilizing the Community Earth System Model (CESM). This code utilizes output from the following modeling experiments: 
+Repository for code analyzing stratospheric aerosol injection model (SAI) output utilizing the Community Earth System Model (CESM). This code utilizes output from the following modeling experiments: 
 1. [Geoengineering Large ENSemble (GLENS)](https://www.cesm.ucar.edu/projects/community-projects/GLENS/), consisting of 21 RCP8.5 Control runs and 21 G1.2(8.5) Feedback runs where SAI is used to target 1.2 Celsius above preindustrial against the RCP8.5 forcing
 2. Assessment of Responses and Impacts of Solar Climate Intervention on the Earth System (ARISE), consisting of 10 G1.5(2-4.5) runs where SAI is used to target 1.5 Celsius above preindustrial with a SSP2-4.5 scenario
 3. CMIP6 CESM2-WACCM SSP2-4.5, which functions as the ARISE control with 5 members spanning 2015-2100
