@@ -160,9 +160,9 @@ def plot_ens_spread_timeseries(rlzList, dataDict, setDict, outDict):
     # t = 0.45 #Override automatic t
     # plt.plot([ensPrp["dscntntyYrs"],ensPrp["dscntntyYrs"]],[b,t], color='#36454F', linewidth=0.5, linestyle='dashed')
     # plt.plot(2015,b+(abs(b-t))*0.01,color='#F8A53D',marker='v')
-    plt.plot(2015,3.07,color='#F8A53D',marker='v')
+    plt.plot(2015,180.77,color='#F8A53D',marker='v')
     # plt.plot(2030,b+(abs(b-t))*0.01,color='#D93636',marker='v')
-    plt.plot(2030,3.07,color='#D93636',marker='v')
+    plt.plot(2030,180.77,color='#D93636',marker='v')
     plt.plot([2020,2020],[b,t], color='#8346C1', linewidth=0.7, linestyle='dashed')
     plt.plot([2035,2035],[b,t], color='#12D0B2', linewidth=0.7, linestyle='dashed')
     plt.autoscale(enable=True, axis='x', tight=True)
@@ -183,18 +183,21 @@ def plot_ens_spread_timeseries(rlzList, dataDict, setDict, outDict):
         savePrfx = 'INSET_'
         plt.xticks([2010,2030,2050,2070,2090])
         # plt.yticks(np.arange(-30,100,2))
-        plt.yticks(np.arange(0,100,10)) #Ice thickness
-        plt.yticks(np.arange(0,100,2)) #Air temperature
+        # plt.yticks(np.arange(0,100,30)) #Sept. Arctic ice thickness
+        # plt.yticks(np.arange(0,20,5)) #Feb. Antarctic ice thickness
+        # plt.yticks(np.arange(0,100,2)) #Air temperature
         plt.yticks(np.arange(100,300,30)) #Monsoon precip
-        plt.yticks(np.arange(25,33,2)) #Tropical SST
-        plt.yticks(np.arange(10,50,1)) #Global SST
+        # plt.yticks(np.arange(25,33,2)) #Tropical SST
+        # plt.yticks(np.arange(10,50,2)) #Global SST
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
         # plt.ylim([b,t])
         # plt.ylim([10,30])
-        plt.ylim([18.5,22.5])
-        plt.ylabel('\u00B0C')
-        # plt.ylabel('cm')
+        # plt.ylim([0,110]) #Arctic ice thickness
+        # plt.ylim([0,15]) #Antarctic ice thickness
+        plt.ylim([180,270]) #Monsoon precip
+        # plt.ylabel('\u00B0C')
+        plt.ylabel('cm')
         # ax.spines['bottom'].set_visible(False)
         # ax.spines['left'].set_visible(False)
 
