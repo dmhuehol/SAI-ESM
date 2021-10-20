@@ -1,5 +1,5 @@
 ''' fun_calc_vars
-Derives variables from root datasets.
+Functions to derive variables from root datasets.
 
 Written by Daniel Hueholt
 Graduate Research Assistant at Colorado State University
@@ -15,7 +15,7 @@ def sst_from_ptmp(darr):
     levs = darr[levName].data
     levMask = levs == 500
     darrSurf = darr[:,levMask,:,:]
-    
+
     return darrSurf
 
 def uohc_from_ptmp(darr):
