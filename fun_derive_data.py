@@ -15,6 +15,7 @@ import climdex.temperature as tdex
 import climdex.precipitation as pdex
 
 import fun_convert_unit as fcu
+import fun_process_data as fpd
 
 ### Climdex extremes
 def derive_annual_tropical_nights(inFileTrefht, outPath):
@@ -26,6 +27,7 @@ def derive_annual_tropical_nights(inFileTrefht, outPath):
     trefhtDarr = trefhtDset[inKey]
     trefhtCelDarr = fcu.kel_to_cel(trefhtDarr)
     ic('Beginning clxTR calculation!')
+    trefhtCelDarrChkLstTm = fpd.check_last_time(trefhtCelDarr)
     atnDarr = tIndices.annual_tropical_nights(trefhtCelDarr)
     ic('clxTR calculation complete!')
 

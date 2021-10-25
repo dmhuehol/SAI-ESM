@@ -613,6 +613,20 @@ def var_str_lookup(longName, setDict, strType='title'):
 
     return outStr
 
+def check_last_time(inDlyDarr):
+    ''' Removes bonus timestep from ARISE daily data when it crosses year '''
+    inTimes = inDlyDarr.time
+    inYears = inTimes.dt.year
+    bonusInd = len(inTimes)-1
+    bonusTimeYr = inYears[bonusInd]
+    lastNominalTimeYr = inYears[bonusInd-1]
+    if bonusTimeYr == lastNominalTimeYr:
+        outDlyDarr = inDlyDarr.copy()
+    else:
+        outDlyDarr = inDlyDarr.where(inYears<bonusTimeYr, drop=True)
+
+    return outDlyDarr
+
 def convert_for_consistency(inDarr):
     ''' CMIP6 has different unit standards, but the CESM2-WACCM CMIP6 run is
         used as the ARISE control. It's therefore necessary to convert this
