@@ -19,7 +19,7 @@ import fun_convert_unit as fcu
 ### Climdex extremes
 def derive_annual_tropical_nights(inFileTrefht, outPath):
     tIndices = tdex.indices(time_dim='time')
-    inKey = 'TREFHT'
+    inKey = 'TREFHTMN'
     outKey = 'clxTR'
 
     trefhtDset = xr.open_dataset(inFileTrefht)

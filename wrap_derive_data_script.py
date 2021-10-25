@@ -1,5 +1,9 @@
-''' wrap_derive_data
-must only have merged data to be derived form
+''' wrap_derive_data_script
+Runs functions to derive and save data from a base dataset to new files. Used
+for derivations that require multiple datasets or time-consuming calculations
+where spending the space to save the data is more efficient than spending the
+time to do the calculation each time. For non-intensive in-line calculations,
+see fun_convert_unit or fun_calc_vars.
 
 Written by Daniel Hueholt
 Graduate Research Assistant at Colorado State University
@@ -14,10 +18,10 @@ import subprocess
 
 import fun_derive_data as fdd
 
-inPath = '/Users/dhueholt/Documents/GLENS_data/daily_TREFHT/mergetime/'
-inToken = '*.nc'
-outPath = '/Users/dhueholt/Documents/GLENS_data/clxTR/'
-nProc = 2
+inPath = '/glade/scratch/dhueholt/daily_TREFHTMN/mergetime/'#'/Users/dhueholt/Documents/GLENS_data/daily_TREFHT/mergetime/'
+inToken = '*control*'#'*control*','*feedback*','*SSP245-TSMLT*','*BWSSP245*','*BWHIST*' #tokens for GLENS, ARISE, CESM2-WACCM, historical #use ONE AT A TIME for now
+outPath = '/glade/scratch/dhueholt/clxTR/'#'/Users/dhueholt/Documents/GLENS_data/clxTR/'
+nProc = 10
 
 theGlob = glob.glob(inPath+inToken)
 for fc,fn in enumerate(theGlob):

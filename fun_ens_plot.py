@@ -159,10 +159,10 @@ def plot_ens_spread_timeseries(rlzList, dataDict, setDict, outDict):
     # b = 0 #Override automatic b
     # t = 0.45 #Override automatic t
     # plt.plot([ensPrp["dscntntyYrs"],ensPrp["dscntntyYrs"]],[b,t], color='#36454F', linewidth=0.5, linestyle='dashed')
-    # plt.plot(2015,b+(abs(b-t))*0.01,color='#F8A53D',marker='v')
-    plt.plot(2015,180.77,color='#F8A53D',marker='v')
-    # plt.plot(2030,b+(abs(b-t))*0.01,color='#D93636',marker='v')
-    plt.plot(2030,180.77,color='#D93636',marker='v')
+    plt.plot(2015,b+(abs(b-t))*0.01,color='#F8A53D',marker='v')
+    # plt.plot(2015,180.77,color='#F8A53D',marker='v')
+    plt.plot(2030,b+(abs(b-t))*0.01,color='#D93636',marker='v')
+    # plt.plot(2030,180.77,color='#D93636',marker='v')
     plt.plot([2020,2020],[b,t], color='#8346C1', linewidth=0.7, linestyle='dashed')
     plt.plot([2035,2035],[b,t], color='#12D0B2', linewidth=0.7, linestyle='dashed')
     plt.autoscale(enable=True, axis='x', tight=True)
@@ -205,8 +205,8 @@ def plot_ens_spread_timeseries(rlzList, dataDict, setDict, outDict):
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + str(setYear[0]) + str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + md['ensPid']['sprd']
     # saveStr = 'SST' + '_' + md['levSve'] + '_' + str(setYear[0]) + str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + md['ensPid']['sprd']
     savename = outDict["savePath"] + savePrfx + saveStr + '.pdf'
-    # plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
-    plt.savefig(savename,format='pdf')
+    plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
+    # plt.savefig(savename,format='pdf')
     plt.close()
     ic(savename)
 

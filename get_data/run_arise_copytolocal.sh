@@ -27,6 +27,12 @@ EMEM=(
 "002"
 "003"
 "004"
+"005"
+"006"
+"007"
+"008"
+"009"
+"010"
 )
 # CMN_PATH + CMN_FOLD_STR + EMEM = directory structure for each ens member
 CMN_SUB_PATH="/lnd/proc/tseries/month_1/"
