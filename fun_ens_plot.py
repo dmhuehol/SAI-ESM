@@ -88,7 +88,10 @@ def plot_ens_spaghetti_timeseries(rlzList, dataDict, setDict, outDict):
                 plt.plot(yearsOfInt,dataToPlot.data,color=activeColor,linewidth=0.3)
 
     b,t = plt.ylim()
-    plt.plot([ensPrp["dscntntyYrs"],ensPrp["dscntntyYrs"]],[b,t], color='#36454F', linewidth=0.5, linestyle='dashed')
+    plt.plot(2015,b+(abs(b-t))*0.01,color='#F8A53D',marker='v')
+    plt.plot(2030,b+(abs(b-t))*0.01,color='#D93636',marker='v')
+    plt.plot([2020,2020],[b,t], color='#8346C1', linewidth=0.7, linestyle='dashed')
+    plt.plot([2035,2035],[b,t], color='#12D0B2', linewidth=0.7, linestyle='dashed')
     leg = plt.legend()
     plt.ylabel(md['unit'])
     plt.autoscale(enable=True, axis='x', tight=True)

@@ -28,7 +28,7 @@ def derive_annual_tropical_nights(inFileTrefht, outPath):
     trefhtCelDarr = fcu.kel_to_cel(trefhtDarr)
     ic('Beginning clxTR calculation!')
     trefhtCelDarrChkLstTm = fpd.check_last_time(trefhtCelDarr)
-    atnDarr = tIndices.annual_tropical_nights(trefhtCelDarr)
+    atnDarr = tIndices.annual_tropical_nights(trefhtCelDarrChkLstTm)
     ic('clxTR calculation complete!')
 
     timeList = list()
