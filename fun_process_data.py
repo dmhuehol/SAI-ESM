@@ -548,8 +548,9 @@ def isolate_change_quantile(darr, quantileOfInt):
 def combine_hist_fut(darrHist, darrCntrl):
     ''' Combine historical and future output into a single DataArray '''
     darrHistForFormat = darrHist.sel(realization=0)
-    ic('WARNING: YOU STILL HAVE NOT FIXED THE TIME HACK IN COMBINE_HIST_FUT')
-    darrHistNan = copy_blank_darr(darrHistForFormat[0:5]) #HACK
+    # ic('WARNING: YOU STILL HAVE NOT FIXED THE TIME HACK IN COMBINE_HIST_FUT')
+    # darrHistNan = copy_blank_darr(darrHistForFormat[0:5]) #HACK
+    darrHistNan = copy_blank_darr(darrHistForFormat)
     darrCombine = darrHistNan.copy()
 
     cntrlRlz = darrCntrl['realization']
@@ -557,7 +558,8 @@ def combine_hist_fut(darrHist, darrCntrl):
         try:
             activeHist = darrHist.sel(realization=rc)
             activeCntrl = darrCntrl.sel(realization=rc)
-            activeDarr = xr.concat((activeHist[0:5],activeCntrl), dim='time') #HACK
+            # activeDarr = xr.concat((activeHist[0:5],activeCntrl), dim='time') #HACK
+            activeDarr = xr.concat((activeHist,activeCntrl), dim='time')
         except:
             activeCntrl = darrCntrl.sel(realization=rc)
             activeDarr = xr.concat((darrHistNan,activeCntrl), dim='time')
