@@ -17,6 +17,7 @@ import numpy as np
 import matplotlib.path as mpth
 import glob
 
+import CustomExceptions
 import fun_convert_unit as fcu
 
 def discover_data_var(dset):
@@ -259,19 +260,9 @@ def manage_realizations(setDict, darr, emem):
 
     return darrOut, ememSave
 
-def open_data_new(inID, dataDict, setDict, outDict):
-    ''' Potential new version of open_data which opens one type of file at a
-    time to be more modular '''
-    inPath = dataDict["dataPath"] + inID
-    inDset = xr.open_mfdataset(inPath, concat_dim='realization', combine='nested')
-    maskDset = apply_mask(inDset, dataDict, setDict)
-    dataKey = discover_data_var(maskDset)
-    maskDarr = maskDset[dataKey]
-    scnDarr = bind_scenario(maskDarr)
-
 def apply_mask(dset, dataDict, setDict):
     if setDict['landmaskFlag'] is not None:
-        activeMaskDset = xr.open_dataset(dataDict["idMask"])
+        activeMaskDset = xr.open_dataset(dataDict["mask"])
         try:
             activeMask = activeMaskDset.landmask
         except:
@@ -297,131 +288,72 @@ def bind_scenario(darr, inID):
         darr.attrs['scenario'] = 'GLENS:Feedback/SAI/G1.2(8.5)'
     elif 'SSP245-TSMLT-GAUSS' in inID:
         darr.attrs['scenario'] = 'ARISE:Feedback/SAI/G1.5(4.5)'
-    elif 'SSP245cmip6' in inID:
+    elif 'BWSSP245' in inID:
         darr.attrs['scenario'] = 'CESM2-WACCM/ARISE:Control/SSP2-4.5'
-    elif 'historical' in inID:
-        darr.attrs['scenario'] = 'CESM2-WACCM/:Control/Historical'
+    elif 'BWHIST' in inID:
+        darr.attrs['scenario'] = 'CESM2-WACCM/ARISE:Control/Historical'
+    elif 'SSP245cmip6' in inID:
+        darr.attrs['scenario'] = 'CESM2-WACCM/ARISE:Control/SSP2-4.5/ProcessedForCMIP6'
     else:
         ic('Unable to match scenario, binding empty string to array')
         darr.attrs['scenario'] = ''
 
     return darr
 
-def open_data(dataDict, setDict):
-    ''' Opens data and select data variable. This, manage_realizations, and
-    meta_book have substantial hard-coding and require reworking when a new
-    model run is added.
-    '''
-    if '*' in dataDict["idGlensCntrl"]:
-        cntrlPath = dataDict["dataPath"] + dataDict["idGlensCntrl"]
-        fdbckPath = dataDict["dataPath"] + dataDict["idGlensFdbck"]
-        arisePath = dataDict["dataPath"] + dataDict["idArise"]
-        s245CntrlPath = dataDict["dataPath"] + dataDict["idS245Cntrl"]
-        s245HistPath = dataDict["dataPath"] + dataDict["idS245Hist"]
-
-        glensCntrlDset = xr.open_mfdataset(cntrlPath, concat_dim='realization', combine='nested')
-        glensFdbckDset = xr.open_mfdataset(fdbckPath, concat_dim='realization', combine='nested')
-        try:
-            ariseDset = xr.open_mfdataset(arisePath, concat_dim='realization', combine='nested')
-        except:
-            ic('No ARISE files located')
-            ariseDset = None
-        try:
-            s245CntrlDset = xr.open_mfdataset(s245CntrlPath, concat_dim='realization', combine='nested')
-            s245HistDset = xr.open_mfdataset(s245HistPath, concat_dim='realization', combine='nested')
-        except:
-            ic('Could not locate SSP2-4.5 Control and Historical files')
-            s245CntrlDset = None
-            s245HistDset = None
-
-        if setDict['landmaskFlag'] == 'land':
-            activeMaskDset = xr.open_dataset(dataDict["idMask"])
-            try:
-                activeMask = activeMaskDset.landmask
-            except:
-                activeMask = activeMaskDset.imask
-            glensCntrlDset = glensCntrlDset.where(activeMask > 0)
-            glensFdbckDset = glensFdbckDset.where(activeMask > 0)
-            if ariseDset is not None:
-                ariseDset = ariseDset.where(activeMask > 0)
-            if s245CntrlDset is not None:
-                s245CntrlDset = s245CntrlDset.where(activeMask > 0)
-                s245HistDset = s245HistDset.where(activeMask > 0)
-        elif setDict['landmaskFlag'] == 'ocean':
-            activeMaskDset = xr.open_dataset(dataDict["idMask"])
-            try:
-                activeMask = activeMaskDset.landmask
-            except:
-                activeMask = activeMaskDset.imask
-            glensCntrlDset = glensCntrlDset.where(activeMask == 0)
-            glensFdbckDset = glensFdbckDset.where(activeMask == 0)
-            if ariseDset is not None:
-                ariseDset = ariseDset.where(activeMask == 0)
-            if s245CntrlDset is not None:
-                s245CntrlDset = s245CntrlDset.where(activeMask == 0)
-                s245HistDset = s245HistDset.where(activeMask == 0)
-
-        dataKey = discover_data_var(glensCntrlDset)
-        glensCntrlDarr = glensCntrlDset[dataKey]
-        glensCntrlDarr.attrs['scenario'] = 'GLENS:Control/RCP8.5'
-        glensFdbckDarr = glensFdbckDset[dataKey]
-        glensFdbckDarr.attrs['scenario'] = 'GLENS:Feedback/SAI/G1.2(8.5)'
-        if ariseDset is not None:
-            ariseDarr = ariseDset[dataKey]
-            ariseDarr.attrs['scenario'] = 'ARISE:Feedback/SAI/G1.5(4.5)'
-        else:
-            ariseDarr = None
-        if s245CntrlDset is not None:
-            dataKeyCmip6 = discover_data_var(s245CntrlDset) #CMIP6 has unique variable names tied to CMIP6 conventions specifically, not its status as the control for ARISE
-            s245CntrlDarr = s245CntrlDset[dataKeyCmip6]
-            # s245CntrlDarr = convert_for_consistency(s245CntrlDarr) #CMIP6 often has different unit standards but is used as the ARISE control so we make do
-            try:
-                s245HistDarr = s245HistDset[dataKey] #Historical output uses the same dataKey as GLENS/ARISE
-            except:
-                s245HistDarr = s245HistDset['SST'] #At times, must be set manually
-            # ic(s245CntrlDarr, s245HistDarr)
-            # sys.exit('STOP')
-            s245Darr = combine_hist_fut(s245HistDarr, s245CntrlDarr)
-            s245Darr.attrs['scenario'] = 'CMIP6_CESM2WACCM/ARISE:Control+Historical/SSP2-4.5'
-        else:
-            s245Darr = None
-    else:
-        sys.exit("Check input! Token should have a wildcard (i.e. match multiple files).")
-
-    darrCheckList = list([glensCntrlDarr,glensFdbckDarr,ariseDarr,s245Darr])
-    darrList = [d for d in darrCheckList if d is not None]
-
-    return darrList, dataKey
-
 def call_to_open(dataDict, setDict):
     ''' Common data tasks for all basic plots '''
-    darrList, dataKey = open_data(dataDict, setDict)
+    # Open datasets
+    darrList = list()
+    cmbnHistFutList = list()
+    globsList = list()
+    for dky in dataDict.keys():
+        if 'id' in dky:
+            try:
+                inPath = dataDict["dataPath"] + dataDict[dky]
+                globsList.append(sorted(glob.glob(inPath)))
+                rawDset = xr.open_mfdataset(inPath, concat_dim='realization', combine='nested')
+                maskDset = apply_mask(rawDset, dataDict, setDict)
+                dataKey = discover_data_var(maskDset)
+                maskDarr = maskDset[dataKey]
+                scnDarr = bind_scenario(maskDarr, dataDict[dky])
+                if 'ARISE:Control' in scnDarr.scenario: #Two parts to ARISE Control: historical and future
+                    cmbnHistFutList.append(scnDarr) #These need to be kept separate
+                else:
+                    darrList.append(scnDarr) #Others can be put in darrList directly
+            except: #Usually reached if input is None
+                pass
+    if len(cmbnHistFutList) == 2: #If both historical and future are input
+        acntrlDarr = combine_hist_fut(cmbnHistFutList[0],cmbnHistFutList[1]) #Combine ARISE Control here
+        darrList.append(acntrlDarr) #Append ARISE Control to darrList
+    else:
+        try:
+            darrList.append(cmbnHistFutList[0]) #Append the one that's present
+        except:
+            pass #If there is no data, just move on
+    if len(darrList) == 0:
+        raise CustomExceptions.NoDataError('No data! Check input and try again.')
 
-    glensCntrlFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['idGlensCntrl']))
-    glensFdbckFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['idGlensFdbck']))
-    ariseFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['idArise']))
-    s245CntrlFiles = sorted(glob.glob(dataDict['dataPath'] + dataDict['idS245Cntrl']))
-
+    # Manage ensemble members
     ememList = list()
-    for ec in (glensCntrlFiles, glensFdbckFiles, ariseFiles, s245CntrlFiles):
+    for ec in globsList:
         ememList.append(get_ens_mem(ec))
-    rlzList = list()
+    scnList = list()
     ememStrList = list()
     for dc,darr in enumerate(darrList):
-        rlzArr, ememStr = manage_realizations(setDict, darr, ememList[dc])
-        rlzList.append(rlzArr)
+        scnArr, ememStr = manage_realizations(setDict, darr, ememList[dc])
+        scnList.append(scnArr)
         ememStrList.append(ememStr)
-
     ememStrList = list(filter(None,ememStrList))
     ememSave = '-'.join(ememStrList)
     cmnDict = {'dataKey': dataKey, 'ememSave': ememSave}
 
+    # Convert units (if necessary)
     if setDict["convert"] is not None:
         for cnvrtr in setDict["convert"]:
-            for rc,rv in enumerate(rlzList):
-                rlzList[rc] = cnvrtr(rv)
+            for rc,rv in enumerate(scnList):
+                scnList[rc] = cnvrtr(rv) #Use input converter function(s)
 
-    return rlzList, cmnDict
+    return scnList, cmnDict
 
 def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
     ''' Compile bits and pieces for filenames and titles. As many as possible
@@ -439,7 +371,7 @@ def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
         "endStr": str(cntrlToPlot['time'].data[len(cntrlToPlot)-1].year),
         "frstDcd": str(setDict["startIntvl"][0]) + '-' + str(setDict["startIntvl"][1]),
         "lstDcd": str(setDict["endIntvl"][0]) + '-' + str(setDict["endIntvl"][1]),
-        "tmStr": bcf_parser(labelsToPlot),
+        "tmStr": rcf_parser(labelsToPlot),
         "levStr": make_level_string(cntrlToPlot, setDict["levOfInt"]) if "levOfInt" in setDict.keys() else '',
         "levSve": make_level_string(cntrlToPlot, setDict["levOfInt"]).replace(" ","") if "levOfInt" in setDict.keys() else '',
         "ensStr": dataDict["ememSave"],
@@ -454,17 +386,21 @@ def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
 
     return metaDict
 
-def bcf_parser(labelsToPlot):
+def rcf_parser(labelsToPlot):
     ''' Parse labels to make filenames '''
     timeStr = list()
     if labelsToPlot != None:
         for lab in labelsToPlot:
-            if 'Baseline' in lab:
-                timeStr.append('b' + lab[0:9].replace("-",""))
+            if 'Reference' in lab:
+                timeStr.append('r' + lab[0:9].replace("-","")) #Reference
             elif 'RCP8.5' in lab:
-                timeStr.append('c' + lab[0:9].replace("-",""))
-            elif 'SAI' in lab:
-                timeStr.append('f' + lab[0:9].replace("-",""))
+                timeStr.append('gc' + lab[0:9].replace("-","")) #GLENS control
+            elif 'SSP2-4.5' in lab:
+                timeStr.append('ac' + lab[0:9].replace("-","")) #ARISE control
+            elif 'G1.2(8.5)' in lab:
+                timeStr.append('gf' + lab[0:9].replace("-","")) #GLENS feedback
+            elif 'G1.5(2-4.5)' in lab:
+                timeStr.append('af' + lab[0:9].replace("-","")) #ARISE feedback
     timeStr = "_".join(timeStr)
 
     return timeStr
@@ -548,8 +484,6 @@ def isolate_change_quantile(darr, quantileOfInt):
 def combine_hist_fut(darrHist, darrCntrl):
     ''' Combine historical and future output into a single DataArray '''
     darrHistForFormat = darrHist.sel(realization=0)
-    # ic('WARNING: YOU STILL HAVE NOT FIXED THE TIME HACK IN COMBINE_HIST_FUT')
-    # darrHistNan = copy_blank_darr(darrHistForFormat[0:5]) #HACK
     darrHistNan = copy_blank_darr(darrHistForFormat)
     darrCombine = darrHistNan.copy()
 
@@ -558,7 +492,6 @@ def combine_hist_fut(darrHist, darrCntrl):
         try:
             activeHist = darrHist.sel(realization=rc)
             activeCntrl = darrCntrl.sel(realization=rc)
-            # activeDarr = xr.concat((activeHist[0:5],activeCntrl), dim='time') #HACK
             activeDarr = xr.concat((activeHist,activeCntrl), dim='time')
         except:
             activeCntrl = darrCntrl.sel(realization=rc)
@@ -595,6 +528,11 @@ def var_str_lookup(longName, setDict, strType='title'):
             outStr = 'Ice Fraction from Coupler'
         elif strType == 'save':
             outStr = 'IceFracCoupler'
+    elif longName == 'Annual tropical nights':
+        if strType == 'title':
+            outStr = 'Annual tropical nights'
+        elif strType == 'save':
+            outStr = 'clxTR'
     else:
         outStr = longName
 

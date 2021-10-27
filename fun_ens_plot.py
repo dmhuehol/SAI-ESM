@@ -30,7 +30,7 @@ import scipy.stats as stats
 import cftime
 
 import matplotlib.font_manager as fm
-fontPath = '/Users/dhueholt/Library/Fonts/'  # the location of the font file
+fontPath = '/Users/dhueholt/Library/Fonts/'  #Location of font files
 for font in fm.findSystemFonts(fontPath):
     fm.fontManager.addfont(font)
 
@@ -44,61 +44,45 @@ ensPrp = {
     "dscntntyYrs": [2030],
     "drc": [21,4], #GLENS Control
     "drf": [21,21], #GLENS Feedback
-    "drsci": [10,10], #ARISE
+    "drari": [10,10], #ARISE
     "drs245": [4,5] #SSP2-4.5 Control
 }
 
-def plot_ens_spaghetti_timeseries(rlzList, dataDict, setDict, outDict):
+def plot_ens_spaghetti_timeseries(darrList, dataDict, setDict, outDict):
     ''' Make a simple timeseries of output variable. Ensemble members are
     visualized in a familiar, basic spaghetti plot. '''
-    # Set up data: Isolate time, level, and area of interest
     setYear = [2010, 2095]
-    timeSlice = slice(cftime.DatetimeNoLeap(setYear[0], 7, 15, 12, 0, 0, 0),cftime.DatetimeNoLeap(setYear[1], 7, 15, 12, 0, 0, 0))
-    rlzToPlot = list()
-    for rc,rDarr in enumerate(rlzList):
-        rlzToi = rDarr.sel(time=timeSlice)
-        rlzLoi = fpd.obtain_levels(rlzToi, setDict["levOfInt"])
-        rlzAoi, locStr, locTitleStr = fpd.manage_area(rlzLoi, setDict["regOfInt"], areaAvgBool=True)
-        rlzToPlot.append(rlzAoi)
+    timeSlice = slice(cftime.DatetimeNoLeap(setYear[0], 7, 15, 12, 0, 0, 0), cftime.DatetimeNoLeap(setYear[1], 7, 15, 12, 0, 0, 0))
 
-    # Make timeseries
-    plt.figure()
-    for rsc,rsDarr in enumerate(rlzList):
-        for rc in rsDarr['realization'].data:
-            dataToPlot, locStr, locTitleStr = fpd.manage_area(rsDarr.sel(realization=rc), setDict["regOfInt"], areaAvgBool=True)
-            md = fpd.meta_book(setDict, dataDict, dataToPlot, labelsToPlot=None)
-            if 'GLENS:Control' in dataToPlot.scenario:
-                activeColor = '#D93636'
-                activeLabel = md['cntrlStr']
-            elif 'GLENS:Feedback' in dataToPlot.scenario:
-                activeColor = '#8346C1'
-                activeLabel = md['fdbckStr']
-            elif 'ARISE:Feedback' in dataToPlot.scenario:
-                activeColor = '#12D0B2'
-                activeLabel = md['ariseStr']
-            elif 'ARISE:Control' in dataToPlot.scenario:
-                activeColor = '#F8A53D'
-                activeLabel = md['s245Cntrl']
+    # Plot timeseries
+    fig,ax = plt.subplots()
+    scnToPlot = list() #Make list of all scenarios to be plotted
+    for scnDarr in darrList:
+        rlzInScn = scnDarr['realization'].data #Number of realizations in scenario
+        scnToPlot.append(scnDarr.scenario) #Add scenario to list
+        for rc in rlzInScn:
+            rlzToi = scnDarr.sel(realization=rc, time=timeSlice) #Single rlz at time of interest
+            rlzLoi = fpd.obtain_levels(rlzToi, setDict["levOfInt"]) #Level of interest
+            rlzToPlot, locStr, locTitleStr = fpd.manage_area(rlzLoi, setDict["regOfInt"], areaAvgBool=True) #Area of interest
+            md = fpd.meta_book(setDict, dataDict, rlzToPlot, labelsToPlot=None) #Extract metadata
+            activeColor, activeLabel = fpt.line_from_scenario(rlzToPlot.scenario, md)
+            yrsToPlot = rlzToPlot['time'].dt.year.data #bndDct['mtchYrs']
+            if rc==len(rlzInScn)-1:
+                plt.plot(yrsToPlot, rlzToPlot, color=activeColor, label=activeLabel) #Ens mean
             else:
-                sys.exit('Unknown scenario cannot be plotted!')
-            yearsOfInt = dataToPlot['time'].dt.year.data #bndDct['mtchYrs']
-            if rc==len(rsDarr['realization'].data)-1:
-                plt.plot(yearsOfInt,dataToPlot.data,color=activeColor,label=activeLabel)
-            else:
-                plt.plot(yearsOfInt,dataToPlot.data,color=activeColor,linewidth=0.3)
+                plt.plot(yrsToPlot, rlzToPlot, color=activeColor, linewidth=0.3) #Individual rlz
 
+    # Plot metadata and settings
     b,t = plt.ylim()
-    plt.plot(2015,b+(abs(b-t))*0.01,color='#F8A53D',marker='v')
-    plt.plot(2030,b+(abs(b-t))*0.01,color='#D93636',marker='v')
-    plt.plot([2020,2020],[b,t], color='#8346C1', linewidth=0.7, linestyle='dashed')
-    plt.plot([2035,2035],[b,t], color='#12D0B2', linewidth=0.7, linestyle='dashed')
+    fpt.plot_metaobjects(scnToPlot, fig)
     leg = plt.legend()
     plt.ylabel(md['unit'])
     plt.autoscale(enable=True, axis='x', tight=True)
     plt.autoscale(enable=True, axis='y', tight=True)
-    plt.xlim(setYear[0],setYear[1])
+    plt.xlim(setYear[0], setYear[1])
     plt.title(md['varStr'] + ' ' + md['levStr'] + ': ' + str(setYear[0]) + '-' + str(setYear[1]) + ' ' + locTitleStr  + ' ' + 'spaghetti')
 
+    # Save image
     savePrfx = ''
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + str(setYear[0]) + str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + md['ensPid']['spg']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
@@ -106,18 +90,11 @@ def plot_ens_spaghetti_timeseries(rlzList, dataDict, setDict, outDict):
     plt.close()
     ic(savename)
 
-def plot_ens_spread_timeseries(rlzList, dataDict, setDict, outDict):
+def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
     ''' Make a timeseries of output variable. Ensemble variability is visualized
     as the spread between max and min at each timestep. '''
-    # Set up data: Isolate time, level, and area of interest
     setYear = [2010,2095]#[2010, 2095]
     timeSlice = slice(cftime.DatetimeNoLeap(setYear[0], 7, 15, 12, 0, 0, 0),cftime.DatetimeNoLeap(setYear[1], 7, 15, 12, 0, 0, 0))
-    rlzToPlot = list()
-    for rc,rDarr in enumerate(rlzList):
-        rlzToi = rDarr.sel(time=timeSlice)
-        rlzLoi = fpd.obtain_levels(rlzToi, setDict["levOfInt"])
-        rlzAoi, locStr, locTitleStr = fpd.manage_area(rlzLoi, setDict["regOfInt"], areaAvgBool=True)
-        rlzToPlot.append(rlzAoi)
 
     # Make timeseries
     if setDict["insetFlag"] == 2:
@@ -125,85 +102,54 @@ def plot_ens_spread_timeseries(rlzList, dataDict, setDict, outDict):
         plt.rcParams.update({'font.family': 'Fira Sans'})
         plt.rcParams.update({'font.weight': 'bold'})
     fig, ax = plt.subplots()
-    for rsc,rsDarr in enumerate(rlzList):
-        dataAoi, locStr, locTitleStr = fpd.manage_area(rsDarr, setDict["regOfInt"], areaAvgBool=True)
-        rlzMax = dataAoi.max(dim='realization')
-        rlzMin = dataAoi.min(dim='realization')
-        rlzMn = dataAoi[len(dataAoi['realization'])-1] #last member is ensemble mean
+    scnToPlot = list()
+    for darr in darrList:
+        darrToi = darr.sel(time=timeSlice)
+        darrLoi = fpd.obtain_levels(darrToi, setDict["levOfInt"])
+        dataToPlot, locStr, locTitleStr = fpd.manage_area(darrLoi, setDict["regOfInt"], areaAvgBool=True)
+        rlzMax = dataToPlot.max(dim='realization')
+        rlzMin = dataToPlot.min(dim='realization')
+        rlzMn = dataToPlot[len(dataToPlot['realization'])-1] #Last member is ensemble mean
         md = fpd.meta_book(setDict, dataDict, rlzMn, labelsToPlot=None)
-        yearsOfInt = rlzMn['time'].dt.year.data #bndDct['mtchYrs']
-        if 'GLENS:Control' in rsDarr.scenario:
-            activeColor = '#D93636'
-            activeLabel = md['cntrlStr']
-            # plt.plot(yearsOfInt[0:20],rlzMn.data[0:20],color=activeColor,label=activeLabel)
-            # plt.plot(yearsOfInt[20:],rlzMn.data[20:],color=activeColor,linestyle='dotted')
-        elif 'GLENS:Feedback' in rsDarr.scenario:
-            activeColor = '#8346C1'
-            activeLabel = md['fdbckStr']
-            # plt.plot(yearsOfInt,rlzMn.data,color=activeColor,label=activeLabel)
-        elif 'ARISE:Feedback' in rsDarr.scenario:
-            activeColor = '#12D0B2'
-            activeLabel = md['ariseStr']
-            # plt.plot(yearsOfInt,rlzMn.data,color=activeColor,label=activeLabel)
-        elif 'ARISE:Control' in rsDarr.scenario:
-            activeColor = '#F8A53D'
-            activeLabel = md['s245Cntrl']
-            # plt.plot(yearsOfInt[0:175],rlzMn.data[0:175],color=activeColor,linestyle='dotted')
-            # plt.plot(yearsOfInt[175:],rlzMn.data[175:],color=activeColor,label=activeLabel)
-        else:
-            sys.exit('Unknown scenario cannot be plotted!')
+        yrsToPlot = rlzMn['time'].dt.year.data #bndDct['mtchYrs']
+        scnToPlot.append(darr.scenario)
+        activeColor, activeLabel = fpt.line_from_scenario(darr.scenario, md)
+        # plt.plot(yearsOfInt,rlzMax.data,color=activeColor,linewidth=0.3) #Border on top of spread
+        # plt.plot(yearsOfInt,rlzMin.data,color=activeColor,linewidth=0.3) #Border on bottom of spread
+        plt.plot(yrsToPlot,rlzMn.data,color=activeColor,label=activeLabel,linewidth=2)
+        ax.fill_between(yrsToPlot, rlzMax.data, rlzMin.data, color=activeColor, alpha=0.3, linewidth=0)
 
-        # plt.plot(yearsOfInt,rlzMax.data,color=activeColor,linewidth=0.3)
-        # plt.plot(yearsOfInt,rlzMin.data,color=activeColor,linewidth=0.3)
-        plt.plot(yearsOfInt,rlzMn.data,color=activeColor,label=activeLabel,linewidth=2)
-        ax.fill_between(yearsOfInt, rlzMax.data, rlzMin.data, color=activeColor, alpha=0.3, linewidth=0)
-
+    # Plot metadata and settings
     b,t = plt.ylim()
     # b = 0 #Override automatic b
     # t = 0.45 #Override automatic t
-    # plt.plot([ensPrp["dscntntyYrs"],ensPrp["dscntntyYrs"]],[b,t], color='#36454F', linewidth=0.5, linestyle='dashed')
-    plt.plot(2015,b+(abs(b-t))*0.01,color='#F8A53D',marker='v')
-    # plt.plot(2015,180.77,color='#F8A53D',marker='v')
-    plt.plot(2030,b+(abs(b-t))*0.01,color='#D93636',marker='v')
-    # plt.plot(2030,180.77,color='#D93636',marker='v')
-    plt.plot([2020,2020],[b,t], color='#8346C1', linewidth=0.7, linestyle='dashed')
-    plt.plot([2035,2035],[b,t], color='#12D0B2', linewidth=0.7, linestyle='dashed')
+    fpt.plot_metaobjects(scnToPlot, fig)
     plt.autoscale(enable=True, axis='x', tight=True)
     plt.autoscale(enable=True, axis='y', tight=True)
     plt.xlim(setYear[0],setYear[1])
-    if setDict["insetFlag"] == 0:
+    if setDict["insetFlag"] == 0: #Standard plot
         plt.ylabel(md['unit'])
         leg = plt.legend()
         plt.title(md['varStr'] + ' ' + md['levStr'] + str(setYear[0]) + '-' + str(setYear[1]) + ' ' + locTitleStr  + ' ' + 'spread')
         # plt.title('SST 2010-2095 ' + locTitleStr + ' spread') #Override automatic title generation
         savePrfx = ''
-        # plt.ylim([0.6,0.9])
         plt.ylim([b,t])
-    elif setDict["insetFlag"] == 1:
+        # plt.ylim([0.6,0.9]) #Override automatic y-axis limits
+    elif setDict["insetFlag"] == 1: #Lines only
         savePrfx = 'INSETQUAL_'
         ax.axis('off')
-    else:
+    else: #Lines and nice axes usually used in posters
         savePrfx = 'INSET_'
         plt.xticks([2010,2030,2050,2070,2090])
-        # plt.yticks(np.arange(-30,100,2))
-        # plt.yticks(np.arange(0,100,30)) #Sept. Arctic ice thickness
-        # plt.yticks(np.arange(0,20,5)) #Feb. Antarctic ice thickness
-        # plt.yticks(np.arange(0,100,2)) #Air temperature
-        plt.yticks(np.arange(100,300,30)) #Monsoon precip
-        # plt.yticks(np.arange(25,33,2)) #Tropical SST
-        # plt.yticks(np.arange(10,50,2)) #Global SST
+        plt.yticks(np.arange(-30,100,2))
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
-        # plt.ylim([b,t])
-        # plt.ylim([10,30])
-        # plt.ylim([0,110]) #Arctic ice thickness
-        # plt.ylim([0,15]) #Antarctic ice thickness
-        plt.ylim([180,270]) #Monsoon precip
+        plt.ylim([b,t])
         # plt.ylabel('\u00B0C')
-        plt.ylabel('cm')
         # ax.spines['bottom'].set_visible(False)
         # ax.spines['left'].set_visible(False)
 
+    # Save image
     savePrfx = savePrfx + ''
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + str(setYear[0]) + str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + md['ensPid']['sprd']
     # saveStr = 'SST' + '_' + md['levSve'] + '_' + str(setYear[0]) + str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + md['ensPid']['sprd']
@@ -221,7 +167,10 @@ def plot_ens_pdf(rlzList, dataDict, setDict, outDict):
     this requires a sizeable ensemble to give useful results if spatial
     averaging is applied!
     '''
-    baselineFlag = True #True if plotting any data from before 2020 (during the "Baseline" period), False otherwise
+    rfrncFlag = True #True if plotting any data from before 2020 (during the reference period), False otherwise
+    if (dataDict["idGlensCntrl"] is None) and (dataDict["idS245Hist"] is None):
+        ic("No control run available--disabling 2011-2030 reference period")
+        rfrncFlag = False
 
     # Set up data
     rlzToPlot = list()
@@ -241,24 +190,28 @@ def plot_ens_pdf(rlzList, dataDict, setDict, outDict):
 
     # Extract the decades of interest
     handlesToPlot = list()
+    glensCntrlHndls = list()
+    glensFdbckHndls = list()
+    ariseCntrlHndls = list()
+    ariseFdbckHndls = list()
     for scnData in rlzToPlot:
         periodsOfInt = scnData['time'].dt.year.data
         if 'GLENS:Control' in scnData.scenario:
-            cntrlHandlesToPlot = list()
-            cntrlHandlesToPlot = fpd.extract_intvl(setDict["cntrlPoi"], periodsOfInt, setDict["timePeriod"], scnData, cntrlHandlesToPlot)
+            glensCntrlHndls = fpd.extract_intvl(setDict["cntrlPoi"], periodsOfInt, setDict["timePeriod"], scnData, glensCntrlHndls)
         elif 'GLENS:Feedback' in scnData.scenario:
-            fdbckHandlesToPlot = list()
-            fdbckHandlesToPlot = fpd.extract_intvl(setDict["fdbckPoi"], periodsOfInt, setDict["timePeriod"], scnData, fdbckHandlesToPlot)
-        elif 'ARISE:Feedback' in scnData.scenario:
-            ariseHandlesToPlot = list()
-            ariseHandlesToPlot = fpd.extract_intvl(setDict["arisePoi"], periodsOfInt, setDict["timePeriod"], scnData, ariseHandlesToPlot)
+            glensFdbckHndls = fpd.extract_intvl(setDict["fdbckPoi"], periodsOfInt, setDict["timePeriod"], scnData, glensFdbckHndls)
         elif 'ARISE:Control' in scnData.scenario:
-            s245CntrlHandlesToPlot = list()
-            s245CntrlHandlesToPlot = fpd.extract_intvl(setDict["s245CntrlPoi"], periodsOfInt, setDict["timePeriod"], scnData, s245CntrlHandlesToPlot)
+            ariseCntrlHndls = fpd.extract_intvl(setDict["s245CntrlPoi"], periodsOfInt, setDict["timePeriod"], scnData, ariseCntrlHndls)
+        elif 'ARISE:Feedback' in scnData.scenario:
+            ariseFdbckHndls = fpd.extract_intvl(setDict["arisePoi"], periodsOfInt, setDict["timePeriod"], scnData, ariseFdbckHndls)
         else:
             ic(scnData.scenario)
             #No sys.exit(), want to know what the error is if it fails here
-    handlesToPlot = cntrlHandlesToPlot + fdbckHandlesToPlot + ariseHandlesToPlot + s245CntrlHandlesToPlot
+    nGlensCntrlPoi = len(glensCntrlHndls)
+    nGlensFdbckPoi = len(glensFdbckHndls)
+    nAriseCntrlPoi = len(ariseCntrlHndls)
+    nAriseFdbckPoi = len(ariseFdbckHndls)
+    handlesToPlot = glensCntrlHndls + glensFdbckHndls + ariseCntrlHndls + ariseFdbckHndls
     if not setDict["dimOfVrblty"]['timeBool']:
         handlesToPlot = [h.mean(dim='time') for h in handlesToPlot]
     if not setDict["dimOfVrblty"]['rlzBool']:
@@ -269,13 +222,9 @@ def plot_ens_pdf(rlzList, dataDict, setDict, outDict):
         handlesToPlot[ind] = h.data.flatten()
 
     # Generate colors and strings for plots and filenames
-    if baselineFlag:
-        colorsToPlot = fpt.select_colors(baselineFlag,len(setDict["cntrlPoi"])-1,len(setDict["fdbckPoi"]),len(setDict["arisePoi"]),len(setDict["s245CntrlPoi"]))
-    else:
-        colorsToPlot = fpt.select_colors(baselineFlag,len(setDict["cntrlPoi"]),len(setDict["fdbckPoi"]),len(setDict["arisePoi"]),len(setDict["s245CntrlPoi"]))
     labelsToPlot = list()
-    labelsToPlot = fpt.generate_labels(labelsToPlot, setDict, ensPrp, baselineFlag)
-
+    colorsToPlot = list()
+    labelsToPlot = fpt.generate_labels_colors(labelsToPlot, colorsToPlot, dataDict, setDict, ensPrp, rfrncFlag, nGlensCntrlPoi, nGlensFdbckPoi, nAriseFdbckPoi, nAriseCntrlPoi)
     unit = rlzToPlot[0].attrs['units']
     md = fpd.meta_book(setDict, dataDict, rlzToPlot[0], labelsToPlot)
     titleStr = md['varStr'] + ' ' + md['levStr'] + ' ' + locTitleStr + ' ' + 'PDF:' + fpd.make_dov_title(setDict["dimOfVrblty"])

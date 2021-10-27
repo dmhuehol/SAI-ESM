@@ -49,7 +49,7 @@ ensPrp = {
     "dscntntyYrs": [2030],
     "drc": [21,4], #GLENS Control
     "drf": [21,21], #GLENS Feedback
-    "drsci": [10,10], #ARISE
+    "drari": [10,10], #ARISE
     "drs245": [5,5] #SSP2-4.5 Control
 }
 
@@ -92,9 +92,9 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12,2.73*2))
     ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
-    cmap = cmocean.cm.curl_r
-    cbVals = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
-    # cbVals = [-25,25] #Override automatic colorbar range here
+    cmap = cmocean.cm.balance
+    # cbVals = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
+    cbVals = [-60,60] #Override automatic colorbar range here
     md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
     plt.suptitle(md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']), fontsize=10)
     # plt.suptitle('2m temperature ens mean', fontsize=10) #Override automatic supertitle here
@@ -205,7 +205,7 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
 
 def plot_vertical_difference_globe(rlzList, dataDict, setDict, outDict):
     ''' Plot 4-panel difference globe for difference between two scenario
-    values (i.e. baseline - SAI[RCP]) at ending interval by level
+    values (i.e. reference - SAI[RCP]) at ending interval by level
         (1) Total
         (2) Troposphere
         (3) 250mb to 50mb (can be modified for any layer)
@@ -508,7 +508,7 @@ def plot_timeseries(rlzList, dataDict, setDict, outDict):
 def plot_pdf(rlzList, dataDict, setDict, outDict):
     ''' Plot pdfs for an output variable. Three formats are available: a kernel
     density estimate, a histogram, or a step plot.'''
-    baselineFlag = True #True if plotting any data from before 2020 (during the "Baseline" period), False otherwise
+    rfrncFlag = True #True if plotting any data from before 2020 (during the reference period), False otherwise
 
     # Set up data
     rlzToPlot = list()
@@ -551,12 +551,12 @@ def plot_pdf(rlzList, dataDict, setDict, outDict):
             handlesToPlot[ind] = h.data.flatten()
 
     # Generate colors and strings for plots and filenames
-    if baselineFlag:
-        colorsToPlot = fpt.select_colors(baselineFlag,len(setDict["cntrlPoi"])-1,len(setDict["fdbckPoi"]),len(setDict["arisePoi"]),len(setDict["s245CntrlPoi"]))
+    if rfrncFlag:
+        colorsToPlot = fpt.select_colors(rfrncFlag,len(setDict["cntrlPoi"])-1,len(setDict["fdbckPoi"]),len(setDict["arisePoi"]),len(setDict["s245CntrlPoi"]))
     else:
-        colorsToPlot = fpt.select_colors(baselineFlag,len(setDict["cntrlPoi"]),len(setDict["fdbckPoi"]),len(setDict["arisePoi"]),len(setDict["s245CntrlPoi"]))
+        colorsToPlot = fpt.select_colors(rfrncFlag,len(setDict["cntrlPoi"]),len(setDict["fdbckPoi"]),len(setDict["arisePoi"]),len(setDict["s245CntrlPoi"]))
     labelsToPlot = list()
-    labelsToPlot = fpt.generate_labels(labelsToPlot, setDict, ensPrp, baselineFlag)
+    labelsToPlot = fpt.generate_labels(labelsToPlot, setDict, ensPrp, rfrncFlag)
 
     unit = rlzToPlot[0].attrs['units']
     md = fpd.meta_book(setDict, dataDict, rlzToPlot[0], labelsToPlot)
