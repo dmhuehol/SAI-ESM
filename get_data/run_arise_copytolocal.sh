@@ -3,7 +3,7 @@
 #PBS -N copy_arise_tsa
 ### Project code
 #PBS -A P06010014
-#PBS -l walltime=30:00
+#PBS -l walltime=10:00
 #PBS -q casper
 ### Merge output and error files
 #PBS -j oe
@@ -13,14 +13,14 @@
 #PBS -m abe
 ### Specify mail recipient
 #PBS -M dhueholt@rams.colostate.edu
-exec &> logfile_g2copy.txt
+exec &> logfile_arise_copy.txt
 
 export TMPDIR=/glade/scratch/dhueholt/temp
 mkdir -p $TMPDIR
 
 OUT_PATH="/glade/scratch/dhueholt/ARISE/monthly_TSA/"
 
-CMN_PATH="/glade/campaign/cesm/development/wawg/WACCM6-TSMLT-GEO/SAI1/"
+CMN_PATH="/glade/campaign/cesm/collections/ARISE-SAI-1.5/"
 CMN_FOLD_STR="b.e21.BW.f09_g17.SSP245-TSMLT-GAUSS-DEFAULT."
 EMEM=(
 "001"
