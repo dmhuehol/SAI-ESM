@@ -34,15 +34,15 @@ dataDict = {
     "dataPath": '/Users/dhueholt/Documents/GLENS_data/clxTR/',
     "idGlensCntrl": 'control_*', #'control_*'
     "idGlensFdbck": 'feedback_*', #'feedback_*'
-    "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245*'
-    "idS245Cntrl": '*BWSSP245*', #'*ssp245*'
-    "idS245Hist": '*BWHIST*', #'*historical*'
+    "idArise": None, #'*SSP245*'
+    "idS245Cntrl": None, #'*ssp245*'
+    "idS245Hist": None, #'*historical*'
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc'
 }
 setDict = {
     "landmaskFlag": 'land',
     "startIntvl": [2011,2030], #dg
-    "endIntvl": [2041,2060], #dg
+    "endIntvl": [2041,2060,2076,2095], #dg
     "cntrlPoi": [2011,2041], #pdf
     "fdbckPoi": [2041], #pdf
     "arisePoi": [2041], #pdf
@@ -52,7 +52,7 @@ setDict = {
     "convert": None #TUPLE of converter(s), or None if using default units
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211027_moreExtremes/1_modular/5_refactoring/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211027_moreExtremes/2_globes/',
     "dpiVal": 400
 }
 loopDict = {
@@ -74,7 +74,8 @@ for rlz in loopDict["realizations"]:
 
     for lev in loopDict["levels"]:
         setDict["levOfInt"] = lev
-        fbp.plot_basic_difference_globe(scnList, dataDict, setDict, outDict)
+        # fbp.plot_basic_difference_globe(scnList, dataDict, setDict, outDict)
+        fbp.plot_glens_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_basic_difference_polar(scnList, dataDict, setDict, outDict)
         # fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict)
     #

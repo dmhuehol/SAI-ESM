@@ -381,7 +381,7 @@ def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
         "spcStr": make_spc_string(setDict),
         "pid": {'g1p': 'globe_1p', 'g4p': 'globe_4p', 'ts': 'timeseries', 'pdf': 'pdf'},
         "ensPid": {'spg': 'spghtti', 'sprd': 'spread'},
-        "glbType": {'vGl': 'vertical', 'bGl': 'baseline', 'fcStr': 'FdbckCntrl'}
+        "glbType": {'vGl': 'vertical', 'bGl': 'baseline', 'fcStr': 'FdbckCntrl', 'gfcStr': 'glensFdbckCntrl'}
     }
 
     return metaDict

@@ -27,17 +27,18 @@ Graduate Research Assistant at Colorado State University
 from icecream import ic
 import sys
 
+import numpy as np
 import xarray as xr
 xr.set_options(keep_attrs=True)
-import matplotlib.pyplot as plt
-from matplotlib import cm
+import cftime
+import scipy.stats as stats
 import cartopy
 import cartopy.crs as ccrs
+import matplotlib.pyplot as plt
+from matplotlib import cm
+import seaborn
 import cmocean
 import cmasher
-import numpy as np
-import scipy.stats as stats
-import cftime
 
 import fun_process_data as fpd
 import fun_plot_tools as fpt
@@ -138,6 +139,79 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
 
     savePrfx = ''
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['fcStr']
+    savename = outDict["savePath"] + savePrfx + saveStr + '.png'
+    plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
+    plt.close()
+    ic(savename)
+
+def plot_glens_difference_globe(rlzList, dataDict, setDict, outDict):
+    ''' Plot 4-panel difference globe
+        (1) change over time for RCP8.5 mid-century (GLENS control)
+        (2) change over time for G1.2(8.5) mid-century (GLENS feedback)
+        (3) diff between RCP8.5 and G1.2(8.5) for mid-century (world avoided)
+        (4) diff between RCP8.5 and G1.2(8.5) for end of century (world avoided)
+        Input endIntvl as 4 elements, i.e. [2041,2060,2076,2095]
+    '''
+    toiStart = dict()
+    toiMid = dict()
+    toiEnd = dict()
+    for rc,rDarr in enumerate(rlzList):
+        rlzLoi = fpd.obtain_levels(rDarr, setDict["levOfInt"])
+        shrtScn = rlzLoi.scenario.split('/')[len(rlzLoi.scenario.split('/'))-1]
+        if 'Control' in rlzLoi.attrs['scenario']:
+            toiStartLp = fpd.average_over_years(rlzLoi, setDict["startIntvl"][0], setDict["startIntvl"][1])
+            toiMidLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+            toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][2], setDict["endIntvl"][3])
+            toiStart[shrtScn] = toiStartLp
+        else:
+            toiMidLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+            toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][2], setDict["endIntvl"][3])
+        toiMid[shrtScn] = toiMidLp
+        toiEnd[shrtScn] = toiEndLp
+
+    # Set up panels
+    diffToiR85MdCn = toiMid['RCP8.5'] - toiStart['RCP8.5']
+    diffToiG12R85MdCn = toiMid['G1.2(8.5)'] - toiStart['RCP8.5'] #Reference for G1.2(8.5) is RCP8.5
+    wrldAvrtdG12R85MdCn = toiMid['G1.2(8.5)'] - toiMid['RCP8.5']
+    wrldAvrtdG12R85EndCn = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
+
+    panels = (diffToiR85MdCn, diffToiG12R85MdCn, wrldAvrtdG12R85MdCn, wrldAvrtdG12R85EndCn)
+
+    # Plotting
+    CL = 0.
+    mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
+    plt.figure(figsize=(12,2.73*2))
+    ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
+    # tropicalPal = seaborn.diverging_palette(133, 324, as_cmap=True)
+    cmap = cmocean.cm.balance
+    # cbVals = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
+    cbVals = [-70,70] #Override automatic colorbar range here
+    md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
+    plt.suptitle(md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']), fontsize=10)
+    # plt.suptitle('2m temperature ens mean', fontsize=10) #Override automatic supertitle here
+    lats = rlzList[0].lat
+    lons = rlzList[0].lon
+
+    ic('Watch out! Titles are set manually for all four panels.')
+    fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    plt.title('2041-2060 - 2011-2030 RCP8.5')
+
+    ax2 = plt.subplot(2,2,2,projection=mapProj)
+    # dimPalette = seaborn.diverging_palette(213,295, as_cmap=True)
+    # fpt.drawOnGlobe(ax2, panels[1], lats, lons, dimPalette, vmin=-10, vmax=10, cbarBool=True, fastBool=True, extent='max')
+    fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    plt.title('2041-2060 - 2011-2030 G1.2(8.5)')
+
+    ax3 = plt.subplot(2,2,3,projection=mapProj)
+    fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    plt.title('G1.2(8.5) - RCP8.5 2041-2060')
+
+    ax4 = plt.subplot(2,2,4,projection=mapProj)
+    fpt.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    plt.title('G1.2(8.5) - RCP8.5 2076-2095')
+
+    savePrfx = ''
+    saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + '2076-2095' + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['gfcStr']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
     plt.close()
