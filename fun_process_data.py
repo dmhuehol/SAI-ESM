@@ -46,14 +46,22 @@ def discover_data_var(dset):
 
 def extract_intvl(intervalsToPlot, years, timePeriod, darr, handlesToPlot):
     ''' Extract intervals of interest '''
+    originalPoi = timePeriod
+    ic(originalPoi)
     for intvl in intervalsToPlot:
+        ic(intvl)
+        if intvl == 2018:
+            timePeriod = 5
+        else:
+            timePeriod = originalPoi
+        ic(timePeriod)
         startInd = np.where(years==intvl)[0][0]
         if intvl+timePeriod == 2100:
             endInd = len(years)
         else:
             endInd = np.where(years==intvl+timePeriod)[0][0]
         handlesToPlot.append(darr.isel(time=np.arange(startInd,endInd)))
-
+        
     return handlesToPlot
 
 def find_closest_level(darr, levOfInt, levName='lev'):

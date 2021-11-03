@@ -243,7 +243,8 @@ def generate_labels_colors(labelsList, colorsToPlot, dataDict, setDict, ensPrp, 
     '''
     if rfrncFlag:
         startRef = setDict["cntrlPoi"][0]
-        endRef = startRef + setDict["timePeriod"] + - 1
+        endRef = startRef + setDict["timePeriod"] - 1
+        # endRef = startRef + 5 - 1
         labelsList.append(str(startRef) + '-' + str(endRef) + ' Reference')
         rfrncColor = '#788697'
         colorsToPlot.append(rfrncColor)

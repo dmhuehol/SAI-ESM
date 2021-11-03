@@ -195,15 +195,15 @@ def plot_ens_pdf(rlzList, dataDict, setDict, outDict):
     ariseCntrlHndls = list()
     ariseFdbckHndls = list()
     for scnData in rlzToPlot:
-        periodsOfInt = scnData['time'].dt.year.data
+        yrsInScn = scnData['time'].dt.year.data
         if 'GLENS:Control' in scnData.scenario:
-            glensCntrlHndls = fpd.extract_intvl(setDict["cntrlPoi"], periodsOfInt, setDict["timePeriod"], scnData, glensCntrlHndls)
+            glensCntrlHndls = fpd.extract_intvl(setDict["cntrlPoi"], yrsInScn, setDict["timePeriod"], scnData, glensCntrlHndls)
         elif 'GLENS:Feedback' in scnData.scenario:
-            glensFdbckHndls = fpd.extract_intvl(setDict["fdbckPoi"], periodsOfInt, setDict["timePeriod"], scnData, glensFdbckHndls)
+            glensFdbckHndls = fpd.extract_intvl(setDict["fdbckPoi"], yrsInScn, setDict["timePeriod"], scnData, glensFdbckHndls)
         elif 'ARISE:Control' in scnData.scenario:
-            ariseCntrlHndls = fpd.extract_intvl(setDict["s245CntrlPoi"], periodsOfInt, setDict["timePeriod"], scnData, ariseCntrlHndls)
+            ariseCntrlHndls = fpd.extract_intvl(setDict["s245CntrlPoi"], yrsInScn, setDict["timePeriod"], scnData, ariseCntrlHndls)
         elif 'ARISE:Feedback' in scnData.scenario:
-            ariseFdbckHndls = fpd.extract_intvl(setDict["arisePoi"], periodsOfInt, setDict["timePeriod"], scnData, ariseFdbckHndls)
+            ariseFdbckHndls = fpd.extract_intvl(setDict["arisePoi"], yrsInScn, setDict["timePeriod"], scnData, ariseFdbckHndls)
         else:
             ic(scnData.scenario)
             #No sys.exit(), want to know what the error is if it fails here

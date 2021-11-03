@@ -19,7 +19,7 @@ import subprocess
 import fun_derive_data as fdd
 
 inPath = '/glade/scratch/dhueholt/daily_TREFHTMN/mergetime/'#'/Users/dhueholt/Documents/GLENS_data/daily_TREFHT/mergetime/'
-inToken = ['*control*','*feedback*','*SSP245-TSMLT*','*BWSSP245*','*BWHIST*']#'*control*','*feedback*','*SSP245-TSMLT*','*BWSSP245*','*BWHIST*' #tokens for GLENS, ARISE, CESM2-WACCM, historical #use ONE AT A TIME for now
+inToken = ['*control*','*feedback*','*SSP245-TSMLT*','*BWSSP245*','*BWHIST*']#'*control*','*feedback*','*SSP245-TSMLT*','*BWSSP245*','*BWHIST*' #tokens for GLENS, ARISE, CESM2-WACCM, historical
 outPath = '/glade/scratch/dhueholt/clxTR/'#'/Users/dhueholt/Documents/GLENS_data/clxTR/'
 nProc = 13
 
