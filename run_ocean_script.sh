@@ -1,6 +1,6 @@
 #!/bin/bash -l
 ### Job Name
-#PBS -N regrid_sept_IFRAC
+#PBS -N regrid_new_PH
 ### Project code
 #PBS -A P06010014
 #PBS -l walltime=30:00
@@ -8,7 +8,7 @@
 ### Merge output and error files
 #PBS -j oe
 ### Select 1 nodes with 1 CPUs each
-#PBS -l select=1:ncpus=1:mem=10GB
+#PBS -l select=1:ncpus=6:mem=40GB
 ### Send email on abort, begin and end
 #PBS -m abe
 ### Specify mail recipient

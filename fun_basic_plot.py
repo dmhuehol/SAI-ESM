@@ -217,6 +217,71 @@ def plot_glens_difference_globe(rlzList, dataDict, setDict, outDict):
     plt.close()
     ic(savename)
 
+def plot_arise_difference_globe(rlzList, dataDict, setDict, outDict):
+    ''' Plot 2-panel difference globe
+        (1) diff between RCP8.5 and G1.2(8.5) for end interval (world avoided)
+        (2) diff between SSP2-4.5 and G1.5(4.5) for end interval (world avoided)
+    '''
+    toiStart = dict()
+    toiEnd = dict()
+    for rc,rDarr in enumerate(rlzList):
+        rlzLoi = fpd.obtain_levels(rDarr, setDict["levOfInt"])
+        shrtScn = rlzLoi.scenario.split('/')[len(rlzLoi.scenario.split('/'))-1]
+        if 'Control' in rlzLoi.attrs['scenario']:
+            toiStartLp = fpd.average_over_years(rlzLoi, setDict["startIntvl"][0], setDict["startIntvl"][1])
+            toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+            toiStart[shrtScn] = toiStartLp
+        else:
+            toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+        toiEnd[shrtScn] = toiEndLp
+
+    # Set up panels
+    diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
+    #CESM2-WACCM SSP2-4.5 uses CMIP6 variable names which are often different
+    #than in ARISE; subtracting the two DataArrays directly results in nonsense
+    wrldAvrtdG15S245 = toiEnd['G1.5(4.5)'].copy() #Duplicate pre-existing array to retain ARISE attributes and shape
+    wrldAvrtdG15S245.data = toiEnd['G1.5(4.5)'].data - toiEnd['SSP2-4.5'].data #Subtract the data only
+    diffToiG15S245 = toiEnd['G1.5(4.5)'].copy()
+    diffToiG15S245.data = toiEnd['G1.5(4.5)'].data - toiStart['SSP2-4.5'].data #Subtract the data only
+    # scnrsCmprd = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
+
+    panels = (diffToiS245, wrldAvrtdG15S245, diffToiG15S245)
+
+    # Plotting
+    CL = 0.
+    mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
+    plt.figure(figsize=(12,2.73*2))
+    ax = plt.subplot(3,1,1,projection=mapProj) #nrow ncol index
+    tropicalPal = seaborn.diverging_palette(324, 133, as_cmap=True)
+    cmap = tropicalPal#cmocean.cm.balance
+    # cbVals = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
+    cbVals = [-0.1,0.1] #Override automatic colorbar range here
+    md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
+    plt.suptitle(md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']), fontsize=10)
+    # plt.suptitle('2m temperature ens mean', fontsize=10) #Override automatic supertitle here
+    lats = rlzList[0].lat
+    lons = rlzList[0].lon
+    # ic(lats, lons)
+
+    ic('Warning! Titles are set manually')
+    fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    plt.title('2041-2060 - 2011-2030 SSP2-4.5')
+
+    ax2 = plt.subplot(3,1,2,projection=mapProj)
+    fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    plt.title('2041-2060 G1.5(4.5) - SSP2-4.5')
+
+    ax3 = plt.subplot(3,1,3,projection=mapProj)
+    fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    plt.title('2041-2060 - 2011-2030 G1.5(4.5)')
+
+    savePrfx = 'arise_'
+    saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['fcStr']
+    savename = outDict["savePath"] + savePrfx + saveStr + '.png'
+    plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
+    plt.close()
+    ic(savename)
+
 def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     ''' Plot 1 panel difference globe '''
     toiStart = dict()

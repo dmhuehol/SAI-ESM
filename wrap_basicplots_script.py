@@ -31,16 +31,16 @@ gnsht = ('global', rlib.Arctic(), rlib.HudsonBay(), rlib.NorthernHemisphere(), r
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/clxTR/',
-    "idGlensCntrl": 'control_*', #'control_*'
-    "idGlensFdbck": 'feedback_*', #'feedback_*'
-    "idArise": None, #'*SSP245*'
-    "idS245Cntrl": None, #'*ssp245*'
-    "idS245Hist": None, #'*historical*'
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_PH/',
+    "idGlensCntrl": None, #'control_*' or None
+    "idGlensFdbck": None, #'feedback_*' or None
+    "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
+    "idS245Cntrl": '*BWSSP245*', #'*BWSSP245*' or None
+    "idS245Hist": '*BWHIST*', #'*BWHIST*'
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc'
 }
 setDict = {
-    "landmaskFlag": 'land',
+    "landmaskFlag": None,
     "startIntvl": [2011,2030], #dg
     "endIntvl": [2041,2060,2076,2095], #dg
     "cntrlPoi": [2011,2041], #pdf
@@ -52,7 +52,7 @@ setDict = {
     "convert": None #TUPLE of converter(s), or None if using default units
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211027_moreExtremes/2_globes/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211104_PHAndMore/2_cyclic/',
     "dpiVal": 400
 }
 loopDict = {
@@ -75,7 +75,8 @@ for rlz in loopDict["realizations"]:
     for lev in loopDict["levels"]:
         setDict["levOfInt"] = lev
         # fbp.plot_basic_difference_globe(scnList, dataDict, setDict, outDict)
-        fbp.plot_glens_difference_globe(scnList, dataDict, setDict, outDict)
+        # fbp.plot_glens_difference_globe(scnList, dataDict, setDict, outDict)
+        fbp.plot_arise_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_basic_difference_polar(scnList, dataDict, setDict, outDict)
         # fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict)
     #

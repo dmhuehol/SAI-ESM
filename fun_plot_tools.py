@@ -58,6 +58,7 @@ def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc
 def add_cyclic_point(data, coord=None, axis=-1):
     ''' EAB: had issues with cartopy finding utils so copied for myself '''
     reverseSlicerBool = False #DMH
+
     if coord is not None:
         if coord.ndim != 1:
             raise ValueError('The coordinate must be 1-dimensional.')
@@ -80,6 +81,7 @@ def add_cyclic_point(data, coord=None, axis=-1):
             reverseSlicerBool = True #DMH
 
         new_coord = ma.concatenate((coord, coord[-1:] + delta_coord[0]))
+
     slicer = [slice(None)] * data.ndim
     try:
         if not reverseSlicerBool: #DMH
@@ -90,11 +92,21 @@ def add_cyclic_point(data, coord=None, axis=-1):
     except IndexError:
         raise ValueError('The specified axis does not correspond to an '
                          'array dimension.')
-    new_data = ma.concatenate((data, data[tuple(slicer)]), axis=axis)
+    slicedData = data[tuple(slicer)] #DMH: assigned to var for easy access
+    # DMH: manually assign ocean data (otherwise will be NaNs and output fails)
+    if np.isnan(slicedData).all().data:
+        sliceShape = np.shape(slicedData)
+        merData = data.sel(lon=358.75).data
+        slicedData = np.zeros(sliceShape)
+        for sd,sv in enumerate(slicedData):
+            slicedData[sd,0] = merData[sd]
+        # ic(slicedData)
+    new_data = ma.concatenate((data, slicedData), axis=axis) #DMH
     if coord is None:
         return_value = new_data
     else:
         return_value = new_data, new_coord
+
     return return_value
 
 def plot_pdf_kdeplot(handles, colors, labels, unit, savename, dpiVal=400):
@@ -241,14 +253,23 @@ def generate_labels_colors(labelsList, colorsToPlot, dataDict, setDict, ensPrp, 
     ''' Generate labels and colors for figure titles and output filenames.
     Clumsy to require so many inputs--the code is tidy but the logic is not!
     '''
-    if rfrncFlag:
-        startRef = setDict["cntrlPoi"][0]
-        endRef = startRef + setDict["timePeriod"] - 1
-        # endRef = startRef + 5 - 1
-        labelsList.append(str(startRef) + '-' + str(endRef) + ' Reference')
+    if rfrncFlag: #For the reference period beginning pre-2020
+        if (setDict["cntrlPoi"][0] < 2020) and (dataDict["idGlensCntrl"] is not None): #Use GLENS if present as n(rlz) larger
+            startRef = setDict["cntrlPoi"][0]
+            endRef = startRef + setDict["timePeriod"] - 1
+            # endRef = startRef + 5 - 1
+            nGlensCntrlPoi = nGlensCntrlPoi - 1
+            labelsList.append(str(startRef) + '-' + str(endRef) + ' Ref. RCP8.5')
+        elif (setDict["s245CntrlPoi"][0] < 2020) and (dataDict["idS245Cntrl"] is not None): #Try ARISE if GLENS not available
+            startRef = setDict["s245CntrlPoi"][0]
+            endRef = startRef + setDict["timePeriod"] - 1
+            # endRef = startRef + 5 - 1
+            nAriseCntrlPoi = nAriseCntrlPoi - 1
+            labelsList.append(str(startRef) + '-' + str(endRef) + ' Ref. SSP2-4.5')
+        else:
+            raise NoDataError('No data from reference period! Check inputs and try again.')
         rfrncColor = '#788697'
         colorsToPlot.append(rfrncColor)
-        nGlensCntrlPoi = nGlensCntrlPoi - 1
 
     dataScnPoiKey = dataDict["idGlensCntrl"]
     scnPoiKey = setDict["cntrlPoi"]
@@ -278,7 +299,7 @@ def generate_labels_colors(labelsList, colorsToPlot, dataDict, setDict, ensPrp, 
     labelsList = write_labels(labelsList, dataScnPoiKey, scnPoiKey, scnId, ensPrpKey, setDict)
     colorsToPlot = paint_by_numbers(colorsToPlot, scnId, nAriseFdbckPoi)
 
-    return labelsList
+    return labelsList, colorsToPlot
 
 def line_from_scenario(scn, md):
     ''' Get line color and label from scenario information '''

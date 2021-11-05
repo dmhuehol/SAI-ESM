@@ -224,7 +224,7 @@ def plot_ens_pdf(rlzList, dataDict, setDict, outDict):
     # Generate colors and strings for plots and filenames
     labelsToPlot = list()
     colorsToPlot = list()
-    labelsToPlot = fpt.generate_labels_colors(labelsToPlot, colorsToPlot, dataDict, setDict, ensPrp, rfrncFlag, nGlensCntrlPoi, nGlensFdbckPoi, nAriseFdbckPoi, nAriseCntrlPoi)
+    labelsToPlot, colorsToPlot = fpt.generate_labels_colors(labelsToPlot, colorsToPlot, dataDict, setDict, ensPrp, rfrncFlag, nGlensCntrlPoi, nGlensFdbckPoi, nAriseFdbckPoi, nAriseCntrlPoi)
     unit = rlzToPlot[0].attrs['units']
     md = fpd.meta_book(setDict, dataDict, rlzToPlot[0], labelsToPlot)
     titleStr = md['varStr'] + ' ' + md['levStr'] + ' ' + locTitleStr + ' ' + 'PDF:' + fpd.make_dov_title(setDict["dimOfVrblty"])
