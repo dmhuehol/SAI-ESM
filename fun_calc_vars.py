@@ -10,15 +10,19 @@ import sys
 import numpy as np
 import xarray as xr
 
-def sst_from_ptmp(darr):
+def surface_from_3d(darr, dataVar):
+    ''' Extract surface level from a 3D ocean variable, e.g. SST, SSO2 '''
     levName = 'z_t'
+    levSurf = 500
     levs = darr[levName].data
-    levMask = levs == 500
+    levMask = levs == levSurf
     darrSurf = darr[:,levMask,:,:]
+    dataVarSurf = str(levSurf) + dataVar
+    darrSurf.attrs['outFile'] = darr.attrs['outFile'].replace(dataVar,dataVarSurf)
 
     return darrSurf
 
-def uohc_from_ptmp(darr):
+def uohc_from_ptmp(darr, dataVar):
     ''' Sum upper 2000 meters of ocean potential temperature to obtain upper
         ocean heat content '''
     levs = darr['z_t'].data

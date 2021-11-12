@@ -1,9 +1,9 @@
 #!/bin/bash -l
 ### Job Name
-#PBS -N copy_ssp245
+#PBS -N copy_acntrl_var
 ### Project code
 #PBS -A P06010014
-#PBS -l walltime=30:00
+#PBS -l walltime=10:00
 #PBS -q casper
 ### Merge output and error files
 #PBS -j oe
@@ -13,7 +13,7 @@
 #PBS -m abe
 ### Specify mail recipient
 #PBS -M dhueholt@rams.colostate.edu
-exec &> logfile_ssp245_copy.txt
+exec &> logfile_acntrl_copy.txt
 
 export TMPDIR=/glade/scratch/dhueholt/temp
 mkdir -p $TMPDIR
@@ -53,6 +53,22 @@ IN_TOKENH="*.TREFHT.*" #* .VARNAME.*
 for emh in ${EMEMH[@]}; do
     FILE_TO_COPYH=$CMN_PATHH$emh$CMN_SUB_PATHH$IN_TOKENH
     cp $FILE_TO_COPYH $OUT_PATH
+done
+
+### Raw ARISE dedicated futures
+CMN_PATHAF="/glade/campaign/cesm/development/wawg/WACCM6-TSMLT-SSP245/b.e21.BWSSP245cmip6.f09_g17.CMIP6-SSP2-4.5-WACCM."
+EMEMAF=(
+"006"
+"007"
+"008"
+)
+CMN_SUB_PATHAF="/atm/proc/tseries/month_1/"
+# CMN_PATHAF + EMEMAF + CMN_SUB_PATHAF = directory structure for each ens member
+IN_TOKENAF="*.TREFHT.*" #* .VARNAME.*
+
+for emaf in ${EMEMAF[@]}; do
+    FILE_TO_COPYAF=$CMN_PATHAF$emaf$CMN_SUB_PATHAF$IN_TOKENAF
+    cp $FILE_TO_COPYAF $OUT_PATH
 done
 
 ### CMIP6-processed futures

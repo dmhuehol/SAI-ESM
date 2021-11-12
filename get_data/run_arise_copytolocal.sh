@@ -18,7 +18,7 @@ exec &> logfile_arise_copy.txt
 export TMPDIR=/glade/scratch/dhueholt/temp
 mkdir -p $TMPDIR
 
-OUT_PATH="/glade/scratch/dhueholt/ARISE/monthly_TSA/"
+OUT_PATH="/glade/scratch/dhueholt/monthly_TSA/"
 
 CMN_PATH="/glade/campaign/cesm/collections/ARISE-SAI-1.5/"
 CMN_FOLD_STR="b.e21.BW.f09_g17.SSP245-TSMLT-GAUSS-DEFAULT."

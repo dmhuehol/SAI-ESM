@@ -41,9 +41,9 @@ def cdo_selfeb(IN_PATH, IN_TOKEN, OUT_PATH):
     subprocess.run(['sh', '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_selfeb.sh', IN_PATH, IN_TOKEN, OUT_PATH])
     return None
 
-def cdo_sellevel(IN_PATH, IN_TOKEN, OUT_PATH, IN_LEV=500):
-    # subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_select_lev.sh', IN_PATH, IN_TOKEN, IN_LEV, OUT_PATH])
-    subprocess.run(['sh', '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_select_lev.sh', IN_PATH, IN_TOKEN, IN_LEV, OUT_PATH])
+def cdo_sellevel(IN_PATH, IN_TOKEN, OUT_PATH):
+    # subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_select_lev.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    subprocess.run(['sh', '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_select_lev.sh', IN_PATH, IN_TOKEN, OUT_PATH])
     return None
 
 def cdo_selsept(IN_PATH, IN_TOKEN, OUT_PATH):
@@ -52,7 +52,7 @@ def cdo_selsept(IN_PATH, IN_TOKEN, OUT_PATH):
     return None
 
 def return_emem_list(inType):
-    if inType == "GLENS":
+    if inType == "raw":
         EMEM=list([
         ".001.",
         ".002.",
@@ -76,18 +76,29 @@ def return_emem_list(inType):
         ".020.",
         ".021."]
         )
-    elif inType == "ARISE":
+    elif inType == "cdo":
         EMEM=list([
-        ".001.",
-        ".002.",
-        ".003.",
-        ".004.",
-        ".005.",
-        ".006.",
-        ".007.",
-        ".008.",
-        ".009.",
-        ".010."]
+        "_001_",
+        "_002_",
+        "_003_",
+        "_004_",
+        "_005_",
+        "_006_",
+        "_007_",
+        "_008_",
+        "_009_",
+        "_010_",
+        "_011_",
+        "_012_",
+        "_013_",
+        "_014_",
+        "_015_",
+        "_016_",
+        "_017_",
+        "_018_",
+        "_019_",
+        "_020_",
+        "_021_"]
         )
     elif inType == "CMIP6":
         EMEM=list([
@@ -97,20 +108,6 @@ def return_emem_list(inType):
         "r4",
         "r5"]
         )
-    elif inType == "CMIP6raw":
-        EMEM=list([
-        ".001.",
-        ".002.",
-        ".003.",
-        ".004.",
-        ".005."]
-        )
-    elif inType == "historical":
-        EMEM=list([
-        ".001."]
-        # ".002.",
-        # ".003."]
-        )
     else:
         sys.exit('Unrecognized type!')
 
@@ -119,20 +116,20 @@ def return_emem_list(inType):
 
     return EMEM
 
-EMEM = return_emem_list('GLENS')
-nProc = 10
+EMEM = return_emem_list('raw')
+nProc = 7
 
 # Shell inputs
-IN_PATH = '/glade/scratch/dhueholt/daily_TREFHTMN/'#'/Users/dhueholt/Documents/GLENS_data/daily_TREFHT/'
-IN_TOKEN = ['*control*'] #['*control*','*feedback*','*SSP245-TSMLT*','*BWSSP245*','*BWHIST*'] #GLENS, ARISE, CESM2-WACCM, historical
-OUT_PATH = '/glade/scratch/dhueholt/daily_TREFHTMN/mergetime/'#'/Users/dhueholt/Documents/GLENS_data/daily_TREFHT/mergetime/'
+IN_PATH = '/glade/scratch/dhueholt/monthly_OCNO2/regrid/'#'/Users/dhueholt/Documents/GLENS_data/daily_TREFHT/'
+IN_TOKEN = ['*SSP245-TSMLT*','*BWSSP245*'] #['*control*','*feedback*','*SSP245-TSMLT*','*BWSSP245*','*BWHIST*'] #GLENS, ARISE, CESM2-WACCM, historical
+OUT_PATH = '/glade/scratch/dhueholt/annual_OCN500O2/'#'/Users/dhueholt/Documents/GLENS_data/daily_TREFHT/mergetime/'
 
 if __name__== '__main__':
         lengthFiles = np.size(EMEM)
         for scen in IN_TOKEN:
             for rc,rv in enumerate(EMEM):
                 # Instantiate a new process
-                p = Process(target=cdo_mergetime,args=(IN_PATH, scen+rv, OUT_PATH))
+                p = Process(target=cdo_annualmean, args=(IN_PATH, scen+rv, OUT_PATH))
                 if rc % nProc == 0 and rc != 0:
                     # Run nProc number of processes at a time
                     p.start()
