@@ -519,6 +519,46 @@ def Subarctic():
 
     return regDict
 
+def Between7075N():
+    regDict = {
+        "regStr": 'Between7075N',
+        "regSaveStr": 'Between7075N',
+        "regLats": np.array([70,75]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
+def NorthOf75N():
+    regDict = {
+        "regStr": 'NorthOf75N',
+        "regSaveStr": 'NorthOf75N',
+        "regLats": np.array([75,90]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
+def NorthOf80N():
+    regDict = {
+        "regStr": 'NorthOf80N',
+        "regSaveStr": 'NorthOf80N',
+        "regLats": np.array([80,90]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
+def NorthOf85N():
+    regDict = {
+        "regStr": 'NorthOf85N',
+        "regSaveStr": 'NorthOf85N',
+        "regLats": np.array([85,90]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
 ## Asia
 
 def NortheastAsia():
