@@ -218,9 +218,10 @@ def plot_glens_difference_globe(rlzList, dataDict, setDict, outDict):
     ic(savename)
 
 def plot_arise_difference_globe(rlzList, dataDict, setDict, outDict):
-    ''' Plot 2-panel difference globe
-        (1) diff between RCP8.5 and G1.2(8.5) for end interval (world avoided)
+    ''' Plot 3-panel difference globe
+        (1) diff between end and start interval for SSP2-4.5 (change over time)
         (2) diff between SSP2-4.5 and G1.5(4.5) for end interval (world avoided)
+        (3) diff between end and start interval for G1.5(4.5) (change over time)
     '''
     toiStart = dict()
     toiEnd = dict()
@@ -249,13 +250,16 @@ def plot_arise_difference_globe(rlzList, dataDict, setDict, outDict):
 
     # Plotting
     CL = 0.
-    mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
+    # mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
+    mapProj = cartopy.crs.Orthographic(0, 90)#N: (0,90) S: (180,-90)
+    savePrfx = 'NPOLE_'
     plt.figure(figsize=(12,2.73*2))
     ax = plt.subplot(3,1,1,projection=mapProj) #nrow ncol index
-    tropicalPal = seaborn.diverging_palette(324, 133, as_cmap=True)
-    cmap = tropicalPal#cmocean.cm.balance
+    # tropicalPal = seaborn.diverging_palette(324, 133, as_cmap=True)
+    oxyPal = seaborn.diverging_palette(211.01, 52.4, s=95, l=81, as_cmap=True)
+    cmap = oxyPal#cmocean.cm.balance
     # cbVals = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
-    cbVals = [-0.1,0.1] #Override automatic colorbar range here
+    cbVals = [-2,2] #Override automatic colorbar range here
     md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
     plt.suptitle(md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']), fontsize=10)
     # plt.suptitle('2m temperature ens mean', fontsize=10) #Override automatic supertitle here
@@ -265,7 +269,7 @@ def plot_arise_difference_globe(rlzList, dataDict, setDict, outDict):
 
     ic('Warning! Titles are set manually')
     fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title('2041-2060 - 2011-2030 SSP2-4.5')
+    plt.title('2041-2060 - 2015-2030 SSP2-4.5')
 
     ax2 = plt.subplot(3,1,2,projection=mapProj)
     fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
@@ -273,9 +277,9 @@ def plot_arise_difference_globe(rlzList, dataDict, setDict, outDict):
 
     ax3 = plt.subplot(3,1,3,projection=mapProj)
     fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title('2041-2060 - 2011-2030 G1.5(4.5)')
+    plt.title('2041-2060 - 2015-2030 G1.5(4.5)')
 
-    savePrfx = 'arise_'
+    savePrfx = 'LATCIRC_arise_'
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['fcStr']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
