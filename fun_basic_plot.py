@@ -69,9 +69,14 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
         rlzLoi = fpd.obtain_levels(rDarr, setDict["levOfInt"])
         shrtScn = rlzLoi.scenario.split('/')[len(rlzLoi.scenario.split('/'))-1]
         if 'Control' in rlzLoi.attrs['scenario']:
-            toiStartLp = fpd.average_over_years(rlzLoi, setDict["startIntvl"][0], setDict["startIntvl"][1])
-            toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
-            toiStart[shrtScn] = toiStartLp
+            if 'GLENS' in rlzLoi.attrs['scenario']:
+                toiStartLp = fpd.average_over_years(rlzLoi, setDict["startIntvl"][0], setDict["startIntvl"][1])
+                toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+                toiStart[shrtScn] = toiStartLp
+            elif 'ARISE' in rlzLoi.attrs['scenario']:
+                toiStartLp = fpd.average_over_years(rlzLoi, setDict["startIntvl"][2], setDict["startIntvl"][3])
+                toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+                toiStart[shrtScn] = toiStartLp
         else:
             toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
         toiEnd[shrtScn] = toiEndLp
@@ -79,6 +84,8 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     # Set up panels
     diffToiR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
     diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
+    diffToiG12R85 = toiEnd['G1.2(8.5)'] - toiStart['RCP8.5']
+    diffToiG15S245 = toiEnd['G1.5(4.5)'] - toiStart['SSP2-4.5']
     wrldAvrtdG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
     #CESM2-WACCM SSP2-4.5 uses CMIP6 variable names which are often different
     #than in ARISE; subtracting the two DataArrays directly results in nonsense
@@ -86,16 +93,16 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     wrldAvrtdG15S245.data = toiEnd['G1.5(4.5)'].data - toiEnd['SSP2-4.5'].data #Subtract the data only
     # scnrsCmprd = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
 
-    panels = (diffToiR85, diffToiS245, wrldAvrtdG12R85, wrldAvrtdG15S245)
+    panels = (diffToiG12R85, diffToiG15S245, wrldAvrtdG12R85, wrldAvrtdG15S245)
 
     # Plotting
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12,2.73*2))
     ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
-    cmap = cmocean.cm.balance
-    # cbVals = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
-    cbVals = [-60,60] #Override automatic colorbar range here
+    cmap = cmocean.cm.balance if setDict["cmap"] is None else setDict["cmap"]
+    cbAuto = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
+    cbVals = cbAuto if setDict["cbVals"] is None else setDict["cbVals"]
     md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
     plt.suptitle(md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']), fontsize=10)
     # plt.suptitle('2m temperature ens mean', fontsize=10) #Override automatic supertitle here
@@ -104,20 +111,29 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
 
     fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
+        # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10)
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
+        # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10)
     else:
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
+        # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10)
 
     ax2 = plt.subplot(2,2,2,projection=mapProj)
     fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
+        ic('if')
+        # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
+        plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10)
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
+        ic('elif')
+        # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
+        plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseCntrl'], fontsize=10)
     else:
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
+        ic('else')
+        # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
+        plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10)
 
     ax3 = plt.subplot(2,2,3,projection=mapProj)
     fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
@@ -137,7 +153,7 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     else:
         plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
 
-    savePrfx = ''
+    savePrfx = 'TEST_saiwwgwa_'
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['fcStr']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
@@ -183,9 +199,9 @@ def plot_glens_difference_globe(rlzList, dataDict, setDict, outDict):
     plt.figure(figsize=(12,2.73*2))
     ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
     # tropicalPal = seaborn.diverging_palette(133, 324, as_cmap=True)
-    cmap = cmocean.cm.balance
-    # cbVals = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
-    cbVals = [-70,70] #Override automatic colorbar range here
+    cmap = cmocean.cm.balance if setDict["cmap"] is None else setDict["cmap"]
+    cbAuto = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
+    cbVals = cbAuto if setDict["cbVals"] is None else setDict["cbVals"]
     md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
     plt.suptitle(md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']), fontsize=10)
     # plt.suptitle('2m temperature ens mean', fontsize=10) #Override automatic supertitle here
@@ -255,11 +271,9 @@ def plot_arise_difference_globe(rlzList, dataDict, setDict, outDict):
     savePrfx = 'NPOLE_'
     plt.figure(figsize=(12,2.73*2))
     ax = plt.subplot(3,1,1,projection=mapProj) #nrow ncol index
-    # tropicalPal = seaborn.diverging_palette(324, 133, as_cmap=True)
-    oxyPal = seaborn.diverging_palette(211.01, 52.4, s=95, l=81, as_cmap=True)
-    cmap = oxyPal#cmocean.cm.balance
-    # cbVals = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
-    cbVals = [-2,2] #Override automatic colorbar range here
+    cmap = cmocean.cm.balance if setDict["cmap"] is None else setDict["cmap"]
+    cbAuto = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
+    cbVals = cbAuto if setDict["cbVals"] is None else setDict["cbVals"]
     md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
     plt.suptitle(md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']), fontsize=10)
     # plt.suptitle('2m temperature ens mean', fontsize=10) #Override automatic supertitle here
@@ -313,21 +327,23 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     blank = toiEnd['G1.5(4.5)'].copy()
     blank.data = toiEnd['G1.5(4.5)'] - toiEnd['G1.5(4.5)']
 
-    panel = blank
+    panel = wrldAvrtdG15S245
 
     # Plotting
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12, 2.73*2))
     ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
-    cmap = 'RdBu'#cmocean.cm.curl_r
-    # cbVals = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
-    cbVals = [-3,3] #Override automatic colorbar range here
+    cmap = cmocean.cm.balance if setDict["cmap"] is None else setDict["cmap"]
+    cbAuto = [-panel.quantile(0.75).data, panel.quantile(0.75).data]
+    cbVals = cbAuto if setDict["cbVals"] is None else setDict["cbVals"]
     md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
     lats = rlzList[0].lat
     lons = rlzList[0].lon
+    plt.rcParams.update({'font.family': 'Fira Sans'})
+    plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
 
-    fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
+    fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
     if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
         plt.title(md['lstDcd'] + ' ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']' + ' - ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][1])+']' + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
     elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
@@ -337,12 +353,12 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
 
     plt.title(" ") #Override automatic title generation here
 
-    savePrfx = '' #Easy modification for unique filename
+    savePrfx = 'cbar_' #Easy modification for unique filename
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
-    # savename = outDict["savePath"] + savePrfx + saveStr + '.png'
-    savename = outDict["savePath"] + 'blankmap.eps'
-    # plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
-    plt.savefig(savename,format='eps')
+    savename = outDict["savePath"] + savePrfx + saveStr + '.png'
+    # savename = outDict["savePath"] + 'blankmap.eps'
+    plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
+    # plt.savefig(savename,format='eps')
     plt.close()
     ic(savename)
 
@@ -540,9 +556,9 @@ def plot_basic_difference_polar(rlzList, dataDict, setDict, outDict):
     # savePrfx = 'SPOLE_'
     plt.figure(figsize=(12,2.73*2))
     ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
-    cmap = cmocean.cm.curl_r
-    # cbVals = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
-    cbVals = [-1,1] #Override automatic colorbar range here
+    cmap = cmocean.cm.balance if setDict["cmap"] is None else setDict["cmap"]
+    cbAuto = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
+    cbVals = cbAuto if setDict["cbVals"] is None else setDict["cbVals"]
     md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
     # plt.suptitle(md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']), fontsize=10)
     plt.suptitle('Feb ice thickness ens mean', fontsize=10) #Override automatic supertitle here
@@ -723,3 +739,197 @@ def plot_pdf(rlzList, dataDict, setDict, outDict):
     except:
         ic('Failed on: ' + savePrfx + saveStr)
         pass
+
+def plot_six_difference_globe(rlzList, dataDict, setDict, outDict):
+    ''' Plot 6-panel difference globe
+        (1) change over time for RCP8.5 (world we get: RCP8.5/GLENS control)
+        (2) change over time for SSP2-4.5 (world we get: SSP2-4.5/ARISE control)
+        (3) change over time for G1.2(8.5) (world we get: G1.2(8.5)/GLENS feedback)
+        (4) change over time for G1.5(2-4.5) (world we get: G1.5(2-4.5)/ARISE feedback)
+        (5) diff between RCP8.5 and G1.2(8.5) for end interval (world avoided: GLENS)
+        (6) diff between SSP2-4.5 and G1.5(4.5) for end interval (world avoided: ARISE)
+    '''
+    toiStart = dict()
+    toiEnd = dict()
+    for rc,rDarr in enumerate(rlzList):
+        rlzLoi = fpd.obtain_levels(rDarr, setDict["levOfInt"])
+        shrtScn = rlzLoi.scenario.split('/')[len(rlzLoi.scenario.split('/'))-1]
+        if 'Control' in rlzLoi.attrs['scenario']:
+            if 'GLENS' in rlzLoi.attrs['scenario']:
+                toiStartLp = fpd.average_over_years(rlzLoi, setDict["startIntvl"][0], setDict["startIntvl"][1])
+                toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+                toiStart[shrtScn] = toiStartLp
+            elif 'ARISE' in rlzLoi.attrs['scenario']:
+                toiStartLp = fpd.average_over_years(rlzLoi, setDict["startIntvl"][2], setDict["startIntvl"][3])
+                toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+                toiStart[shrtScn] = toiStartLp
+        else:
+            toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+        toiEnd[shrtScn] = toiEndLp
+
+    # Set up panels
+    diffToiR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
+    diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
+    diffToiG12R85 = toiEnd['G1.2(8.5)'] - toiStart['RCP8.5']
+    diffToiG15S245 = toiEnd['G1.5(4.5)'] - toiStart['SSP2-4.5']
+    wrldAvrtdG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
+    #CESM2-WACCM SSP2-4.5 uses CMIP6 variable names which are often different
+    #than in ARISE; subtracting the two DataArrays directly results in nonsense
+    wrldAvrtdG15S245 = toiEnd['G1.5(4.5)'].copy() #Duplicate pre-existing array to retain ARISE attributes and shape
+    wrldAvrtdG15S245.data = toiEnd['G1.5(4.5)'].data - toiEnd['SSP2-4.5'].data #Subtract the data only
+    # scnrsCmprd = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
+    resArise = diffToiS245 + wrldAvrtdG15S245
+    resGlens = diffToiR85 + wrldAvrtdG12R85
+
+
+    panels = (diffToiR85, diffToiS245, diffToiG12R85, diffToiG15S245, wrldAvrtdG12R85, wrldAvrtdG15S245)
+
+    # Plotting
+    CL = 0.
+    mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
+    # mapProj = cartopy.crs.Orthographic(0, 90)#N: (0,90) S: (180,-90)
+    plt.figure(figsize=(12,2.73*2))
+    ax = plt.subplot(3,2,1,projection=mapProj) #nrow ncol index
+    cmap = cmocean.cm.balance if setDict["cmap"] is None else setDict["cmap"]
+    cbAuto = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
+    cbVals = cbAuto if setDict["cbVals"] is None else setDict["cbVals"]
+    md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
+    plt.suptitle(md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']), fontsize=10)
+    # plt.suptitle('JJAS precip', fontsize=10) #Override automatic supertitle here
+    lats = rlzList[0].lat
+    lons = rlzList[0].lon
+
+    fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
+    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
+    else:
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
+
+    ax2 = plt.subplot(3,2,2,projection=mapProj)
+    fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
+        plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
+    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
+        plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
+    else:
+        plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
+
+    ax3 = plt.subplot(3,2,3,projection=mapProj)
+    fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
+        # plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10)
+    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
+        # plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10)
+    else:
+        # plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10)
+
+    ax4 = plt.subplot(3,2,4,projection=mapProj)
+    fpt.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
+        # plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
+        plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10)
+    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
+        # plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
+        plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseCntrl'], fontsize=10)
+    else:
+        # plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
+        plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10)
+
+    ax5 = plt.subplot(3,2,5,projection=mapProj)
+    fpt.drawOnGlobe(ax5, panels[4], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
+        plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
+    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
+        plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
+    else:
+        plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
+
+    ax6 = plt.subplot(3,2,6,projection=mapProj)
+    fpt.drawOnGlobe(ax6, panels[5], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
+        plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
+    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
+        plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
+    else:
+        plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
+
+    savePrfx = 'wwgcwwgfwa_'
+    saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g6p'] + '_' + md['glbType']['fcStr']
+    savename = outDict["savePath"] + savePrfx + saveStr + '.png'
+    plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
+    plt.close()
+    ic(savename)
+
+def plot_wa_difference_globe(rlzList, dataDict, setDict, outDict):
+    ''' Plot 2-panel difference globe
+        (1) diff between RCP8.5 and G1.2(8.5) for end interval (world avoided)
+        (2) diff between SSP2-4.5 and G1.5(4.5) for end interval (world avoided)
+    '''
+    toiStart = dict()
+    toiEnd = dict()
+    for rc,rDarr in enumerate(rlzList):
+        rlzLoi = fpd.obtain_levels(rDarr, setDict["levOfInt"])
+        shrtScn = rlzLoi.scenario.split('/')[len(rlzLoi.scenario.split('/'))-1]
+        if 'Control' in rlzLoi.attrs['scenario']:
+            toiStartLp = fpd.average_over_years(rlzLoi, setDict["startIntvl"][0], setDict["startIntvl"][1])
+            toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+            toiStart[shrtScn] = toiStartLp
+        else:
+            toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+        toiEnd[shrtScn] = toiEndLp
+
+    # Set up panels
+    diffToiR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
+    diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
+    wrldAvrtdG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
+    #CESM2-WACCM SSP2-4.5 uses CMIP6 variable names which are often different
+    #than in ARISE; subtracting the two DataArrays directly results in nonsense
+    wrldAvrtdG15S245 = toiEnd['G1.5(4.5)'].copy() #Duplicate pre-existing array to retain ARISE attributes and shape
+    wrldAvrtdG15S245.data = toiEnd['G1.5(4.5)'].data - toiEnd['SSP2-4.5'].data #Subtract the data only
+    # scnrsCmprd = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
+
+    panels = (wrldAvrtdG12R85, wrldAvrtdG15S245)
+
+    # Plotting
+    CL = 0.
+    mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
+    # mapProj = cartopy.crs.Orthographic(0, 90)#N: (0,90) S: (180,-90)
+    plt.figure(figsize=(12,2.73*2))
+    ax = plt.subplot(1,2,1,projection=mapProj) #nrow ncol index
+    cmap = cmocean.cm.balance if setDict["cmap"] is None else setDict["cmap"]
+    cbAuto = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
+    cbVals = cbAuto if setDict["cbVals"] is None else setDict["cbVals"]
+    md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
+    # plt.suptitle(md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']), fontsize=10)
+    # plt.suptitle('JJAS precip', fontsize=10) #Override automatic supertitle here
+    lats = rlzList[0].lat
+    lons = rlzList[0].lon
+
+    fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
+    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
+    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
+    else:
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
+
+    ax2 = plt.subplot(1,2,2,projection=mapProj)
+    fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
+    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
+    else:
+        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
+
+    savePrfx = ''
+    saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g2p'] + '_' + md['glbType']['fcStr']
+    savename = outDict["savePath"] + savePrfx + saveStr + '.png'
+    plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
+    plt.close()
+    ic(savename)

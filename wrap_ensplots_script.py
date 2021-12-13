@@ -31,36 +31,36 @@ insets = rlib.atlas_insets()
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/clxTR/',
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_PRECT/',
     "idGlensCntrl": 'control_*', #'control_*' or None
     "idGlensFdbck": 'feedback_*', #'feedback_*' or None
     "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
-    "idS245Cntrl": None, #'*BWSSP245*' or None
-    "idS245Hist": None, #'*BWHIST*' or None
+    "idS245Cntrl": '*BWSSP245*', #'*BWSSP245*' or None
+    "idS245Hist": '*BWHIST*', #'*BWHIST*' or None
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc' #cesm_component_mask.nc
 }
 setDict = {
-    "landmaskFlag": 'land', #None or 'land'
+    "landmaskFlag": 'ocean', #None or 'land'
     "startIntvl": [2011,2030], #dg
     "endIntvl": [2041,2060], #dg
     "cntrlPoi": [2011,2041], #pdf
     "fdbckPoi": [2041], #pdf
     "arisePoi": [2041], #pdf
-    "s245CntrlPoi": [2041], #pdf
+    "s245CntrlPoi": [2015,2041], #pdf
     "timePeriod": 20, #pdf
     "plotStyle": 'step', #pdf
     "dimOfVrblty": {'rlzBool':True,'timeBool':True,'spcBool':False}, #pdf
-    "convert": None, #TUPLE of converter(s), or None if using default units
+    "convert": (fcu.m_to_cm,fcu.persec_peryr,), #TUPLE of converter(s), or None if using default units
     "realization": 'ensplot',
     "insetFlag": 0
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211027_moreExtremes/1_modular/5_refactoring/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211209_newFigs/1_land_PRECT/',
     "dpiVal": 400
 }
 loopDict = {
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": ('global',rlib.SouthEuropeMediterranean(),rlib.SouthernAfrica(),rlib.AustralianContinent())
+    "regions": (rlib.TropicsSubtropics(),)
 }
 
 ic(dataDict, setDict, outDict) #Lowers chances of making the wrong plots by mistake
@@ -72,7 +72,7 @@ for lev in loopDict["levels"]:
     setDict["levOfInt"] = lev
     for reg in loopDict["regions"]:
         setDict["regOfInt"] = reg
-        fep.plot_ens_spaghetti_timeseries(scnList, dataDict, setDict, outDict)
+        # fep.plot_ens_spaghetti_timeseries(scnList, dataDict, setDict, outDict)
         fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
         # setDict["plotStyle"] = 'step'
         # fep.plot_ens_pdf(scnList, dataDict, setDict, outDict)

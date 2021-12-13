@@ -50,8 +50,8 @@ def extract_intvl(intervalsToPlot, years, timePeriod, darr, handlesToPlot):
     # ic(originalPoi)
     for intvl in intervalsToPlot:
         # ic(intvl)
-        if intvl == 2018:
-            timePeriod = 5
+        if intvl == 2015:
+            timePeriod = 15
         else:
             timePeriod = originalPoi
         # ic(timePeriod)
@@ -333,6 +333,7 @@ def call_to_open(dataDict, setDict):
     if len(cmbnHistFutList) == 2: #If both historical and future are input
         acntrlDarr = combine_hist_fut(cmbnHistFutList[0],cmbnHistFutList[1]) #Combine ARISE Control here
         darrList.append(acntrlDarr) #Append ARISE Control to darrList
+        acntrlDarr.attrs['scenario'] = 'CESM2-WACCM/ARISE:Control/SSP2-4.5' #THIS IS CLUMSY, TODO: # FIX
     else:
         try:
             darrList.append(cmbnHistFutList[0]) #Append the one that's present
@@ -378,6 +379,7 @@ def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
         "strtStr": str(cntrlToPlot['time'].data[0].year),
         "endStr": str(cntrlToPlot['time'].data[len(cntrlToPlot)-1].year),
         "frstDcd": str(setDict["startIntvl"][0]) + '-' + str(setDict["startIntvl"][1]),
+        "aFrstDcd": str(setDict["startIntvl"][2]) + '-' + str(setDict["startIntvl"][3]) if len(setDict["startIntvl"]) > 2 else '',
         "lstDcd": str(setDict["endIntvl"][0]) + '-' + str(setDict["endIntvl"][1]),
         "tmStr": rcf_parser(labelsToPlot),
         "levStr": make_level_string(cntrlToPlot, setDict["levOfInt"]) if "levOfInt" in setDict.keys() else '',
@@ -387,7 +389,7 @@ def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
         "unit": cntrlToPlot.attrs['units'],
         "pdfStyle": setDict["plotStyle"],
         "spcStr": make_spc_string(setDict),
-        "pid": {'g1p': 'globe_1p', 'g4p': 'globe_4p', 'ts': 'timeseries', 'pdf': 'pdf'},
+        "pid": {'g1p': 'globe_1p', 'g2p': 'globe_2p', 'g4p': 'globe_4p', 'g6p': 'globe_6p', 'ts': 'timeseries', 'pdf': 'pdf'},
         "ensPid": {'spg': 'spghtti', 'sprd': 'spread'},
         "glbType": {'vGl': 'vertical', 'bGl': 'baseline', 'fcStr': 'FdbckCntrl', 'gfcStr': 'glensFdbckCntrl'}
     }
@@ -489,7 +491,7 @@ def isolate_change_quantile(darr, quantileOfInt):
 
     return darrNorm
 
-def combine_hist_fut(darrHist, darrCntrl):
+def combine_hist_fut(darrCntrl, darrHist):
     ''' Combine historical and future output into a single DataArray '''
     darrHistForFormat = darrHist.sel(realization=0)
     darrHistNan = copy_blank_darr(darrHistForFormat)

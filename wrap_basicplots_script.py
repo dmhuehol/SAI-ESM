@@ -31,28 +31,30 @@ gnsht = ('global', rlib.Arctic(), rlib.HudsonBay(), rlib.NorthernHemisphere(), r
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_PH/',
-    "idGlensCntrl": None, #'control_*' or None
-    "idGlensFdbck": None, #'feedback_*' or None
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_TREFHT/',
+    "idGlensCntrl": 'control_*', #'control_*' or None
+    "idGlensFdbck": 'feedback_*', #'feedback_*' or None
     "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
     "idS245Cntrl": '*BWSSP245*', #'*BWSSP245*' or None
-    "idS245Hist": '*BWHIST*', #'*BWHIST*'
+    "idS245Hist": '*BWHIST*', #'*BWHIST*' or None
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc'
 }
 setDict = {
     "landmaskFlag": None,
-    "startIntvl": [2011,2030], #dg
-    "endIntvl": [2041,2060,2076,2095], #dg
+    "startIntvl": [2018,2022,2033,2037], #dg [2018,2022,2033,2037]
+    "endIntvl": [2041,2060], #dg
     "cntrlPoi": [2011,2041], #pdf
     "fdbckPoi": [2041], #pdf
     "arisePoi": [2041], #pdf
-    "s245CntrlPoi": [2041], #pdf
+    "s245CntrlPoi": [2011, 2041], #pdf
     "timePeriod": 20, #pdf
     "plotStyle": 'step', #pdf
-    "convert": None #TUPLE of converter(s), or None if using default units
+    "convert": (fcu.kel_to_cel,), #TUPLE of converter(s), or None if using default units
+    "cmap": cmocean.cm.balance, #None for default cmocean "balance" or choose colormap here
+    "cbVals": [-3,3] #None for automatic or [min,max] to override #dg
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211104_PHAndMore/2_cyclic/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211209_newFigs/3_new6p_wwgcwwgfwa/',
     "dpiVal": 400
 }
 loopDict = {
@@ -75,8 +77,10 @@ for rlz in loopDict["realizations"]:
     for lev in loopDict["levels"]:
         setDict["levOfInt"] = lev
         # fbp.plot_basic_difference_globe(scnList, dataDict, setDict, outDict)
+        fbp.plot_six_difference_globe(scnList, dataDict, setDict, outDict)
+        # fbp.plot_wa_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_glens_difference_globe(scnList, dataDict, setDict, outDict)
-        fbp.plot_arise_difference_globe(scnList, dataDict, setDict, outDict)
+        # fbp.plot_arise_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_basic_difference_polar(scnList, dataDict, setDict, outDict)
         # fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict)
     #

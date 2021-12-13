@@ -46,9 +46,10 @@ def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc
 
     if(cbarBool):
         cb = plt.colorbar(image, shrink=.75, orientation="vertical", pad=.02, extend=extent)
-        cb.ax.tick_params(labelsize=6)
+        cb.ax.tick_params(labelsize=6) #standard: labelsize=6 for draft paper figures: labelsize=14
         try:
             cb.set_label(data.attrs['units'],size='small')
+            # cb.set_label('',size='small')
         except:
             print('No units in attributes; colorbar will be unlabeled.')
     else:
@@ -325,11 +326,11 @@ def line_from_scenario(scn, md):
 
     return activeColor, activeLabel
 
-def plot_metaobjects(scnToPlot, fig):
+def plot_metaobjects(scnToPlot, fig, b, t):
     ''' Determines which metaobjects to plot based on scenario '''
-    b,t = plt.ylim()
     if any('ARISE:Control' in scn for scn in scnToPlot): #Triangle for change in number of rlzs
         plt.plot(2015, b+(abs(b-t))*0.01, color='#F8A53D', marker='v')
+        plt.plot(2070, b+(abs(b-t))*0.01, mfc='#F8A53D', mec='#12D0B2', marker='v')
     if any('GLENS:Control' in scn for scn in scnToPlot):
         plt.plot(2030, b+(abs(b-t))*0.01, color='#D93636', marker='v')
     if any('GLENS:Feedback' in scn for scn in scnToPlot): #Dashed line for model SAI initiation
