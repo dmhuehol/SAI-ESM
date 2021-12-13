@@ -29,6 +29,8 @@ insets = (rlib.Sahara(),rlib.NorthEurope(),rlib.SoutheasternSouthAmerica(),rlib.
           rlib.CentralAmericaMexico(),rlib.SoutheastAsia(),rlib.NorthAtlanticWarmingHole(),
           rlib.AustralianContinent())
 
+activeTest = (rlib.GeenEtAl20AsianMonsoonRegion(),)
+
 # The same 9 colors repeated a bunch of times
 colors = ('viridis','magma','Purples_r', 'Greens_r','Greys_r','Oranges_r','spring','winter','cool',
           'viridis','magma','Purples_r', 'Greens_r','Greys_r','Oranges_r','spring','winter','cool',
@@ -40,8 +42,8 @@ mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
 fig = plt.figure(figsize=(12, 2.73*2))
 ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
 
-for rc,reg in enumerate(insets):
+for rc,reg in enumerate(activeTest):
     ic(reg)
     fig,ax = rlib.test_region(reg,colors[rc],fig,ax)
 # plt.title("WG1-AR5 IPCC regions")
-plt.savefig('/Users/dhueholt/Documents/GLENS_fig/20210909_T2m/map_insetregions2.png', dpi=400)
+plt.savefig('/Users/dhueholt/Documents/GLENS_fig/20211202_forAgu/1_eimnsn/geenEtAl_sam.png', dpi=400)

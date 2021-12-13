@@ -389,6 +389,16 @@ def LeeuwinCurrent():
 
 ## Southern Ocean
 
+def SouthernOcean():
+    regDict = {
+        "regStr": 'Southern Ocean',
+        "regSaveStr": 'SouthernOcean',
+        "regLats": np.array([-90,-60]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
 def DrakePassage():
     regDict = {
         "regStr": 'Drake Passage',
@@ -427,6 +437,16 @@ def Nino34():
         "regSaveStr": 'Nino34',
         "regLats": np.array([-5,5]),
         "regLons": np.array([190,240])
+    }
+
+    return regDict
+
+def TropicsSubtropics():
+    regDict = {
+        "regStr": 'TropicsAndSubtropics',
+        "regSaveStr": 'TropAndSub',
+        "regLats": np.array([-45,45]),
+        "regLons": np.array([0,360])
     }
 
     return regDict
@@ -581,6 +601,26 @@ def AsianMonsoonRegion():
 
     return regDict
 
+def GeenEtAl20AsianMonsoonRegion():
+    regDict = {
+        "regStr": 'G20AsianMonsoonRegion',
+        "regSaveStr": 'G20AMnsn',
+        "regLats": np.array([10,40]),
+        "regLons": np.array([80,100])
+    }
+
+    return regDict
+
+def Gadgil18PeakIndianMonsoon():
+    regDict = {
+        "regStr": 'G18PeakIndianMonsoon',
+        "regSaveStr": 'G18PkIndianMnsn',
+        "regLats": np.array([10,30]),
+        "regLons": np.array([70,90])
+    }
+
+    return regDict
+
 ## Australia
 
 def AustralianContinent():
@@ -617,11 +657,51 @@ def NorthernHemisphere():
 
     return regDict
 
+def NorthernHemisphereNoTropics():
+    regDict = {
+        "regStr": 'NorthernHemisphereNoTropics',
+        "regSaveStr": 'NHemiNoTrop',
+        "regLats": np.array([30,90]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
+def NorthernHemisphereExtratropics():
+    regDict = {
+        "regStr": 'NorthernHemisphereExtratropics',
+        "regSaveStr": 'NHemiExtrop',
+        "regLats": np.array([45,90]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
 def SouthernHemisphere():
     regDict = {
         "regStr": 'SouthernHemisphere',
         "regSaveStr": 'SHemi',
         "regLats": np.array([-90,0]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
+def SouthernHemisphereNoTropics():
+    regDict = {
+        "regStr": 'SouthernHemisphereNoTropics',
+        "regSaveStr": 'SHemiNoTrop',
+        "regLats": np.array([-90,-30]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
+def SouthernHemisphereExtratropics():
+    regDict = {
+        "regStr": 'SouthernHemisphereExtratropics',
+        "regSaveStr": 'SHemiExtrop',
+        "regLats": np.array([-90,-45]),
         "regLons": np.array([0,360])
     }
 
