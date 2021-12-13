@@ -25,6 +25,31 @@ from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.pyplot as plt
 import seaborn as sn
 
+import fun_process_data as fpd
+
+def make_panels(rlzList, setDict):
+    ''' Extract and average over periods of interest and classify by scenario
+        for use as panels in difference globes '''
+    toiStart = dict()
+    toiEnd = dict()
+    for rc,rDarr in enumerate(rlzList):
+        rlzLoi = fpd.obtain_levels(rDarr, setDict["levOfInt"])
+        shrtScn = rlzLoi.scenario.split('/')[len(rlzLoi.scenario.split('/'))-1]
+        if 'Control' in rlzLoi.attrs['scenario']:
+            if 'GLENS' in rlzLoi.attrs['scenario']:
+                toiStartLp = fpd.average_over_years(rlzLoi, setDict["startIntvl"][0], setDict["startIntvl"][1])
+                toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+                toiStart[shrtScn] = toiStartLp
+            elif 'ARISE' in rlzLoi.attrs['scenario']:
+                toiStartLp = fpd.average_over_years(rlzLoi, setDict["startIntvl"][2], setDict["startIntvl"][3])
+                toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+                toiStart[shrtScn] = toiStartLp
+        else:
+            toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+        toiEnd[shrtScn] = toiEndLp
+
+    return toiStart, toiEnd
+
 def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc=None, cbarBool=True, contourMap=[], contourVals = [], fastBool=False, extent='both'):
     ''' Draws geolocated data on a globe '''
     data_crs = ct.crs.PlateCarree()

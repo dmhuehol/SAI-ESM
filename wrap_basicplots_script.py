@@ -7,7 +7,7 @@ setDict sets settings related to plotting
 outDict is for outputs
 loopDict determines which images are made
 
-Written by Daniel Hueholt | October 2021
+Written by Daniel Hueholt | December 2021
 Graduate Research Assistant at Colorado State University
 '''
 
@@ -54,7 +54,7 @@ setDict = {
     "cbVals": [-3,3] #None for automatic or [min,max] to override #dg
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211209_newFigs/3_new6p_wwgcwwgfwa/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211213_refining/',
     "dpiVal": 400
 }
 loopDict = {
@@ -71,28 +71,13 @@ for rlz in loopDict["realizations"]:
     setDict["realization"] = rlz
     scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
     dataDict = {**dataDict, **cmnDict}
-    # fbp.plot_vertical_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict) #comment if running variable with no levels
-    # fbp.plot_vertical_baseline_difference_globe(glensCntrlRlz, glensFdbckRlz, dataDict, setDict, outDict) #comment out if running variable with no levels
 
     for lev in loopDict["levels"]:
         setDict["levOfInt"] = lev
-        # fbp.plot_basic_difference_globe(scnList, dataDict, setDict, outDict)
+        fbp.plot_basic_difference_globe(scnList, dataDict, setDict, outDict)
         fbp.plot_six_difference_globe(scnList, dataDict, setDict, outDict)
+        fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict)
+        fbp.plot_basic_difference_polar(scnList, dataDict, setDict, outDict)
         # fbp.plot_wa_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_glens_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_arise_difference_globe(scnList, dataDict, setDict, outDict)
-        # fbp.plot_basic_difference_polar(scnList, dataDict, setDict, outDict)
-        # fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict)
-    #
-    #     for reg in loopDict["regions"]:
-    #         setDict["regOfInt"] = reg
-    #         fbp.plot_timeseries(scnList, dataDict, setDict, outDict)
-    #
-    #         for aab in loopDict["aaBools"]:
-    #             setDict["areaAvgBool"] = aab
-    #             setDict["plotStyle"] = 'step'
-    #             fbp.plot_pdf(scnList, dataDict, setDict, outDict)
-    #             setDict["plotStyle"] = 'kde'
-    #             fbp.plot_pdf(scnList, dataDict, setDict, outDict)
-    #             setDict["plotStyle"] = 'hist'
-    #             fbp.plot_pdf(scnList, dataDict, setDict, outDict)

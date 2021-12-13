@@ -55,7 +55,7 @@ setDict = {
     "insetFlag": 0
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211209_newFigs/1_land_PRECT/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211213_refining/',
     "dpiVal": 400
 }
 loopDict = {
