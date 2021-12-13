@@ -17,38 +17,43 @@ import numpy as np
 import subprocess
 
 def cdo_annualmean(IN_PATH, IN_TOKEN, OUT_PATH):
-    # subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_annualmean.sh', IN_PATH, IN_TOKEN, OUT_PATH])
-    subprocess.run(['sh', '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_annualmean.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_annualmean.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    # subprocess.run(['sh', '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_annualmean.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    return None
+
+def cdo_annualmean_pp(IN_PATH, IN_TOKEN, OUT_PATH):
+    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_annualmean_postproc.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    # subprocess.run(['sh', '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_annualmean_postproc.sh', IN_PATH, IN_TOKEN, OUT_PATH])
     return None
 
 def cdo_mergetime(IN_PATH, IN_TOKEN, OUT_PATH):
-    # subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_mergetime.sh', IN_PATH, IN_TOKEN, OUT_PATH])
-    subprocess.run(['sh', '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_mergetime.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_mergetime.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    # subprocess.run(['sh', '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_mergetime.sh', IN_PATH, IN_TOKEN, OUT_PATH])
     return None
 
 def cdo_seleimnsn(IN_PATH, IN_TOKEN, OUT_PATH):
-    # subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_seleimnsn.sh', IN_PATH, IN_TOKEN, OUT_PATH])
-    subprocess.run(['sh', '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_seleimnsn.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_seleimnsn.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    # subprocess.run(['sh', '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_seleimnsn.sh', IN_PATH, IN_TOKEN, OUT_PATH])
     return None
 
 def cdo_seleirainy(IN_PATH, IN_TOKEN, OUT_PATH):
-    # subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_seleirainy.sh', IN_PATH, IN_TOKEN, OUT_PATH])
-    subprocess.run(['sh', '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_seleirainy.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_seleirainy.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    # subprocess.run(['sh', '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_seleirainy.sh', IN_PATH, IN_TOKEN, OUT_PATH])
     return None
 
 def cdo_selfeb(IN_PATH, IN_TOKEN, OUT_PATH):
-    # subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_selfeb.sh', IN_PATH, IN_TOKEN, OUT_PATH])
-    subprocess.run(['sh', '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_selfeb.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_selfeb.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    # subprocess.run(['sh', '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_selfeb.sh', IN_PATH, IN_TOKEN, OUT_PATH])
     return None
 
 def cdo_sellevel(IN_PATH, IN_TOKEN, OUT_PATH):
-    # subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_select_lev.sh', IN_PATH, IN_TOKEN, OUT_PATH])
-    subprocess.run(['sh', '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_select_lev.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_select_lev.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    # subprocess.run(['sh', '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_select_lev.sh', IN_PATH, IN_TOKEN, OUT_PATH])
     return None
 
 def cdo_selsept(IN_PATH, IN_TOKEN, OUT_PATH):
-    # subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_selsept.sh', IN_PATH, IN_TOKEN, OUT_PATH])
-    subprocess.run(['sh', '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_selsept.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_selsept.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    # subprocess.run(['sh', '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_selsept.sh', IN_PATH, IN_TOKEN, OUT_PATH])
     return None
 
 def return_emem_list(inType):
@@ -116,20 +121,20 @@ def return_emem_list(inType):
 
     return EMEM
 
-EMEM = return_emem_list('raw')
+EMEM = return_emem_list('cdo')
 nProc = 7
 
 # Shell inputs
-IN_PATH = '/glade/scratch/dhueholt/monthly_OCNO2/regrid/'#'/Users/dhueholt/Documents/GLENS_data/daily_TREFHT/'
-IN_TOKEN = ['*SSP245-TSMLT*','*BWSSP245*'] #['*control*','*feedback*','*SSP245-TSMLT*','*BWSSP245*','*BWHIST*'] #GLENS, ARISE, CESM2-WACCM, historical
-OUT_PATH = '/glade/scratch/dhueholt/annual_OCN500O2/'#'/Users/dhueholt/Documents/GLENS_data/daily_TREFHT/mergetime/'
+IN_PATH = '/Users/dhueholt/Documents/GLENS_data/eimnsn_PRECT/' #'/glade/scratch/dhueholt/monthly_OCNO2/regrid/'
+IN_TOKEN = ['*SSP245-TSMLT-GAUSS-DEFAULT*',] #['*control*','*feedback*','*SSP245-TSMLT*','*CMIP6-SSP2-4.5-WACCM*','*BWSSP245*','*BWHIST*'] #GLENS, ARISE, ARISE dedicated control, CESM2-WACCM original, historical
+OUT_PATH = '/Users/dhueholt/Documents/GLENS_data/eimnsn_PRECT/anmn/' #'/glade/scratch/dhueholt/annual_OCN500O2/'
 
 if __name__== '__main__':
         lengthFiles = np.size(EMEM)
         for scen in IN_TOKEN:
             for rc,rv in enumerate(EMEM):
                 # Instantiate a new process
-                p = Process(target=cdo_annualmean, args=(IN_PATH, scen+rv, OUT_PATH))
+                p = Process(target=cdo_annualmean_pp, args=(IN_PATH, scen+rv, OUT_PATH))
                 if rc % nProc == 0 and rc != 0:
                     # Run nProc number of processes at a time
                     p.start()
