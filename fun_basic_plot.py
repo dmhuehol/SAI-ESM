@@ -65,8 +65,8 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     '''
     # Set up panels
     toiStart, toiEnd = fpt.make_panels(rlzList, setDict)
-    diffToiR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
-    diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
+    # diffToiR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
+    # diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
     diffToiG12R85 = toiEnd['G1.2(8.5)'] - toiStart['RCP8.5']
     diffToiG15S245 = toiEnd['G1.5(4.5)'] - toiStart['SSP2-4.5']
     wrldAvrtdG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
@@ -90,48 +90,19 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     lons = rlzList[0].lon
 
     fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10)
-    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10)
-    else:
-        # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10)
+    plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10)
 
     ax2 = plt.subplot(2,2,2,projection=mapProj)
     fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        ic('if')
-        # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
-        plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10)
-    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        ic('elif')
-        # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
-        plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseCntrl'], fontsize=10)
-    else:
-        ic('else')
-        # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
-        plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10)
+    plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10)
 
     ax3 = plt.subplot(2,2,3,projection=mapProj)
     fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
-    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
-    else:
-        plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
+    plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
 
     ax4 = plt.subplot(2,2,4,projection=mapProj)
     fpt.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
-    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
-    else:
-        plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
+    plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
 
     savePrfx = 'BASIC_'
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['fcStr']
@@ -169,14 +140,7 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
 
     fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][1])+']' + ' - ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][1])+']' + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
-    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' ' + md['fdbckStr'] + '[r'+str(ensPrp['drf'][0])+']' + ' - ' + md['cntrlStr'] + '[r'+str(ensPrp['drc'][0])+']' + ' ' + md['levStr'] + ' ' + md['varStr'], fontsize=10)
-    else:
-        plt.title(md['lstDcd'] + ' ' + md['fdbckStr'] + '-' + md['cntrlStr'] + ' ' + md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']))
-
-    plt.title(" ") #Override automatic title generation here
+    plt.title(" ") #No automatic title, 1-panel is used for custom figures
 
     savePrfx = 'SINGLE_' #Easy modification for unique filename
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
@@ -222,39 +186,19 @@ def plot_basic_difference_polar(rlzList, dataDict, setDict, outDict):
     lons = rlzList[0].lon
 
     fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
-    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
-    else:
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
+    plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
 
     ax2 = plt.subplot(2,2,2,projection=mapProj)
     fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
-    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
-    else:
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
+    plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
 
     ax3 = plt.subplot(2,2,3,projection=mapProj)
     fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
-    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
-    else:
-        plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
+    plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
 
     ax4 = plt.subplot(2,2,4,projection=mapProj)
     fpt.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
-    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
-    else:
-        plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
+    plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
 
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['fcStr']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
@@ -299,63 +243,27 @@ def plot_six_difference_globe(rlzList, dataDict, setDict, outDict):
     lons = rlzList[0].lon
 
     fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
-    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
-    else:
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
+    plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
 
     ax2 = plt.subplot(3,2,2,projection=mapProj)
     fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
-    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
-    else:
-        plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
+    plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
 
     ax3 = plt.subplot(3,2,3,projection=mapProj)
     fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        # plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10)
-    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        # plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10)
-    else:
-        # plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10)
+    plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10)
 
     ax4 = plt.subplot(3,2,4,projection=mapProj)
     fpt.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        # plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
-        plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10)
-    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        # plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
-        plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseCntrl'], fontsize=10)
-    else:
-        # plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
-        plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10)
+    plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10)
 
     ax5 = plt.subplot(3,2,5,projection=mapProj)
     fpt.drawOnGlobe(ax5, panels[4], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
-    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
-    else:
-        plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
+    plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
 
     ax6 = plt.subplot(3,2,6,projection=mapProj)
     fpt.drawOnGlobe(ax6, panels[5], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
-    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
-    else:
-        plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
+    plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
 
     savePrfx = 'SIX_'
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g6p'] + '_' + md['glbType']['fcStr']
@@ -395,21 +303,11 @@ def plot_wa_difference_globe(rlzList, dataDict, setDict, outDict):
     lons = rlzList[0].lon
 
     fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
-    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
-    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
-    else:
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
+    plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
 
     ax2 = plt.subplot(1,2,2,projection=mapProj)
     fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    if (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] > ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
-    elif (setDict["realization"] == 'mean') & (setDict["endIntvl"][0] < ensPrp['dscntntyYrs'][0]):
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
-    else:
-        plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
+    plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
 
     savePrfx = 'WA_'
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g2p'] + '_' + md['glbType']['fcStr']
