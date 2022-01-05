@@ -41,8 +41,8 @@ dataDict = {
 }
 setDict = {
     "landmaskFlag": None,
-    "startIntvl": [2018,2022,2033,2037], #dg [2018,2022,2033,2037]
-    "endIntvl": [2041,2060], #dg
+    "startIntvl": [2015,2020,2030,2035], #dg [2018,2022,2033,2037]
+    "endIntvl": [2055,2060], #dg
     "cntrlPoi": [2011,2041], #pdf
     "fdbckPoi": [2041], #pdf
     "arisePoi": [2041], #pdf
@@ -54,7 +54,7 @@ setDict = {
     "cbVals": [-3,3] #None for automatic or [min,max] to override #dg
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211213_refining/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220105_unpause/',
     "dpiVal": 400
 }
 loopDict = {
@@ -76,8 +76,8 @@ for rlz in loopDict["realizations"]:
         setDict["levOfInt"] = lev
         fbp.plot_basic_difference_globe(scnList, dataDict, setDict, outDict)
         fbp.plot_six_difference_globe(scnList, dataDict, setDict, outDict)
-        fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict)
-        fbp.plot_basic_difference_polar(scnList, dataDict, setDict, outDict)
+        # fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict)
+        # fbp.plot_basic_difference_polar(scnList, dataDict, setDict, outDict)
         # fbp.plot_wa_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_glens_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_arise_difference_globe(scnList, dataDict, setDict, outDict)
