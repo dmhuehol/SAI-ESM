@@ -35,18 +35,40 @@ def make_panels(rlzList, setDict):
     for rc,rDarr in enumerate(rlzList):
         rlzLoi = fpd.obtain_levels(rDarr, setDict["levOfInt"])
         shrtScn = rlzLoi.scenario.split('/')[len(rlzLoi.scenario.split('/'))-1]
+        ic(rc,shrtScn)
         if 'Control' in rlzLoi.attrs['scenario']:
+            ic(rlzLoi.attrs['scenario'])
             if 'GLENS' in rlzLoi.attrs['scenario']:
+                ic('GLENS Control')
                 toiStartLp = fpd.average_over_years(rlzLoi, setDict["startIntvl"][0], setDict["startIntvl"][1])
                 toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+                ic(shrtScn)
                 toiStart[shrtScn] = toiStartLp
+                toiEnd[shrtScn] = toiEndLp
             elif 'ARISE' in rlzLoi.attrs['scenario']:
+                ic('ARISE control')
                 toiStartLp = fpd.average_over_years(rlzLoi, setDict["startIntvl"][2], setDict["startIntvl"][3])
-                toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+                toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][2], setDict["endIntvl"][3])
+                ic(shrtScn)
                 toiStart[shrtScn] = toiStartLp
+                toiEnd[shrtScn] = toiEndLp
+        elif 'Feedback' in rlzLoi.attrs['scenario']:
+            if 'GLENS' in rlzLoi.attrs['scenario']:
+                ic('GLENS Feedback')
+                toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+                ic(shrtScn)
+                toiEnd[shrtScn] = toiEndLp
+            elif 'ARISE' in rlzLoi.attrs['scenario']:
+                ic('ARISE Feedback')
+                toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][2], setDict["endIntvl"][3])
+                ic(shrtScn)
+                toiEnd[shrtScn] = toiEndLp
         else:
-            toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
-        toiEnd[shrtScn] = toiEndLp
+            ic('This should not occur, but does it?')
+
+
+    # ic(toiStart, toiEnd)
+    # sys.exit('STOP')
 
     return toiStart, toiEnd
 

@@ -381,6 +381,7 @@ def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
         "frstDcd": str(setDict["startIntvl"][0]) + '-' + str(setDict["startIntvl"][1]),
         "aFrstDcd": str(setDict["startIntvl"][2]) + '-' + str(setDict["startIntvl"][3]) if len(setDict["startIntvl"]) > 2 else '',
         "lstDcd": str(setDict["endIntvl"][0]) + '-' + str(setDict["endIntvl"][1]),
+        "aLstDcd": str(setDict["endIntvl"][2]) + '-' + str(setDict["endIntvl"][3]) if len(setDict["startIntvl"]) > 2 else '',
         "tmStr": rcf_parser(labelsToPlot),
         "levStr": make_level_string(cntrlToPlot, setDict["levOfInt"]) if "levOfInt" in setDict.keys() else '',
         "levSve": make_level_string(cntrlToPlot, setDict["levOfInt"]).replace(" ","") if "levOfInt" in setDict.keys() else '',
@@ -432,9 +433,11 @@ def make_polygon_mask(lats, lons, regionLats, regionLons):
 def average_over_years(darr, startYear, endYear):
     ''' Take average over a period of time '''
     datasetYears = darr['time'].dt.year.data
+    ic(startYear, endYear)
     startInd = int(np.where(datasetYears == startYear)[0])
     endInd = int(np.where(datasetYears == endYear)[0])
     intrvlOfInt = darr[startInd:endInd]
+    ic(intrvlOfInt.time)
     darrMeanToi = intrvlOfInt.mean(dim='time')
 
     return darrMeanToi

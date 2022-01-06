@@ -57,9 +57,9 @@ ensPrp = {
 ## DIFFERENCE GLOBES
 
 def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
-    ''' Plot 4-panel difference globe
-        (1) change over time for RCP8.5 (GLENS control)
-        (2) change over time for SSP2-4.5 (ARISE control)
+    ''' 4-panel difference globe with customizable panels. Default panels:
+        (1) change over time for G1.2(8.5) (world we get, GLENS Feedback)
+        (2) change over time for G1.5(2-4.5) (world we get, ARISE Feedback)
         (3) diff between RCP8.5 and G1.2(8.5) for end interval (world avoided)
         (4) diff between SSP2-4.5 and G1.5(4.5) for end interval (world avoided)
     '''
@@ -94,7 +94,7 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
 
     ax2 = plt.subplot(2,2,2,projection=mapProj)
     fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10)
+    plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10)
 
     ax3 = plt.subplot(2,2,3,projection=mapProj)
     fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
@@ -102,7 +102,7 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
 
     ax4 = plt.subplot(2,2,4,projection=mapProj)
     fpt.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
+    plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['aLstDcd'], fontsize=10)
 
     savePrfx = 'BASIC_'
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['fcStr']
@@ -247,7 +247,7 @@ def plot_six_difference_globe(rlzList, dataDict, setDict, outDict):
 
     ax2 = plt.subplot(3,2,2,projection=mapProj)
     fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
+    plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
 
     ax3 = plt.subplot(3,2,3,projection=mapProj)
     fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
@@ -255,7 +255,7 @@ def plot_six_difference_globe(rlzList, dataDict, setDict, outDict):
 
     ax4 = plt.subplot(3,2,4,projection=mapProj)
     fpt.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10)
+    plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10)
 
     ax5 = plt.subplot(3,2,5,projection=mapProj)
     fpt.drawOnGlobe(ax5, panels[4], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
@@ -263,7 +263,7 @@ def plot_six_difference_globe(rlzList, dataDict, setDict, outDict):
 
     ax6 = plt.subplot(3,2,6,projection=mapProj)
     fpt.drawOnGlobe(ax6, panels[5], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
+    plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['aLstDcd'], fontsize=10)
 
     savePrfx = 'SIX_'
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g6p'] + '_' + md['glbType']['fcStr']
