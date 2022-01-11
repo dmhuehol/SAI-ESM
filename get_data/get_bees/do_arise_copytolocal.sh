@@ -13,12 +13,15 @@
 #PBS -m abe
 ### Specify mail recipient
 #PBS -M dhueholt@rams.colostate.edu
-exec &> logfile_arise_copy.txt
+exec &> logfile_get_arise.txt
 
 export TMPDIR=/glade/scratch/dhueholt/temp
 mkdir -p $TMPDIR
 
-OUT_PATH="/glade/scratch/dhueholt/monthly_TSA/"
+IN_TOKEN=$1
+MOD_TOKEN=$2
+TIME_TOKEN=$3
+OUT_PATH=$4
 
 CMN_PATH="/glade/campaign/cesm/collections/ARISE-SAI-1.5/"
 CMN_FOLD_STR="b.e21.BW.f09_g17.SSP245-TSMLT-GAUSS-DEFAULT."
@@ -35,10 +38,10 @@ EMEM=(
 "010"
 )
 # CMN_PATH + CMN_FOLD_STR + EMEM = directory structure for each ens member
-CMN_SUB_PATH="/lnd/proc/tseries/month_1/"
-IN_TOKEN="*.TSA.*"
+PROC="/proc/tseries/"
+S="/"
 
 for em in ${EMEM[@]}; do
-    FILE_TO_COPY=$CMN_PATH$CMN_FOLD_STR$em$CMN_SUB_PATH$IN_TOKEN
+    FILE_TO_COPY=$CMN_PATH$CMN_FOLD_STR$em$S$MOD_TOKEN$PROC$TIME_TOKEN$IN_TOKEN
     cp $FILE_TO_COPY $OUT_PATH
 done
