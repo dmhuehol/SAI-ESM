@@ -16,6 +16,11 @@ from icecream import ic
 import sys
 import warnings
 
+import matplotlib.font_manager as fm
+fontPath = '/Users/dhueholt/Library/Fonts/'  #Location of font files
+for font in fm.findSystemFonts(fontPath):
+    fm.fontManager.addfont(font)
+
 import cartopy as ct
 import cartopy.crs as ccrs
 import cmocean as cmocean
@@ -145,6 +150,8 @@ def add_cyclic_point(data, coord=None, axis=-1):
                          'array dimension.')
     slicedData = data[tuple(slicer)] #DMH: assigned to var for easy access
     # DMH: manually assign ocean data (otherwise will be NaNs and output fails)
+    # If plotting non-ocean data and the process fails with an obscure error,
+    #   try commenting this block back out!
     if np.isnan(slicedData).all().data:
         sliceShape = np.shape(slicedData)
         merData = data.sel(lon=358.75).data
@@ -375,15 +382,19 @@ def line_from_scenario(scn, md):
 
 def plot_metaobjects(scnToPlot, fig, b, t):
     ''' Determines which metaobjects to plot based on scenario '''
-    if any('ARISE:Control' in scn for scn in scnToPlot): #Triangle for change in number of rlzs
-        plt.plot(2015, b+(abs(b-t))*0.01, color='#F8A53D', marker='v')
-        plt.plot(2070, b+(abs(b-t))*0.01, mfc='#F8A53D', mec='#12D0B2', marker='v')
-    if any('GLENS:Control' in scn for scn in scnToPlot):
-        plt.plot(2030, b+(abs(b-t))*0.01, color='#D93636', marker='v')
-    if any('GLENS:Feedback' in scn for scn in scnToPlot): #Dashed line for model SAI initiation
-        plt.plot([2020,2020], [b,t], color='#8346C1', linewidth=0.7, linestyle='dashed')
-    if any('ARISE:Feedback' in scn for scn in scnToPlot):
-        plt.plot([2035,2035], [b,t], color='#12D0B2', linewidth=0.7, linestyle='dashed')
+    ic('Automatic metaobjects disabled!')
+    # if any('ARISE:Control' in scn for scn in scnToPlot): #Triangle for change in number of rlzs
+    #     plt.plot(2015, b+(abs(b-t))*0.01, color='#F8A53D', marker='v')
+    #     plt.plot(2070, b+(abs(b-t))*0.01, mfc='#F8A53D', mec='#12D0B2', marker='v')
+    # if any('GLENS:Control' in scn for scn in scnToPlot):
+    #     plt.plot(2030, b+(abs(b-t))*0.01, color='#D93636', marker='v')
+    # if any('GLENS:Feedback' in scn for scn in scnToPlot): #Dashed line for model SAI initiation
+    #     plt.plot([2020,2020], [b,t], color='#8346C1', linewidth=0.7, linestyle='dashed')
+    # if any('ARISE:Feedback' in scn for scn in scnToPlot):
+    #     plt.plot([2035,2035], [b,t], color='#12D0B2', linewidth=0.7, linestyle='dashed')
+
+    plt.plot([2020,2020], [b,t], color='#8346C1', linewidth=1.2, linestyle='dashed')
+    plt.plot([2035,2035], [b,t], color='#12D0B2', linewidth=1.2, linestyle='dashed')
 
     return
 
@@ -398,23 +409,26 @@ def save_colorbar(cbarDict, savePath, saveName, dpiVal=400):
             "label": 'percent'
         }
     '''
+    plt.rcParams.update({'font.size': 0})
+    plt.rcParams.update({'font.family': 'Lato'})
+
     cbarRange = np.array([cbarDict["range"]])
 
     if cbarDict["direction"] == 'horizontal':
-        plt.figure(figsize=(9,3))
+        plt.figure(figsize=(9,2.5))
         img = plt.imshow(cbarRange, cmap=cbarDict["cmap"])
         plt.gca().set_visible(False)
-        colorAx = plt.axes([0.1,0.2,0.8,0.6])
+        colorAx = plt.axes([0.1,0.2,0.8,0.3])
         cb = plt.colorbar(orientation='horizontal', cax=colorAx)
         for label in cb.ax.get_xticklabels():
             print(label)
             # label.set_fontproperties(FiraSansThin) #Set font
-            # label.set_fontsize(18) #Set font size
+            label.set_fontsize(0) #Set font size
     elif cbarDict["direction"] == 'vertical':
-        plt.figure(figsize=(3,9))
+        plt.figure(figsize=(2.5,9))
         img = plt.imshow(cbarRange, cmap=cbarDict["cmap"])
         plt.gca().set_visible(False)
-        colorAx = plt.axes([0.1,0.2,0.5,0.6])
+        colorAx = plt.axes([0.1,0.2,0.2,0.6])
         cb = plt.colorbar(orientation='vertical', cax=colorAx)
         for label in cb.ax.get_yticklabels():
             print(label)
@@ -423,7 +437,7 @@ def save_colorbar(cbarDict, savePath, saveName, dpiVal=400):
     else:
         sys.exit('Direction must be either horizontal or vertical.')
 
-    cb.set_label(cbarDict["label"], size='large')
+    # cb.set_label(cbarDict["label"], size='large')
     # cb.set_label(cbarDict["label"], size='large', fontproperties=FiraSansThin) # Set font
     plt.savefig(savePath + saveName + '.png', dpi=dpiVal)
 

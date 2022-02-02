@@ -100,9 +100,9 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
 
     # Make timeseries
     if setDict["insetFlag"] == 2:
-        plt.rcParams.update({'font.size': 22})
-        plt.rcParams.update({'font.family': 'Fira Sans'})
-        plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
+        plt.rcParams.update({'font.size': 18})
+        plt.rcParams.update({'font.family': 'Lato'})
+        plt.rcParams.update({'font.weight': 'normal'}) #normal, bold, heavy, light, ultrabold, ultralight
     fig, ax = plt.subplots()
     scnToPlot = list()
     for darr in darrList:
@@ -118,17 +118,51 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
         activeColor, activeLabel = fpt.line_from_scenario(darr.scenario, md)
         # plt.plot(yearsOfInt,rlzMax.data,color=activeColor,linewidth=0.3) #Border on top of spread
         # plt.plot(yearsOfInt,rlzMin.data,color=activeColor,linewidth=0.3) #Border on bottom of spread
-        plt.plot(yrsToPlot,rlzMn.data,color=activeColor,label=activeLabel,linewidth=2)
-        ax.fill_between(yrsToPlot, rlzMax.data, rlzMin.data, color=activeColor, alpha=0.3, linewidth=0)
+        ic(darr.scenario)
+        plt.plot(yrsToPlot,rlzMn.data,color='#D3D3D3',label=activeLabel,linewidth=1,alpha=0.5)
+        ax.fill_between(yrsToPlot, rlzMax.data, rlzMin.data, color='#D3D3D3', alpha=0.2, linewidth=0)
+        if setDict["mute"] == True:
+            if 'GLENS:Control' in darr.scenario:
+                gcw = [5,11,15,20] #[5,11] for immediate, [5,11,45,50] for impact, [5,11,15,20] for compromise
+                ic(yrsToPlot[gcw[0]:gcw[1]],rlzMn.data[gcw[0]:gcw[1]])
+                plt.plot(yrsToPlot[gcw[0]:gcw[1]],rlzMn.data[gcw[0]:gcw[1]],color=activeColor,label=activeLabel,linewidth=2)
+                ax.fill_between(yrsToPlot[gcw[0]:gcw[1]], rlzMax.data[gcw[0]:gcw[1]], rlzMin.data[gcw[0]:gcw[1]], color=activeColor, alpha=0.3, linewidth=0)
+                if len(gcw)>2:
+                    ic(yrsToPlot[gcw[2]:gcw[3]],rlzMn.data[gcw[2]:gcw[3]])
+                    plt.plot(yrsToPlot[gcw[2]:gcw[3]],rlzMn.data[gcw[2]:gcw[3]],color=activeColor,label=activeLabel,linewidth=2)
+                    ax.fill_between(yrsToPlot[gcw[2]:gcw[3]], rlzMax.data[gcw[2]:gcw[3]], rlzMin.data[gcw[2]:gcw[3]], color=activeColor, alpha=0.3, linewidth=0)
+            elif 'GLENS:Feedback' in darr.scenario:
+                gfw = [5,10] #[0,5] for immediate, [35,40] for impact, [5,10] for compromise
+                ic(yrsToPlot[gfw[0]:gfw[1]],rlzMn.data[gfw[0]:gfw[1]])
+                plt.plot(yrsToPlot[gfw[0]:gfw[1]],rlzMn.data[gfw[0]:gfw[1]],color=activeColor,label=activeLabel,linewidth=2)
+                ax.fill_between(yrsToPlot[gfw[0]:gfw[1]], rlzMax.data[gfw[0]:gfw[1]], rlzMin.data[gfw[0]:gfw[1]], color=activeColor, alpha=0.3, linewidth=0)
+            elif 'ARISE:Feedback' in darr.scenario:
+                afw = [5,10] #[0,5] for immediate, [20,25] for impact, [5,10] for compromise
+                ic(yrsToPlot[afw[0]:afw[1]],rlzMn.data[afw[0]:afw[1]])
+                plt.plot(yrsToPlot[afw[0]:afw[1]],rlzMn.data[afw[0]:afw[1]],color=activeColor,label=activeLabel,linewidth=2)
+                ax.fill_between(yrsToPlot[afw[0]:afw[1]], rlzMax.data[afw[0]:afw[1]], rlzMin.data[afw[0]:afw[1]], color=activeColor, alpha=0.3, linewidth=0)
+            elif 'ARISE:Control' in darr.scenario:
+                acw = [20,26,30,35] #[20,30] for immediate, [20,26,45,50] for impact, [20,26,30,35] for compromise
+                ic(yrsToPlot[acw[0]:acw[1]],rlzMn.data[acw[0]:acw[1]])
+                plt.plot(yrsToPlot[acw[0]:acw[1]],rlzMn.data[acw[0]:acw[1]],color=activeColor,label=activeLabel,linewidth=2)
+                ax.fill_between(yrsToPlot[acw[0]:acw[1]], rlzMax.data[acw[0]:acw[1]], rlzMin.data[acw[0]:acw[1]], color=activeColor, alpha=0.3, linewidth=0)
+                if len(acw)>2:
+                    ic(yrsToPlot[acw[2]:acw[3]],rlzMn.data[acw[2]:acw[3]])
+                    plt.plot(yrsToPlot[acw[2]:acw[3]],rlzMn.data[acw[2]:acw[3]],color=activeColor,label=activeLabel,linewidth=2)
+                    ax.fill_between(yrsToPlot[acw[2]:acw[3]], rlzMax.data[acw[2]:acw[3]], rlzMin.data[acw[2]:acw[3]], color=activeColor, alpha=0.3, linewidth=0)
+        else:
+            plt.plot(yrsToPlot,rlzMn.data,color=activeColor,label=activeLabel,linewidth=2)
+            ax.fill_between(yrsToPlot, rlzMax.data, rlzMin.data, color=activeColor, alpha=0.3, linewidth=0)
 
     # Plot metadata and settings
     b,t = plt.ylim()
-    # b = 27 #Override automatic b
-    # t = 32 #Override automatic t
+    b = 14 #Override automatic b
+    t = 19 #Override automatic t
     fpt.plot_metaobjects(scnToPlot, fig, b, t)
     plt.autoscale(enable=True, axis='x', tight=True)
     plt.autoscale(enable=True, axis='y', tight=True)
     plt.xlim(setYear[0],setYear[1])
+    plt.xlim(2010,2069)
     if setDict["insetFlag"] == 0: #Standard plot
         plt.ylabel(md['unit'])
         # plt.ylabel('cm')
@@ -143,14 +177,14 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
         ax.axis('off')
     else: #Lines and nice axes usually used in posters
         savePrfx = 'INSET_'
-        plt.xticks([2015,2040,2065,2090])
-        plt.yticks(np.arange(-100, 100, 2))
+        plt.xticks([2015,2040,2065,])
+        plt.yticks(np.arange(-100, 100, 1))
         # plt.yticks(np.arange(100, 200, 5))
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
         plt.ylim([b,t])
         # plt.ylabel('cm', fontweight='light')
-        # plt.ylabel('\u00B0C', fontweight='light')
+        plt.ylabel('\u00B0C', fontweight='normal')
         # plt.xlabel('years', fontweight='light')
         # ax.axes.xaxis.set_ticklabels([])
         # ax.spines['bottom'].set_visible(False)

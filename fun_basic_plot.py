@@ -40,6 +40,11 @@ import seaborn
 import cmocean
 import cmasher
 
+import matplotlib.font_manager as fm
+fontPath = '/Users/dhueholt/Library/Fonts/'  #Location of font files
+for font in fm.findSystemFonts(fontPath):
+    fm.fontManager.addfont(font)
+
 import fun_process_data as fpd
 import fun_plot_tools as fpt
 import fun_convert_unit as fcu
@@ -76,6 +81,8 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     panels = (diffToiG12R85, diffToiG15S245, wrldAvrtdG12R85, wrldAvrtdG15S245)
 
     # Plotting
+    plt.rcParams.update({'font.size': 11})
+    plt.rcParams.update({'font.family': 'Lato'})
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12,2.73*2))
@@ -84,27 +91,31 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     cbAuto = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
     cbVals = cbAuto if setDict["cbVals"] is None else setDict["cbVals"]
     md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
-    plt.suptitle(md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']), fontsize=10)
+    # plt.suptitle(md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']), fontsize=10)
     # plt.suptitle('2m temperature ens mean', fontsize=10) #Override automatic supertitle here
     lats = rlzList[0].lat
     lons = rlzList[0].lon
 
-    fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10)
+    fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
+    # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10)
+    plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + 'GLENS')
 
     ax2 = plt.subplot(2,2,2,projection=mapProj)
-    fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10)
+    fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
+    # plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10)
+    plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + 'ARISE')
 
     ax3 = plt.subplot(2,2,3,projection=mapProj)
-    fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
+    fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
+    # plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
+    plt.title('GLENS - RCP8.5' + ' ' + md['lstDcd'])
 
     ax4 = plt.subplot(2,2,4,projection=mapProj)
-    fpt.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['aLstDcd'], fontsize=10)
+    fpt.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
+    # plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['aLstDcd'], fontsize=10)
+    plt.title('ARISE - SSP2-4.5' + ' ' + md['aLstDcd'])
 
-    savePrfx = 'BASIC_'
+    savePrfx = 'PRES_ENG_BASIC_'
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['fcStr']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')

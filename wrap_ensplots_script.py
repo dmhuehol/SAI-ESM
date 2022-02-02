@@ -31,7 +31,7 @@ insets = rlib.atlas_insets()
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_PRECT/',
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_TREFHT/',
     "idGlensCntrl": 'control_*', #'control_*' or None
     "idGlensFdbck": 'feedback_*', #'feedback_*' or None
     "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
@@ -40,7 +40,7 @@ dataDict = {
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc' #cesm_component_mask.nc
 }
 setDict = {
-    "landmaskFlag": 'ocean', #None or 'land'
+    "landmaskFlag": None, #None or 'land'
     "startIntvl": [2011,2030], #dg
     "endIntvl": [2041,2060], #dg
     "cntrlPoi": [2011,2041], #pdf
@@ -50,17 +50,18 @@ setDict = {
     "timePeriod": 20, #pdf
     "plotStyle": 'step', #pdf
     "dimOfVrblty": {'rlzBool':True,'timeBool':True,'spcBool':False}, #pdf
-    "convert": (fcu.m_to_cm,fcu.persec_peryr,), #TUPLE of converter(s), or None if using default units
+    "convert": (fcu.kel_to_cel,), #TUPLE of converter(s), or None if using default units
     "realization": 'ensplot',
-    "insetFlag": 0
+    "insetFlag": 2,
+    "mute": False
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211213_refining/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220127_exForYaga/',
     "dpiVal": 400
 }
 loopDict = {
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": (rlib.TropicsSubtropics(),)
+    "regions": ('global',)
 }
 
 ic(dataDict, setDict, outDict) #Lowers chances of making the wrong plots by mistake
