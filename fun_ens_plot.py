@@ -156,8 +156,8 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
 
     # Plot metadata and settings
     b,t = plt.ylim()
-    b = 14 #Override automatic b
-    t = 19 #Override automatic t
+    b = 0 #Override automatic b
+    t = 50 #Override automatic t
     fpt.plot_metaobjects(scnToPlot, fig, b, t)
     plt.autoscale(enable=True, axis='x', tight=True)
     plt.autoscale(enable=True, axis='y', tight=True)
@@ -178,13 +178,14 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
     else: #Lines and nice axes usually used in posters
         savePrfx = 'INSET_'
         plt.xticks([2015,2040,2065,])
-        plt.yticks(np.arange(-100, 100, 1))
-        # plt.yticks(np.arange(100, 200, 5))
+        plt.yticks(np.arange(0, 1000, 30))
+        # plt.yticks(np.arange(70, 500, 35))
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
         plt.ylim([b,t])
         # plt.ylabel('cm', fontweight='light')
-        plt.ylabel('\u00B0C', fontweight='normal')
+        # plt.ylabel('fractional cover', fontweight='normal')
+        # plt.ylabel('\u00B0C', fontweight='normal')
         # plt.xlabel('years', fontweight='light')
         # ax.axes.xaxis.set_ticklabels([])
         # ax.spines['bottom'].set_visible(False)

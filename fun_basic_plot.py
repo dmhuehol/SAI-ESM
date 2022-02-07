@@ -81,11 +81,11 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     panels = (diffToiG12R85, diffToiG15S245, wrldAvrtdG12R85, wrldAvrtdG15S245)
 
     # Plotting
-    plt.rcParams.update({'font.size': 11})
+    plt.rcParams.update({'font.size': 9})
     plt.rcParams.update({'font.family': 'Lato'})
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
-    plt.figure(figsize=(12,2.73*2))
+    plt.figure(figsize=(12,2*2.73))
     ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
     cmap = cmocean.cm.balance if setDict["cmap"] is None else setDict["cmap"]
     cbAuto = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
@@ -98,24 +98,28 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
 
     fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
     # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10)
-    plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + 'GLENS')
+    # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + 'GLENS')
+    # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + 'RCP8.5')
+    plt.title(md['lstDcd'] + ' ' + 'GLENS' + ' - ' + md['frstDcd'] + ' ' + 'RCP8.5')
 
     ax2 = plt.subplot(2,2,2,projection=mapProj)
     fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
     # plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10)
-    plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + 'ARISE')
+    # plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + 'ARISE-SAI-1.5')
+    # plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + 'SSP2-4.5')
+    plt.title(md['aLstDcd'] + ' ' + 'ARISE-SAI-1.5' + ' - ' + md['aFrstDcd'] + ' ' + 'SSP2-4.5')
 
     ax3 = plt.subplot(2,2,3,projection=mapProj)
     fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
     # plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
-    plt.title('GLENS - RCP8.5' + ' ' + md['lstDcd'])
+    # plt.title('GLENS - RCP8.5' + ' ' + md['lstDcd'])
 
     ax4 = plt.subplot(2,2,4,projection=mapProj)
     fpt.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
     # plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['aLstDcd'], fontsize=10)
-    plt.title('ARISE - SSP2-4.5' + ' ' + md['aLstDcd'])
+    # plt.title('ARISE-SAI-1.5 - SSP2-4.5' + ' ' + md['aLstDcd'])
 
-    savePrfx = 'PRES_ENG_BASIC_'
+    savePrfx = 'BASIC_'
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['fcStr']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')

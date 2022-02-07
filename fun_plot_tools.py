@@ -71,10 +71,6 @@ def make_panels(rlzList, setDict):
         else:
             ic('This should not occur, but does it?')
 
-
-    # ic(toiStart, toiEnd)
-    # sys.exit('STOP')
-
     return toiStart, toiEnd
 
 def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc=None, cbarBool=True, contourMap=[], contourVals = [], fastBool=False, extent='both'):
@@ -152,12 +148,12 @@ def add_cyclic_point(data, coord=None, axis=-1):
     # DMH: manually assign ocean data (otherwise will be NaNs and output fails)
     # If plotting non-ocean data and the process fails with an obscure error,
     #   try commenting this block back out!
-    if np.isnan(slicedData).all().data:
-        sliceShape = np.shape(slicedData)
-        merData = data.sel(lon=358.75).data
-        slicedData = np.zeros(sliceShape)
-        for sd,sv in enumerate(slicedData):
-            slicedData[sd,0] = merData[sd]
+    # if np.isnan(slicedData).all().data:
+    #     sliceShape = np.shape(slicedData)
+    #     merData = data.sel(lon=358.75).data
+    #     slicedData = np.zeros(sliceShape)
+    #     for sd,sv in enumerate(slicedData):
+    #         slicedData[sd,0] = merData[sd]
         # ic(slicedData)
     new_data = ma.concatenate((data, slicedData), axis=axis) #DMH
     if coord is None:

@@ -17,6 +17,7 @@ import sys
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import cmocean
+import cmasher
 import seaborn
 import numpy as np
 
@@ -35,30 +36,30 @@ tropicalPal = seaborn.diverging_palette(133, 324, as_cmap=True)
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_TREFHT/',
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/eimnsn_PRECT/anmn/',
     "idGlensCntrl": 'control_*', #'control_*' or None
     "idGlensFdbck": 'feedback_*', #'feedback_*' or None
     "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
     "idS245Cntrl": '*BWSSP245*', #'*BWSSP245*' or None
-    "idS245Hist": '*BWHIST*', #'*BWHIST*' or None
+    "idS245Hist": None, #'*BWHIST*' or None
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc'
 }
 setDict = {
     "landmaskFlag": None,
-    "startIntvl": [2011,2031,2011,2031], #dg [2015,2020,2030,2035] [2018,2022,2033,2037]
-    "endIntvl": [2041,2061,2041,2061], #dg [2025,2030,2040,2045]
+    "startIntvl": [2010,2030,2020,2040], #dg [2015,2020,2030,2035] [2018,2022,2033,2037] #Yaga [2010,2030,2020,2040]
+    "endIntvl": [2050,2070,2050,2070], #dg [2025,2030,2040,2045] #Yaga [2050,2070,2050,2070]
     "cntrlPoi": [2011,2041], #pdf
     "fdbckPoi": [2041], #pdf
     "arisePoi": [2041], #pdf
     "s245CntrlPoi": [2011, 2041], #pdf
     "timePeriod": 20, #pdf
     "plotStyle": 'step', #pdf
-    "convert": None, #TUPLE of converter(s), or None if using default units
-    "cmap": None, #None for default cmocean "balance" or choose colormap here
-    "cbVals": [-3,3] #None for automatic or [min,max] to override #dg
+    "convert": (fcu.m_to_cm, fcu.persec_peryr), #TUPLE of converter(s), or None if using default units
+    "cmap": cmocean.cm.curl_r, #None for default cmocean "balance" or choose colormap here
+    "cbVals": [-50, 50] #None for automatic or [min,max] to override #dg
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220126_exForYaga/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220207_fixAndMerge/2_eimnsn/',
     "dpiVal": 400
 }
 loopDict = {

@@ -31,7 +31,7 @@ insets = rlib.atlas_insets()
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_TREFHT/',
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/feb_hi/',
     "idGlensCntrl": 'control_*', #'control_*' or None
     "idGlensFdbck": 'feedback_*', #'feedback_*' or None
     "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
@@ -50,18 +50,18 @@ setDict = {
     "timePeriod": 20, #pdf
     "plotStyle": 'step', #pdf
     "dimOfVrblty": {'rlzBool':True,'timeBool':True,'spcBool':False}, #pdf
-    "convert": (fcu.kel_to_cel,), #TUPLE of converter(s), or None if using default units
+    "convert": (fcu.m_to_cm,), #TUPLE of converter(s), or None if using default units
     "realization": 'ensplot',
     "insetFlag": 2,
     "mute": False
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220127_exForYaga/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220203_reviseOutline/8_septhi/',
     "dpiVal": 400
 }
 loopDict = {
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": ('global',)
+    "regions": (rlib.Antarctica( ),)
 }
 
 ic(dataDict, setDict, outDict) #Lowers chances of making the wrong plots by mistake

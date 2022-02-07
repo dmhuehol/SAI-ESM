@@ -28,7 +28,7 @@ def discover_data_var(dset):
                    'n2ovmr', 'f12vmr', 'lon_bnds', 'lat_bnds', 'ZSOI', 'BSW',
                    'WATSAT', 'landmask', 'ZLAKE', 'DZLAKE', 'SUCSAT',
                    'landfrac', 'topo', 'DZSOI', 'area', 'pftmask', 'HKSAT',
-                   'nstep', 'mdcur', 'mscur', 'mcdate', 'mcsec']
+                   'nstep', 'mdcur', 'mscur', 'mcdate', 'mcsec', 'nbedrock']
     notDataInDset = list()
     dataKey = None
 
@@ -319,7 +319,8 @@ def call_to_open(dataDict, setDict):
             try:
                 inPath = dataDict["dataPath"] + dataDict[dky]
                 globsList.append(sorted(glob.glob(inPath)))
-                rawDset = xr.open_mfdataset(inPath, concat_dim='realization', combine='nested')
+                ic(inPath)
+                rawDset = xr.open_mfdataset(inPath, concat_dim='realization', combine='nested', coords='minimal')
                 maskDset = apply_mask(rawDset, dataDict, setDict)
                 dataKey = discover_data_var(maskDset)
                 maskDarr = maskDset[dataKey]
@@ -328,7 +329,8 @@ def call_to_open(dataDict, setDict):
                     cmbnHistFutList.append(scnDarr) #These need to be kept separate
                 else:
                     darrList.append(scnDarr) #Others can be put in darrList directly
-            except: #Usually reached if input is None
+            except Exception as fileOpenErr: #Usually reached if input is None
+                ic(fileOpenErr) #Also reached if issues exist in some/all data
                 pass
     if len(cmbnHistFutList) == 2: #If both historical and future are input
         acntrlDarr = combine_hist_fut(cmbnHistFutList[0],cmbnHistFutList[1]) #Combine ARISE Control here
@@ -341,7 +343,6 @@ def call_to_open(dataDict, setDict):
             pass #If there is no data, just move on
     if len(darrList) == 0:
         raise CustomExceptions.NoDataError('No data! Check input and try again.')
-
     # Manage ensemble members
     ememList = list()
     for ec in globsList:
@@ -434,6 +435,7 @@ def average_over_years(darr, startYear, endYear):
     ''' Take average over a period of time '''
     datasetYears = darr['time'].dt.year.data
     ic(startYear, endYear)
+    ic(np.where(datasetYears == startYear), np.where(datasetYears == startYear)[0])
     startInd = int(np.where(datasetYears == startYear)[0])
     endInd = int(np.where(datasetYears == endYear)[0])
     intrvlOfInt = darr[startInd:endInd]
