@@ -51,8 +51,9 @@ def operate_regrid(inFile, dataVar, popLat, popLon):
     popDataArray = xr.open_dataset(strv,decode_times=False)
     varOfInt = popDataArray[dataVar]
     time = popDataArray.time
-    latNew = np.arange(-90,91)
-    lonNew = np.arange(0,360)
+    latNew = np.arange(-90,91,0.94240838)
+    latNew = latNew[:-1]
+    lonNew = np.arange(0,360,1.25)
 
     dataRegrid = np.empty((varOfInt.shape[0],latNew.shape[0],lonNew.shape[0]))
     for bc in range(varOfInt.shape[0]):
@@ -80,8 +81,9 @@ def operate_regrid_direct(popDataArray, popLat, popLon):
         DataArray input '''
     varOfInt = popDataArray.data
     time = popDataArray.time
-    latNew = np.arange(-90,91)
-    lonNew = np.arange(0,360)
+    latNew = np.arange(-90,91,0.94240838)
+    latNew = latNew[:-1]
+    lonNew = np.arange(0,360,1.25)
     # popLat[popLat>90] = np.nan
     # popLon[popLon>360] = np.nan
 

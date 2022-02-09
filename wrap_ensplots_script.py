@@ -1,12 +1,12 @@
 ''' wrap_ensplots_script
 Runs ensemble plotting functions in fun_ens_plot.
 
-dataDict is for inputs
+dataDict is for data inputs
 setDict sets settings related to plotting
 outDict is for outputs
 loopDict determines which images are made
 
-Written by Daniel Hueholt | October 2021
+Written by Daniel Hueholt | February 2022
 Graduate Research Assistant at Colorado State University
 '''
 
@@ -26,22 +26,18 @@ import region_library as rlib
 # Call regions
 ipccWg1Ar5 = rlib.atlas_ipcc_wg1ar5() #ipccWg1Ar5["allRegions"]
 seaIcyRegions = rlib.atlas_seaicy_regions()
-planetary = ('global', rlib.Tropics(), rlib.NorthernHemisphere(), rlib.SouthernHemisphere(),)
-otherRegions = (rlib.NorthAtlanticWarmingHole(),rlib.AustralianContinent())
-insets = (rlib.Sahara(),rlib.NorthEurope(),rlib.Amazon(),rlib.WestAsia(),
-          rlib.SouthernAfrica(),rlib.WestNorthAmerica(),rlib.EastAsia(),
-          rlib.CentralAmericaMexico(),rlib.SoutheastAsia(),rlib.NorthAtlanticWarmingHole(),
-          rlib.AustralianContinent(),'global',)
+planetary = ('global', rlib.Tropics(), rlib.NorthernHemisphere(), rlib.SouthernHemisphere())
+insets = rlib.atlas_insets()
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_500TEMP/regrid/',
-    "idGlensCntrl": 'control_*', #'control_*'
-    "idGlensFdbck": 'feedback_*', #'feedback_*'
-    "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245*'
-    "idS245Cntrl": '*BWSSP245*', #'*ssp245*'
-    "idS245Hist": '*BWHIST*', #'*historical*'
-    "idMask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc' #cesm_component_mask.nc
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_TREFHT/',
+    "idGlensCntrl": 'control_*', #'control_*' or None
+    "idGlensFdbck": 'feedback_*', #'feedback_*' or None
+    "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
+    "idS245Cntrl": '*BWSSP245*', #'*BWSSP245*' or None
+    "idS245Hist": '*BWHIST*', #'*BWHIST*' or None
+    "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc' #cesm_component_mask.nc
 }
 setDict = {
     "landmaskFlag": None, #None or 'land'
@@ -54,38 +50,35 @@ setDict = {
     "timePeriod": 20, #pdf
     "plotStyle": 'step', #pdf
     "dimOfVrblty": {'rlzBool':True,'timeBool':True,'spcBool':False}, #pdf
-    "convert": None, #TUPLE of converter(s), or None if using default units
+    "convert": (fcu.kel_to_cel,), #TUPLE of converter(s), or None if using default units
     "realization": 'ensplot',
-    "insetFlag": 2
+    "insetFlag": 0, #ts 0 default, 1 lines only, 2 AMS style
+    "mute": False, #ts True/False to use image muting on parts of time period
+    "ylim": None #ts None for automatic, [min,max] for manual
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20211012_syncWithCasperPlusExtremes/1_testBeforeSync/',
-    "dpiVal": 800
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220209_polishMergeFinal/1_polish/',
+    "dpiVal": 400
 }
 loopDict = {
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": ('global',)
+    "regions": ('global', rlib.Antarctica(), rlib.NorthEurope(),)
 }
 
-# Verify inputs (troubleshooting)
-ic(dataDict)
-ic(setDict)
-ic(outDict)
-# ic(setDict["convert"])
+ic(dataDict, setDict, outDict) #Lowers chances of making the wrong plots by mistake
 
 # Make images
-rlzList, cmnDict = fpd.call_to_open(dataDict, setDict)
-# rlzList = fpd.period_month_avg(rlzList)
+scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
 dataDict = {**dataDict, **cmnDict}
 for lev in loopDict["levels"]:
     setDict["levOfInt"] = lev
     for reg in loopDict["regions"]:
         setDict["regOfInt"] = reg
-        # fep.plot_ens_spaghetti_timeseries(rlzList, dataDict, setDict, outDict)
-        fep.plot_ens_spread_timeseries(rlzList, dataDict, setDict, outDict)
+        # fep.plot_ens_spaghetti_timeseries(scnList, dataDict, setDict, outDict)
+        fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
         # setDict["plotStyle"] = 'step'
-        # fep.plot_ens_pdf(rlzList, dataDict, setDict, outDict)
+        # fep.plot_ens_pdf(scnList, dataDict, setDict, outDict)
         # setDict["plotStyle"] = 'kde'
-        # fep.plot_ens_pdf(rlzList, dataDict, setDict, outDict)
+        # fep.plot_ens_pdf(scnList, dataDict, setDict, outDict)
         # setDict["plotStyle"] = 'hist'
-        # fep.plot_ens_pdf(rlzList, dataDict, setDict, outDict)
+        # fep.plot_ens_pdf(scnList, dataDict, setDict, outDict)
