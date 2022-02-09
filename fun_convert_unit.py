@@ -41,20 +41,6 @@ def molmol_to_pptr(darrMolmol):
 
     return darrPptr
 
-def mmolm3_to_micmolkg(darrmmolm3):
-    darrMolm3 = (darrmmolm3/1000)
-    gSea = 1027 #Assume avg surface seawater density -- NOT sufficient for conclusions
-    gmolO2 = 32
-    mO2 = darrMolm3*gmolO2
-    mSea = gSea - mO2
-    darrMolal = darrMolm3 / (gSea/1000)
-    darrMicmolKg = darrMolal * 10**6
-    darrMicmolKg.attrs = darrmmolm3.attrs
-    darrMicmolKg.attrs['units'] = 'micmol/kg'
-
-    return darrMicmolKg
-
-
 ### Moisture
 def kgkg_to_gkg(darrKgkg):
     ''' Convert kg/kg to g/kg '''
