@@ -14,8 +14,8 @@
 #######################################
 IN_PATH=$1
 IN_TOKEN=$2
-IN_LEV=500
-OUT_PATH=$3
+IN_LEV=$3
+OUT_PATH=$4
 
 for f in $IN_PATH$IN_TOKEN; do
     PATH_LENGTH=${#IN_PATH}

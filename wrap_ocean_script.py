@@ -27,11 +27,11 @@ import fun_regrid_pop as frp
 import fun_process_data as fpd
 
 # Inputs
-dataPath = '/glade/scratch/dhueholt/monthly_OCNO2/' #'/Users/dhueholt/Documents/GLENS_data/monthly_OCNO2/'
-outPath = '/glade/scratch/dhueholt/monthly_OCNO2/regrid/' #'/Users/dhueholt/Documents/GLENS_data/monthly_OCNO2/regrid/'
-dataVar = 'O2' #Manually set data variable
-extract2d = fcv.surface_from_3d #fun_calc_vars function handle or False
-nProc = 6 #Spawn nProc+1 (due to zero indexing) processes for regridding
+dataPath = '/Users/dhueholt/Documents/GLENS_data/annual_500TEMP/'#'/glade/scratch/dhueholt/ssp245/sept_IFRAC/'
+outPath = '/Users/dhueholt/Documents/GLENS_data/annual_500TEMP/regrid/'#'/glade/scratch/dhueholt/sept_IFRAC/regrid/'
+dataVar = 'TEMP' #Manually set data variable
+extract2d = False #fun_calc_vars function handle or False
+nProc = 5 #Spawn nProc+1 (due to zero indexing) processes for regridding
 
 # Open files
 strList = sorted(glob.glob(dataPath + "*.nc"))
@@ -53,12 +53,11 @@ if not(extract2d): #If False entry, data is already 2D (ex: SSH data)
         data2dList.append(darr)
 else:
     for darr in dataList:
-        darr.attrs['outFile'] = darr.attrs['inFile']
-        darr2d = extract2d(darr, dataVar) #Use the fcv function input to extract 2D field (ex: UOHC from pot. temp.)
+        darr2d = extract2d(darr) #Use the fcv function input to extract 2D field (ex: UOHC from pot. temp.)
         data2dList.append(darr2d)
 
 # Regrid to standard lat/lon and save
-inPop = '/glade/work/dhueholt/grids/control_IFRAC_useForGrid.nc' #'/Users/dhueholt/Documents/GLENS_data/grids/control_IFRAC_useForGrid.nc'
+inPop = '/Users/dhueholt/Documents/GLENS_data/grids/control_IFRAC_useForGrid.nc' #'/glade/work/dhueholt/grids/control_IFRAC_useForGrid.nc'
 inNames = ['TLAT','TLONG'] #'TLAT','TLONG' for POP, 'lat', 'lon'
 popLat,popLon = frp.extract_pop_latlons(inPop,inNames[0],inNames[1])
 
