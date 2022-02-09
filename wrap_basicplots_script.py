@@ -1,13 +1,12 @@
 ''' wrap_basicplots_script
-Runs plotting functions in fun_basic_plot. This is used by run_plots_script.sh
-to submit jobs through the NCAR queue.
+Runs plotting functions in fun_basic_plot.
 
 dataDict is for inputs
 setDict sets settings related to plotting
 outDict is for outputs
 loopDict determines which images are made
 
-Written by Daniel Hueholt | December 2021
+Written by Daniel Hueholt | February 2022
 Graduate Research Assistant at Colorado State University
 '''
 
@@ -41,13 +40,13 @@ dataDict = {
     "idGlensFdbck": 'feedback_*', #'feedback_*' or None
     "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
     "idS245Cntrl": '*BWSSP245*', #'*BWSSP245*' or None
-    "idS245Hist": None, #'*BWHIST*' or None
+    "idS245Hist": '*BWHIST*', #'*BWHIST*' or None
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc'
 }
 setDict = {
     "landmaskFlag": None,
-    "startIntvl": [2010,2030,2020,2040], #dg [2015,2020,2030,2035] [2018,2022,2033,2037] #Yaga [2010,2030,2020,2040]
-    "endIntvl": [2050,2070,2050,2070], #dg [2025,2030,2040,2045] #Yaga [2050,2070,2050,2070]
+    "startIntvl": [2015,2020,2030,2035], #dg [2015,2020,2030,2035]
+    "endIntvl": [2025,2030,2040,2045], #dg [2025,2030,2040,2045]
     "cntrlPoi": [2011,2041], #pdf
     "fdbckPoi": [2041], #pdf
     "arisePoi": [2041], #pdf
@@ -59,7 +58,7 @@ setDict = {
     "cbVals": [-50, 50] #None for automatic or [min,max] to override #dg
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220207_fixAndMerge/2_eimnsn/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220209_polishMergeFinal/1_polish/',
     "dpiVal": 400
 }
 loopDict = {
@@ -79,10 +78,9 @@ for rlz in loopDict["realizations"]:
 
     for lev in loopDict["levels"]:
         setDict["levOfInt"] = lev
-        fbp.plot_basic_difference_globe(scnList, dataDict, setDict, outDict)
+        # fbp.plot_basic_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_six_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_basic_difference_polar(scnList, dataDict, setDict, outDict)
-        # fbp.plot_wa_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_glens_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_arise_difference_globe(scnList, dataDict, setDict, outDict)

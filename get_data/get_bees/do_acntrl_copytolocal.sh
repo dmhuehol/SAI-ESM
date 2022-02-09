@@ -48,6 +48,5 @@ EMEMAF=(
 
 for emaf in ${EMEMAF[@]}; do
     FILE_TO_COPYAF=$CMN_PATHAF$emaf$S$MOD_TOKEN$PROC$TIME_TOKEN$IN_TOKEN
-    # echo $FILE_TO_COPYAF
     cp $FILE_TO_COPYAF $OUT_PATH
 done

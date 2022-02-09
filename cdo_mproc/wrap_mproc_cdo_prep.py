@@ -1,10 +1,8 @@
 '''  wrap_mproc_cdo_prep
 Runs functions to process data into friendlier forms, i.e. selecting months or
-calculating annual mean values. Uses multiprocessing for efficiency. After
-running, output data is ready for regridding (wrap_ocean_script) or plotting
-(wrap_basicplots_script, wrap_ensplots_script).
+calculating annual mean values. Uses multiprocessing for efficiency.
 
-Written by Daniel Hueholt
+Written by Daniel Hueholt | February 2022
 Graduate Research Assistant at Colorado State University
 '''
 
@@ -139,7 +137,7 @@ def return_emem_list(inType):
 
     return EMEM
 
-EMEM = return_emem_list('cdo')
+EMEM = return_emem_list('raw')
 nProc = 2
 
 # Shell inputs

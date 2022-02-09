@@ -1,7 +1,6 @@
 ''' fun_plot_tools
-Contains functions for plotting, e.g. drawing data on a globe, making kernel
-density estimates, histograms, or step plots. Also includes functions related to
-plotting, such as functions to choose colors or generate labels.
+Contains plotting functions, e.g. drawing data on a globe, making kernel density
+estimates. Also includes functions for related tasks, such as generating labels.
 
 Unless otherwise specified:
 Written by Daniel Hueholt
@@ -9,7 +8,7 @@ Graduate Research Assistant at Colorado State University
 drawOnGlobe written by Prof. Elizabeth Barnes at Colorado State University
     Lightly edited by Daniel Hueholt
 add_cyclic_point copied from cartopy utils by Prof. Elizabeth Barnes at Colorado State University
-    Edited by Daniel Hueholt
+    Modified by Daniel Hueholt
 '''
 
 from icecream import ic
@@ -33,40 +32,33 @@ import seaborn as sn
 import fun_process_data as fpd
 
 def make_panels(rlzList, setDict):
-    ''' Extract and average over periods of interest and classify by scenario
-        for use as panels in difference globes '''
+    ''' Extract periods of interest, average, & store by scenario for panels '''
     toiStart = dict()
     toiEnd = dict()
     for rc,rDarr in enumerate(rlzList):
         rlzLoi = fpd.obtain_levels(rDarr, setDict["levOfInt"])
         shrtScn = rlzLoi.scenario.split('/')[len(rlzLoi.scenario.split('/'))-1]
-        ic(rc,shrtScn)
         if 'Control' in rlzLoi.attrs['scenario']:
-            ic(rlzLoi.attrs['scenario'])
             if 'GLENS' in rlzLoi.attrs['scenario']:
-                ic('GLENS Control')
+                # ic('GLENS Control')
                 toiStartLp = fpd.average_over_years(rlzLoi, setDict["startIntvl"][0], setDict["startIntvl"][1])
                 toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
-                ic(shrtScn)
                 toiStart[shrtScn] = toiStartLp
                 toiEnd[shrtScn] = toiEndLp
             elif 'ARISE' in rlzLoi.attrs['scenario']:
-                ic('ARISE control')
+                # ic('ARISE Control')
                 toiStartLp = fpd.average_over_years(rlzLoi, setDict["startIntvl"][2], setDict["startIntvl"][3])
                 toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][2], setDict["endIntvl"][3])
-                ic(shrtScn)
                 toiStart[shrtScn] = toiStartLp
                 toiEnd[shrtScn] = toiEndLp
         elif 'Feedback' in rlzLoi.attrs['scenario']:
             if 'GLENS' in rlzLoi.attrs['scenario']:
-                ic('GLENS Feedback')
+                # ic('GLENS Feedback')
                 toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
-                ic(shrtScn)
                 toiEnd[shrtScn] = toiEndLp
             elif 'ARISE' in rlzLoi.attrs['scenario']:
-                ic('ARISE Feedback')
+                # ic('ARISE Feedback')
                 toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][2], setDict["endIntvl"][3])
-                ic(shrtScn)
                 toiEnd[shrtScn] = toiEndLp
         else:
             ic('This should not occur, but does it?')
@@ -94,7 +86,7 @@ def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc
 
     if(cbarBool):
         cb = plt.colorbar(image, shrink=.75, orientation="vertical", pad=.02, extend=extent)
-        cb.ax.tick_params(labelsize=6) #standard: labelsize=6 for draft paper figures: labelsize=14
+        cb.ax.tick_params(labelsize=6) #def: labelsize=6
         try:
             cb.set_label(data.attrs['units'],size='small')
             # cb.set_label('',size='small')
@@ -154,7 +146,6 @@ def add_cyclic_point(data, coord=None, axis=-1):
     #     slicedData = np.zeros(sliceShape)
     #     for sd,sv in enumerate(slicedData):
     #         slicedData[sd,0] = merData[sd]
-        # ic(slicedData)
     new_data = ma.concatenate((data, slicedData), axis=axis) #DMH
     if coord is None:
         return_value = new_data

@@ -21,8 +21,6 @@ import xarray as xr
 xr.set_options(keep_attrs=True)
 import matplotlib.pyplot as plt
 from matplotlib import cm
-import cartopy
-import cartopy.crs as ccrs
 import cmocean
 import cmasher
 import numpy as np
@@ -119,9 +117,9 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
         # plt.plot(yearsOfInt,rlzMax.data,color=activeColor,linewidth=0.3) #Border on top of spread
         # plt.plot(yearsOfInt,rlzMin.data,color=activeColor,linewidth=0.3) #Border on bottom of spread
         ic(darr.scenario)
-        plt.plot(yrsToPlot,rlzMn.data,color='#D3D3D3',label=activeLabel,linewidth=1,alpha=0.5)
-        ax.fill_between(yrsToPlot, rlzMax.data, rlzMin.data, color='#D3D3D3', alpha=0.2, linewidth=0)
         if setDict["mute"] == True:
+            plt.plot(yrsToPlot,rlzMn.data,color='#D3D3D3',label=activeLabel,linewidth=1,alpha=0.5)
+            ax.fill_between(yrsToPlot, rlzMax.data, rlzMin.data, color='#D3D3D3', alpha=0.2, linewidth=0)
             if 'GLENS:Control' in darr.scenario:
                 gcw = [5,11,15,20] #[5,11] for immediate, [5,11,45,50] for impact, [5,11,15,20] for compromise
                 ic(yrsToPlot[gcw[0]:gcw[1]],rlzMn.data[gcw[0]:gcw[1]])
@@ -155,9 +153,7 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
             ax.fill_between(yrsToPlot, rlzMax.data, rlzMin.data, color=activeColor, alpha=0.3, linewidth=0)
 
     # Plot metadata and settings
-    b,t = plt.ylim()
-    b = 0 #Override automatic b
-    t = 50 #Override automatic t
+    b,t = plt.ylim() if setDict['ylim'] is None else setDict['ylim']
     fpt.plot_metaobjects(scnToPlot, fig, b, t)
     plt.autoscale(enable=True, axis='x', tight=True)
     plt.autoscale(enable=True, axis='y', tight=True)
@@ -175,7 +171,7 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
     elif setDict["insetFlag"] == 1: #Lines only
         savePrfx = 'INSETQUAL_'
         ax.axis('off')
-    else: #Lines and nice axes usually used in posters
+    else: #Aesthetics used for figures in posters/presentations/papers/etc
         savePrfx = 'INSET_'
         plt.xticks([2015,2040,2065,])
         plt.yticks(np.arange(0, 1000, 30))

@@ -6,7 +6,7 @@ setDict sets settings related to plotting
 outDict is for outputs
 loopDict determines which images are made
 
-Written by Daniel Hueholt | October 2021
+Written by Daniel Hueholt | February 2022
 Graduate Research Assistant at Colorado State University
 '''
 
@@ -31,7 +31,7 @@ insets = rlib.atlas_insets()
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/feb_hi/',
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_TREFHT/',
     "idGlensCntrl": 'control_*', #'control_*' or None
     "idGlensFdbck": 'feedback_*', #'feedback_*' or None
     "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
@@ -46,22 +46,23 @@ setDict = {
     "cntrlPoi": [2011,2041], #pdf
     "fdbckPoi": [2041], #pdf
     "arisePoi": [2041], #pdf
-    "s245CntrlPoi": [2015,2041], #pdf
+    "s245CntrlPoi": [2041], #pdf
     "timePeriod": 20, #pdf
     "plotStyle": 'step', #pdf
     "dimOfVrblty": {'rlzBool':True,'timeBool':True,'spcBool':False}, #pdf
-    "convert": (fcu.m_to_cm,), #TUPLE of converter(s), or None if using default units
+    "convert": (fcu.kel_to_cel,), #TUPLE of converter(s), or None if using default units
     "realization": 'ensplot',
-    "insetFlag": 2,
-    "mute": False
+    "insetFlag": 0, #ts 0 default, 1 lines only, 2 AMS style
+    "mute": False, #ts True/False to use image muting on parts of time period
+    "ylim": None #ts None for automatic, [min,max] for manual
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220203_reviseOutline/8_septhi/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220209_polishMergeFinal/1_polish/',
     "dpiVal": 400
 }
 loopDict = {
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": (rlib.Antarctica( ),)
+    "regions": ('global', rlib.Antarctica(), rlib.NorthEurope(),)
 }
 
 ic(dataDict, setDict, outDict) #Lowers chances of making the wrong plots by mistake
