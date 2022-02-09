@@ -579,6 +579,18 @@ def NorthOf85N():
 
     return regDict
 
+## Africa
+
+def WestAfricanMonsoon():
+    regDict = {
+        "regStr": 'West African Monsoon',
+        "regSaveStr": 'WAfMnsn',
+        "regLats": np.array([0,17.5]),
+        "regLons": np.array([350,10])
+    }
+
+    return regDict
+
 ## Asia
 
 def NortheastAsia():

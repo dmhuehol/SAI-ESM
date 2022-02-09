@@ -73,7 +73,6 @@ done
 # echo $RUN_VAR
 
 OUT_FNAME="${RUN_TYPE}_${RUN_ENSNUMS[0]}_${RUN_VAR}"
-# echo $OUT_FNAME
 for t in ${RUN_TIMES[@]}; do
   OUT_FNAME="${OUT_FNAME}_${t}"
 done

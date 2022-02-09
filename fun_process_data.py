@@ -1,6 +1,8 @@
 ''' fun_process_data
 Contains functions for operations like extracting metadata from filenames,
-choosing and summing levels, or managing area inputs.
+choosing and summing levels, or managing area inputs. These are designed to be
+as flexible as possible, but manage_realizations, meta_book, and call_to_open
+have unavoidable hard-coding and require reworking to add new model runs.
 
 Written by Daniel Hueholt
 Graduate Research Assistant at Colorado State University
@@ -15,20 +17,95 @@ import dask
 dask.config.set(**{'array.slicing.split_large_chunks': True})
 import numpy as np
 import matplotlib.path as mpth
+import collections
 import glob
 
 import CustomExceptions
 import fun_convert_unit as fcu
 
+def call_to_open(dataDict, setDict):
+    ''' Common data tasks for all basic plots '''
+    # Open datasets
+    lf = collections.defaultdict(list) #list factory stackoverflow.com/a/2402678
+    for dky in dataDict.keys():
+        if 'id' in dky:
+            try:
+                inPath = dataDict["dataPath"] + dataDict[dky]
+                lf['globs'].append(sorted(glob.glob(inPath)))
+                ic(inPath)
+                rawDset = xr.open_mfdataset(inPath, concat_dim='realization', combine='nested', coords='minimal')
+                maskDset = apply_mask(rawDset, dataDict, setDict)
+                dataKey = discover_data_var(maskDset)
+                maskDarr = maskDset[dataKey]
+                scnDarr = bind_scenario(maskDarr, dataDict[dky])
+                if 'ARISE:Control' in scnDarr.scenario: #Two parts to ARISE Control: historical and future
+                    lf['chf'].append(scnDarr) #These need to be kept separate
+                else:
+                    lf['darr'].append(scnDarr) #Others go directly into darrList
+            except Exception as fileOpenErr: #Usually reached if input is None
+                ic(fileOpenErr) #Or if issues exist in some/all data
+                pass
+    if len(lf['chf']) == 2: #If both historical and future are input
+        acntrlDarr = combine_hist_fut(lf['chf'][0],lf['chf'][1]) #Combine ARISE Control here
+        lf['darr'].append(acntrlDarr) #Append ARISE Control to darrList
+        acntrlDarr.attrs['scenario'] = 'CESM2-WACCM/ARISE:Control/SSP2-4.5'
+    else:
+        try:
+            lf['darr'].append(lf['chf'][0]) #Append the one that's present
+        except:
+            pass #If there is no data, just move on
+    if len(lf['darr']) == 0:
+        raise CustomExceptions.NoDataError('No data! Check input and try again.')
+
+    # Manage ensemble members
+    for ec in lf['globs']:
+        lf['emem'].append(get_ens_mem(ec))
+    for dc,darr in enumerate(lf['darr']):
+        scnArr, ememStr = manage_realizations(setDict, darr, lf['emem'][dc])
+        lf['scn'].append(scnArr)
+        lf['ememStr'].append(ememStr)
+    lf['ememStr'] = list(filter(None,lf['ememStr']))
+    ememSave = '-'.join(lf['ememStr'])
+    cmnDict = {'dataKey': dataKey, 'ememSave': ememSave}
+
+    # Convert units (if necessary)
+    if setDict["convert"] is not None:
+        for cnvrtr in setDict["convert"]:
+            for rc,rv in enumerate(lf['scn']):
+                lf['scn'][rc] = cnvrtr(rv) #Use input converter function(s)
+
+    return lf['scn'], cmnDict
+
+def apply_mask(dset, dataDict, setDict):
+    ''' Apply land/ocean mask, returning masked dataset '''
+    if setDict['landmaskFlag'] is not None:
+        activeMaskDset = xr.open_dataset(dataDict["mask"])
+        try:
+            activeMask = activeMaskDset.landmask
+        except:
+            activeMask = activeMaskDset.imask
+
+        if setDict['landmaskFlag'] == 'land':
+            maskDset = dset.where(activeMask > 0)
+        elif setDict['landmaskFlag'] == 'ocean':
+            maskDset = dset.where(activeMask == 0)
+        else:
+            ic('Invalid landmaskFlag! Continuing with no mask applied')
+            maskDset = dset
+    else:
+        maskDset = dset
+
+    return maskDset
+
 def discover_data_var(dset):
-    ''' Find the data variable from among the many variables in a dataset '''
+    ''' Find the data variable among the many variables in a CESM file '''
     fileKeys = list(dset.keys())
     notDataKeys = ['time_bnds', 'date', 'datesec', 'lev_bnds', 'gw', 'ch4vmr',
                    'co2vmr', 'ndcur', 'nscur', 'sol_tsi', 'nsteph', 'f11vmr',
                    'n2ovmr', 'f12vmr', 'lon_bnds', 'lat_bnds', 'ZSOI', 'BSW',
-                   'WATSAT', 'landmask', 'ZLAKE', 'DZLAKE', 'SUCSAT',
-                   'landfrac', 'topo', 'DZSOI', 'area', 'pftmask', 'HKSAT',
-                   'nstep', 'mdcur', 'mscur', 'mcdate', 'mcsec']
+                   'WATSAT', 'landmask', 'ZLAKE', 'DZLAKE', 'SUCSAT', 'area',
+                   'landfrac', 'topo', 'DZSOI', 'pftmask', 'HKSAT', 'nstep',
+                   'mdcur', 'mscur', 'mcdate', 'mcsec', 'nbedrock']
     notDataInDset = list()
     dataKey = None
 
@@ -44,17 +121,98 @@ def discover_data_var(dset):
 
     return dataKey
 
+def bind_scenario(darr, inID):
+    ''' Bind scenario identifiers to xarray attributes. The historical and
+    future parts of the ARISE Control are combined later in call_to_open. '''
+    if 'control_' in inID:
+        darr.attrs['scenario'] = 'GLENS:Control/RCP8.5'
+    elif 'feedback_' in inID:
+        darr.attrs['scenario'] = 'GLENS:Feedback/SAI/G1.2(8.5)'
+    elif 'SSP245-TSMLT-GAUSS' in inID:
+        darr.attrs['scenario'] = 'ARISE:Feedback/SAI/G1.5(4.5)'
+    elif 'BWSSP245' in inID:
+        darr.attrs['scenario'] = 'CESM2-WACCM/ARISE:Control/SSP2-4.5'
+    elif 'BWHIST' in inID:
+        darr.attrs['scenario'] = 'CESM2-WACCM/ARISE:Control/Historical'
+    elif 'SSP245cmip6' in inID:
+        darr.attrs['scenario'] = 'CESM2-WACCM/ARISE:Control/SSP2-4.5/CMIP6'
+    else:
+        ic('Unable to match scenario, binding empty string to array')
+        darr.attrs['scenario'] = ''
+
+    return darr
+
+def combine_hist_fut(darrCntrl, darrHist):
+    ''' Combine historical and future output into a single DataArray '''
+    darrHistForFormat = darrHist.sel(realization=0)
+    darrHistNan = copy_blank_darr(darrHistForFormat)
+    darrCombine = darrHistNan.copy()
+
+    cntrlRlz = darrCntrl['realization']
+    for rc in cntrlRlz:
+        try:
+            activeHist = darrHist.sel(realization=rc)
+            activeCntrl = darrCntrl.sel(realization=rc)
+            activeDarr = xr.concat((activeHist,activeCntrl), dim='time')
+        except:
+            activeCntrl = darrCntrl.sel(realization=rc)
+            activeDarr = xr.concat((darrHistNan,activeCntrl), dim='time')
+        darrCombine = xr.concat((darrCombine,activeDarr), dim='realization')
+    darrCombine = darrCombine.sel(realization=np.arange(1,len(cntrlRlz)))
+
+    return darrCombine
+
+def copy_blank_darr(darr):
+    ''' Make a copy of a DataArray with blank data but the same structure '''
+    darrShape = np.shape(darr.data)
+    darrNan = np.full(darrShape, np.nan)
+    darrOut = darr.copy(data=darrNan)
+
+    return darrOut
+
+def manage_realizations(setDict, darr, emem):
+    ''' Obtain single realization or ensemble mean and make useful filename '''
+    try:
+        if 'GLENS:Control' in darr.scenario:
+            scnStr = 'gc' #glenscontrol
+        elif 'GLENS:Feedback' in darr.scenario:
+            scnStr = 'gf' #glensfeedback
+        elif 'ARISE:Feedback' in darr.scenario:
+            scnStr = 'arif' #arisefeedback
+        elif 'ARISE:Control' in darr.scenario:
+            scnStr = 'aric' #arisecontrol
+        else:
+            ic('Unknown scenario!')
+            #No sys.exit(); want to know what the error is
+
+        if setDict['realization'] == 'mean': #Output DataArray of ens mean
+            darrMn = darr.mean(dim='realization')
+            darrOut = darrMn.compute()
+            ememSave = 'mn' + scnStr
+        elif setDict['realization'] == 'ensplot': #Output DataArray of members AND ens mean
+            darrMn = darr.mean(dim='realization')
+            darrOut = xr.concat([darr,darrMn],dim='realization').compute() #Add ens mean as another "realization"
+            ememSave = 'ens' + scnStr
+        else: #Output DataArray of single ens member
+            ememNum = list(map(int, emem))
+            rInd = ememNum.index(setDict['realization'])
+            darrOut = darr[rInd,:,:,:].compute()
+            activeEmem = emem[rInd]
+            ememSave = scnStr + activeEmem
+    except:
+        darrOut = None
+        ememSave = ''
+
+    return darrOut, ememSave
+
 def extract_intvl(intervalsToPlot, years, timePeriod, darr, handlesToPlot):
-    ''' Extract intervals of interest '''
+    ''' Extract intervals of interest (used by PDF plots) '''
     originalPoi = timePeriod
-    # ic(originalPoi)
     for intvl in intervalsToPlot:
-        # ic(intvl)
         if intvl == 2015:
             timePeriod = 15
         else:
             timePeriod = originalPoi
-        # ic(timePeriod)
         startInd = np.where(years==intvl)[0][0]
         if intvl+timePeriod == 2100:
             endInd = len(years)
@@ -229,146 +387,8 @@ def get_ens_mem(files):
 
     return emem
 
-def manage_realizations(setDict, darr, emem):
-    ''' Obtain realization of interest or calculate ensemble mean, then create
-    relevant filename. This, meta_book, and open_data have substantial
-    hard-coding and require reworking when a new model run is added.
-    '''
-    try:
-        if 'GLENS:Control' in darr.scenario:
-            scnStr = 'gc' #glenscontrol
-        elif 'GLENS:Feedback' in darr.scenario:
-            scnStr = 'gf' #glensfeedback
-        elif 'ARISE:Feedback' in darr.scenario:
-            scnStr = 'ari' #arise
-        elif 'ARISE:Control' in darr.scenario:
-            scnStr = 's245c' #ssp245control
-        else:
-            ic('Unknown scenario!')
-            #No sys.exit(); want to know what the error is
-
-        if setDict['realization'] == 'mean': #Output DataArray of ensemble mean
-            darrMn = darr.mean(dim='realization')
-            darrOut = darrMn.compute()
-            ememSave = 'mn' + scnStr
-        elif setDict['realization'] == 'ensplot': #Output DataArray of all members and ensemble mean
-            darrMn = darr.mean(dim='realization')
-            darrOut = xr.concat([darr,darrMn],dim='realization').compute() #Add ensemble mean as another "realization"
-            ememSave = 'ens' + scnStr
-        else: #Output DataArray of single ensemble member
-            ememNum = list(map(int, emem))
-            rInd = ememNum.index(setDict['realization'])
-            darrOut = darr[rInd,:,:,:].compute()
-
-            activeEmem = emem[rInd]
-            ememSave = scnStr + activeEmem
-    except:
-        darrOut = None
-        ememSave = ''
-
-    return darrOut, ememSave
-
-def apply_mask(dset, dataDict, setDict):
-    if setDict['landmaskFlag'] is not None:
-        activeMaskDset = xr.open_dataset(dataDict["mask"])
-        try:
-            activeMask = activeMaskDset.landmask
-        except:
-            activeMask = activeMaskDset.imask
-
-        if setDict['landmaskFlag'] == 'land':
-            maskDset = dset.where(activeMask > 0)
-        elif setDict['landmaskFlag'] == 'ocean':
-            maskDset = dset.where(activeMask == 0)
-        else:
-            ic('Invalid landmaskFlag! Continuing with no mask applied')
-            maskDset = dset
-    else:
-        ic('landmaskFlag is None, no mask applied')
-        maskDset = dset
-
-    return maskDset
-
-def bind_scenario(darr, inID):
-    if 'control_' in inID:
-        darr.attrs['scenario'] = 'GLENS:Control/RCP8.5'
-    elif 'feedback_' in inID:
-        darr.attrs['scenario'] = 'GLENS:Feedback/SAI/G1.2(8.5)'
-    elif 'SSP245-TSMLT-GAUSS' in inID:
-        darr.attrs['scenario'] = 'ARISE:Feedback/SAI/G1.5(4.5)'
-    elif 'BWSSP245' in inID:
-        darr.attrs['scenario'] = 'CESM2-WACCM/ARISE:Control/SSP2-4.5'
-    elif 'BWHIST' in inID:
-        darr.attrs['scenario'] = 'CESM2-WACCM/ARISE:Control/Historical'
-    elif 'SSP245cmip6' in inID:
-        darr.attrs['scenario'] = 'CESM2-WACCM/ARISE:Control/SSP2-4.5/ProcessedForCMIP6'
-    else:
-        ic('Unable to match scenario, binding empty string to array')
-        darr.attrs['scenario'] = ''
-
-    return darr
-
-def call_to_open(dataDict, setDict):
-    ''' Common data tasks for all basic plots '''
-    # Open datasets
-    darrList = list()
-    cmbnHistFutList = list()
-    globsList = list()
-    for dky in dataDict.keys():
-        if 'id' in dky:
-            try:
-                inPath = dataDict["dataPath"] + dataDict[dky]
-                globsList.append(sorted(glob.glob(inPath)))
-                rawDset = xr.open_mfdataset(inPath, concat_dim='realization', combine='nested')
-                maskDset = apply_mask(rawDset, dataDict, setDict)
-                dataKey = discover_data_var(maskDset)
-                maskDarr = maskDset[dataKey]
-                scnDarr = bind_scenario(maskDarr, dataDict[dky])
-                if 'ARISE:Control' in scnDarr.scenario: #Two parts to ARISE Control: historical and future
-                    cmbnHistFutList.append(scnDarr) #These need to be kept separate
-                else:
-                    darrList.append(scnDarr) #Others can be put in darrList directly
-            except: #Usually reached if input is None
-                pass
-    if len(cmbnHistFutList) == 2: #If both historical and future are input
-        acntrlDarr = combine_hist_fut(cmbnHistFutList[0],cmbnHistFutList[1]) #Combine ARISE Control here
-        darrList.append(acntrlDarr) #Append ARISE Control to darrList
-        acntrlDarr.attrs['scenario'] = 'CESM2-WACCM/ARISE:Control/SSP2-4.5' #THIS IS CLUMSY, TODO: # FIX
-    else:
-        try:
-            darrList.append(cmbnHistFutList[0]) #Append the one that's present
-        except:
-            pass #If there is no data, just move on
-    if len(darrList) == 0:
-        raise CustomExceptions.NoDataError('No data! Check input and try again.')
-
-    # Manage ensemble members
-    ememList = list()
-    for ec in globsList:
-        ememList.append(get_ens_mem(ec))
-    scnList = list()
-    ememStrList = list()
-    for dc,darr in enumerate(darrList):
-        scnArr, ememStr = manage_realizations(setDict, darr, ememList[dc])
-        scnList.append(scnArr)
-        ememStrList.append(ememStr)
-    ememStrList = list(filter(None,ememStrList))
-    ememSave = '-'.join(ememStrList)
-    cmnDict = {'dataKey': dataKey, 'ememSave': ememSave}
-
-    # Convert units (if necessary)
-    if setDict["convert"] is not None:
-        for cnvrtr in setDict["convert"]:
-            for rc,rv in enumerate(scnList):
-                scnList[rc] = cnvrtr(rv) #Use input converter function(s)
-
-    return scnList, cmnDict
-
 def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
-    ''' Compile bits and pieces for filenames and titles. As many as possible
-    are derived automatically, but some are manual and require reworking when
-    a new model run is added.
-    '''
+    ''' Compile bits and pieces for filenames and titles '''
     metaDict = {
         "cntrlStr": 'RCP8.5',
         "fdbckStr": 'G1.2(8.5)',
@@ -378,9 +398,10 @@ def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
         "varSve": var_str_lookup(cntrlToPlot.long_name, setDict, strType='save'),
         "strtStr": str(cntrlToPlot['time'].data[0].year),
         "endStr": str(cntrlToPlot['time'].data[len(cntrlToPlot)-1].year),
-        "frstDcd": str(setDict["startIntvl"][0]) + '-' + str(setDict["startIntvl"][1]),
-        "aFrstDcd": str(setDict["startIntvl"][2]) + '-' + str(setDict["startIntvl"][3]) if len(setDict["startIntvl"]) > 2 else '',
-        "lstDcd": str(setDict["endIntvl"][0]) + '-' + str(setDict["endIntvl"][1]),
+        "frstDcd": str(setDict["startIntvl"][0]) + '-' + str(setDict["startIntvl"][1]-1),
+        "aFrstDcd": str(setDict["startIntvl"][2]) + '-' + str(setDict["startIntvl"][3]-1) if len(setDict["startIntvl"]) > 2 else '',
+        "lstDcd": str(setDict["endIntvl"][0]) + '-' + str(setDict["endIntvl"][1]-1),
+        "aLstDcd": str(setDict["endIntvl"][2]) + '-' + str(setDict["endIntvl"][3]-1) if len(setDict["startIntvl"]) > 2 else '',
         "tmStr": rcf_parser(labelsToPlot),
         "levStr": make_level_string(cntrlToPlot, setDict["levOfInt"]) if "levOfInt" in setDict.keys() else '',
         "levSve": make_level_string(cntrlToPlot, setDict["levOfInt"]).replace(" ","") if "levOfInt" in setDict.keys() else '',
@@ -491,34 +512,6 @@ def isolate_change_quantile(darr, quantileOfInt):
 
     return darrNorm
 
-def combine_hist_fut(darrCntrl, darrHist):
-    ''' Combine historical and future output into a single DataArray '''
-    darrHistForFormat = darrHist.sel(realization=0)
-    darrHistNan = copy_blank_darr(darrHistForFormat)
-    darrCombine = darrHistNan.copy()
-
-    cntrlRlz = darrCntrl['realization']
-    for rc in cntrlRlz:
-        try:
-            activeHist = darrHist.sel(realization=rc)
-            activeCntrl = darrCntrl.sel(realization=rc)
-            activeDarr = xr.concat((activeHist,activeCntrl), dim='time')
-        except:
-            activeCntrl = darrCntrl.sel(realization=rc)
-            activeDarr = xr.concat((darrHistNan,activeCntrl), dim='time')
-        darrCombine = xr.concat((darrCombine,activeDarr), dim='realization')
-    darrCombine = darrCombine.sel(realization=np.arange(1,len(cntrlRlz)))
-
-    return darrCombine
-
-def copy_blank_darr(darr):
-    ''' Make a copy of a DataArray with blank data but the same structure '''
-    darrShape = np.shape(darr.data)
-    darrNan = np.full(darrShape, np.nan)
-    darrOut = darr.copy(data=darrNan)
-
-    return darrOut
-
 def var_str_lookup(longName, setDict, strType='title'):
     ''' For known variables, give a better name than the default '''
     if longName == 'Reference height temperature':
@@ -576,21 +569,6 @@ def check_last_time(inDlyDarr):
         outDlyDarr = inDlyDarr.where(inYears<bonusTimeYr, drop=True)
 
     return outDlyDarr
-
-def convert_for_consistency(inDarr):
-    ''' CMIP6 has different unit standards, but the CESM2-WACCM CMIP6 run is
-        used as the ARISE control. It's therefore necessary to convert this
-        output so it's consistent. These conversions are not automatic and are
-        purely determined by trial and error. '''
-    if inDarr.standard_name == 'precipitation_flux':
-        consistentDarr = fcu.flux_to_prect(inDarr)
-    elif inDarr.standard_name == 'sea_ice_area_fraction':
-        consistentDarr = fcu.perc_to_frac(inDarr)
-    else:
-        ic('Unknown CMIP6 variable! No unit conversion applied.')
-        consistentDarr = inDarr
-
-    return consistentDarr
 
 def period_month_avg(darrList):
     darrPerAvgList = list()

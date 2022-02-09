@@ -4,11 +4,12 @@ globes, timeseries, and pdfs. The same three dictionary inputs (defining the
 input files, plot settings, and output, respectively) are used by each function.
 
 --DIFFERENCE GLOBES--
-Functions to plot "world avoided" scenarios for GLENS and ARISE on a 4-panel
-globe. Equal Earth map projection used by default.
+Plot GLENS and ARISE data on a 4-panel globe.
 plot_basic_difference_globe: 4 panels showing different plots wrt scenario
 plot_basic_difference_polar: 4 panels showing different plots wrt scenario in polar map projection
 plot_single_basic_difference_globe: 1 panel plot, flexible
+plot_glens_difference_globe: 4 panels showing GLENS ONLY
+plot_arise_difference_globe: 3 panels showing ARISE ONLY
 CURRENTLY NONFUNCTIONAL: plot_vertical_difference_globe: 4 panels showing different plots wrt height (RCP - SAI)
 CURRENTLY NONFUNCTIONAL: plot_vertical_baseline_difference_globe: 4 panels showing different plots wrt height (BASELINE - SAI)
 
@@ -20,7 +21,7 @@ plot_timeseries: plots a timeseries
 Plot pdfs for control and SAI scenarios for GLENS and ARISE.
 plot_pdf: plots the pdfs as histogram, step plot, or kde depending on input
 
-Written by Daniel Hueholt | October 2021
+Written by Daniel Hueholt
 Graduate Research Assistant at Colorado State University
 '''
 
@@ -40,6 +41,11 @@ import seaborn
 import cmocean
 import cmasher
 
+import matplotlib.font_manager as fm
+fontPath = '/Users/dhueholt/Library/Fonts/'  #Location of font files
+for font in fm.findSystemFonts(fontPath):
+    fm.fontManager.addfont(font)
+
 import fun_process_data as fpd
 import fun_plot_tools as fpt
 import fun_convert_unit as fcu
@@ -57,11 +63,11 @@ ensPrp = {
 ## DIFFERENCE GLOBES
 
 def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
-    ''' Plot 4-panel difference globe
-        (1) change over time for RCP8.5 (GLENS control)
-        (2) change over time for SSP2-4.5 (ARISE control)
-        (3) diff between RCP8.5 and G1.2(8.5) for end interval (world avoided)
-        (4) diff between SSP2-4.5 and G1.5(4.5) for end interval (world avoided)
+    ''' 4-panel difference globe with customizable panels. Default panels:
+        (1) change over time for G1.2(8.5) (snapshot around initiation, GLENS Feedback)
+        (2) change over time for G1.5(2-4.5) (snapshot around initiation, ARISE Feedback)
+        (3) diff between RCP8.5 and G1.2(8.5) for end interval (intervention impact)
+        (4) diff between SSP2-4.5 and G1.5(4.5) for end interval (intervention impact)
     '''
     # Set up panels
     toiStart, toiEnd = fpt.make_panels(rlzList, setDict)
@@ -76,33 +82,44 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     panels = (diffToiG12R85, diffToiG15S245, wrldAvrtdG12R85, wrldAvrtdG15S245)
 
     # Plotting
+    plt.rcParams.update({'font.size': 9})
+    plt.rcParams.update({'font.family': 'Lato'})
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
-    plt.figure(figsize=(12,2.73*2))
+    plt.figure(figsize=(12,2*2.73))
     ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
     cmap = cmocean.cm.balance if setDict["cmap"] is None else setDict["cmap"]
     cbAuto = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
     cbVals = cbAuto if setDict["cbVals"] is None else setDict["cbVals"]
     md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
-    plt.suptitle(md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']), fontsize=10)
+    # plt.suptitle(md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']), fontsize=10)
     # plt.suptitle('2m temperature ens mean', fontsize=10) #Override automatic supertitle here
     lats = rlzList[0].lat
     lons = rlzList[0].lon
 
-    fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10)
+    fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
+    # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10) #Fully automated
+    plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + 'GLENS') #AMS style
+    # plt.title(md['lstDcd'] + ' ' + 'GLENS' + ' - ' + md['frstDcd'] + ' ' + 'RCP8.5') #Yaga style
+    # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + 'RCP8.5') #Customize here
+
 
     ax2 = plt.subplot(2,2,2,projection=mapProj)
-    fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10)
+    fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
+    # plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10) #Fully automated
+    plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + 'ARISE') #AMS style
+    # plt.title(md['aLstDcd'] + ' ' + 'ARISE-SAI-1.5' + ' - ' + md['aFrstDcd'] + ' ' + 'SSP2-4.5')
+    # plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + 'SSP2-4.5')
 
     ax3 = plt.subplot(2,2,3,projection=mapProj)
-    fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
+    fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
+    # plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10) #Fully automated
+    plt.title('GLENS - RCP8.5' + ' ' + md['lstDcd']) #AMS style
 
     ax4 = plt.subplot(2,2,4,projection=mapProj)
-    fpt.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
+    fpt.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
+    # plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['aLstDcd'], fontsize=10) #Fully automated
+    plt.title('ARISE - SSP2-4.5' + ' ' + md['aLstDcd']) #AMS style
 
     savePrfx = 'BASIC_'
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['fcStr']
@@ -155,8 +172,8 @@ def plot_basic_difference_polar(rlzList, dataDict, setDict, outDict):
     ''' Plot 4-panel difference map with polar projection
         (1) change over time for RCP8.5 (GLENS control)
         (2) change over time for SSP2-4.5 (ARISE control)
-        (3) diff between RCP8.5 and G1.2(8.5) for end interval (world avoided)
-        (4) diff between SSP2-4.5 and G1.5(4.5) for end interval (world avoided)
+        (3) diff between RCP8.5 and G1.2(8.5) for end interval (intervention impact)
+        (4) diff between SSP2-4.5 and G1.5(4.5) for end interval (intervention impact)
     '''
     # Set up panels
     toiStart, toiEnd = fpt.make_panels(rlzList, setDict)
@@ -208,12 +225,12 @@ def plot_basic_difference_polar(rlzList, dataDict, setDict, outDict):
 
 def plot_six_difference_globe(rlzList, dataDict, setDict, outDict):
     ''' Plot 6-panel difference globe
-        (1) change over time for RCP8.5 (world we get: RCP8.5/GLENS control)
-        (2) change over time for SSP2-4.5 (world we get: SSP2-4.5/ARISE control)
-        (3) change over time for G1.2(8.5) (world we get: G1.2(8.5)/GLENS feedback)
-        (4) change over time for G1.5(2-4.5) (world we get: G1.5(2-4.5)/ARISE feedback)
-        (5) diff between RCP8.5 and G1.2(8.5) for end interval (world avoided: GLENS)
-        (6) diff between SSP2-4.5 and G1.5(4.5) for end interval (world avoided: ARISE)
+        (1) change over time for RCP8.5 (change over time: GLENS control)
+        (2) change over time for SSP2-4.5 (change over time: ARISE control)
+        (3) change over time for G1.2(8.5) (snapshot around initiation: GLENS feedback)
+        (4) change over time for G1.5(2-4.5) (snapshot around initiation: ARISE feedback)
+        (5) diff between RCP8.5 and G1.2(8.5) for end interval (intervention impact: GLENS)
+        (6) diff between SSP2-4.5 and G1.5(4.5) for end interval (intervention impact: ARISE)
     '''
     # Set up panels
     toiStart, toiEnd = fpt.make_panels(rlzList, setDict)
@@ -247,7 +264,7 @@ def plot_six_difference_globe(rlzList, dataDict, setDict, outDict):
 
     ax2 = plt.subplot(3,2,2,projection=mapProj)
     fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
+    plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
 
     ax3 = plt.subplot(3,2,3,projection=mapProj)
     fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
@@ -255,7 +272,7 @@ def plot_six_difference_globe(rlzList, dataDict, setDict, outDict):
 
     ax4 = plt.subplot(3,2,4,projection=mapProj)
     fpt.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title(md['lstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10)
+    plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10)
 
     ax5 = plt.subplot(3,2,5,projection=mapProj)
     fpt.drawOnGlobe(ax5, panels[4], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
@@ -263,54 +280,10 @@ def plot_six_difference_globe(rlzList, dataDict, setDict, outDict):
 
     ax6 = plt.subplot(3,2,6,projection=mapProj)
     fpt.drawOnGlobe(ax6, panels[5], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['lstDcd'], fontsize=10)
+    plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['aLstDcd'], fontsize=10)
 
     savePrfx = 'SIX_'
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g6p'] + '_' + md['glbType']['fcStr']
-    savename = outDict["savePath"] + savePrfx + saveStr + '.png'
-    plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
-    plt.close()
-    ic(savename)
-
-def plot_wa_difference_globe(rlzList, dataDict, setDict, outDict):
-    ''' Plot 2-panel difference globe
-        (1) diff between RCP8.5 and G1.2(8.5) for end interval (world avoided)
-        (2) diff between SSP2-4.5 and G1.5(4.5) for end interval (world avoided)
-    '''
-    # Set up panels
-    toiStart, toiEnd = fpt.make_panels(rlzList, setDict)
-    diffToiR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
-    diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
-    wrldAvrtdG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
-    wrldAvrtdG15S245 = toiEnd['G1.5(4.5)'] - toiEnd['SSP2-4.5']
-    # scnrsCmprd = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
-
-    panels = (wrldAvrtdG12R85, wrldAvrtdG15S245)
-
-    # Plotting
-    CL = 0.
-    mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
-    # mapProj = cartopy.crs.Orthographic(0, 90)#N: (0,90) S: (180,-90)
-    plt.figure(figsize=(12,2.73*2))
-    ax = plt.subplot(1,2,1,projection=mapProj) #nrow ncol index
-    cmap = cmocean.cm.balance if setDict["cmap"] is None else setDict["cmap"]
-    cbAuto = [-panels[0].quantile(0.75).data, panels[0].quantile(0.75).data]
-    cbVals = cbAuto if setDict["cbVals"] is None else setDict["cbVals"]
-    md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
-    # plt.suptitle(md['levStr'] + ' ' + md['varStr'] + ' ' + 'Ens ' + str(setDict['realization']), fontsize=10)
-    # plt.suptitle('JJAS precip', fontsize=10) #Override automatic supertitle here
-    lats = rlzList[0].lat
-    lons = rlzList[0].lon
-
-    fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
-    plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
-
-    ax2 = plt.subplot(1,2,2,projection=mapProj)
-    fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
-
-    savePrfx = 'WA_'
-    saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g2p'] + '_' + md['glbType']['fcStr']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
     plt.close()
@@ -321,8 +294,8 @@ def plot_glens_difference_globe(rlzList, dataDict, setDict, outDict):
     ''' Plot 4-panel difference globe
         (1) change over time for RCP8.5 mid-century (GLENS control)
         (2) change over time for G1.2(8.5) mid-century (GLENS feedback)
-        (3) diff between RCP8.5 and G1.2(8.5) for mid-century (world avoided)
-        (4) diff between RCP8.5 and G1.2(8.5) for end of century (world avoided)
+        (3) diff between RCP8.5 and G1.2(8.5) for mid-century (intervention impact)
+        (4) diff between RCP8.5 and G1.2(8.5) for end of century (intervention impact)
         Input endIntvl as 4 elements, i.e. [2041,2060,2076,2095]
     '''
     toiStart = dict()
@@ -393,7 +366,7 @@ def plot_glens_difference_globe(rlzList, dataDict, setDict, outDict):
 def plot_arise_difference_globe(rlzList, dataDict, setDict, outDict):
     ''' Plot 3-panel difference globe
         (1) diff between end and start interval for SSP2-4.5 (change over time)
-        (2) diff between SSP2-4.5 and G1.5(4.5) for end interval (world avoided)
+        (2) diff between SSP2-4.5 and G1.5(4.5) for end interval (intervention impact)
         (3) diff between end and start interval for G1.5(4.5) (change over time)
     '''
     toiStart = dict()

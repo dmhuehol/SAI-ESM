@@ -1,7 +1,6 @@
 ''' fun_plot_tools
-Contains functions for plotting, e.g. drawing data on a globe, making kernel
-density estimates, histograms, or step plots. Also includes functions related to
-plotting, such as functions to choose colors or generate labels.
+Contains plotting functions, e.g. drawing data on a globe, making kernel density
+estimates. Also includes functions for related tasks, such as generating labels.
 
 Unless otherwise specified:
 Written by Daniel Hueholt
@@ -9,12 +8,17 @@ Graduate Research Assistant at Colorado State University
 drawOnGlobe written by Prof. Elizabeth Barnes at Colorado State University
     Lightly edited by Daniel Hueholt
 add_cyclic_point copied from cartopy utils by Prof. Elizabeth Barnes at Colorado State University
-    Edited by Daniel Hueholt
+    Modified by Daniel Hueholt
 '''
 
 from icecream import ic
 import sys
 import warnings
+
+import matplotlib.font_manager as fm
+fontPath = '/Users/dhueholt/Library/Fonts/'  #Location of font files
+for font in fm.findSystemFonts(fontPath):
+    fm.fontManager.addfont(font)
 
 import cartopy as ct
 import cartopy.crs as ccrs
@@ -28,8 +32,7 @@ import seaborn as sn
 import fun_process_data as fpd
 
 def make_panels(rlzList, setDict):
-    ''' Extract and average over periods of interest and classify by scenario
-        for use as panels in difference globes '''
+    ''' Extract periods of interest, average, & store by scenario for panels '''
     toiStart = dict()
     toiEnd = dict()
     for rc,rDarr in enumerate(rlzList):
@@ -37,16 +40,28 @@ def make_panels(rlzList, setDict):
         shrtScn = rlzLoi.scenario.split('/')[len(rlzLoi.scenario.split('/'))-1]
         if 'Control' in rlzLoi.attrs['scenario']:
             if 'GLENS' in rlzLoi.attrs['scenario']:
+                # ic('GLENS Control')
                 toiStartLp = fpd.average_over_years(rlzLoi, setDict["startIntvl"][0], setDict["startIntvl"][1])
                 toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
                 toiStart[shrtScn] = toiStartLp
+                toiEnd[shrtScn] = toiEndLp
             elif 'ARISE' in rlzLoi.attrs['scenario']:
+                # ic('ARISE Control')
                 toiStartLp = fpd.average_over_years(rlzLoi, setDict["startIntvl"][2], setDict["startIntvl"][3])
-                toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+                toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][2], setDict["endIntvl"][3])
                 toiStart[shrtScn] = toiStartLp
+                toiEnd[shrtScn] = toiEndLp
+        elif 'Feedback' in rlzLoi.attrs['scenario']:
+            if 'GLENS' in rlzLoi.attrs['scenario']:
+                # ic('GLENS Feedback')
+                toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+                toiEnd[shrtScn] = toiEndLp
+            elif 'ARISE' in rlzLoi.attrs['scenario']:
+                # ic('ARISE Feedback')
+                toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][2], setDict["endIntvl"][3])
+                toiEnd[shrtScn] = toiEndLp
         else:
-            toiEndLp = fpd.average_over_years(rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
-        toiEnd[shrtScn] = toiEndLp
+            ic('This should not occur, but does it?')
 
     return toiStart, toiEnd
 
@@ -71,7 +86,7 @@ def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc
 
     if(cbarBool):
         cb = plt.colorbar(image, shrink=.75, orientation="vertical", pad=.02, extend=extent)
-        cb.ax.tick_params(labelsize=6) #standard: labelsize=6 for draft paper figures: labelsize=14
+        cb.ax.tick_params(labelsize=6) #def: labelsize=6
         try:
             cb.set_label(data.attrs['units'],size='small')
             # cb.set_label('',size='small')
@@ -123,13 +138,14 @@ def add_cyclic_point(data, coord=None, axis=-1):
                          'array dimension.')
     slicedData = data[tuple(slicer)] #DMH: assigned to var for easy access
     # DMH: manually assign ocean data (otherwise will be NaNs and output fails)
-    if np.isnan(slicedData).all().data:
-        sliceShape = np.shape(slicedData)
-        merData = data.sel(lon=358.75).data
-        slicedData = np.zeros(sliceShape)
-        for sd,sv in enumerate(slicedData):
-            slicedData[sd,0] = merData[sd]
-        # ic(slicedData)
+    # If plotting non-ocean data and the process fails with an obscure error,
+    #   try commenting this block back out!
+    # if np.isnan(slicedData).all().data:
+    #     sliceShape = np.shape(slicedData)
+    #     merData = data.sel(lon=358.75).data
+    #     slicedData = np.zeros(sliceShape)
+    #     for sd,sv in enumerate(slicedData):
+    #         slicedData[sd,0] = merData[sd]
     new_data = ma.concatenate((data, slicedData), axis=axis) #DMH
     if coord is None:
         return_value = new_data
@@ -353,15 +369,19 @@ def line_from_scenario(scn, md):
 
 def plot_metaobjects(scnToPlot, fig, b, t):
     ''' Determines which metaobjects to plot based on scenario '''
-    if any('ARISE:Control' in scn for scn in scnToPlot): #Triangle for change in number of rlzs
-        plt.plot(2015, b+(abs(b-t))*0.01, color='#F8A53D', marker='v')
-        plt.plot(2070, b+(abs(b-t))*0.01, mfc='#F8A53D', mec='#12D0B2', marker='v')
-    if any('GLENS:Control' in scn for scn in scnToPlot):
-        plt.plot(2030, b+(abs(b-t))*0.01, color='#D93636', marker='v')
-    if any('GLENS:Feedback' in scn for scn in scnToPlot): #Dashed line for model SAI initiation
-        plt.plot([2020,2020], [b,t], color='#8346C1', linewidth=0.7, linestyle='dashed')
-    if any('ARISE:Feedback' in scn for scn in scnToPlot):
-        plt.plot([2035,2035], [b,t], color='#12D0B2', linewidth=0.7, linestyle='dashed')
+    ic('Automatic metaobjects disabled!')
+    # if any('ARISE:Control' in scn for scn in scnToPlot): #Triangle for change in number of rlzs
+    #     plt.plot(2015, b+(abs(b-t))*0.01, color='#F8A53D', marker='v')
+    #     plt.plot(2070, b+(abs(b-t))*0.01, mfc='#F8A53D', mec='#12D0B2', marker='v')
+    # if any('GLENS:Control' in scn for scn in scnToPlot):
+    #     plt.plot(2030, b+(abs(b-t))*0.01, color='#D93636', marker='v')
+    # if any('GLENS:Feedback' in scn for scn in scnToPlot): #Dashed line for model SAI initiation
+    #     plt.plot([2020,2020], [b,t], color='#8346C1', linewidth=0.7, linestyle='dashed')
+    # if any('ARISE:Feedback' in scn for scn in scnToPlot):
+    #     plt.plot([2035,2035], [b,t], color='#12D0B2', linewidth=0.7, linestyle='dashed')
+
+    plt.plot([2020,2020], [b,t], color='#8346C1', linewidth=1.2, linestyle='dashed')
+    plt.plot([2035,2035], [b,t], color='#12D0B2', linewidth=1.2, linestyle='dashed')
 
     return
 
@@ -376,23 +396,26 @@ def save_colorbar(cbarDict, savePath, saveName, dpiVal=400):
             "label": 'percent'
         }
     '''
+    plt.rcParams.update({'font.size': 0})
+    plt.rcParams.update({'font.family': 'Lato'})
+
     cbarRange = np.array([cbarDict["range"]])
 
     if cbarDict["direction"] == 'horizontal':
-        plt.figure(figsize=(9,3))
+        plt.figure(figsize=(9,2.5))
         img = plt.imshow(cbarRange, cmap=cbarDict["cmap"])
         plt.gca().set_visible(False)
-        colorAx = plt.axes([0.1,0.2,0.8,0.6])
+        colorAx = plt.axes([0.1,0.2,0.8,0.3])
         cb = plt.colorbar(orientation='horizontal', cax=colorAx)
         for label in cb.ax.get_xticklabels():
             print(label)
             # label.set_fontproperties(FiraSansThin) #Set font
-            # label.set_fontsize(18) #Set font size
+            label.set_fontsize(0) #Set font size
     elif cbarDict["direction"] == 'vertical':
-        plt.figure(figsize=(3,9))
+        plt.figure(figsize=(2.5,9))
         img = plt.imshow(cbarRange, cmap=cbarDict["cmap"])
         plt.gca().set_visible(False)
-        colorAx = plt.axes([0.1,0.2,0.5,0.6])
+        colorAx = plt.axes([0.1,0.2,0.2,0.6])
         cb = plt.colorbar(orientation='vertical', cax=colorAx)
         for label in cb.ax.get_yticklabels():
             print(label)
@@ -401,7 +424,7 @@ def save_colorbar(cbarDict, savePath, saveName, dpiVal=400):
     else:
         sys.exit('Direction must be either horizontal or vertical.')
 
-    cb.set_label(cbarDict["label"], size='large')
+    # cb.set_label(cbarDict["label"], size='large')
     # cb.set_label(cbarDict["label"], size='large', fontproperties=FiraSansThin) # Set font
     plt.savefig(savePath + saveName + '.png', dpi=dpiVal)
 
