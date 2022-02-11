@@ -75,11 +75,11 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     # diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
     diffToiG12R85 = toiEnd['G1.2(8.5)'] - toiStart['RCP8.5']
     diffToiG15S245 = toiEnd['G1.5(4.5)'] - toiStart['SSP2-4.5']
-    wrldAvrtdG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
-    wrldAvrtdG15S245 = toiEnd['G1.5(4.5)'] - toiEnd['SSP2-4.5']
+    intiG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
+    intiG15S245 = toiEnd['G1.5(4.5)'] - toiEnd['SSP2-4.5']
     # scnrsCmprd = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
 
-    panels = (diffToiG12R85, diffToiG15S245, wrldAvrtdG12R85, wrldAvrtdG15S245)
+    panels = (diffToiG12R85, diffToiG15S245, intiG12R85, intiG15S245)
 
     # Plotting
     plt.rcParams.update({'font.size': 9})
@@ -134,13 +134,15 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     toiStart, toiEnd = fpt.make_panels(rlzList, setDict)
     diffToiR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
     diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
-    wrldAvrtdG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
-    wrldAvrtdG15S245 = toiEnd['G1.5(4.5)'] - toiEnd['SSP2-4.5']
+    diffToiG12R85 = toiEnd['G1.2(8.5)'] - toiStart['RCP8.5']
+    diffToiG15S245 = toiEnd['G1.5(4.5)'] - toiStart['SSP2-4.5']
+    intiG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
+    intiG15S245 = toiEnd['G1.5(4.5)'] - toiEnd['SSP2-4.5']
     # scnrsCmprd = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
     # blank = toiEnd['G1.5(4.5)'].copy()
     # blank.data = toiEnd['G1.5(4.5)'] - toiEnd['G1.5(4.5)']
 
-    panel = wrldAvrtdG15S245
+    panel = diffToiS245
 
     # Plotting
     CL = 0.
@@ -156,10 +158,10 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     plt.rcParams.update({'font.family': 'Fira Sans'})
     plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
 
-    fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title(" ") #No automatic title, 1-panel is used for custom figures
+    fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
+    # plt.title(" ") #No automatic title, 1-panel is used for custom figures
 
-    savePrfx = 'SINGLE_' #Easy modification for unique filename
+    savePrfx = 'S245_' #Easy modification for unique filename
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     # savename = outDict["savePath"] + 'blankmap.eps'

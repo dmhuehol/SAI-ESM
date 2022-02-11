@@ -31,7 +31,7 @@ insets = rlib.atlas_insets()
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_TREFHT/',
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_PRECT/',
     "idGlensCntrl": 'control_*', #'control_*' or None
     "idGlensFdbck": 'feedback_*', #'feedback_*' or None
     "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
@@ -50,19 +50,21 @@ setDict = {
     "timePeriod": 20, #pdf
     "plotStyle": 'step', #pdf
     "dimOfVrblty": {'rlzBool':True,'timeBool':True,'spcBool':False}, #pdf
-    "convert": (fcu.kel_to_cel,), #TUPLE of converter(s), or None if using default units
+    "convert": (fcu.m_to_cm,fcu.persec_peryr), #TUPLE of converter(s), or None if using default units
     "realization": 'ensplot',
-    "insetFlag": 0, #ts 0 default, 1 lines only, 2 AMS style
+    "insetFlag": 2, #ts 0 default, 1 lines only, 2 AMS style
     "mute": False, #ts True/False to use image muting on parts of time period
-    "ylim": None #ts None for automatic, [min,max] for manual
+    "ylim": [70, 190], #ts None for automatic, [min,max] for manual
+    "yticks": np.arange(0,50,1),
+    "xticks": True
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220209_polishMergeFinal/1_polish/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220210_designingFinalFigs/2_fixsize/',
     "dpiVal": 400
 }
 loopDict = {
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": ('global', rlib.Antarctica(), rlib.NorthEurope(),)
+    "regions": (rlib.EastAfrica(),)
 }
 
 ic(dataDict, setDict, outDict) #Lowers chances of making the wrong plots by mistake

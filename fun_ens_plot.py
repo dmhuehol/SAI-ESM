@@ -59,7 +59,6 @@ def plot_ens_spaghetti_timeseries(darrList, dataDict, setDict, outDict):
         rlzInScn = scnDarr['realization'].data #Number of realizations in scenario
         scnToPlot.append(scnDarr.scenario) #Add scenario to list
         for rc in rlzInScn:
-            ic(rc)
             rlzToi = scnDarr.sel(realization=rc, time=timeSlice) #Single rlz at time of interest
             rlzLoi = fpd.obtain_levels(rlzToi, setDict["levOfInt"]) #Level of interest
             rlzToPlot, locStr, locTitleStr = fpd.manage_area(rlzLoi, setDict["regOfInt"], areaAvgBool=True) #Area of interest
@@ -67,14 +66,13 @@ def plot_ens_spaghetti_timeseries(darrList, dataDict, setDict, outDict):
             activeColor, activeLabel = fpt.line_from_scenario(rlzToPlot.scenario, md)
             yrsToPlot = rlzToPlot['time'].dt.year.data #bndDct['mtchYrs']
             if rc==len(rlzInScn)-1:
-                ic(rc)
                 plt.plot(yrsToPlot, rlzToPlot, color=activeColor, label=activeLabel) #Ens mean
             else:
                 plt.plot(yrsToPlot, rlzToPlot, color=activeColor, linewidth=0.3) #Individual rlz
 
     # Plot metadata and settings
-    b,t = plt.ylim()
-    fpt.plot_metaobjects(scnToPlot, fig)
+    b,t = plt.ylim() if setDict['ylim'] is None else setDict['ylim']
+    fpt.plot_metaobjects(scnToPlot, fig, b, t)
     leg = plt.legend()
     plt.ylabel(md['unit'])
     plt.autoscale(enable=True, axis='x', tight=True)
@@ -83,7 +81,7 @@ def plot_ens_spaghetti_timeseries(darrList, dataDict, setDict, outDict):
     plt.title(md['varStr'] + ' ' + md['levStr'] + ': ' + str(setYear[0]) + '-' + str(setYear[1]) + ' ' + locTitleStr  + ' ' + 'spaghetti')
 
     # Save image
-    savePrfx = ''
+    savePrfx = '1DEF_'
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + str(setYear[0]) + str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + md['ensPid']['spg']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
@@ -98,10 +96,12 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
 
     # Make timeseries
     if setDict["insetFlag"] == 2:
-        plt.rcParams.update({'font.size': 18})
+        plt.rcParams.update({'font.size': 24})
         plt.rcParams.update({'font.family': 'Lato'})
         plt.rcParams.update({'font.weight': 'normal'}) #normal, bold, heavy, light, ultrabold, ultralight
-    fig, ax = plt.subplots()
+    plt.rcParams.update({'figure.autolayout': True})
+    fig, ax = plt.subplots(figsize=[8,7])
+    # fig, ax = plt.subplots()
     scnToPlot = list()
     for darr in darrList:
         darrToi = darr.sel(time=timeSlice)
@@ -114,10 +114,12 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
         yrsToPlot = rlzMn['time'].dt.year.data #bndDct['mtchYrs']
         scnToPlot.append(darr.scenario)
         activeColor, activeLabel = fpt.line_from_scenario(darr.scenario, md)
-        # plt.plot(yearsOfInt,rlzMax.data,color=activeColor,linewidth=0.3) #Border on top of spread
-        # plt.plot(yearsOfInt,rlzMin.data,color=activeColor,linewidth=0.3) #Border on bottom of spread
+        # plt.plot(yrsToPlot,rlzMax.data,color=activeColor,linewidth=0.3) #Border on top of spread
+        # plt.plot(yrsToPlot,rlzMin.data,color=activeColor,linewidth=0.3) #Border on bottom of spread
+        # plt.plot(yrsToPlot,rlzMax.data,color='#D3D3D3',linewidth=0.3) #Border on top of spread
+        # plt.plot(yrsToPlot,rlzMin.data,color='#D3D3D3',linewidth=0.3) #Border on bottom of spread
         ic(darr.scenario)
-        if setDict["mute"] == True:
+        if setDict["mute"] == True: #D3D3D3
             plt.plot(yrsToPlot,rlzMn.data,color='#D3D3D3',label=activeLabel,linewidth=1,alpha=0.5)
             ax.fill_between(yrsToPlot, rlzMax.data, rlzMin.data, color='#D3D3D3', alpha=0.2, linewidth=0)
             if 'GLENS:Control' in darr.scenario:
@@ -155,8 +157,8 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
     # Plot metadata and settings
     b,t = plt.ylim() if setDict['ylim'] is None else setDict['ylim']
     fpt.plot_metaobjects(scnToPlot, fig, b, t)
-    plt.autoscale(enable=True, axis='x', tight=True)
-    plt.autoscale(enable=True, axis='y', tight=True)
+    # plt.autoscale(enable=True, axis='x', tight=False)
+    # plt.autoscale(enable=True, axis='y', tight=False)
     plt.xlim(setYear[0],setYear[1])
     plt.xlim(2010,2069)
     if setDict["insetFlag"] == 0: #Standard plot
@@ -172,10 +174,15 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
         savePrfx = 'INSETQUAL_'
         ax.axis('off')
     else: #Aesthetics used for figures in posters/presentations/papers/etc
-        savePrfx = 'INSET_'
-        plt.xticks([2015,2040,2065,])
-        plt.yticks(np.arange(0, 1000, 30))
+        savePrfx = 'AES_'
+        if setDict["xticks"]:
+            plt.xticks([2015,2040,2065,])
+        else:
+            plt.xticks([2015,2040,2065,])
+            ax.tick_params(labelbottom=False)
+        # plt.yticks(np.arange(0, 1000, 20))
         # plt.yticks(np.arange(70, 500, 35))
+        plt.yticks(setDict["yticks"])
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
         plt.ylim([b,t])
@@ -188,7 +195,7 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
         # ax.spines['left'].set_visible(False)
 
     # Save image
-    savePrfx = savePrfx + ''
+    savePrfx = savePrfx + '4AR8x7TIGHTOFF_'
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + str(setYear[0]) + str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + md['ensPid']['sprd']
     # saveStr = 'SST' + '_' + md['levSve'] + '_' + str(setYear[0]) + str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + md['ensPid']['sprd']
     savename = outDict["savePath"] + savePrfx + saveStr + '.pdf'
