@@ -27,11 +27,13 @@ import fun_regrid_pop as frp
 import fun_process_data as fpd
 
 # Inputs
-dataPath = '/glade/scratch/dhueholt/monthly_OCNO2/' #'/Users/dhueholt/Documents/GLENS_data/monthly_OCNO2/'
-outPath = '/glade/scratch/dhueholt/monthly_OCNO2/regrid/' #'/Users/dhueholt/Documents/GLENS_data/monthly_OCNO2/regrid/'
-dataVar = 'O2' #Manually set data variable
-extract2d = fcv.surface_from_3d #fun_calc_vars function handle or False
-nProc = 6 #Spawn nProc+1 (due to zero indexing) processes for regridding
+# dataPath = '/glade/scratch/dhueholt/monthly_OCNO2/' #CASPER
+dataPath = '/Users/dhueholt/Documents/GLENS_data/monthly_aice/selname/sept/' #LOCAL
+# outPath = '/glade/scratch/dhueholt/monthly_OCNO2/regrid/' #CASPER
+outPath = '/Users/dhueholt/Documents/GLENS_data/monthly_aice/selname/sept/regrid/' #LOCAL
+dataVar = 'aice' #Manually set data variable
+extract2d = False #fun_calc_vars function handle or False
+nProc = 1 #Spawn nProc+1 (due to zero indexing) processes for regridding
 
 # Open files
 strList = sorted(glob.glob(dataPath + "*.nc"))
@@ -58,7 +60,8 @@ else:
         data2dList.append(darr2d)
 
 # Regrid to standard lat/lon and save
-inPop = '/glade/work/dhueholt/grids/control_IFRAC_useForGrid.nc' #'/Users/dhueholt/Documents/GLENS_data/grids/control_IFRAC_useForGrid.nc'
+# inPop = '/glade/work/dhueholt/grids/control_IFRAC_useForGrid.nc' #CASPER
+inPop = '/Users/dhueholt/Documents/GLENS_data/grids/control_IFRAC_useForGrid.nc' #LOCAL
 inNames = ['TLAT','TLONG'] #'TLAT','TLONG' for POP, 'lat', 'lon'
 popLat,popLon = frp.extract_pop_latlons(inPop,inNames[0],inNames[1])
 

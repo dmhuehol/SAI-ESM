@@ -73,7 +73,7 @@ def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc
     ax.set_global()
     ax.coastlines(linewidth = 1.2, color='black')
     if(fastBool):
-        image = ax.pcolormesh(lons_cyc, lats, data_cyc, transform=data_crs, cmap=cmap)
+        image = ax.pcolormesh(lons_cyc, lats, data_cyc, transform=data_crs, cmap=cmap, alpha=0.8)
         # lonCirc = np.arange(0,360)
         # latCirc = np.zeros(np.shape(lonCirc)) + 75
         # plt.plot(lonCirc, latCirc, color='r', linewidth=1, transform=data_crs)

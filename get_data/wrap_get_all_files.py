@@ -39,22 +39,22 @@ scnDict = {
     "glens": True,
     "ariseFdbck": True,
     "ariseCntrl": True,
-    "hist": True,
+    "hist": False,
 }
 inTokens = {
-    "glens": "TREFHT",
-    "ariseFdbck": "*.TREFHT.*",
-    "ariseCntrl": "*.TREFHT.*",
+    "glens": "PRECT",
+    "ariseFdbck": "*.PRECT.*",
+    "ariseCntrl": "*.PRECT.*",
     "hist": "*.TREFHT.*",
 }
-modToken = "atm" #mod e.g. ocn, atm, lnd
+modToken = "lnd" #mod e.g. ocn, atm, lnd
 inTimes = { #timecode/
-    "glens": "monthly/",
-    "ariseFdbck": "month_1/",
-    "ariseCntrl": "month_1/",
+    "glens": "daily/",
+    "ariseFdbck": "day_1/",
+    "ariseCntrl": "day_1/",
     "hist": "month_1/",
 }
-outPath = '/glade/scratch/dhueholt/monthly_TREFHT_getAllTest/'
+outPath = '/glade/scratch/dhueholt/daily_PRECT/'
 
 for scn in scnDict.keys():
     if scnDict[scn] == True:

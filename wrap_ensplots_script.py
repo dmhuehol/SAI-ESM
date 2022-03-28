@@ -31,12 +31,12 @@ insets = rlib.atlas_insets()
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_PRECT/',
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/extreme_MHW_rlzSeq/',
     "idGlensCntrl": 'control_*', #'control_*' or None
     "idGlensFdbck": 'feedback_*', #'feedback_*' or None
-    "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
-    "idS245Cntrl": '*BWSSP245*', #'*BWSSP245*' or None
-    "idS245Hist": '*BWHIST*', #'*BWHIST*' or None
+    "idArise": None, #'*SSP245-TSMLT-GAUSS*' or None
+    "idS245Cntrl": None, #'*BWSSP245*' or None
+    "idS245Hist": None, #'*BWHIST*' or None
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc' #cesm_component_mask.nc
 }
 setDict = {
@@ -49,22 +49,24 @@ setDict = {
     "s245CntrlPoi": [2041], #pdf
     "timePeriod": 20, #pdf
     "plotStyle": 'step', #pdf
+    "areaAvgBool": True, #True=mean, 'sum'=sum (e.g. ice extent), False=functionality that hasn't been tested in two years, and yes I know that's not a boolean
     "dimOfVrblty": {'rlzBool':True,'timeBool':True,'spcBool':False}, #pdf
-    "convert": (fcu.m_to_cm,fcu.persec_peryr), #TUPLE of converter(s), or None if using default units
+    "convert": (fcu.attach_unit,), #TUPLE of converter(s), or None if using default units
     "realization": 'ensplot',
-    "insetFlag": 2, #ts 0 default, 1 lines only, 2 AMS style
+    "insetFlag": 0, #ts 0 default, 1 lines only, 2 AMS style
     "mute": False, #ts True/False to use image muting on parts of time period
-    "ylim": [70, 190], #ts None for automatic, [min,max] for manual
-    "yticks": np.arange(0,50,1),
+    "ylim": [0,365], #ts None for automatic, [min,max] for manual
+    "ylabel": None, #ts None for automatic
+    "yticks": None, #ts None for automatic, np.arange(mn,mx,step) for manual
     "xticks": True
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220210_designingFinalFigs/2_fixsize/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220324_mhw/',
     "dpiVal": 400
 }
 loopDict = {
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": (rlib.EastAfrica(),)
+    "regions": ('point', )
 }
 
 ic(dataDict, setDict, outDict) #Lowers chances of making the wrong plots by mistake

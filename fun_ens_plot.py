@@ -61,11 +61,12 @@ def plot_ens_spaghetti_timeseries(darrList, dataDict, setDict, outDict):
         for rc in rlzInScn:
             rlzToi = scnDarr.sel(realization=rc, time=timeSlice) #Single rlz at time of interest
             rlzLoi = fpd.obtain_levels(rlzToi, setDict["levOfInt"]) #Level of interest
-            rlzToPlot, locStr, locTitleStr = fpd.manage_area(rlzLoi, setDict["regOfInt"], areaAvgBool=True) #Area of interest
+            rlzToPlot, locStr, locTitleStr = fpd.manage_area(rlzLoi, setDict["regOfInt"], areaAvgBool=setDict["areaAvgBool"]) #Area of interest
             md = fpd.meta_book(setDict, dataDict, rlzToPlot, labelsToPlot=None) #Extract metadata
             activeColor, activeLabel = fpt.line_from_scenario(rlzToPlot.scenario, md)
             yrsToPlot = rlzToPlot['time'].dt.year.data #bndDct['mtchYrs']
             if rc==len(rlzInScn)-1:
+                # ic('No')
                 plt.plot(yrsToPlot, rlzToPlot, color=activeColor, label=activeLabel) #Ens mean
             else:
                 plt.plot(yrsToPlot, rlzToPlot, color=activeColor, linewidth=0.3) #Individual rlz
@@ -103,13 +104,32 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
     fig, ax = plt.subplots(figsize=[8,7])
     # fig, ax = plt.subplots()
     scnToPlot = list()
+
     for darr in darrList:
         darrToi = darr.sel(time=timeSlice)
         darrLoi = fpd.obtain_levels(darrToi, setDict["levOfInt"])
-        dataToPlot, locStr, locTitleStr = fpd.manage_area(darrLoi, setDict["regOfInt"], areaAvgBool=True)
-        rlzMax = dataToPlot.max(dim='realization')
-        rlzMin = dataToPlot.min(dim='realization')
-        rlzMn = dataToPlot[len(dataToPlot['realization'])-1] #Last member is ensemble mean
+        if isinstance(setDict["regOfInt"],tuple):
+            subregList = list()
+            colLocStr = ''
+            colLocTitleStr = ''
+            for subreg in setDict["regOfInt"]:
+                subregData, locStr, locTitleStr = fpd.manage_area(darrLoi, subreg, areaAvgBool=setDict["areaAvgBool"])
+                subregList.append(subregData)
+                colLocStr += locStr
+                colLocTitleStr += locTitleStr
+            concatAlongReg = xr.concat(subregList, dim="regions")
+            dataToPlot = concatAlongReg.mean(dim="regions", skipna=True)
+            locStr = colLocStr
+            locTitleStr = colLocTitleStr
+
+        else:
+            dataToPlot, locStr, locTitleStr = fpd.manage_area(darrLoi, setDict["regOfInt"], areaAvgBool=setDict["areaAvgBool"])
+        rlzMax = dataToPlot.max(dim='realization', skipna=True)
+        rlzMin = dataToPlot.min(dim='realization', skipna=True)
+        if setDict["areaAvgBool"] == True:
+            rlzMn = dataToPlot[len(dataToPlot['realization'])-1] #Last member is ensemble mean
+        elif setDict["areaAvgBool"] == 'sum':
+            rlzMn = dataToPlot.mean(dim='realization')
         md = fpd.meta_book(setDict, dataDict, rlzMn, labelsToPlot=None)
         yrsToPlot = rlzMn['time'].dt.year.data #bndDct['mtchYrs']
         scnToPlot.append(darr.scenario)
@@ -151,9 +171,9 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
                     plt.plot(yrsToPlot[acw[2]:acw[3]],rlzMn.data[acw[2]:acw[3]],color=activeColor,label=activeLabel,linewidth=2)
                     ax.fill_between(yrsToPlot[acw[2]:acw[3]], rlzMax.data[acw[2]:acw[3]], rlzMin.data[acw[2]:acw[3]], color=activeColor, alpha=0.3, linewidth=0)
         else:
-            plt.plot(yrsToPlot,rlzMn.data,color=activeColor,label=activeLabel,linewidth=2)
+            plt.plot(yrsToPlot,rlzMn.data,color=activeColor,label=activeLabel,linewidth=3)
             ax.fill_between(yrsToPlot, rlzMax.data, rlzMin.data, color=activeColor, alpha=0.3, linewidth=0)
-
+    # sys.exit('STOP')
     # Plot metadata and settings
     b,t = plt.ylim() if setDict['ylim'] is None else setDict['ylim']
     fpt.plot_metaobjects(scnToPlot, fig, b, t)
@@ -182,13 +202,15 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
             ax.tick_params(labelbottom=False)
         # plt.yticks(np.arange(0, 1000, 20))
         # plt.yticks(np.arange(70, 500, 35))
-        plt.yticks(setDict["yticks"])
+        if setDict['ylim'] is not None:
+            plt.yticks(setDict["yticks"])
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
         plt.ylim([b,t])
         # plt.ylabel('cm', fontweight='light')
         # plt.ylabel('fractional cover', fontweight='normal')
-        # plt.ylabel('\u00B0C', fontweight='normal')
+        if setDict['ylabel'] is not None:
+            plt.ylabel(setDict['ylabel'], fontweight='normal')
         # plt.xlabel('years', fontweight='light')
         # ax.axes.xaxis.set_ticklabels([])
         # ax.spines['bottom'].set_visible(False)
@@ -198,6 +220,8 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
     savePrfx = savePrfx + '4AR8x7TIGHTOFF_'
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + str(setYear[0]) + str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + md['ensPid']['sprd']
     # saveStr = 'SST' + '_' + md['levSve'] + '_' + str(setYear[0]) + str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + md['ensPid']['sprd']
+    # savename = outDict["savePath"] + 'asdf.pdf'
+    saveStr = saveStr.replace("/",'-')
     savename = outDict["savePath"] + savePrfx + saveStr + '.pdf'
     # fig.set_size_inches(8, 6)
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')

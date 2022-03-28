@@ -29,10 +29,10 @@ insets = (rlib.Sahara(),rlib.NorthEurope(),rlib.SoutheasternSouthAmerica(),rlib.
           rlib.CentralAmericaMexico(),rlib.SoutheastAsia(),rlib.NorthAtlanticWarmingHole(),
           rlib.AustralianContinent())
 
-activeTest = (rlib.WestAfricanMonsoon(), )
+activeTest = (rlib.AlaskaNorthwestCanada(),rlib.SouthEuropeMediterranean())
 
 # The same 9 colors repeated a bunch of times
-colors = ('Greys_r','Greys_r','Greys_r')
+colors = ('Greens_r', 'Purples_r','Greys_r','Greys_r','Greys_r','Oranges_r','Greys_r','Greys_r','Greys_r','Greys_r')
 # colors = ('viridis','magma','Purples_r', 'Greens_r','Greys_r','Oranges_r','spring','winter','cool',
           # 'viridis','magma','Purples_r', 'Greens_r','Greys_r','Oranges_r','spring','winter','cool',
           # 'viridis','magma','Purples_r', 'Greens_r','Greys_r','Oranges_r','spring','winter','cool',
@@ -47,4 +47,4 @@ for rc,reg in enumerate(activeTest):
     ic(reg)
     fig,ax = rlib.test_region(reg,colors[rc],fig,ax)
 # plt.title("WG1-AR5 IPCC regions")
-plt.savefig('/Users/dhueholt/Documents/GLENS_fig/20220203_reviseOutline/5_EIMNSNPRECT_ts/WAfMnsn.png', dpi=400)
+plt.savefig('/Users/dhueholt/Documents/GLENS_fig/20220301_bmrrth/AlaskaNwCanSEurMed.png', dpi=400)

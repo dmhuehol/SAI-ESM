@@ -105,7 +105,8 @@ def discover_data_var(dset):
                    'n2ovmr', 'f12vmr', 'lon_bnds', 'lat_bnds', 'ZSOI', 'BSW',
                    'WATSAT', 'landmask', 'ZLAKE', 'DZLAKE', 'SUCSAT', 'area',
                    'landfrac', 'topo', 'DZSOI', 'pftmask', 'HKSAT', 'nstep',
-                   'mdcur', 'mscur', 'mcdate', 'mcsec', 'nbedrock']
+                   'mdcur', 'mscur', 'mcdate', 'mcsec', 'nbedrock',
+                   'binary_mhw_start']
     notDataInDset = list()
     dataKey = None
 
@@ -124,9 +125,9 @@ def discover_data_var(dset):
 def bind_scenario(darr, inID):
     ''' Bind scenario identifiers to xarray attributes. The historical and
     future parts of the ARISE Control are combined later in call_to_open. '''
-    if 'control_' in inID:
+    if 'control' in inID:
         darr.attrs['scenario'] = 'GLENS:Control/RCP8.5'
-    elif 'feedback_' in inID:
+    elif 'feedback' in inID:
         darr.attrs['scenario'] = 'GLENS:Feedback/SAI/G1.2(8.5)'
     elif 'SSP245-TSMLT-GAUSS' in inID:
         darr.attrs['scenario'] = 'ARISE:Feedback/SAI/G1.5(4.5)'
@@ -190,8 +191,11 @@ def manage_realizations(setDict, darr, emem):
             darrOut = darrMn.compute()
             ememSave = 'mn' + scnStr
         elif setDict['realization'] == 'ensplot': #Output DataArray of members AND ens mean
-            darrMn = darr.mean(dim='realization')
-            darrOut = xr.concat([darr,darrMn],dim='realization').compute() #Add ens mean as another "realization"
+            if setDict["areaAvgBool"] == True:
+                darrMn = darr.mean(dim='realization')
+                darrOut = xr.concat([darr,darrMn],dim='realization').compute() #Add ens mean as another "realization"
+            elif setDict["areaAvgBool"] == 'sum':
+                darrOut = darr.compute()
             ememSave = 'ens' + scnStr
         else: #Output DataArray of single ens member
             ememNum = list(map(int, emem))
@@ -313,13 +317,22 @@ def make_level_string(darr, levOfInt):
 
 def manage_area(darr, regionToPlot, areaAvgBool=True):
     ''' Manage area operations: obtain global, regional, or pointal output '''
+    ic(areaAvgBool)
+    if regionToPlot == 'point':
+        locStr = 'WAus'
+        locTitleStr = '-30.628,112.5'
+        return darr, locStr, locTitleStr
     if regionToPlot == 'global':
         locStr = 'global'
         locTitleStr = 'global'
-        if areaAvgBool:
+        if areaAvgBool == True:
             latWeights = np.cos(np.deg2rad(darr['lat']))
             darrWght = darr.weighted(latWeights)
             darr = darrWght.mean(dim=['lat','lon'], skipna=True)
+        elif areaAvgBool == 'sum':
+            latWeights = np.cos(np.deg2rad(darr['lat']))
+            darrWght = darr.weighted(latWeights)
+            darr = darrWght.sum(dim=['lat','lon'], skipna=True)
 
     elif isinstance(regionToPlot,dict): #region_library objects
         locStr = regionToPlot['regSaveStr']
@@ -327,7 +340,11 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
 
         lats = darr['lat'] #GLENS, ARISE, and SSP2-4.5 Control are all on the same grid to within 10^-6
         lons = darr['lon']
-        if len(regionToPlot['regLons'])>2: #non-rectangular region that does not cross Prime Meridian
+        if len(regionToPlot['regLons']) == 1: #point location
+            darr = darr.sel(lat=regionToPlot['regLats'], lon=regionToPlot['regLons'], method="nearest")
+            areaAvgBool = None
+
+        elif len(regionToPlot['regLons'])>2: #non-rectangular region that does not cross Prime Meridian
             gridMask = make_polygon_mask(lats, lons, regionToPlot['regLats'], regionToPlot['regLons'])
             darrMask = darr.copy()
             try:
@@ -355,13 +372,20 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
             lonsOfInt = lons[lonMask]
             darrMask = darr.sel(lat=latsOfInt,lon=lonsOfInt)
 
-        if areaAvgBool:
+        if areaAvgBool == True:
+            ic('mean')
             latWeights = np.cos(np.deg2rad(darrMask['lat']))
             darrWght = darrMask.weighted(latWeights)
             darr = darrWght.mean(dim=['lat','lon'], skipna=True)
             # darr = darrMask.mean(dim=['lat','lon'], skipna=True)
-        else:
+        elif areaAvgBool == 'sum':
+            ic('sum')
+            darr = darrMask.sum(dim=['lat','lon'], skipna=True)
+        elif areaAvgBool == False:
+            ic('no mean')
             darr = darrMask
+        else:
+            ic('point')
 
     elif isinstance(regionToPlot,list): #List of lat/lon (must be rectangular and not crossing the Prime Meridian)
         darr = darr.sel(lat=regionToPlot[0], lon=regionToPlot[1], method="nearest")
@@ -373,6 +397,15 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
 
     else:
         sys.exit('Invalid region! Check value for regionToPlot.')
+
+    if areaAvgBool == 'sum': #NaNs freak out summations because it results in a 0
+        try: #spaghetti
+            cursedZeros = (darr == 0)
+            darr[cursedZeros] = np.nan
+        except: #spread
+            for rc in np.arange(0,len(darr['realization'])):
+                cursedZeros = (darr.isel(realization=rc) == 0)
+                darr.isel(realization=rc)[cursedZeros] = np.nan
 
     return darr, locStr, locTitleStr
 

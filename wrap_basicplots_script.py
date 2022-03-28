@@ -32,10 +32,13 @@ gnsht = ('global', rlib.Arctic(), rlib.HudsonBay(), rlib.NorthernHemisphere(), r
 
 # Specials
 tropicalPal = seaborn.diverging_palette(133, 324, as_cmap=True)
+indRedPal = seaborn.diverging_palette(16.8, 270.2, s=100, l=40, as_cmap=True)
+precipPal = seaborn.diverging_palette(58, 162, s=100, l=45, as_cmap=True)
+xtPrecipPal = seaborn.diverging_palette(58, 162, s=100, l=30, as_cmap=True)
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/eimnsn_PRECT/anmn/',
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/extreme_sdii/',
     "idGlensCntrl": 'control_*', #'control_*' or None
     "idGlensFdbck": 'feedback_*', #'feedback_*' or None
     "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
@@ -44,7 +47,7 @@ dataDict = {
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc'
 }
 setDict = {
-    "landmaskFlag": None,
+    "landmaskFlag": 'land',
     "startIntvl": [2015,2020,2030,2035], #dg [2015,2020,2030,2035]
     "endIntvl": [2025,2030,2040,2045], #dg [2025,2030,2040,2045]
     "cntrlPoi": [2011,2041], #pdf
@@ -53,12 +56,12 @@ setDict = {
     "s245CntrlPoi": [2011, 2041], #pdf
     "timePeriod": 20, #pdf
     "plotStyle": 'step', #pdf
-    "convert": (fcu.m_to_cm, fcu.persec_peryr), #TUPLE of converter(s), or None if using default units
-    "cmap": cmocean.cm.curl_r, #None for default cmocean "balance" or choose colormap here
-    "cbVals": [-50, 50] #None for automatic or [min,max] to override #dg
+    "convert": None, #TUPLE of converter(s), or None if using default units
+    "cmap": precipPal, #None for default cmocean "balance" or choose colormap here
+    "cbVals": [-1,1], #None for automatic or [min,max] to override #dg
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220209_polishMergeFinal/1_polish/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220309_finalTiles/2_sdii_snap_impact/',
     "dpiVal": 400
 }
 loopDict = {
@@ -80,7 +83,7 @@ for rlz in loopDict["realizations"]:
         setDict["levOfInt"] = lev
         # fbp.plot_basic_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_six_difference_globe(scnList, dataDict, setDict, outDict)
-        # fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict)
+        fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_basic_difference_polar(scnList, dataDict, setDict, outDict)
         # fbp.plot_glens_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_arise_difference_globe(scnList, dataDict, setDict, outDict)

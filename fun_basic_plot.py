@@ -97,7 +97,7 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     lats = rlzList[0].lat
     lons = rlzList[0].lon
 
-    fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
+    fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
     # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10) #Fully automated
     plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + 'GLENS') #AMS style
     # plt.title(md['lstDcd'] + ' ' + 'GLENS' + ' - ' + md['frstDcd'] + ' ' + 'RCP8.5') #Yaga style
@@ -142,7 +142,7 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     # blank = toiEnd['G1.5(4.5)'].copy()
     # blank.data = toiEnd['G1.5(4.5)'] - toiEnd['G1.5(4.5)']
 
-    panel = diffToiS245
+    panel = diffToiG12R85
 
     # Plotting
     CL = 0.
@@ -161,7 +161,7 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
     # plt.title(" ") #No automatic title, 1-panel is used for custom figures
 
-    savePrfx = 'S245_' #Easy modification for unique filename
+    savePrfx = 'snapGLENS_' #Easy modification for unique filename
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     # savename = outDict["savePath"] + 'blankmap.eps'

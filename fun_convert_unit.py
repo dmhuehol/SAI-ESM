@@ -73,6 +73,14 @@ def m_to_cm(darrM):
 
     return darrCm
 
+def m_to_mm(darrM):
+    ''' Convert meters to millimeters '''
+    darrMm = darrM * 1000
+    darrMm.attrs = darrM.attrs
+    darrMm.attrs['units'] = darrMm.attrs['units'].replace("m/",'mm/')
+
+    return darrMm
+
 ### Temperature
 def kel_to_cel(darrKel):
     ''' Convert K to deg C '''
@@ -81,6 +89,34 @@ def kel_to_cel(darrKel):
     darrCel.attrs['units'] = 'deg C'
 
     return darrCel
+
+### Ice
+def km2_to_milkm2(darrKm2):
+    ''' Convert km2 to millions of km2 '''
+    darrMilKm2 = darrKm2 / (10 ** 6)
+    darrMilKm2.attrs = darrKm2.attrs
+    darrMilKm2.attrs['units'] = 'millions of km2'
+
+    return darrMilKm2
+
+### Marine heatwaves
+def bms_to_nannual(darrBms):
+    ''' Convert binary MHW start indices to number of annual MHWs '''
+    darrNumAnn = darrBms.groupby("time.year").sum()
+    darrNumAnn.attrs = darrBms.attrs
+    darrNumAnn.attrs['units'] = 'n/yr'
+    darrNumAnn.attrs['long_name'] = 'Number of unique MHWs per year'
+
+    return darrNumAnn
+
+def bmp_to_ndays(darrBmp):
+    ''' Convert binary MHW presence to number of annual MHW days/yr '''
+    darrNumDays = darrBmp.groupby("time.year").sum()
+    darrNumDays.attrs = darrBmp.attrs
+    darrNumDays.attrs['units'] = 'days/yr'
+    darrNumDays.attrs['long_name'] = 'Number of MHW days per year'
+
+    return darrNumDays
 
 ### CMIP6 to GLENS/ARISE
 def flux_to_prect(darrFlux):
@@ -109,6 +145,25 @@ def persec_peryr(darrPerSec):
         darrPerYr.attrs['long_name'] = darrPerYr.attrs['long_name'].replace("rate",'')
 
     return darrPerYr
+
+def persec_perday(darrPerSec):
+    ''' Convert per second to per day '''
+    darrPerDay = darrPerSec * 86400
+    darrPerDay.attrs = darrPerDay.attrs
+    darrPerDay.attrs['units'] = darrPerSec.attrs['units'].replace("/s",'/dy')
+    if "rate" in darrPerDay.attrs['long_name']:
+        darrPerDay.attrs['long_name'] = darrPerDay.attrs['long_name'].replace("rate",'')
+
+    return darrPerDay
+
+def attach_unit(darrIn):
+    ''' Convert per second to per day '''
+    darrOut = darrIn.copy()
+    darrOut.attrs = darrOut.attrs
+    darrOut.attrs['units'] = 'd/yr'
+    darrOut.attrs['units'] = 'd/yr'
+
+    return darrOut
 
 def depth_to_height(darrDepth):
     ''' Flips sign to go from depth coordinates to height coordinates '''

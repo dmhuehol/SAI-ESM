@@ -1,14 +1,14 @@
 #!/bin/bash -l
 ### Job Name
-#PBS -N cdo_OCN500O2_mproc
+#PBS -N cdo_dailyPRECT_extractOND_mproc
 ### Project code
 #PBS -A P06010014
 #PBS -l walltime=15:00
 #PBS -q casper
 ### Merge output and error files
 #PBS -j oe
-### Select 1 nodes with 1 CPUs each
-#PBS -l select=1:ncpus=11:mem=60GB
+### Select 1 nodes with 3 CPUs each
+#PBS -l select=1:ncpus=3:mem=60GB
 ### Send email on abort, begin and end
 #PBS -m abe
 ### Specify mail recipient

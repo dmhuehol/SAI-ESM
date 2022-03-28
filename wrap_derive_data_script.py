@@ -18,17 +18,21 @@ import subprocess
 
 import fun_derive_data as fdd
 
-inPath = '/glade/scratch/dhueholt/daily_TREFHTMN/mergetime/'#'/Users/dhueholt/Documents/GLENS_data/daily_TREFHT/mergetime/'
-inToken = ['*control*','*feedback*','*SSP245-TSMLT*','*BWSSP245*','*BWHIST*']#'*control*','*feedback*','*SSP245-TSMLT*','*BWSSP245*','*BWHIST*' #tokens for GLENS, ARISE, CESM2-WACCM, historical
-outPath = '/glade/scratch/dhueholt/clxTR/'#'/Users/dhueholt/Documents/GLENS_data/clxTR/'
-nProc = 13
+inPath = '/Users/dhueholt/Documents/GLENS_data/daily_SST/' #LOCAL
+# inPath = '/glade/scratch/dhueholt/daily_SST/' #CASPER
+inToken = ['*control*','*feedback*']
+# inTokens for raw: ['*control*','*feedback*','*SSP245-TSMLT*','*BWSSP245*','*BWHIST*']
+# inTokens for cdo merged: ['*control*', '*feedback*', '*SSP245-TSMLT*', '*BWSSP245*', '*BWHIST*']
+outPath = '/Users/dhueholt/Documents/GLENS_data/extreme_MHW/' #LOCAL
+# outPath = '/glade/scratch/dhueholt/extreme_CLXTR/' #CASPER
+nProc = 1
 
 for scen in inToken:
     theGlob = glob.glob(inPath+scen)
     for fc,fn in enumerate(theGlob):
         ic(fn)
         if __name__== '__main__': #If statement required by multiprocessing
-            shard = Process(target=fdd.derive_annual_tropical_nights, args=(fn,outPath))
+            shard = Process(target=fdd.derive_mhw_presence_fromDefFile, args=(fn,outPath))
         if fc % nProc == 0 and fc != 0:
             shard.start()
             shard.join() #Forces nProc+1 processes to run to completion before beginning more

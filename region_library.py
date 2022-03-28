@@ -387,6 +387,16 @@ def LeeuwinCurrent():
 
     return regDict
 
+def WesternAustraliaMHW():
+    regDict = {
+        "regStr": 'WesternAustralia',
+        "regSaveStr": 'WAus',
+        "regLats": np.array([-35,-20]),
+        "regLons": np.array([95,120])
+    }
+
+    return regDict
+
 ## Southern Ocean
 
 def SouthernOcean():
@@ -581,6 +591,26 @@ def NorthOf85N():
 
 ## Africa
 
+def EastAfricaAyugiEtAl():
+    regDict = {
+        "regStr": 'East Africa (Ayugi et al)',
+        "regSaveStr": 'EastAfricaAyugiEtAl',
+        "regLats": np.array([-12, 5]),
+        "regLons": np.array([28, 42])
+    }
+
+    return regDict
+
+def SouthernAfricaMadagascar():
+    regDict = {
+        "regStr": 'Southern Africa/Madagascar',
+        "regSaveStr": 'SAfricaMadgscr',
+        "regLats": [-35.5, -11],
+        "regLons": [11, 51]
+    }
+
+    return regDict
+
 def WestAfricanMonsoon():
     regDict = {
         "regStr": 'West African Monsoon',
@@ -657,7 +687,49 @@ def EasternEurope():
 
     return regDict
 
-### Hemispheres
+def Mediterranean():
+    regDict = {
+        "regStr": 'Mediterranean',
+        "regSaveStr": 'Mediterranean',
+        "regLats": np.array([26, 46]),
+        "regLons": np.array([346, 42])
+    }
+
+    return regDict
+
+def MediterraneanTight():
+    regDict = {
+        "regStr": 'MediterraneanTight',
+        "regSaveStr": 'MediterraneanTight',
+        "regLats": np.array([33, 44]),
+        "regLons": np.array([350, 40])
+    }
+
+    return regDict
+
+## North America
+def SouthwestUSCentralAm():
+    regDict = {
+        "regStr": 'SW US/Central America',
+        "regSaveStr": 'SWUSCenAm',
+        "regLats": np.array([19, 19, -1.2, -1.2, 40, 40, 28.6]),
+        "regLons": np.array([291.2, 310, 310, 280.3, 234.7, 260, 260])
+    }
+
+    return regDict
+
+## Oceania
+def WesternAustraliaLand():
+    regDict = {
+        "regStr": 'WesternAustraliaLand',
+        "regSaveStr": 'WAusLnd',
+        "regLats": np.array([-38, -11]),
+        "regLons": np.array([112, 136])
+    }
+
+    return regDict
+
+### Hemispheres and very large regions
 
 def NorthernHemisphere():
     regDict = {
@@ -709,11 +781,61 @@ def SouthernHemisphereNoTropics():
 
     return regDict
 
+def SouthernHemisphereSubtropicsNarrowBand():
+    regDict = {
+        "regStr": 'SouthernHemisphereSubtropicsNarrowBand',
+        "regSaveStr": 'SHemiSubtropNarBand',
+        "regLats": np.array([-35,-25]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
+def SouthernHemisphereSubtropics():
+    regDict = {
+        "regStr": 'SouthernHemisphereSubtropics',
+        "regSaveStr": 'SHemiSubtrop',
+        "regLats": np.array([-40,-15]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
+def SouthernHemisphereTropicsSubtropicsNoIndPac():
+    regDict = {
+        "regStr": 'SouthernHemisphereSubtropicsNoIndPac',
+        "regSaveStr": 'SHemiSubtropNoIndPac',
+        "regLats": np.array([-40,-10]),
+        "regLons": np.array([235,55])
+    }
+
+    return regDict
+
 def SouthernHemisphereExtratropics():
     regDict = {
         "regStr": 'SouthernHemisphereExtratropics',
         "regSaveStr": 'SHemiExtrop',
         "regLats": np.array([-90,-45]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
+def NorthernHemisphereMidLat():
+    regDict = {
+        "regStr": 'NorthernHemisphereMidLatitudes',
+        "regSaveStr": 'NHemiMidLat',
+        "regLats": np.array([30,60]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
+
+def SouthernHemisphereMidLat():
+    regDict = {
+        "regStr": 'SouthernHemisphereMidLatitudes',
+        "regSaveStr": 'SHemiMidLat',
+        "regLats": np.array([-60,-30]),
         "regLons": np.array([0,360])
     }
 
@@ -727,6 +849,17 @@ def Globe():
         "regSaveStr": 'global',
         "regLats": np.array([np.nan, np.nan]),
         "regLons": np.array([np.nan, np.nan])
+    }
+
+    return regDict
+
+### Points
+def WesternAustraliaMHW_point():
+    regDict = {
+        "regStr": '-30.628,112.5',
+        "regSaveStr": 'WAusMHW-30_628N112_5E',
+        "regLats": np.array([-30.628]),
+        "regLons": np.array([112.5])
     }
 
     return regDict
