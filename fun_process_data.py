@@ -11,14 +11,15 @@ Graduate Research Assistant at Colorado State University
 from icecream import ic
 import sys
 
-import xarray as xr
-xr.set_options(keep_attrs=True)
+import collections
 import dask
 dask.config.set(**{'array.slicing.split_large_chunks': True})
+from datetime import date
+import glob
 import numpy as np
 import matplotlib.path as mpth
-import collections
-import glob
+import xarray as xr
+xr.set_options(keep_attrs=True)
 
 import CustomExceptions
 import fun_convert_unit as fcu
@@ -318,9 +319,9 @@ def make_level_string(darr, levOfInt):
 def manage_area(darr, regionToPlot, areaAvgBool=True):
     ''' Manage area operations: obtain global, regional, or pointal output '''
     ic(areaAvgBool)
-    if regionToPlot == 'point':
-        locStr = 'WAus'
-        locTitleStr = '-30.628,112.5'
+    if len(regionToPlot["regLats"]) == 1:
+        locStr = regionToPlot["regSaveStr"]
+        locTitleStr = regionToPlot["regStr"]
         return darr, locStr, locTitleStr
     if regionToPlot == 'global':
         locStr = 'global'
@@ -611,3 +612,16 @@ def period_month_avg(darrList):
         darrPerAvgList.append(darrPerAvg)
 
     return darrPerAvgList
+
+def make_ord_array(inTimes):
+    ''' Make ordinal time array required by e.g. mhws package '''
+    tCftime = xr.cftime_range(inTimes[0], inTimes[len(inTimes)-1])
+    checkMissing = ic(list(set(inTimes).symmetric_difference(set(tCftime)))) #Print missing timesteps between input and cfrange
+    ordList = list()
+    for tcf in tCftime:
+        dtAc = tcf
+        dtAcOrd = date(dtAc.year, dtAc.month, dtAc.day).toordinal()
+        ordList.append(dtAcOrd)
+    ordArr = np.array(ordList)
+
+    return ordArr

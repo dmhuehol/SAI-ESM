@@ -60,7 +60,7 @@ setDict = {
     "xticks": True
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220210_designingFinalFigs/4_aspect/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220401_mhwLastSteps/10_paperplots/',
     "dpiVal": 400
 }
 loopDict = {
@@ -174,6 +174,34 @@ setDict["regOfInt"] = ((rlib.NorthernHemisphereMidLat(), rlib.SouthernHemisphere
 setDict["ylim"] = [28,76]
 setDict["yticks"] = np.arange(28,100,15)
 setDict["xticks"] = False
+fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
+
+# East African SDII
+dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/extreme_sdii/'
+setDict["convert"] = (fcu.m_to_mm, fcu.persec_perday),
+scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
+dataDict = {**dataDict, **cmnDict}
+setDict["levOfInt"] = None
+
+setDict["landmaskFlag"] = None
+setDict["regOfInt"] = (rlib.EastAfricaAyugiEtAl(),)
+setDict["ylim"] = [5.5,10]
+setDict["yticks"] = np.arange(6,30,1)
+setDict["xticks"] = False
+fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
+
+# W Australian MHWs
+dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/extreme_MHW/roll5_centerFalseShift4/'
+setDict["convert"] = (fcu.roll5_to_percentdays,),
+scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
+dataDict = {**dataDict, **cmnDict}
+setDict["levOfInt"] = None
+
+setDict["landmaskFlag"] = None
+setDict["regOfInt"] = (rlib.WesternAustraliaMHW_point(),)
+setDict["ylim"] = [0,100]
+setDict["yticks"] = np.arange(0,101,30)
+setDict["xticks"] = True
 fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
 
 endMsg = ic('Completed! :D')

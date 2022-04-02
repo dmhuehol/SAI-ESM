@@ -32,7 +32,7 @@ for scen in inToken:
     for fc,fn in enumerate(theGlob):
         ic(fn)
         if __name__== '__main__': #If statement required by multiprocessing
-            shard = Process(target=fdd.derive_mhw_presence_fromDefFile, args=(fn,outPath))
+            shard = Process(target=fdd.derive_mhw_presence, args=(fn,outPath))
         if fc % nProc == 0 and fc != 0:
             shard.start()
             shard.join() #Forces nProc+1 processes to run to completion before beginning more

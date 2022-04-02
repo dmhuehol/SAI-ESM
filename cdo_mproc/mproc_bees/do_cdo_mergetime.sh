@@ -1,5 +1,7 @@
 #######################################
 # Merge CESM netcdf files.
+# This has proved not particularly robust against modified filenames (e.g.
+# regridded ocean data) and needs to be refactored.
 # Output files are named automatically as:
 # type_ensnumber_variable_YYYYMM-YYYYMM[first]_..._YYYYMM-YYYYMM[last].nc
 # Globals:

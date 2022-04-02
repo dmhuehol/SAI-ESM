@@ -157,10 +157,9 @@ def persec_perday(darrPerSec):
     return darrPerDay
 
 def attach_unit(darrIn):
-    ''' Convert per second to per day '''
+    ''' Use to attach units to data where this field is missing '''
     darrOut = darrIn.copy()
     darrOut.attrs = darrOut.attrs
-    darrOut.attrs['units'] = 'd/yr'
     darrOut.attrs['units'] = 'd/yr'
 
     return darrOut
@@ -180,3 +179,11 @@ def fraction_to_percent(darrFrac):
     darrPercent.attrs['units'] = 'Percent'
 
     return darrPercent
+
+def roll5_to_percentdays(darrRoll5):
+    ''' Convert rolling 5-year sum to percent days '''
+    darrPercDays = darrRoll5 / 1825 * 100
+    darrPercDays.attrs = darrRoll5.attrs
+    darrPercDays.attrs['units'] = 'Percent of days'
+
+    return darrPercDays

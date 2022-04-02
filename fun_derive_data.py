@@ -164,78 +164,57 @@ def derive_prcptot(inFilePrect, outPath):
     ic(strOut, outFile, newDset) #icecream all useful parts of the output
 
 ### Ocean extremes
-def derive_mhw_presence_fromDefFile(inFileSst, outPath):
+def derive_mhw_presence(inFileSst, outPath):
     ''' Calculate marine heatwave presence from daily SST data using the Hobday
     et al. 2016 definition. Returns binary classification (1=present 0=absent).
     Intensity data is not saved. Calculation relative to FIXED BASELINE:
-    2010-2020 for GLENS, 2025-2035 for ARISE-SAI. Baseline definition file MUST
-    be calculated first.'''
+    2010-2019 for GLENS or ARISE-SAI. Baseline definition file MUST be
+    calculated first. Rolling sum is left aligned by default.'''
     mhwDefDict = {
         "defPath": '/Users/dhueholt/Documents/GLENS_data/extreme_MHW/definitionFiles/',
         "defPathCasper": '/glade/work/dhueholt/definitionFiles/',
-        "defFile": 'baseDefFile_rlzMn_GLENS.nc',
+        "defFile": 'mhwDefsFile_GLENS_WAusMHW-30_628N112_5E.nc',
         "defKey": 'mn_SST'
     }
-    annSum = True
+    ic(mhwDefDict["defFile"]) #Helps ensure the correct definitions file is used
+    annSum = 5
     inKey = 'SST'
     outKey = 'binary_mhw_pres'
-    outKeyEv = 'binary_mhw_start'
     regOfInt = rlib.WesternAustraliaMHW_point() #Use point location in almost all circumstances
 
+    # Load data
     sstDset = xr.open_dataset(inFileSst)
     sstDarr = sstDset[inKey]
     sstReg, locStr, _ = fpd.manage_area(sstDarr, regOfInt, areaAvgBool=True)
     sstRegFullTimes = sstReg.resample(time='1D').asfreq() #Add missing timesteps with NaN value
     sstRegDat = sstRegFullTimes.data.squeeze()
-
-    # Set up ordinal time array (required by marineHeatWaves package)
     times = sstRegFullTimes.time.data
-    tCftime = xr.cftime_range(times[0], times[len(times)-1])
-    ordList = list()
-    for tcf in tCftime:
-        dtAc = tcf
-        dtAcOrd = date(dtAc.year, dtAc.month, dtAc.day).toordinal()
-        ordList.append(dtAcOrd)
-    ordArr = np.array(ordList)
+    ordArr = fpd.make_ord_array(times)
 
     # Load baseline definition file
     mhwDef = xr.open_dataset(mhwDefDict["defPath"] + mhwDefDict["defFile"])
-    mhwDefTimes = mhwDef.time.data #POSSIBLY BLEHC
     mhwDefSst = mhwDef[mhwDefDict["defKey"]].data
-    altClim = list([ordArr, mhwDefSst]) #Format required by mhws alternateClimatology feature
+    mhwDefTimes = mhwDef.time.data
+    altClim = list([mhwDefTimes, mhwDefSst]) #Format required by mhws alternateClimatology feature
 
-    mhwsDict, climDict = mhws.detect(ordArr, sstRegDat, alternateClimatology=altClim)
+    mhwsDict, climDict = mhws.detect(ordArr, sstRegDat, climatologyPeriod=[2010,2019], alternateClimatology=altClim)
 
     # Make binary MHW presence/absence array
     binMhwPres = np.zeros(np.shape(ordArr)) #Initiate blank array of the proper size
     mhwStrtInd = mhwsDict['index_start']
-    ic(mhwStrtInd)
     mhwDurInd = mhwsDict['duration']
-    # ic(np.mean(mhwsDict['duration']))
     for actInd,startInd in enumerate(mhwStrtInd):
         actDur = mhwDurInd[actInd] #Duration of active MHW
         binMhwPres[startInd:startInd+actDur] = 1 #Times with active MHW get a 1
-    ic(np.size(np.nonzero(binMhwPres))) # Number of MHW indices
 
-    # Make binary MHW number of events array
-    binMhwEv = np.zeros(np.shape(ordArr))
-    ic(mhwStrtInd)
-    binMhwEv[mhwStrtInd] = 1
-
-    # Save xarray Dataset with all MHW data
+    # Make Dataset with MHW data
     newDset = xr.Dataset(
-        data_vars=dict(
-            a=(["time"], binMhwPres),
-            aa=(["time"], binMhwEv)
-        ),
-        coords=dict(
-            time=times
-        ),
+        data_vars=dict(a=(["time"], binMhwPres)),
+        coords=dict(time=times),
         attrs=dict(description='MHW data')
     )
-    newDset = newDset.rename_vars({'a': outKey, 'aa': outKeyEv})
-    newDset[outKey].attrs['long_name'] = 'Binary presence/absence of MHWs'
-    newDset[outKeyEv].attrs['long_name'] = 'Binary starting indices of independent MHWs'
+    newDset = newDset.rename_vars({'a': outKey})
+    newDset[outKey].attrs['long_name'] = 'Binary presence-absence of MHWs'
 
     inPcs = inFileSst.split('/') #inFilePrect is the entire path to file
     inFn = inPcs[len(inPcs)-1] #Filename is the last part of the path
@@ -244,6 +223,7 @@ def derive_mhw_presence_fromDefFile(inFileSst, outPath):
     outFile = outPath + strOut
 
     if annSum == True:
+        ic(annSum)
         newDset = newDset.groupby("time.year").sum()
         outFile = outFile.replace('.nc', 'ann.nc')
         timeList = list()
@@ -251,88 +231,36 @@ def derive_mhw_presence_fromDefFile(inFileSst, outPath):
             timeList.append(dtnl(yr,7,15,12,0,0,0)) #Year with standard fill values
         outDset = xr.Dataset(
             data_vars=dict(
-                a=(["time"], newDset[outKey].data),
-                aa=(["time"], newDset[outKeyEv].data)
+                a=(["time"], newDset[outKey].data)
             ),
-            coords=dict(
-                time=timeList
-            ),
+            coords=dict(time=timeList),
             attrs=dict(description='MHW data')
         )
-        outDset = outDset.rename_vars({'a': outKey, 'aa': outKeyEv})
+        outDset = outDset.rename_vars({'a': outKey})
         outDset[outKey].attrs['long_name'] = 'Binary presence-absence of MHWs'
-        outDset[outKeyEv].attrs['long_name'] = 'Binary starting indices of independent MHWs'
+    elif isinstance(annSum, int):
+        ic('rolling', annSum)
+        newDset = newDset.groupby("time.year").sum()
+        newDset = newDset.rolling(year=annSum, center=False).sum().shift(year=1-annSum) #Rolling sum
+        outFile = outFile.replace('.nc', 'roll' + str(annSum) + '.nc')
+        timeList = list()
+        for yr in newDset.year:
+            timeList.append(dtnl(yr,7,15,12,0,0,0)) #Year with standard fill values
+        outDset = xr.Dataset(
+            data_vars=dict(
+                a=(["time"], newDset[outKey].data)
+            ),
+            coords=dict(time=timeList),
+            attrs=dict(description='MHW data')
+        )
+        outDset = outDset.rename_vars({'a': outKey})
+        outDset[outKey].attrs['long_name'] = 'Binary presence-absence of MHWs'
         outDset.to_netcdf(outFile) #Save data
     else:
         outDset = newDset.copy()
-        outDset.to_netcdf(outFile) #Save data
+
+    outDset.to_netcdf(outFile) #Save data
     ic(strOut, outFile, outDset) #icecream all useful parts of the output
-
-def derive_mhw_presence_reg(inFileSst, outPath):
-    ''' Calculate marine heatwave presence from daily SST data using the Hobday
-    et al. 2016 definition. Returns binary classification (1=present 0=absent).
-    Intensity data is not saved.'''
-    inKey = 'SST'
-    outKey = 'binary_mhw_pres'
-    outKeyEv = 'binary_mhw_start'
-    regOfInt = rlib.WesternAustraliaMHW()
-
-    sstDset = xr.open_dataset(inFileSst)
-    sstDarr = sstDset[inKey]
-    sstRegMn, locStr, _ = fpd.manage_area(sstDarr, regOfInt, areaAvgBool=True)
-    sstRegMnDat = sstRegMn.data
-
-    # Set up ordinal time array (required by marineHeatWaves package)
-    times = sstDarr.time.data
-    tCftime = xr.cftime_range(times[0], times[len(times)-1])
-    ordList = list()
-    for tcf in tCftime:
-        dtAc = tcf
-        dtAcOrd = date(dtAc.year, dtAc.month, dtAc.day).toordinal()
-        ordList.append(dtAcOrd)
-    ordArr = np.array(ordList)
-
-    mhwsDict, climDict = mhws.detect(ordArr, sstRegMnDat)
-
-    # Make binary MHW presence/absence array
-    binMhwPres = np.zeros(np.shape(ordArr)) #Initiate blank array of the proper size
-    mhwStrtInd = mhwsDict['index_start']
-    ic(mhwStrtInd)
-    mhwDurInd = mhwsDict['duration']
-    # ic(np.mean(mhwsDict['duration']))
-    for actInd,startInd in enumerate(mhwStrtInd):
-        actDur = mhwDurInd[actInd] #Duration of active MHW
-        binMhwPres[startInd:startInd+actDur] = 1 #Times with active MHW get a 1
-    ic(np.size(np.nonzero(binMhwPres))) # Number of MHW indices
-
-    # Make binary MHW number of events array
-    binMhwEv = np.zeros(np.shape(ordArr))
-    ic(mhwStrtInd)
-    binMhwEv[mhwStrtInd] = 1
-
-    # Save xarray Dataset with all MHW data
-    newDset = xr.Dataset(
-        data_vars=dict(
-            a=(["time"], binMhwPres),
-            aa=(["time"], binMhwEv)
-        ),
-        coords=dict(
-            time=times
-        ),
-        attrs=dict(description='MHW data')
-    )
-    newDset = newDset.rename_vars({'a': outKey, 'aa': outKeyEv})
-    newDset[outKey].attrs['long_name'] = 'Binary presence/absence of MHWs'
-    newDset[outKeyEv].attrs['long_name'] = 'Binary starting indices of independent MHWs'
-
-    inPcs = inFileSst.split('/') #inFilePrect is the entire path to file
-    inFn = inPcs[len(inPcs)-1] #Filename is the last part of the path
-    outKeyReg = outKey + outKeyEv + locStr
-    strOut = inFn.replace(inKey, outKeyReg) #Replace var name with extreme key
-    outFile = outPath + strOut
-    # newDset.to_netcdf(outFile) #Save data
-    ic(strOut, outFile, newDset) #icecream all useful parts of the output
-
 
 ### Ice metrics
 def derive_icearea(inFileIcefrac, outPath):
