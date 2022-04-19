@@ -318,11 +318,6 @@ def make_level_string(darr, levOfInt):
 
 def manage_area(darr, regionToPlot, areaAvgBool=True):
     ''' Manage area operations: obtain global, regional, or pointal output '''
-    ic(areaAvgBool)
-    if len(regionToPlot["regLats"]) == 1:
-        locStr = regionToPlot["regSaveStr"]
-        locTitleStr = regionToPlot["regStr"]
-        return darr, locStr, locTitleStr
     if regionToPlot == 'global':
         locStr = 'global'
         locTitleStr = 'global'
@@ -334,8 +329,12 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
             latWeights = np.cos(np.deg2rad(darr['lat']))
             darrWght = darr.weighted(latWeights)
             darr = darrWght.sum(dim=['lat','lon'], skipna=True)
-
     elif isinstance(regionToPlot,dict): #region_library objects
+        if len(regionToPlot["regLats"]) == 1:
+            ic('hello')
+            locStr = regionToPlot["regSaveStr"]
+            locTitleStr = regionToPlot["regStr"]
+            return darr, locStr, locTitleStr
         locStr = regionToPlot['regSaveStr']
         locTitleStr = regionToPlot['regSaveStr']
 
@@ -374,19 +373,14 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
             darrMask = darr.sel(lat=latsOfInt,lon=lonsOfInt)
 
         if areaAvgBool == True:
-            ic('mean')
             latWeights = np.cos(np.deg2rad(darrMask['lat']))
             darrWght = darrMask.weighted(latWeights)
             darr = darrWght.mean(dim=['lat','lon'], skipna=True)
-            # darr = darrMask.mean(dim=['lat','lon'], skipna=True)
+            # darr = darrMask.mean(dim=['lat','lon'], skipna=True) #No latitude weighting
         elif areaAvgBool == 'sum':
-            ic('sum')
             darr = darrMask.sum(dim=['lat','lon'], skipna=True)
         elif areaAvgBool == False:
-            ic('no mean')
             darr = darrMask
-        else:
-            ic('point')
 
     elif isinstance(regionToPlot,list): #List of lat/lon (must be rectangular and not crossing the Prime Meridian)
         darr = darr.sel(lat=regionToPlot[0], lon=regionToPlot[1], method="nearest")

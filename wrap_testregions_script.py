@@ -28,23 +28,25 @@ insets = (rlib.Sahara(),rlib.NorthEurope(),rlib.SoutheasternSouthAmerica(),rlib.
           rlib.SouthernAfrica(),rlib.WestNorthAmerica(),rlib.EastAsia(),
           rlib.CentralAmericaMexico(),rlib.SoutheastAsia(),rlib.NorthAtlanticWarmingHole(),
           rlib.AustralianContinent())
+summaryPaperRegions = (rlib.Amazon(), rlib.AlaskaNorthwestCanada(), rlib.Arctic(), rlib.EastAfricaAyugiEtAl(),
+                       rlib.NorthEurope(), rlib.GeenEtAl20AsianMonsoonRegion(), rlib.Antarctica())
 
 activeTest = (rlib.AlaskaNorthwestCanada(),rlib.SouthEuropeMediterranean())
 
 # The same 9 colors repeated a bunch of times
-colors = ('Greens_r', 'Purples_r','Greys_r','Greys_r','Greys_r','Oranges_r','Greys_r','Greys_r','Greys_r','Greys_r')
-# colors = ('viridis','magma','Purples_r', 'Greens_r','Greys_r','Oranges_r','spring','winter','cool',
-          # 'viridis','magma','Purples_r', 'Greens_r','Greys_r','Oranges_r','spring','winter','cool',
-          # 'viridis','magma','Purples_r', 'Greens_r','Greys_r','Oranges_r','spring','winter','cool',
-          # 'viridis','magma','Purples_r', 'Greens_r','Greys_r','Oranges_r','spring','winter','cool',
-          # 'viridis','magma','Purples_r', 'Greens_r','Greys_r','Oranges_r','spring','winter','cool')
+# colors = ('Greens_r', 'Purples_r','Greys_r','Greys_r','Greys_r','Oranges_r','Greys_r','Greys_r','Greys_r','Greys_r')
+colors = ('viridis','magma','Purples_r', 'Greens_r','Greys_r','Oranges_r','spring','winter','cool',
+          'viridis','magma','Purples_r', 'Greens_r','Greys_r','Oranges_r','spring','winter','cool',
+          'viridis','magma','Purples_r', 'Greens_r','Greys_r','Oranges_r','spring','winter','cool',
+          'viridis','magma','Purples_r', 'Greens_r','Greys_r','Oranges_r','spring','winter','cool',
+          'viridis','magma','Purples_r', 'Greens_r','Greys_r','Oranges_r','spring','winter','cool')
 CL = 0.
 mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
 fig = plt.figure(figsize=(12, 2.73*2))
 ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
 
-for rc,reg in enumerate(activeTest):
+for rc,reg in enumerate(summaryPaperRegions):
     ic(reg)
     fig,ax = rlib.test_region(reg,colors[rc],fig,ax)
 # plt.title("WG1-AR5 IPCC regions")
-plt.savefig('/Users/dhueholt/Documents/GLENS_fig/20220301_bmrrth/AlaskaNwCanSEurMed.png', dpi=400)
+plt.savefig('/Users/dhueholt/Documents/GLENS_fig/20220413_captions/PaperRegions.png', dpi=400)

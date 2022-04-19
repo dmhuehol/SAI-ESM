@@ -49,7 +49,8 @@ ensPrp = {
 def plot_ens_spaghetti_timeseries(darrList, dataDict, setDict, outDict):
     ''' Make a simple timeseries of output variable. Ensemble members are
     visualized in a familiar, basic spaghetti plot. '''
-    setYear = [2010, 2095]
+    plotRlzMn = True
+    setYear = [2009, 2070]
     timeSlice = slice(cftime.DatetimeNoLeap(setYear[0], 7, 15, 12, 0, 0, 0), cftime.DatetimeNoLeap(setYear[1], 7, 15, 12, 0, 0, 0))
 
     # Plot timeseries
@@ -58,6 +59,10 @@ def plot_ens_spaghetti_timeseries(darrList, dataDict, setDict, outDict):
     for scnDarr in darrList:
         rlzInScn = scnDarr['realization'].data #Number of realizations in scenario
         scnToPlot.append(scnDarr.scenario) #Add scenario to list
+        if setDict["areaAvgBool"] == True:
+            rlzMn = scnDarr[len(dataToPlot['realization'])-1] #Last member is ensemble mean
+        elif setDict["areaAvgBool"] == 'sum':
+            rlzMn = scnDarr.copy()
         for rc in rlzInScn:
             rlzToi = scnDarr.sel(realization=rc, time=timeSlice) #Single rlz at time of interest
             rlzLoi = fpd.obtain_levels(rlzToi, setDict["levOfInt"]) #Level of interest
@@ -65,11 +70,13 @@ def plot_ens_spaghetti_timeseries(darrList, dataDict, setDict, outDict):
             md = fpd.meta_book(setDict, dataDict, rlzToPlot, labelsToPlot=None) #Extract metadata
             activeColor, activeLabel = fpt.line_from_scenario(rlzToPlot.scenario, md)
             yrsToPlot = rlzToPlot['time'].dt.year.data #bndDct['mtchYrs']
-            if rc==len(rlzInScn)-1:
-                # ic('No')
-                plt.plot(yrsToPlot, rlzToPlot, color=activeColor, label=activeLabel) #Ens mean
-            else:
-                plt.plot(yrsToPlot, rlzToPlot, color=activeColor, linewidth=0.3) #Individual rlz
+            plt.plot(yrsToPlot, rlzToPlot, color=activeColor, linewidth=0.3) #Individual rlz
+        if plotRlzMn:
+            rlzToiMn = rlzMn.sel(time=timeSlice)
+            rlzLoiMn = fpd.obtain_levels(rlzToiMn, setDict["levOfInt"])
+            rlzAoiMn, _, __ = fpd.manage_area(rlzLoiMn, setDict["regOfInt"], areaAvgBool=setDict["areaAvgBool"])
+            rlzToPlotMn = rlzAoiMn.mean(dim='realization')
+            plt.plot(yrsToPlot, rlzToPlotMn, color=activeColor, label=activeLabel, linewidth=1.5) #Ens mean
 
     # Plot metadata and settings
     b,t = plt.ylim() if setDict['ylim'] is None else setDict['ylim']
@@ -82,7 +89,7 @@ def plot_ens_spaghetti_timeseries(darrList, dataDict, setDict, outDict):
     plt.title(md['varStr'] + ' ' + md['levStr'] + ': ' + str(setYear[0]) + '-' + str(setYear[1]) + ' ' + locTitleStr  + ' ' + 'spaghetti')
 
     # Save image
-    savePrfx = '1DEF_'
+    savePrfx = '10cutAF6_'
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + str(setYear[0]) + str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + md['ensPid']['spg']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
@@ -92,7 +99,7 @@ def plot_ens_spaghetti_timeseries(darrList, dataDict, setDict, outDict):
 def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
     ''' Make a timeseries of output variable. Ensemble variability is visualized
     as the spread between max and min at each timestep. '''
-    setYear = [2010,2095]#[2010, 2095]
+    setYear = [2009,2095]
     timeSlice = slice(cftime.DatetimeNoLeap(setYear[0], 7, 15, 12, 0, 0, 0),cftime.DatetimeNoLeap(setYear[1], 7, 15, 12, 0, 0, 0))
 
     # Make timeseries
@@ -125,7 +132,9 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
         else:
             dataToPlot, locStr, locTitleStr = fpd.manage_area(darrLoi, setDict["regOfInt"], areaAvgBool=setDict["areaAvgBool"])
         rlzMax = dataToPlot.max(dim='realization', skipna=True)
+        ic(rlzMax)
         rlzMin = dataToPlot.min(dim='realization', skipna=True)
+        ic(rlzMin)
         if setDict["areaAvgBool"] == True:
             rlzMn = dataToPlot[len(dataToPlot['realization'])-1] #Last member is ensemble mean
         elif setDict["areaAvgBool"] == 'sum':
@@ -171,7 +180,7 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
                     plt.plot(yrsToPlot[acw[2]:acw[3]],rlzMn.data[acw[2]:acw[3]],color=activeColor,label=activeLabel,linewidth=2)
                     ax.fill_between(yrsToPlot[acw[2]:acw[3]], rlzMax.data[acw[2]:acw[3]], rlzMin.data[acw[2]:acw[3]], color=activeColor, alpha=0.3, linewidth=0)
         else:
-            plt.plot(yrsToPlot,rlzMn.data,color=activeColor,label=activeLabel,linewidth=3)
+            plt.plot(yrsToPlot,rlzMn.data,color=activeColor,label=activeLabel,linewidth=3.5)
             ax.fill_between(yrsToPlot, rlzMax.data, rlzMin.data, color=activeColor, alpha=0.3, linewidth=0)
     # sys.exit('STOP')
     # Plot metadata and settings
@@ -206,6 +215,8 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
             plt.yticks(setDict["yticks"])
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
+        # ax.axes.xaxis.set_ticklabels([])
+        # ax.axes.yaxis.set_ticklabels([])
         plt.ylim([b,t])
         # plt.ylabel('cm', fontweight='light')
         # plt.ylabel('fractional cover', fontweight='normal')
