@@ -62,7 +62,7 @@ setDict = {
     "xticks": True
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220408_faultyAntTiles/2_tiles/6_ant/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220420_paperBasicPlots/',
     "dpiVal": 400
 }
 loopDict = {
@@ -72,87 +72,87 @@ loopDict = {
 
 ic(dataDict, setDict, outDict) #Lowers chances of making the wrong plots by mistake
 
-# # Make images
-# scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-# dataDict = {**dataDict, **cmnDict}
-# setDict["levOfInt"] = None
-#
-# # Annual mean temperature
-# setDict["regOfInt"] = 'global'
-# setDict["xticks"] = False
-# fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
-#
-# setDict["regOfInt"] = rlib.Amazon()
-# setDict["ylim"] = [25.5,30.5]
-# setDict["yticks"] = np.arange(20,40,1)
-# setDict["xticks"] = False
-# fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
-#
-# setDict["regOfInt"] = rlib.NorthEurope()
-# setDict["ylim"] = [2,10.5]
-# setDict["yticks"] = np.arange(0,20,2)
-# setDict["xticks"] = True
-# fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
-#
-# # Annual mean precipitation
-# dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/annual_PRECT/'
-# setDict["convert"] = (fcu.m_to_cm, fcu.persec_peryr)
-# scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-# dataDict = {**dataDict, **cmnDict}
-# setDict["levOfInt"] = None
-#
-# setDict["regOfInt"] = 'global'
-# setDict["ylim"] = [105,120]
-# setDict["yticks"] = np.arange(105,130,5)
-# setDict["xticks"] = False
-# fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
-#
-# setDict["regOfInt"] = rlib.AlaskaNorthwestCanada()
-# setDict["ylim"] = [43,75]
-# setDict["yticks"] = np.arange(43,80,10)
-# setDict["xticks"] = False
-# fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
-#
-# # NH monsoon seasonal mean (JJAS) precipitation
-# dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/eimnsn_PRECT/anmn/'
-# setDict["convert"] = (fcu.m_to_cm, fcu.persec_peryr)
-# scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-# dataDict = {**dataDict, **cmnDict}
-# setDict["levOfInt"] = None
-#
-# setDict["regOfInt"] = rlib.GeenEtAl20AsianMonsoonRegion()
-# setDict["ylim"] = [180,345]
-# setDict["yticks"] = np.arange(180,500,50)
-# setDict["xticks"] = True
-# fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
-#
-# # Annual mean sea surface temperature
-# dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/annual_OCNTEMP500/'
-# setDict["convert"] = None
-# scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-# dataDict = {**dataDict, **cmnDict}
-# setDict["levOfInt"] = None
-#
-# setDict["regOfInt"] = 'global'
-# setDict["ylim"] = [18,21.25]
-# setDict["yticks"] = np.arange(10,30,1)
-# setDict["xticks"] = False
-# fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
-#
-# # September Arctic sea ice extent
-# dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/sept_ICEEXTENT/'
-# setDict["areaAvgBool"] = 'sum'
-# setDict["convert"] = (fcu.km2_to_milkm2,)
-# scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-# dataDict = {**dataDict, **cmnDict}
-# setDict["levOfInt"] = None
-#
-# setDict["regOfInt"] = rlib.Arctic()
-# setDict["ylim"] = [0,9.5]
-# setDict["yticks"] = np.arange(0,10,2)
-# setDict["xticks"] = False
-# fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
-#
+# Make images
+scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
+dataDict = {**dataDict, **cmnDict}
+setDict["levOfInt"] = None
+
+# Annual mean temperature
+setDict["regOfInt"] = 'global'
+setDict["xticks"] = False
+fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
+
+setDict["regOfInt"] = rlib.Amazon()
+setDict["ylim"] = [25.5,30.5]
+setDict["yticks"] = np.arange(20,40,1)
+setDict["xticks"] = False
+fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
+
+setDict["regOfInt"] = rlib.NorthEurope()
+setDict["ylim"] = [2,10.5]
+setDict["yticks"] = np.arange(0,20,2)
+setDict["xticks"] = True
+fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
+
+# Annual mean precipitation
+dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/annual_PRECT/'
+setDict["convert"] = (fcu.m_to_cm, fcu.persec_peryr)
+scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
+dataDict = {**dataDict, **cmnDict}
+setDict["levOfInt"] = None
+
+setDict["regOfInt"] = 'global'
+setDict["ylim"] = [105,120]
+setDict["yticks"] = np.arange(105,130,5)
+setDict["xticks"] = False
+fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
+
+setDict["regOfInt"] = rlib.AlaskaNorthwestCanada()
+setDict["ylim"] = [43,75]
+setDict["yticks"] = np.arange(43,80,10)
+setDict["xticks"] = False
+fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
+
+# NH monsoon seasonal mean (JJAS) precipitation
+dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/eimnsn_PRECT/anmn/'
+setDict["convert"] = (fcu.m_to_cm, fcu.persec_peryr)
+scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
+dataDict = {**dataDict, **cmnDict}
+setDict["levOfInt"] = None
+
+setDict["regOfInt"] = rlib.GeenEtAl20AsianMonsoonRegion()
+setDict["ylim"] = [180,345]
+setDict["yticks"] = np.arange(180,500,50)
+setDict["xticks"] = True
+fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
+
+# Annual mean sea surface temperature
+dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/annual_OCNTEMP500/'
+setDict["convert"] = None
+scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
+dataDict = {**dataDict, **cmnDict}
+setDict["levOfInt"] = None
+
+setDict["regOfInt"] = 'global'
+setDict["ylim"] = [18,21.25]
+setDict["yticks"] = np.arange(10,30,1)
+setDict["xticks"] = False
+fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
+
+# September Arctic sea ice extent
+dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/sept_ICEEXTENT/'
+setDict["areaAvgBool"] = 'sum'
+setDict["convert"] = (fcu.km2_to_milkm2,)
+scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
+dataDict = {**dataDict, **cmnDict}
+setDict["levOfInt"] = None
+
+setDict["regOfInt"] = rlib.Arctic()
+setDict["ylim"] = [0,9.5]
+setDict["yticks"] = np.arange(0,10,2)
+setDict["xticks"] = False
+fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
+
 # February Antarctic sea ice extent
 dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/feb_ICEEXTENT/'
 setDict["areaAvgBool"] = 'sum'
@@ -167,49 +167,49 @@ setDict["yticks"] = np.arange(2.5,40,2)
 setDict["xticks"] = True
 fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
 
-# # Mid-latitude annual tropical nights
-# dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/extreme_clxTR/'
-# setDict["areaAvgBool"] = True
-# setDict["convert"] = None
-# setDict["landmaskFlag"] = 'land'
-# scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-# dataDict = {**dataDict, **cmnDict}
-# setDict["levOfInt"] = None
-#
-# setDict["regOfInt"] = (rlib.NorthernHemisphereMidLat(), rlib.SouthernHemisphereMidLat())
-# setDict["ylim"] = [28,76]
-# setDict["yticks"] = np.arange(28,100,15)
-# setDict["xticks"] = False
-# fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
-#
-# # East African SDII
-# dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/extreme_sdii/'
-# setDict["areaAvgBool"] = True
-# setDict["convert"] = None
-# setDict["landmaskFlag"] = None
-# scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-# dataDict = {**dataDict, **cmnDict}
-# setDict["levOfInt"] = None
-#
-# setDict["regOfInt"] = (rlib.EastAfricaAyugiEtAl(),)
-# setDict["ylim"] = [5.5,9.5]
-# setDict["yticks"] = np.arange(6,30,1)
-# setDict["xticks"] = False
-# fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
-#
-# # W Australian MHWs
-# dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/extreme_MHW/roll5_centerFalseShift4/'
-# setDict["areaAvgBool"] = True
-# setDict["convert"] = (fcu.roll5_to_percentdays,)
-# scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-# dataDict = {**dataDict, **cmnDict}
-# setDict["levOfInt"] = None
-#
-# setDict["landmaskFlag"] = None
-# setDict["regOfInt"] = (rlib.WesternAustraliaMHW_point(),)
-# setDict["ylim"] = [0,100]
-# setDict["yticks"] = np.arange(0,101,30)
-# setDict["xticks"] = True
-# fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
-#
-# endMsg = ic('Completed! :D')
+# Mid-latitude annual tropical nights
+dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/extreme_clxTR/'
+setDict["areaAvgBool"] = True
+setDict["convert"] = None
+setDict["landmaskFlag"] = 'land'
+scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
+dataDict = {**dataDict, **cmnDict}
+setDict["levOfInt"] = None
+
+setDict["regOfInt"] = (rlib.NorthernHemisphereMidLat(), rlib.SouthernHemisphereMidLat())
+setDict["ylim"] = [28,76]
+setDict["yticks"] = np.arange(28,100,15)
+setDict["xticks"] = False
+fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
+
+# East African SDII
+dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/extreme_sdii/'
+setDict["areaAvgBool"] = True
+setDict["convert"] = None
+setDict["landmaskFlag"] = None
+scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
+dataDict = {**dataDict, **cmnDict}
+setDict["levOfInt"] = None
+
+setDict["regOfInt"] = (rlib.EastAfricaAyugiEtAl(),)
+setDict["ylim"] = [5.5,9.5]
+setDict["yticks"] = np.arange(6,30,1)
+setDict["xticks"] = False
+fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
+
+# W Australian MHWs
+dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/extreme_MHW/roll5_centerFalseShift4/'
+setDict["areaAvgBool"] = True
+setDict["convert"] = (fcu.roll5_to_percentdays,)
+scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
+dataDict = {**dataDict, **cmnDict}
+setDict["levOfInt"] = None
+
+setDict["landmaskFlag"] = None
+setDict["regOfInt"] = (rlib.WesternAustraliaMHW_point(),)
+setDict["ylim"] = [0,100]
+setDict["yticks"] = np.arange(0,101,30)
+setDict["xticks"] = True
+fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
+
+endMsg = ic('Completed! :D')

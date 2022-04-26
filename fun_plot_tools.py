@@ -65,10 +65,14 @@ def make_panels(rlzList, setDict):
 
     return toiStart, toiEnd
 
-def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc=None, cbarBool=True, contourMap=[], contourVals = [], fastBool=False, extent='both'):
+def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc=None, cbarBool=True, contourMap=[], contourVals = [], fastBool=False, extent='both', addCyclicPoint=False):
     ''' Draws geolocated data on a globe '''
     data_crs = ct.crs.PlateCarree()
-    data_cyc, lons_cyc = add_cyclic_point(data, coord=lons) #fixes white line by adding point
+    if addCyclicPoint: #Add point to prime meridian for ocean data
+        data_cyc, lons_cyc = add_cyclic_point(data, coord=lons, axis=-1) #fixes white line by adding point
+    else:
+        data_cyc = data
+        lons_cyc = lons
 
     ax.set_global()
     ax.coastlines(linewidth = 1.2, color='black')
@@ -81,7 +85,10 @@ def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc
         image = ax.pcolor(lons_cyc, lats, data_cyc, transform=data_crs, cmap=cmap)
 
     if(np.size(contourMap) !=0 ):
-        contourMap_cyc, __ = add_cyclic_point(contourMap, coord=lons) #fixes white line by adding point
+        if addCyclicPoint:
+            contourMap_cyc, __ = add_cyclic_point(contourMap, coord=lons, axis=-1) #fixes white line by adding point
+        else:
+            contourMap_cyc = contourMap
         ax.contour(lons_cyc,lats,contourMap_cyc,contourVals, transform=data_crs, colors='fuchsia')
 
     if(cbarBool):
@@ -140,12 +147,12 @@ def add_cyclic_point(data, coord=None, axis=-1):
     # DMH: manually assign ocean data (otherwise will be NaNs and output fails)
     # If plotting non-ocean data and the process fails with an obscure error,
     #   try commenting this block back out!
-    # if np.isnan(slicedData).all().data:
-    #     sliceShape = np.shape(slicedData)
-    #     merData = data.sel(lon=358.75).data
-    #     slicedData = np.zeros(sliceShape)
-    #     for sd,sv in enumerate(slicedData):
-    #         slicedData[sd,0] = merData[sd]
+    if np.isnan(slicedData).all().data:
+        sliceShape = np.shape(slicedData)
+        merData = data.sel(lon=358.75).data
+        slicedData = np.zeros(sliceShape)
+        for sd,sv in enumerate(slicedData):
+            slicedData[sd,0] = merData[sd]
     new_data = ma.concatenate((data, slicedData), axis=axis) #DMH
     if coord is None:
         return_value = new_data

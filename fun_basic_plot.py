@@ -158,7 +158,7 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     plt.rcParams.update({'font.family': 'Fira Sans'})
     plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
 
-    fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
+    fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max', reverseSlicerBool=setDict["reverseSlicerBool"])
     # plt.title(" ") #No automatic title, 1-panel is used for custom figures
 
     savePrfx = 'snapGLENS_' #Easy modification for unique filename
@@ -431,6 +431,57 @@ def plot_arise_difference_globe(rlzList, dataDict, setDict, outDict):
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
     plt.close()
     ic(savename)
+
+## SPECIAL CASE GLOBE FUNCTIONS
+def plot_paper_panels_globe(rlzList, dataDict, setDict, outDict):
+    ''' Plot 1 panel difference globes in loop for paper. This is
+    (for now at least) designed to be REPLICABLE, not flexible. '''
+    # Set up panels
+    toiStart, toiEnd = fpt.make_panels(rlzList, setDict)
+    diffToiR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
+    diffToiR85.attrs['pnl'] = 'RedGLENS'
+    diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
+    diffToiS245.attrs['pnl'] = 'RedARISE'
+    diffToiG12R85 = toiEnd['G1.2(8.5)'] - toiStart['RCP8.5']
+    diffToiG12R85.attrs['pnl'] = 'SnapGLENS'
+    diffToiG15S245 = toiEnd['G1.5(4.5)'] - toiStart['SSP2-4.5']
+    diffToiG15S245.attrs['pnl'] = 'SnapARISE'
+    intiG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
+    intiG12R85.attrs['pnl'] = 'IntImpGLENS'
+    intiG15S245 = toiEnd['G1.5(4.5)'] - toiEnd['SSP2-4.5']
+    intiG15S245.attrs['pnl'] = 'IntImpARISE'
+
+    if 'TREFHT' in dataDict["dataPath"]: #NOTE HOW HORRIBLY HARDCODED THIS IS!
+        panelList = (diffToiR85, diffToiS245, diffToiG12R85, diffToiG15S245, intiG12R85, intiG15S245)
+    else:
+        panelList = (diffToiG12R85, diffToiG15S245, intiG12R85, intiG15S245)
+
+    # Plotting
+    for panel in panelList:
+        CL = 0.
+        mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
+        plt.figure(figsize=(12, 2.73*2))
+        ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
+        cmap = cmocean.cm.balance if setDict["cmap"] is None else setDict["cmap"]
+        cbAuto = [-panel.quantile(0.75).data, panel.quantile(0.75).data]
+        cbVals = cbAuto if setDict["cbVals"] is None else setDict["cbVals"]
+        md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
+        lats = rlzList[0].lat
+        lons = rlzList[0].lon
+        plt.rcParams.update({'font.family': 'Fira Sans'})
+        plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
+
+        fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max', addCyclicPoint=setDict["addCyclicPoint"])
+
+        savePrfx = '' #Easy modification for unique filename
+        pnlId = ic(panel.attrs['pnl'])
+        saveStr = pnlId + '_' + md['varSve'] + '_' + md['levSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
+        savename = outDict["savePath"] + savePrfx + saveStr + '.png'
+        # savename = outDict["savePath"] + savePrfx + saveStr + '.eps'
+        plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
+        # plt.savefig(savename, format='eps', dpi=10)
+        plt.close()
+        ic(savename)
 
 ## TIMESERIES
 

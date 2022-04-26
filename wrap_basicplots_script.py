@@ -38,7 +38,7 @@ xtPrecipPal = seaborn.diverging_palette(58, 162, s=100, l=30, as_cmap=True)
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/extreme_sdii/',
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_OCNTEMP500/',
     "idGlensCntrl": 'control_*', #'control_*' or None
     "idGlensFdbck": 'feedback_*', #'feedback_*' or None
     "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
@@ -47,7 +47,7 @@ dataDict = {
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc'
 }
 setDict = {
-    "landmaskFlag": 'land',
+    "landmaskFlag": None,
     "startIntvl": [2015,2020,2030,2035], #dg [2015,2020,2030,2035]
     "endIntvl": [2025,2030,2040,2045], #dg [2025,2030,2040,2045]
     "cntrlPoi": [2011,2041], #pdf
@@ -57,11 +57,12 @@ setDict = {
     "timePeriod": 20, #pdf
     "plotStyle": 'step', #pdf
     "convert": None, #TUPLE of converter(s), or None if using default units
-    "cmap": precipPal, #None for default cmocean "balance" or choose colormap here
-    "cbVals": [-1,1], #None for automatic or [min,max] to override #dg
+    "cmap": cmocean.cm.balance, #None for default cmocean "balance" or choose colormap here
+    "cbVals": [-1.5,1.5], #None for automatic or [min,max] to override #dg,
+    "addCyclicPoint": True #True/False for ocean data
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220309_finalTiles/2_sdii_snap_impact/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220420_paperBasicPlots/',
     "dpiVal": 400
 }
 loopDict = {
