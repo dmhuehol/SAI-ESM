@@ -847,8 +847,8 @@ def Globe():
     regDict = {
         "regStr": 'Global',
         "regSaveStr": 'global',
-        "regLats": np.array([np.nan, np.nan]),
-        "regLons": np.array([np.nan, np.nan])
+        "regLats": np.array([-5, 0]),
+        "regLons": np.array([0, 15])
     }
 
     return regDict

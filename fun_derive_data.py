@@ -21,6 +21,26 @@ import fun_convert_unit as fcu
 import fun_process_data as fpd
 import region_library as rlib
 
+import time
+
+#### RUN IN MULTIPROCESSING QUEUE
+def derive_binary_timeseries(ordArr, sstTs, altClim, resQue):
+    ''' Derive binary MHW timeseries in shard process '''
+    sstTsDat = sstTs.data
+    if np.isnan(sstTsDat).all():
+        binMhwPres = np.full(np.shape(sstTsDat), np.nan)
+    else:
+        sstTsDat = sstTs.data
+        mhwsDict,climDict = mhws.detect(ordArr, sstTsDat, climatologyPeriod=[2010,2019], alternateClimatology=altClim)
+        binMhwPres = np.zeros(np.shape(ordArr)) #Initiate blank array of the proper size
+        mhwStrtInd = mhwsDict['index_start']
+        mhwDurInd = mhwsDict['duration']
+        for actInd,startInd in enumerate(mhwStrtInd):
+            actDur = mhwDurInd[actInd] #Duration of active MHW
+            binMhwPres[startInd:startInd+actDur] = 1 #Times with active MHW get a 1
+    resQue.put(binMhwPres)
+
+#### RUN AS MAIN
 ### Climdex extremes
 def derive_annual_tropical_nights(inFileTrefht, outPath):
     ''' Obtain annual tropical nights from daily min temperature data '''
@@ -173,21 +193,21 @@ def derive_mhw_presence(inFileSst, outPath):
     mhwDefDict = {
         "defPath": '/Users/dhueholt/Documents/GLENS_data/extreme_MHW/definitionFiles/',
         "defPathCasper": '/glade/work/dhueholt/definitionFiles/',
-        "defFile": 'mhwDefsFile_GLENS_WAusMHW-30_628N112_5E.nc',
-        "defKey": 'mn_SST'
+        "defFile": 'mhwDefsFile_GLENS_global.nc',
+        "defKey": 'mn_sst'
     }
     ic(mhwDefDict["defFile"]) #Helps ensure the correct definitions file is used
     annSum = 5
     inKey = 'SST'
     outKey = 'binary_mhw_pres'
-    regOfInt = rlib.WesternAustraliaMHW_point() #Use point location in almost all circumstances
+    regOfInt = rlib.Globe() #Use point location in almost all circumstances
 
     # Load data
     sstDset = xr.open_dataset(inFileSst)
     sstDarr = sstDset[inKey]
-    sstReg, locStr, _ = fpd.manage_area(sstDarr, regOfInt, areaAvgBool=True)
+    sstReg, locStr, _ = fpd.manage_area(sstDarr, regOfInt, areaAvgBool=False)
     sstRegFullTimes = sstReg.resample(time='1D').asfreq() #Add missing timesteps with NaN value
-    sstRegDat = sstRegFullTimes.data.squeeze()
+    # sstRegDat = sstRegFullTimes.data.squeeze()
     times = sstRegFullTimes.time.data
     ordArr = fpd.make_ord_array(times)
 
@@ -197,6 +217,47 @@ def derive_mhw_presence(inFileSst, outPath):
     mhwDefTimes = mhwDef.time.data
     altClim = list([mhwDefTimes, mhwDefSst]) #Format required by mhws alternateClimatology feature
 
+    lats = sstRegFullTimes.lat.data
+    lons = sstRegFullTimes.lon.data
+    sstRegDatList = list()
+    for ltc,ltv in enumerate(lats):
+        for lnc,lnv in enumerate(lons):
+            sstRegDat = sstRegFullTimes.isel(lat=ltc,lon=lnc).data
+            newData = np.empty([len(lats),len(lons),len(times)])
+            ic(ltv,lnv)
+            from multiprocessing import Process, Queue
+            import subprocess
+            q = Queue()
+            if __name__== '__main__': #If statement required by multiprocessing
+                shard = Process(target=mhws.detect, args=(ordArr, sstRegDat), kwargs={climatologyPeriod:[2010,2019],alternateClimatology:altClim})
+                if ltc % 2 == 0:
+                    # ic(mhwsDict, climDict)
+                    ic(ltc, ltv)
+                    shard.start()
+                    shard.join()
+                mhwsDict,mhwsClim = q.get()
+                ic(mhwsDict,mhwsClim)
+                sys.exit('STOP')
+
+
+                # mhwsDict, climDict = mhws.detect(ordArr, sstRegDat, climatologyPeriod=[2010,2019], alternateClimatology=altClim)
+            # ic(mhwsDict, climDict)
+            # CALCULATE MHW BINARY TIMESERIES HERE
+            # sstRegDatList.append(sstRegDat)
+    sys.exit('STOP')
+    sstRegDatArr = np.asarray(sstRegDatList)
+    sstRegDatRs = np.reshape(sstRegDatArr,[len(lats),len(lons),len(times)])
+    sstRegDatMv = np.moveaxis(sstRegDatRs, -1, 0)
+    newDset = xr.Dataset(
+        data_vars=dict(a=(["time","lat","lon"], sstRegDatMv)),
+        coords=dict(time=times,lat=lats,lon=lons),
+        attrs=dict(description='test')
+    )
+    import matplotlib.pyplot as plt
+    d = newDset.isel(time=0)
+    da = d['a']
+    da.plot(); plt.savefig('/Users/dhueholt/Documents/GLENS_fig/20220421_mhwsGlobal/test.png',dpi=400)
+    sys.exit('STOP')
     mhwsDict, climDict = mhws.detect(ordArr, sstRegDat, climatologyPeriod=[2010,2019], alternateClimatology=altClim)
 
     # Make binary MHW presence/absence array
