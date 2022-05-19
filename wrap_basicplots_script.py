@@ -50,19 +50,13 @@ setDict = {
     "landmaskFlag": None,
     "startIntvl": [2015,2020,2030,2035], #dg [2015,2020,2030,2035]
     "endIntvl": [2025,2030,2040,2045], #dg [2025,2030,2040,2045]
-    "cntrlPoi": [2011,2041], #pdf
-    "fdbckPoi": [2041], #pdf
-    "arisePoi": [2041], #pdf
-    "s245CntrlPoi": [2011, 2041], #pdf
-    "timePeriod": 20, #pdf
-    "plotStyle": 'step', #pdf
     "convert": None, #TUPLE of converter(s), or None if using default units
     "cmap": cmocean.cm.balance, #None for default cmocean "balance" or choose colormap here
     "cbVals": [-1.5,1.5], #None for automatic or [min,max] to override #dg,
     "addCyclicPoint": True #True/False for ocean data
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220420_paperBasicPlots/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220516_refactoringBasicPlots/',
     "dpiVal": 400
 }
 loopDict = {
@@ -82,8 +76,8 @@ for rlz in loopDict["realizations"]:
 
     for lev in loopDict["levels"]:
         setDict["levOfInt"] = lev
-        # fbp.plot_basic_difference_globe(scnList, dataDict, setDict, outDict)
-        # fbp.plot_six_difference_globe(scnList, dataDict, setDict, outDict)
+        fbp.plot_basic_difference_globe(scnList, dataDict, setDict, outDict)
+        fbp.plot_six_difference_globe(scnList, dataDict, setDict, outDict)
         fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_basic_difference_polar(scnList, dataDict, setDict, outDict)
         # fbp.plot_glens_difference_globe(scnList, dataDict, setDict, outDict)

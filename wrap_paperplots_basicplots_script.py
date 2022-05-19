@@ -64,7 +64,7 @@ setDict = {
     "addCyclicPoint": False
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220420_paperBasicPlots/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220516_refactoringBasicPlots/',
     "dpiVal": 800 #High-res for paper
 }
 loopDict = {

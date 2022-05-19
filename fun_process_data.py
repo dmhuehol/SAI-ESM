@@ -436,7 +436,7 @@ def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
         "ensStr": dataDict["ememSave"],
         "yStr": cntrlToPlot.units,
         "unit": cntrlToPlot.attrs['units'],
-        "pdfStyle": setDict["plotStyle"],
+        "pdfStyle": setDict["plotStyle"] if "plotStyle" in setDict.keys() else '',
         "spcStr": make_spc_string(setDict),
         "pid": {'g1p': 'globe_1p', 'g2p': 'globe_2p', 'g4p': 'globe_4p', 'g6p': 'globe_6p', 'ts': 'timeseries', 'pdf': 'pdf'},
         "ensPid": {'spg': 'spghtti', 'sprd': 'spread'},

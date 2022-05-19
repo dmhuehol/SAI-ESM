@@ -97,7 +97,9 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     lats = rlzList[0].lat
     lons = rlzList[0].lon
 
-    fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0],
+                    vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max',
+                    addCyclicPoint=setDict["addCyclicPoint"])
     # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10) #Fully automated
     plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + 'GLENS') #AMS style
     # plt.title(md['lstDcd'] + ' ' + 'GLENS' + ' - ' + md['frstDcd'] + ' ' + 'RCP8.5') #Yaga style
@@ -105,19 +107,25 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
 
 
     ax2 = plt.subplot(2,2,2,projection=mapProj)
-    fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
+    fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0],
+                    vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max',
+                    addCyclicPoint=setDict["addCyclicPoint"])
     # plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10) #Fully automated
     plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + 'ARISE') #AMS style
     # plt.title(md['aLstDcd'] + ' ' + 'ARISE-SAI-1.5' + ' - ' + md['aFrstDcd'] + ' ' + 'SSP2-4.5')
     # plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + 'SSP2-4.5')
 
     ax3 = plt.subplot(2,2,3,projection=mapProj)
-    fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
+    fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0],
+                    vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max',
+                    addCyclicPoint=setDict["addCyclicPoint"])
     # plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10) #Fully automated
     plt.title('GLENS - RCP8.5' + ' ' + md['lstDcd']) #AMS style
 
     ax4 = plt.subplot(2,2,4,projection=mapProj)
-    fpt.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max')
+    fpt.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0],
+                    vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max',
+                    addCyclicPoint=setDict["addCyclicPoint"])
     # plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['aLstDcd'], fontsize=10) #Fully automated
     plt.title('ARISE - SSP2-4.5' + ' ' + md['aLstDcd']) #AMS style
 
@@ -158,7 +166,9 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     plt.rcParams.update({'font.family': 'Fira Sans'})
     plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
 
-    fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max', reverseSlicerBool=setDict["reverseSlicerBool"])
+    fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1],
+                    cbarBool=False, fastBool=True, extent='max',
+                    addCyclicPoint=setDict["addCyclicPoint"])
     # plt.title(" ") #No automatic title, 1-panel is used for custom figures
 
     savePrfx = 'snapGLENS_' #Easy modification for unique filename
@@ -261,27 +271,39 @@ def plot_six_difference_globe(rlzList, dataDict, setDict, outDict):
     lats = rlzList[0].lat
     lons = rlzList[0].lon
 
-    fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0],
+                    vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max',
+                    addCyclicPoint=setDict["addCyclicPoint"])
     plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['cntrlStr'], fontsize=10)
 
     ax2 = plt.subplot(3,2,2,projection=mapProj)
-    fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0],
+                    vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max',
+                    addCyclicPoint=setDict["addCyclicPoint"])
     plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['s245Cntrl'], fontsize=10)
 
     ax3 = plt.subplot(3,2,3,projection=mapProj)
-    fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0],
+                    vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max',
+                    addCyclicPoint=setDict["addCyclicPoint"])
     plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10)
 
     ax4 = plt.subplot(3,2,4,projection=mapProj)
-    fpt.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    fpt.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0],
+                    vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max',
+                    addCyclicPoint=setDict["addCyclicPoint"])
     plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10)
 
     ax5 = plt.subplot(3,2,5,projection=mapProj)
-    fpt.drawOnGlobe(ax5, panels[4], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    fpt.drawOnGlobe(ax5, panels[4], lats, lons, cmap, vmin=cbVals[0],
+                    vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max',
+                    addCyclicPoint=setDict["addCyclicPoint"])
     plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10)
 
     ax6 = plt.subplot(3,2,6,projection=mapProj)
-    fpt.drawOnGlobe(ax6, panels[5], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
+    fpt.drawOnGlobe(ax6, panels[5], lats, lons, cmap, vmin=cbVals[0],
+                    vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max',
+                    addCyclicPoint=setDict["addCyclicPoint"])
     plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['aLstDcd'], fontsize=10)
 
     savePrfx = 'SIX_'
