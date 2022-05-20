@@ -65,7 +65,7 @@ def make_panels(rlzList, setDict):
 
     return toiStart, toiEnd
 
-def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc=None, cbarBool=True, contourMap=[], contourVals = [], fastBool=False, extent='both', addCyclicPoint=False):
+def drawOnGlobe(ax, data, data2, lats, lats2, lons, lons2, cmap='coolwarm', vmin=None, vmax=None, inc=None, cbarBool=True, contourMap=[], contourVals = [], fastBool=False, extent='both', addCyclicPoint=False):
     ''' Draws geolocated data on a globe '''
     data_crs = ct.crs.PlateCarree()
     if addCyclicPoint: #Add point to prime meridian for ocean data
@@ -78,6 +78,7 @@ def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc
     ax.coastlines(linewidth = 1.2, color='black')
     if(fastBool):
         image = ax.pcolormesh(lons_cyc, lats, data_cyc, transform=data_crs, cmap=cmap, alpha=0.8)
+        ax.pcolormesh(lons2, lats2, data2, transform=data_crs, cmap='gray', alpha=0.8)
         # lonCirc = np.arange(0,360)
         # latCirc = np.zeros(np.shape(lonCirc)) + 75
         # plt.plot(lonCirc, latCirc, color='r', linewidth=1, transform=data_crs)
@@ -427,7 +428,7 @@ def save_colorbar(cbarDict, savePath, saveName, dpiVal=400):
         for label in cb.ax.get_yticklabels():
             print(label)
             # label.set_fontproperties(FiraSansThin)
-            # label.set_fontsize(18)
+            label.set_fontsize(18)
     else:
         sys.exit('Direction must be either horizontal or vertical.')
 

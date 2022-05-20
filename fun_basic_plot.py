@@ -150,7 +150,17 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     # blank = toiEnd['G1.5(4.5)'].copy()
     # blank.data = toiEnd['G1.5(4.5)'] - toiEnd['G1.5(4.5)']
 
-    panel = diffToiG12R85
+    panel = diffToiG15S245
+    panel2 = panel.copy()
+    lonsg = panel2.lon
+    latsg = panel2.lat
+    latMask = (latsg>40) & (latsg<70)
+    lonMask = (lonsg>290) & (lonsg<355)
+    latsOfInt = latsg[latMask]
+    lonsOfInt = lonsg[lonMask]
+    ic(latMask, lonMask)
+    panel2 = panel2.sel(lat=latsOfInt,lon=lonsOfInt, method='nearest')
+    ic(panel2)
 
     # Plotting
     CL = 0.
@@ -166,9 +176,12 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     plt.rcParams.update({'font.family': 'Fira Sans'})
     plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
 
-    fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1],
-                    cbarBool=False, fastBool=True, extent='max',
+    fpt.drawOnGlobe(ax, panel, panel2, lats, latsOfInt, lons, lonsOfInt, cmap, vmin=cbVals[0], vmax=cbVals[1],
+                    cbarBool=True, fastBool=True, extent='max',
                     addCyclicPoint=setDict["addCyclicPoint"])
+    # fpt.drawOnGlobe(ax, panel2, latMask, lonMask, cmap='gray', vmin=cbVals[0], vmax=cbVals[1],
+                    # cbarBool=False, fastBool=True, extent='max',
+                    # addCyclicPoint=setDict["addCyclicPoint"])
     # plt.title(" ") #No automatic title, 1-panel is used for custom figures
 
     savePrfx = 'snapGLENS_' #Easy modification for unique filename
