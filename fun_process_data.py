@@ -192,11 +192,11 @@ def manage_realizations(setDict, darr, emem):
             darrOut = darrMn.compute()
             ememSave = 'mn' + scnStr
         elif setDict['realization'] == 'ensplot': #Output DataArray of members AND ens mean
-            if setDict["areaAvgBool"] == True:
+            if setDict["areaAvgBool"] == 'sum':
+                darrOut = darr.compute()
+            else:
                 darrMn = darr.mean(dim='realization')
                 darrOut = xr.concat([darr,darrMn],dim='realization').compute() #Add ens mean as another "realization"
-            elif setDict["areaAvgBool"] == 'sum':
-                darrOut = darr.compute()
             ememSave = 'ens' + scnStr
         else: #Output DataArray of single ens member
             ememNum = list(map(int, emem))

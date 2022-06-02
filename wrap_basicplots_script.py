@@ -38,12 +38,12 @@ xtPrecipPal = seaborn.diverging_palette(58, 162, s=100, l=30, as_cmap=True)
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_OCNTEMP500/',
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_TREFHT/',
     "idGlensCntrl": 'control_*', #'control_*' or None
     "idGlensFdbck": 'feedback_*', #'feedback_*' or None
-    "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
-    "idS245Cntrl": '*BWSSP245*', #'*BWSSP245*' or None
-    "idS245Hist": '*BWHIST*', #'*BWHIST*' or None
+    "idArise": None, #'*SSP245-TSMLT-GAUSS*' or None
+    "idS245Cntrl": None, #'*BWSSP245*' or None
+    "idS245Hist": None, #'*BWHIST*' or None
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc'
 }
 setDict = {
@@ -53,14 +53,16 @@ setDict = {
     "convert": None, #TUPLE of converter(s), or None if using default units
     "cmap": cmocean.cm.balance, #None for default cmocean "balance" or choose colormap here
     "cbVals": [-1.5,1.5], #None for automatic or [min,max] to override #dg,
-    "addCyclicPoint": True #True/False for ocean data
+    "addCyclicPoint": False, #True/False for ocean data
+    "areaAvgBool": False, #ALWAYS False: no area averaging for a map!
+    "robustnessBool": False #PartialImplementWarn: will be True/False to image mute based on robustness
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220516_refactoringBasicPlots/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220602_robustness/',
     "dpiVal": 400
 }
 loopDict = {
-    "realizations": ('mean',), #number for individual member, 'mean' for ens mean of all available members
+    "realizations": ('ensplot',), #number for individual member, 'mean' for ens mean of all available members
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
     "regions": ('global',),#('global',rlib.Arctic(),rlib.EastNorthAmerica()),
     "aaBools": (True,)
@@ -76,8 +78,8 @@ for rlz in loopDict["realizations"]:
 
     for lev in loopDict["levels"]:
         setDict["levOfInt"] = lev
-        fbp.plot_basic_difference_globe(scnList, dataDict, setDict, outDict)
-        fbp.plot_six_difference_globe(scnList, dataDict, setDict, outDict)
+        # fbp.plot_basic_difference_globe(scnList, dataDict, setDict, outDict)
+        # fbp.plot_six_difference_globe(scnList, dataDict, setDict, outDict)
         fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_basic_difference_polar(scnList, dataDict, setDict, outDict)
         # fbp.plot_glens_difference_globe(scnList, dataDict, setDict, outDict)

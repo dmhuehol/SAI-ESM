@@ -31,7 +31,7 @@ insets = rlib.atlas_insets()
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/feb_ICEEXTENT/',
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/sept_ICEEXTENT/',
     "idGlensCntrl": 'control_*', #'control_*' or None
     "idGlensFdbck": 'feedback_*', #'feedback_*' or None
     "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
@@ -53,20 +53,20 @@ setDict = {
     "dimOfVrblty": {'rlzBool':True,'timeBool':True,'spcBool':False}, #pdf
     "convert": (fcu.km2_to_milkm2,), #TUPLE of converter(s), or None if using default units
     "realization": 'ensplot',
-    "insetFlag": 0, #ts 0 default, 1 lines only, 2 AMS style
+    "insetFlag": 2, #ts 0 default, 1 lines only, 2 AMS style
     "mute": False, #ts True/False to use image muting on parts of time period
     "ylim": None, #ts None for automatic, [min,max] for manual
     "ylabel": '', #ts None for automatic
     "yticks": None, #ts None for automatic, np.arange(mn,mx,step) for manual
-    "xticks": False #ts
+    "xticks": True #ts
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220408_faultyAntTiles/2_tiles/6_ant/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220519_seaicearea/',
     "dpiVal": 400
 }
 loopDict = {
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": (rlib.Antarctica(),)
+    "regions": (rlib.Arctic(),)
 }
 
 ic(dataDict, setDict, outDict) #Lowers chances of making the wrong plots by mistake
@@ -78,8 +78,8 @@ for lev in loopDict["levels"]:
     setDict["levOfInt"] = lev
     for reg in loopDict["regions"]:
         setDict["regOfInt"] = reg
-        fep.plot_ens_spaghetti_timeseries(scnList, dataDict, setDict, outDict)
-        # fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
+        # fep.plot_ens_spaghetti_timeseries(scnList, dataDict, setDict, outDict)
+        fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
         # setDict["plotStyle"] = 'step'
         # fep.plot_ens_pdf(scnList, dataDict, setDict, outDict)
         # setDict["plotStyle"] = 'kde'

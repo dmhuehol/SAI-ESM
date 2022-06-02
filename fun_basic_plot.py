@@ -139,13 +139,18 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
 def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     ''' Plot 1 panel difference globe '''
     # Set up panels
+    import fun_robustness as fr
+    if setDict["robustnessBool"]:
+        robustness = fr.rbst_spread(rlzList[0],rlzList[1])
+        ic(rlzList, robustness)
+    # sys.exit('STOP')
     toiStart, toiEnd = fpt.make_panels(rlzList, setDict)
     diffToiR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
-    diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
+    # diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
     diffToiG12R85 = toiEnd['G1.2(8.5)'] - toiStart['RCP8.5']
-    diffToiG15S245 = toiEnd['G1.5(4.5)'] - toiStart['SSP2-4.5']
+    # diffToiG15S245 = toiEnd['G1.5(4.5)'] - toiStart['SSP2-4.5']
     intiG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
-    intiG15S245 = toiEnd['G1.5(4.5)'] - toiEnd['SSP2-4.5']
+    # intiG15S245 = toiEnd['G1.5(4.5)'] - toiEnd['SSP2-4.5']
     # scnrsCmprd = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
     # blank = toiEnd['G1.5(4.5)'].copy()
     # blank.data = toiEnd['G1.5(4.5)'] - toiEnd['G1.5(4.5)']
@@ -169,9 +174,15 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1],
                     cbarBool=False, fastBool=True, extent='max',
                     addCyclicPoint=setDict["addCyclicPoint"])
+    if setDict["robustnessBool"]:
+        nRlz = len(rlzList[0].realization)-1
+        robustDarr = fr.mask_rbst(panel, robustness, nRlz=nRlz)
+        fpt.drawOnGlobe(ax, robustDarr, lats, lons, cmap='Greys', vmin=cbVals[0],
+                        vmax=cbVals[1], cbarBool=False, fastBool=True,
+                        extent='max', addCyclicPoint=setDict["addCyclicPoint"])
     # plt.title(" ") #No automatic title, 1-panel is used for custom figures
 
-    savePrfx = 'snapGLENS_' #Easy modification for unique filename
+    savePrfx = 'TESTROBUST_snapGLENS_' #Easy modification for unique filename
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     # savename = outDict["savePath"] + 'blankmap.eps'

@@ -37,6 +37,9 @@ def make_panels(rlzList, setDict):
     toiEnd = dict()
     for rc,rDarr in enumerate(rlzList):
         rlzLoi = fpd.obtain_levels(rDarr, setDict["levOfInt"])
+        if 'realization' in rlzLoi.dims: #Would check if 'ensplot' explicitly if possible
+            mnInd = len(rlzLoi.realization)-1 #Ensemble mean is bound to final index
+            rlzLoi = rlzLoi.isel(realization=mnInd)
         shrtScn = rlzLoi.scenario.split('/')[len(rlzLoi.scenario.split('/'))-1]
         if 'Control' in rlzLoi.attrs['scenario']:
             if 'GLENS' in rlzLoi.attrs['scenario']:
