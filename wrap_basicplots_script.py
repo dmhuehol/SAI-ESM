@@ -51,14 +51,14 @@ setDict = {
     "startIntvl": [2015,2020,2030,2035], #dg [2015,2020,2030,2035]
     "endIntvl": [2025,2030,2040,2045], #dg [2025,2030,2040,2045]
     "convert": None, #TUPLE of converter(s), or None if using default units
-    "cmap": cmocean.cm.balance, #None for default cmocean "balance" or choose colormap here
-    "cbVals": [-1.5,1.5], #None for automatic or [min,max] to override #dg,
+    "cmap": None, #None for default cmocean "balance" or choose colormap here
+    "cbVals": None, #None for automatic or [min,max] to override #dg,
     "addCyclicPoint": False, #True/False for ocean data
     "areaAvgBool": False, #ALWAYS False: no area averaging for a map!
-    "robustnessBool": False #PartialImplementWarn: will be True/False to image mute based on robustness
+    "robustnessBool": True #PartialImplementWarn: will be True/False to image mute based on robustness
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220602_robustness/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220610_muteRobust/',
     "dpiVal": 400
 }
 loopDict = {
@@ -80,7 +80,8 @@ for rlz in loopDict["realizations"]:
         setDict["levOfInt"] = lev
         # fbp.plot_basic_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_six_difference_globe(scnList, dataDict, setDict, outDict)
-        fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict)
+        # fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict)
+        fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_basic_difference_polar(scnList, dataDict, setDict, outDict)
         # fbp.plot_glens_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_arise_difference_globe(scnList, dataDict, setDict, outDict)

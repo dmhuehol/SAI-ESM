@@ -35,6 +35,7 @@ import cftime
 import scipy.stats as stats
 import cartopy
 import cartopy.crs as ccrs
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import seaborn
@@ -46,9 +47,10 @@ fontPath = '/Users/dhueholt/Library/Fonts/'  #Location of font files
 for font in fm.findSystemFonts(fontPath):
     fm.fontManager.addfont(font)
 
+import fun_convert_unit as fcu
 import fun_process_data as fpd
 import fun_plot_tools as fpt
-import fun_convert_unit as fcu
+import fun_robustness as fr
 import region_library as rlib
 
 ## GLOBAL VARIABLES
@@ -139,11 +141,39 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
 def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     ''' Plot 1 panel difference globe '''
     # Set up panels
+
+    # # IN PROGRESS: ROBUSTNESS
     import fun_robustness as fr
+    rbstList = list()
+    import time
+    t = time.time()
+    # rbstArr = np.full((len(rlzList[0].lat),len(rlzList[0].lon)), np.nan)
+    # # ic(len(rlzList[0].lat))
     if setDict["robustnessBool"]:
-        robustness = fr.rbst_spread(rlzList[0],rlzList[1])
-        ic(rlzList, robustness)
-    # sys.exit('STOP')
+    #     for ltc,lat in enumerate(rlzList[0].lat[0:16]):
+    #         # ic(ltc)
+    #         for lnc,lon in enumerate(rlzList[0].lon):
+    #             actCntrlDarr = rlzList[0].isel(lat=ltc,lon=lnc)
+    #             actFdbckDarr = rlzList[1].isel(lat=ltc,lon=lnc)
+    #             robustness = fr.rbst_num_mn(actCntrlDarr,actFdbckDarr)
+    #             ic(robustness)
+    #             sys.exit('STOP')
+    #     #         # rbstList.append(robustness)
+    #             # rbstArr[ltc,lnc] = robustness
+
+        # actCntrlDarr = rlzList[0].isel(lat=0,lon=0)
+        # actFdbckDarr = rlzList[1].isel(lat=0,lon=0)
+        # robustness = fr.rbst_num_mn(actCntrlDarr,actFdbckDarr)
+
+        actCntrlDarr = rlzList[0]
+        actFdbckDarr = rlzList[1]
+        robustness = fr.rbst_num_mn_vec(actCntrlDarr,actFdbckDarr)
+        # rbstList.append(robustness)
+
+    ic(rbstArr)
+    ic(robustness)
+    elapsed = ic(time.time() - t)
+    sys.exit('STOP')
     toiStart, toiEnd = fpt.make_panels(rlzList, setDict)
     diffToiR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
     # diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
@@ -173,16 +203,134 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
 
     fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1],
                     cbarBool=False, fastBool=True, extent='max',
-                    addCyclicPoint=setDict["addCyclicPoint"])
+                    addCyclicPoint=setDict["addCyclicPoint"], alph=1)
     if setDict["robustnessBool"]:
         nRlz = len(rlzList[0].realization)-1
         robustDarr = fr.mask_rbst(panel, robustness, nRlz=nRlz)
         fpt.drawOnGlobe(ax, robustDarr, lats, lons, cmap='Greys', vmin=cbVals[0],
                         vmax=cbVals[1], cbarBool=False, fastBool=True,
-                        extent='max', addCyclicPoint=setDict["addCyclicPoint"])
+                        extent='max', addCyclicPoint=setDict["addCyclicPoint"],
+                        alph=0.8)
     # plt.title(" ") #No automatic title, 1-panel is used for custom figures
 
     savePrfx = 'TESTROBUST_snapGLENS_' #Easy modification for unique filename
+    saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
+    savename = outDict["savePath"] + savePrfx + saveStr + '.png'
+    # savename = outDict["savePath"] + 'blankmap.eps'
+    plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
+    # plt.savefig(savename,format='eps')
+    plt.close()
+    ic(savename)
+
+def plot_single_robust_globe(rlzList, dataDict, setDict, outDict):
+    ''' Plot 1 panel robustness globe '''
+    if setDict["robustnessBool"] is False:
+        sys.exit('Cannot run robustness globe if robustness is False!')
+    # Set up panels
+
+    # # IN PROGRESS: ROBUSTNESS
+    rbstList = list()
+    import time
+    t = time.time()
+    actCntrlDarr = rlzList[0]
+    actFdbckDarr = rlzList[1]
+    # robustness = fr.rbst_num_mn_ecec(actCntrlDarr,actFdbckDarr)
+    rbstEcEv = fr.rbst_num_mn_ecev(actCntrlDarr,actFdbckDarr)
+    # robustness = np.mean(robustness,axis=0)
+    robustness = fr.thresh_count_rbst(rbstEcEv, thresh=20)
+    ic(robustness)
+    elapsed = ic(time.time() - t)
+
+    panel = robustness
+
+    # Plotting
+    CL = 0.
+    mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
+    plt.figure(figsize=(12, 2.73*2))
+    ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
+
+    # Set up colormap and colorbar
+    # Automatic discrete colormap adapted from stackoverflow.com/a/14779462
+    # cmContns = cmasher.cm.flamingo  # define the colormap
+    # cmList = [cmContns(i) for i in range(cmContns.N)]
+    # # force the first color entry to be grey ADAPT FOR IMAGE MUTING
+    # # cmaplist[0] = (.5, .5, .5, 1.0)
+    #
+    # # create the new map
+    # cmapDisc = mpl.colors.LinearSegmentedColormap.from_list(
+    #     'Discrete', cmList, cmContns.N)
+    #
+    # # define the bins and normalize
+    # bounds = np.arange(0, 22)
+    # norm = mpl.colors.BoundaryNorm(bounds, cmapDisc.N)
+
+    disc = cmasher.get_sub_cmap(cmasher.cm.apple, 0, 1, N=21)
+    thresh = 11
+    grayList = ['#000000',
+                '#111111',
+                '#1b1b1b',
+                '#262626',
+                '#303030',
+                '#3b3b3b',
+                '#474747',
+                '#525252',
+                '#5e5e5e',
+                '#6a6a6a',
+                '#777777', #HSL=0,0,50
+                '#848484',
+                '#919191',
+                '#9e9e9e',
+                '#ababab',
+                '#b9b9b9',
+                '#c6c6c6',
+                '#d4d4d4',
+                '#e2e2e2',
+                '#f1f1f1',
+                '#ffffff']
+    # Could adapt fpt.paint_by_numbers if you want this to be more flexible
+    pinkList = ['#000000',
+                '#2c000d',
+                '#3f0016',
+                '#52001e',
+                '#660028',
+                '#7b0031',
+                '#90003b',
+                '#a60045',
+                '#bc004f',
+                '#d3005a',
+                '#ff1470',
+                '#ea0064',
+                '#ff4d81', #HSL=0,100,60
+                '#ff6c91',
+                '#ff86a1',
+                '#ff9cb1',
+                '#ffb1c0',
+                '#ffc6d0',
+                '#ffd9e0',
+                '#ffecef',
+                '#ffffff']
+    muteList = grayList[:thresh] + pinkList[thresh:]
+    ic(len(muteList))
+    disc = mpl.colors.ListedColormap(muteList)
+    cmap = disc if setDict["cmap"] is None else setDict["cmap"]
+
+    cbAuto = [0, np.max(panel)]
+    cbVals = cbAuto if setDict["cbVals"] is None else setDict["cbVals"]
+    cbarBool = True
+
+    md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
+    lats = rlzList[0].lat
+    lons = rlzList[0].lon
+    plt.rcParams.update({'font.family': 'Fira Sans'})
+    plt.rcParams.update({'font.weight': 'normal'}) #normal, bold, heavy, light, ultrabold, ultralight
+
+    cb,Im = fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1],
+                            cbarBool=cbarBool, fastBool=True, extent='max',
+                            addCyclicPoint=setDict["addCyclicPoint"], alph=1)
+    cb.set_ticks([0,thresh,21])
+    # plt.title(" ") #No automatic title, 1-panel is used for custom figures
+
+    savePrfx = 'TESTBEAT_ECEVTHRESH_snapGLENS_' #Easy modification for unique filename
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     # savename = outDict["savePath"] + 'blankmap.eps'

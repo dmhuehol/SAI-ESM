@@ -68,7 +68,7 @@ def make_panels(rlzList, setDict):
 
     return toiStart, toiEnd
 
-def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc=None, cbarBool=True, contourMap=[], contourVals = [], fastBool=False, extent='both', addCyclicPoint=False):
+def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc=None, cbarBool=True, contourMap=[], contourVals = [], fastBool=False, extent='both', addCyclicPoint=False, alph=0.8):
     ''' Draws geolocated data on a globe '''
     data_crs = ct.crs.PlateCarree()
     if addCyclicPoint: #Add point to prime meridian for ocean data
@@ -80,7 +80,7 @@ def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc
     ax.set_global()
     ax.coastlines(linewidth = 1.2, color='black')
     if(fastBool):
-        image = ax.pcolormesh(lons_cyc, lats, data_cyc, transform=data_crs, cmap=cmap, alpha=0.8)
+        image = ax.pcolormesh(lons_cyc, lats, data_cyc, transform=data_crs, cmap=cmap, alpha=alph)
         # lonCirc = np.arange(0,360)
         # latCirc = np.zeros(np.shape(lonCirc)) + 75
         # plt.plot(lonCirc, latCirc, color='r', linewidth=1, transform=data_crs)
@@ -98,8 +98,8 @@ def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc
         cb = plt.colorbar(image, shrink=.75, orientation="vertical", pad=.02, extend=extent)
         cb.ax.tick_params(labelsize=6) #def: labelsize=6
         try:
-            cb.set_label(data.attrs['units'],size='small')
-            # cb.set_label('',size='small')
+            # cb.set_label(data.attrs['units'],size='small')
+            cb.set_label('num ensemble members',size='small')
         except:
             print('No units in attributes; colorbar will be unlabeled.')
     else:
