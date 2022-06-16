@@ -98,8 +98,8 @@ def drawOnGlobe(ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc
         cb = plt.colorbar(image, shrink=.75, orientation="vertical", pad=.02, extend=extent)
         cb.ax.tick_params(labelsize=6) #def: labelsize=6
         try:
-            # cb.set_label(data.attrs['units'],size='small')
-            cb.set_label('num ensemble members',size='small')
+            cb.set_label(data.attrs['units'],size='small')
+            # cb.set_label('num ensemble members',size='small')
         except:
             print('No units in attributes; colorbar will be unlabeled.')
     else:
@@ -152,7 +152,7 @@ def add_cyclic_point(data, coord=None, axis=-1):
     #   try commenting this block back out!
     if np.isnan(slicedData).all().data:
         sliceShape = np.shape(slicedData)
-        merData = data.sel(lon=358.75).data
+        merData = data.sel(lon=358.75).data #TODO: should work with numpy array
         slicedData = np.zeros(sliceShape)
         for sd,sv in enumerate(slicedData):
             slicedData[sd,0] = merData[sd]
@@ -283,6 +283,55 @@ def paint_by_numbers(colorsToPlot, scnId, nColors):
 
     return colorsToPlot
 
+def mute_by_numbers(thresh):
+    ''' Mute part of a colorbar '''
+    grayList = ['#000000',
+                '#111111',
+                '#1b1b1b',
+                '#262626',
+                '#303030',
+                '#3b3b3b',
+                '#474747',
+                '#525252',
+                '#5e5e5e',
+                '#6a6a6a',
+                '#777777', #HSL=0,0,50
+                '#848484',
+                '#919191',
+                '#9e9e9e',
+                '#ababab',
+                '#b9b9b9',
+                '#c6c6c6',
+                '#d4d4d4',
+                '#e2e2e2',
+                '#f1f1f1',
+                '#ffffff']
+    # Could adapt fpt.paint_by_numbers if you want this to be more flexible
+    pinkList = ['#000000',
+                '#2c000d',
+                '#3f0016',
+                '#52001e',
+                '#660028',
+                '#7b0031',
+                '#90003b',
+                '#a60045',
+                '#bc004f',
+                '#d3005a',
+                '#ff1470',
+                '#ea0064',
+                '#ff4d81', #HSL=0,100,60
+                '#ff6c91',
+                '#ff86a1',
+                '#ff9cb1',
+                '#ffb1c0',
+                '#ffc6d0',
+                '#ffd9e0',
+                '#ffecef',
+                '#ffffff']
+    muteList = grayList[:thresh] + pinkList[thresh:]
+
+    return muteList
+
 def write_labels(labelsList, dataScnPoiKey, scnPoiKey, scnId, ensPrpKey, setDict):
     ''' Writes the label text given loop information '''
     for cdc,cdv in enumerate(scnPoiKey):
@@ -394,49 +443,6 @@ def plot_metaobjects(scnToPlot, fig, b, t):
     plt.plot([2035,2035], [b,t], color='#12D0B2', linewidth=1.2, linestyle='dashed')
 
     return
-
-def save_colorbar(cbarDict, savePath, saveName, dpiVal=400):
-    ''' Plots and saves a colorbar
-        cbarDict should have a cmap, range, direction (horizontal vs. vertical),
-        and label. Ex:
-        cbarDict = {
-            "cmap": cmocean.cm.delta,
-            "range": [-15,15],
-            "direction": 'vertical',
-            "label": 'percent'
-        }
-    '''
-    plt.rcParams.update({'font.size': 0})
-    plt.rcParams.update({'font.family': 'Lato'})
-
-    cbarRange = np.array([cbarDict["range"]])
-
-    if cbarDict["direction"] == 'horizontal':
-        plt.figure(figsize=(9,2.5))
-        img = plt.imshow(cbarRange, cmap=cbarDict["cmap"])
-        plt.gca().set_visible(False)
-        colorAx = plt.axes([0.1,0.2,0.8,0.3])
-        cb = plt.colorbar(orientation='horizontal', cax=colorAx)
-        for label in cb.ax.get_xticklabels():
-            print(label)
-            # label.set_fontproperties(FiraSansThin) #Set font
-            label.set_fontsize(0) #Set font size
-    elif cbarDict["direction"] == 'vertical':
-        plt.figure(figsize=(2.5,9))
-        img = plt.imshow(cbarRange, cmap=cbarDict["cmap"])
-        plt.gca().set_visible(False)
-        colorAx = plt.axes([0.1,0.2,0.2,0.6])
-        cb = plt.colorbar(orientation='vertical', cax=colorAx)
-        for label in cb.ax.get_yticklabels():
-            print(label)
-            # label.set_fontproperties(FiraSansThin)
-            # label.set_fontsize(18)
-    else:
-        sys.exit('Direction must be either horizontal or vertical.')
-
-    # cb.set_label(cbarDict["label"], size='large')
-    # cb.set_label(cbarDict["label"], size='large', fontproperties=FiraSansThin) # Set font
-    plt.savefig(savePath + saveName + '.png', dpi=dpiVal)
 
 def find_widest_quantile(darr):
     ''' Figures out whether [0.01Q,-0.01Q] or [-0.99Q,0.99Q] is more appropriate '''

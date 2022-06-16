@@ -58,7 +58,7 @@ setDict = {
     "robustnessBool": True #PartialImplementWarn: will be True/False to image mute based on robustness
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220610_muteRobust/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220616_pushRobust/',
     "dpiVal": 400
 }
 loopDict = {

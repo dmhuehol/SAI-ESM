@@ -51,6 +51,7 @@ import fun_convert_unit as fcu
 import fun_process_data as fpd
 import fun_plot_tools as fpt
 import fun_robustness as fr
+import fun_special_plot as fsp
 import region_library as rlib
 
 ## GLOBAL VARIABLES
@@ -226,111 +227,74 @@ def plot_single_robust_globe(rlzList, dataDict, setDict, outDict):
     ''' Plot 1 panel robustness globe '''
     if setDict["robustnessBool"] is False:
         sys.exit('Cannot run robustness globe if robustness is False!')
-    # Set up panels
-
-    # # IN PROGRESS: ROBUSTNESS
-    rbstList = list()
-    import time
-    t = time.time()
+    rbd = {
+        "sprdFlag": 'min',
+        "beatNum": 11,
+        "muteQuantThresh": 0.3
+    }
+    # Select data of interest
     actCntrlDarr = rlzList[0]
     actFdbckDarr = rlzList[1]
-    # robustness = fr.rbst_num_mn_ecec(actCntrlDarr,actFdbckDarr)
-    rbstEcEv = fr.rbst_num_mn_ecev(actCntrlDarr,actFdbckDarr)
-    # robustness = np.mean(robustness,axis=0)
-    robustness = fr.thresh_count_rbst(rbstEcEv, thresh=20)
-    ic(robustness)
-    elapsed = ic(time.time() - t)
 
-    panel = robustness
+    # Manually set region for variables with zeros outside certain geographic
+    # areas, i.e. sea ice or snow cover
+    # actCntrlDarr,_,__ = fpd.manage_area(actCntrlDarr, rlib.Antarctica(), areaAvgBool=False)
+    # actFdbckDarr,_,__ = fpd.manage_area(actFdbckDarr, rlib.Antarctica(), areaAvgBool=False)
+
+    # Calculate robustness metric
+    rbstEcEv, nans = fr.rbst_num_mn_ecev(actCntrlDarr,actFdbckDarr, spreadFlag=rbd["sprdFlag"])
+    rbstns = fr.beat_rbst(rbstEcEv, beat=rbd["beatNum"])
+    ic(rbstns)
+    rbstns = rbstns.astype(np.float)
+    rbstns[nans] = np.nan #NaNs from e.g. land area in ocean data
 
     # Plotting
+    fsp.quantiles_vs_members(rbstns, savePath=outDict["savePath"]) #Plot quantiles vs. members here
+
+    panel = rbstns
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12, 2.73*2))
     ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
 
-    # Set up colormap and colorbar
-    # Automatic discrete colormap adapted from stackoverflow.com/a/14779462
-    # cmContns = cmasher.cm.flamingo  # define the colormap
-    # cmList = [cmContns(i) for i in range(cmContns.N)]
-    # # force the first color entry to be grey ADAPT FOR IMAGE MUTING
-    # # cmaplist[0] = (.5, .5, .5, 1.0)
-    #
-    # # create the new map
-    # cmapDisc = mpl.colors.LinearSegmentedColormap.from_list(
-    #     'Discrete', cmList, cmContns.N)
-    #
-    # # define the bins and normalize
-    # bounds = np.arange(0, 22)
-    # norm = mpl.colors.BoundaryNorm(bounds, cmapDisc.N)
-
-    disc = cmasher.get_sub_cmap(cmasher.cm.apple, 0, 1, N=21)
-    thresh = 11
-    grayList = ['#000000',
-                '#111111',
-                '#1b1b1b',
-                '#262626',
-                '#303030',
-                '#3b3b3b',
-                '#474747',
-                '#525252',
-                '#5e5e5e',
-                '#6a6a6a',
-                '#777777', #HSL=0,0,50
-                '#848484',
-                '#919191',
-                '#9e9e9e',
-                '#ababab',
-                '#b9b9b9',
-                '#c6c6c6',
-                '#d4d4d4',
-                '#e2e2e2',
-                '#f1f1f1',
-                '#ffffff']
-    # Could adapt fpt.paint_by_numbers if you want this to be more flexible
-    pinkList = ['#000000',
-                '#2c000d',
-                '#3f0016',
-                '#52001e',
-                '#660028',
-                '#7b0031',
-                '#90003b',
-                '#a60045',
-                '#bc004f',
-                '#d3005a',
-                '#ff1470',
-                '#ea0064',
-                '#ff4d81', #HSL=0,100,60
-                '#ff6c91',
-                '#ff86a1',
-                '#ff9cb1',
-                '#ffb1c0',
-                '#ffc6d0',
-                '#ffd9e0',
-                '#ffecef',
-                '#ffffff']
-    muteList = grayList[:thresh] + pinkList[thresh:]
-    ic(len(muteList))
-    disc = mpl.colors.ListedColormap(muteList)
+    nRlz = len(actCntrlDarr.realization)-1
+    disc = cmasher.get_sub_cmap(cmasher.cm.eclipse, 0, 1, N=nRlz)
+    # # Try pink, pixel green, ghostlight, gem, pepper, eclipse with muting on 20% or 50% quantile
+    # muteThresh = int(np.ceil(rbstQuant["0.5"])) #11 # "threshold" to mute below
+    # ic(muteThresh)
+    # muteList = fpt.mute_by_numbers(muteThresh)
+    # disc = mpl.colors.ListedColormap(muteList)
+    # # pgCol = [[0.       , 0.       , 0.       ],
+    # #          [0.       , 0.3372549, 0.       ],
+    # #          [0.       , 0.6745098, 0.       ],
+    # #          [0.       , 1.       , 0.       ]]
+    # # disc = mpl.colors.ListedColormap(pgCol)
     cmap = disc if setDict["cmap"] is None else setDict["cmap"]
 
-    cbAuto = [0, np.max(panel)]
+    cbAuto = [0, nRlz]
     cbVals = cbAuto if setDict["cbVals"] is None else setDict["cbVals"]
     cbarBool = True
-
     md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
     lats = rlzList[0].lat
     lons = rlzList[0].lon
-    plt.rcParams.update({'font.family': 'Fira Sans'})
-    plt.rcParams.update({'font.weight': 'normal'}) #normal, bold, heavy, light, ultrabold, ultralight
+    plt.rcParams.update({'font.family': 'Palanquin'})
+    plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
 
     cb,Im = fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1],
                             cbarBool=cbarBool, fastBool=True, extent='max',
                             addCyclicPoint=setDict["addCyclicPoint"], alph=1)
-    cb.set_ticks([0,thresh,21])
-    # plt.title(" ") #No automatic title, 1-panel is used for custom figures
 
-    savePrfx = 'TESTBEAT_ECEVTHRESH_snapGLENS_' #Easy modification for unique filename
+    try:
+        cb.set_ticks([0,muteThresh,nRlz])
+    except:
+        cb.set_ticks(np.linspace(0,nRlz,3).astype(int))
+    cb.set_label('number of members', size='small', fontweight='light')
+    if rbd["sprdFlag"] == 'min':
+        plt.title('Count of SAI members below ' + str(rbd["beatNum"]) + ' no-SAI members: ' + md['varStr'], fontsize=16, fontweight='light') #No automatic title, 1-panel is used for custom figures
+    elif rbd["sprdFlag"] == 'max':
+        plt.title('Count of SAI members above ' + str(rbd["beatNum"]) + ' no-SAI members: ' + md['varStr'], fontsize=16, fontweight='light') #No automatic title, 1-panel is used for custom figures
+
+    savePrfx = '2_TESTGLOBE_robust_' #Easy modification for unique filename
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     # savename = outDict["savePath"] + 'blankmap.eps'
