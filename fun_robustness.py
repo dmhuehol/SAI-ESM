@@ -7,17 +7,20 @@ Graduate Research Assistant at Colorado State University
 from icecream import ic
 import sys
 
+import cftime
 import numpy as np
 import xarray as xr
 
-def rbst_num_mn_ecev(cntrlDarr, fdbckDarr, spreadFlag='above', sprd=[15,20,5,10]):
+def rbst_num_mn_ecev(cntrlDarr, fdbckDarr, spreadFlag='above', sprd=[2025,2029]):
     ''' "Each-Every" robustness. Evaluates robustness against ensemble spread
         by: for each Feedback time period, count the number of Control members
         that the given period is less/greater than. This is the only robustness
         function that fully accounts for NaN values. '''
-    cntrlSprd = cntrlDarr.isel(time=np.arange(sprd[0],sprd[1]))
+    timeSlice = slice(cftime.DatetimeNoLeap(sprd[0], 7, 15, 12, 0, 0, 0),
+                      cftime.DatetimeNoLeap(sprd[1], 7, 15, 12, 0, 0, 0))
+    cntrlSprd = cntrlDarr.sel(time=timeSlice)
     cntrlSprdTimeMn = cntrlSprd.mean(dim='time')
-    fdbckSprd = fdbckDarr.isel(time=np.arange(sprd[2],sprd[3]))
+    fdbckSprd = fdbckDarr.sel(time=timeSlice)
     fdbckSprdTimeMn = fdbckSprd.mean(dim='time')
 
     # Loop compares EACH feedback to EVERY control realization!
@@ -128,17 +131,33 @@ def get_quantiles(robustness):
 
     return rbstQuant
 
-def handle_robustness(rbd, rlzList):
+def handle_robustness(rlzList):
     ''' Handles robustness calculation '''
-    ic(rbd) #Show settings for robustness dictionary
+    rbd = { #Settings for robustness calculation
+        "sprdFlag": 'below', #calc based on above/below/TODO:outside of Control spread
+        "beatNum": 6, #beat number is number of Control members to beat
+        "muteQuThr": None, #threshold to image mute; None to disable
+        "nRlz": None #Set automatically
+    }
+
     # Select data of interest
-    actCntrlDarr = rlzList[0]
-    actFdbckDarr = rlzList[1]
+    if len(rlzList) > 2:
+        sys.exit('Robustness can only be run for GLENS OR ARISE, not both.')
+    for s in rlzList:
+        if 'Control' in s.scenario:
+            actCntrlDarr = s
+        elif 'Feedback' in s.scenario:
+            actFdbckDarr = s
+    rbd["nRlz"] = len(actCntrlDarr.realization)-1 #Skip ens mean at last index
+    ic(rbd) #Show robustness dictionary for easy troubleshooting
 
     # Calculate robustness metric
-    rbstEcEv, nans = rbst_num_mn_ecev(actCntrlDarr,actFdbckDarr, spreadFlag=rbd["sprdFlag"])
+    if 'GLENS' in actCntrlDarr.scenario:
+        rbstEcEv, nans = rbst_num_mn_ecev(actCntrlDarr, actFdbckDarr, spreadFlag=rbd["sprdFlag"])
+    elif 'ARISE' in actCntrlDarr.scenario:
+        rbstEcEv, nans = rbst_num_mn_ecev(actCntrlDarr, actFdbckDarr, spreadFlag=rbd["sprdFlag"], sprd=[2040,2044])
     rbstns = beat_rbst(rbstEcEv, beat=rbd["beatNum"])
-    ic(rbstns)
+    ic(rbstns) #Eyeball robustness array just for fun
     rbstns = rbstns.astype(np.float)
     rbstns[nans] = np.nan #NaNs from e.g. land area in ocean data
 

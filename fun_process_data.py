@@ -160,7 +160,7 @@ def combine_hist_fut(darrCntrl, darrHist):
             activeCntrl = darrCntrl.sel(realization=rc)
             activeDarr = xr.concat((darrHistNan,activeCntrl), dim='time')
         darrCombine = xr.concat((darrCombine,activeDarr), dim='realization')
-    darrCombine = darrCombine.sel(realization=np.arange(1,len(cntrlRlz)))
+    darrCombine = darrCombine.sel(realization=np.arange(0,len(cntrlRlz)))
 
     return darrCombine
 
@@ -196,7 +196,7 @@ def manage_realizations(setDict, darr, emem):
                 darrOut = darr.compute()
             else:
                 darrMn = darr.mean(dim='realization')
-                darrOut = xr.concat([darr,darrMn],dim='realization').compute() #Add ens mean as another "realization"
+                darrOut = xr.concat([darr,darrMn], dim='realization').compute() #Add ens mean as another "realization"
             ememSave = 'ens' + scnStr
         else: #Output DataArray of single ens member
             ememNum = list(map(int, emem))

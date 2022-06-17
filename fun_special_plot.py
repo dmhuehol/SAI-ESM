@@ -62,7 +62,7 @@ def save_colorbar(cbarDict, savePath, saveName, dpiVal=400):
     # cb.set_label(cbarDict["label"], size='large', fontproperties=FiraSansThin) # Set font
     plt.savefig(savePath + saveName + '.png', dpi=dpiVal)
 
-def quantiles_vs_members(robustness, savePath=None):
+def quantiles_vs_members(robustness, nRlz, savePath=None):
     ''' Plots quantiles vs number of members '''
     plt.rcParams.update({'font.family': 'Palanquin'})
     plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
@@ -79,11 +79,11 @@ def quantiles_vs_members(robustness, savePath=None):
     plt.ylabel('Ensemble members', fontsize=18, fontweight='light')
     plt.xlim(-0.01,1.01)
     plt.xticks([0,0.2,0.4,0.6,0.8,1], fontsize=14)
-    plt.ylim(0,22)
-    plt.yticks([0,3,6,9,12,15,18,21], fontsize=14)
+    plt.ylim(0,nRlz+1)
+    plt.yticks(np.arange(0,nRlz,3), fontsize=14)
     plt.title('Quantiles vs members: Annual mean 2m temperature', fontsize=22, fontweight='light')
 
     if savePath == None:
         plt.show()
     else:
-        plt.savefig(savePath + 'QuantileVsMembers_AnnualMean2mTemp' + '.png')
+        plt.savefig(savePath + 'QuantileVsMembers_AnnualMean2mTempARISE' + '.png')
