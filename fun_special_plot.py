@@ -81,9 +81,9 @@ def quantiles_vs_members(robustness, savePath=None):
     plt.xticks([0,0.2,0.4,0.6,0.8,1], fontsize=14)
     plt.ylim(0,22)
     plt.yticks([0,3,6,9,12,15,18,21], fontsize=14)
-    plt.title('Quantiles vs members: annual mean 2m temp', fontsize=22, fontweight='light')
+    plt.title('Quantiles vs members: Annual mean 2m temperature', fontsize=22, fontweight='light')
 
     if savePath == None:
         plt.show()
     else:
-        plt.savefig(savePath + 'QuantileVsMembers_AnnualMeanSeaSurfaceTemp' + '.png')
+        plt.savefig(savePath + 'QuantileVsMembers_AnnualMean2mTemp' + '.png')

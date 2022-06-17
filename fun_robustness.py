@@ -10,7 +10,7 @@ import sys
 import numpy as np
 import xarray as xr
 
-def rbst_num_mn_ecev(cntrlDarr, fdbckDarr, spreadFlag='min', sprd=[15,20,5,10]):
+def rbst_num_mn_ecev(cntrlDarr, fdbckDarr, spreadFlag='above', sprd=[15,20,5,10]):
     ''' "Each-Every" robustness. Evaluates robustness against ensemble spread
         by: for each Feedback time period, count the number of Control members
         that the given period is less/greater than. This is the only robustness
@@ -23,9 +23,9 @@ def rbst_num_mn_ecev(cntrlDarr, fdbckDarr, spreadFlag='min', sprd=[15,20,5,10]):
     # Loop compares EACH feedback to EVERY control realization!
     countFdbckOutCntrl = np.full(np.shape(fdbckSprdTimeMn), np.nan)
     for rc,rv in enumerate(fdbckSprdTimeMn[:-1]): #Skip final ensemble member index, which is the ensemble mean
-        if spreadFlag == 'max':
+        if spreadFlag == 'above':
             fdbckOutCntrl = rv > cntrlSprdTimeMn
-        elif spreadFlag == 'min':
+        elif spreadFlag == 'below':
             fdbckOutCntrl = rv < cntrlSprdTimeMn
         countFdbckOutCntrl[rc,:,:] = np.count_nonzero(fdbckOutCntrl.data, axis=2) #axis=2 is realization dimension
         nans = np.isnan(rv.data) #NaNs may be present, e.g. land area for ocean data
@@ -100,10 +100,12 @@ def beat_rbst(rbstIn, beat=None):
     return rbstOut
 
 
-def mask_rbst(darr, robustness, nRlz):
+def mask_rbst(darr, robustness, nRlz, threshold, spreadFlag):
     ''' Mask array based on robustness '''
-    threshold = (nRlz)/2
-    maskRobustness = robustness > threshold
+    if spreadFlag == 'below':
+        maskRobustness = robustness < threshold
+    elif spreadFlag == 'above':
+        maskRobustness = robustness > threshold
     robustDarr = darr.copy()
     robustDarr = robustDarr.where(maskRobustness)
 
@@ -123,3 +125,21 @@ def get_quantiles(robustness):
         "0.01": np.nanquantile(robustness, 0.01)
     }
     ic(rbstQuant)
+
+    return rbstQuant
+
+def handle_robustness(rbd, rlzList):
+    ''' Handles robustness calculation '''
+    ic(rbd) #Show settings for robustness dictionary
+    # Select data of interest
+    actCntrlDarr = rlzList[0]
+    actFdbckDarr = rlzList[1]
+
+    # Calculate robustness metric
+    rbstEcEv, nans = rbst_num_mn_ecev(actCntrlDarr,actFdbckDarr, spreadFlag=rbd["sprdFlag"])
+    rbstns = beat_rbst(rbstEcEv, beat=rbd["beatNum"])
+    ic(rbstns)
+    rbstns = rbstns.astype(np.float)
+    rbstns[nans] = np.nan #NaNs from e.g. land area in ocean data
+
+    return rbd, rbstns

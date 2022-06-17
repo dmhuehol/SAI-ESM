@@ -284,7 +284,7 @@ def paint_by_numbers(colorsToPlot, scnId, nColors):
     return colorsToPlot
 
 def mute_by_numbers(thresh):
-    ''' Mute part of a colorbar '''
+    ''' Mute a colorbar. Colors in comments are HSLuv unless otherwise noted'''
     grayList = ['#000000',
                 '#111111',
                 '#1b1b1b',
@@ -306,7 +306,7 @@ def mute_by_numbers(thresh):
                 '#e2e2e2',
                 '#f1f1f1',
                 '#ffffff']
-    # Could adapt fpt.paint_by_numbers if you want this to be more flexible
+
     pinkList = ['#000000',
                 '#2c000d',
                 '#3f0016',
@@ -328,7 +328,55 @@ def mute_by_numbers(thresh):
                 '#ffd9e0',
                 '#ffecef',
                 '#ffffff']
-    muteList = grayList[:thresh] + pinkList[thresh:]
+
+    ghostgrayList = ['#000000',
+                     '#050505',
+                     '#131313',
+                     '#1d1d1d',
+                     '#282828',
+                     '#333333',
+                     '#3c3c3c',
+                     '#484848',
+                     '#535353',
+                     '#5e5e5e',
+                     '#6a6a6a',
+                     '#757575',
+                     '#818181',
+                     '#8e8e8e',
+                     '#9a9a9a',
+                     '#a8a8a8',
+                     '#b6b6b6',
+                     '#c5c5c5',
+                     '#d2d2d2',
+                     '#dfdfdf',
+                     '#eeeeee']
+
+    ghostlightList = ['#000000',
+                      '#05050a',
+                      '#12111f',
+                      '#1f1933',
+                      '#2f204a', #5
+                      '#43265c',
+                      '#532d61',
+                      '#603b60', #8
+                      '#6a4961',
+                      '#725763', #10
+                      '#7b6566', #11
+                      '#827269', #12
+                      '#89816c', #13
+                      '#8f916f',
+                      '#93a070',
+                      '#97b171',
+                      '#9bc26e', #17
+                      '#a2d464',
+                      '#bce058', #19
+                      '#dbe955',
+                      '#fef255'] #H,S,L=80.8,93.0,94.0
+
+    grayList = ghostgrayList
+    colorList = ghostlightList
+
+    muteList = grayList[:thresh] + colorList[thresh:]
 
     return muteList
 

@@ -141,40 +141,16 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
 
 def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     ''' Plot 1 panel difference globe '''
-    # Set up panels
-
-    # # IN PROGRESS: ROBUSTNESS
-    import fun_robustness as fr
-    rbstList = list()
-    import time
-    t = time.time()
-    # rbstArr = np.full((len(rlzList[0].lat),len(rlzList[0].lon)), np.nan)
-    # # ic(len(rlzList[0].lat))
+    # Settings for robustness
     if setDict["robustnessBool"]:
-    #     for ltc,lat in enumerate(rlzList[0].lat[0:16]):
-    #         # ic(ltc)
-    #         for lnc,lon in enumerate(rlzList[0].lon):
-    #             actCntrlDarr = rlzList[0].isel(lat=ltc,lon=lnc)
-    #             actFdbckDarr = rlzList[1].isel(lat=ltc,lon=lnc)
-    #             robustness = fr.rbst_num_mn(actCntrlDarr,actFdbckDarr)
-    #             ic(robustness)
-    #             sys.exit('STOP')
-    #     #         # rbstList.append(robustness)
-    #             # rbstArr[ltc,lnc] = robustness
+        rbd = {
+            "sprdFlag": 'below',
+            "beatNum": 11,
+            "muteQuThr": 0.3
+        }
+        rbd, rbstns = fr.handle_robustness(rbd, rlzList)
 
-        # actCntrlDarr = rlzList[0].isel(lat=0,lon=0)
-        # actFdbckDarr = rlzList[1].isel(lat=0,lon=0)
-        # robustness = fr.rbst_num_mn(actCntrlDarr,actFdbckDarr)
-
-        actCntrlDarr = rlzList[0]
-        actFdbckDarr = rlzList[1]
-        robustness = fr.rbst_num_mn_vec(actCntrlDarr,actFdbckDarr)
-        # rbstList.append(robustness)
-
-    ic(rbstArr)
-    ic(robustness)
-    elapsed = ic(time.time() - t)
-    sys.exit('STOP')
+    # Set up panels
     toiStart, toiEnd = fpt.make_panels(rlzList, setDict)
     diffToiR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
     # diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
@@ -182,39 +158,42 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     # diffToiG15S245 = toiEnd['G1.5(4.5)'] - toiStart['SSP2-4.5']
     intiG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
     # intiG15S245 = toiEnd['G1.5(4.5)'] - toiEnd['SSP2-4.5']
-    # scnrsCmprd = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
+    # applesToCats = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
     # blank = toiEnd['G1.5(4.5)'].copy()
     # blank.data = toiEnd['G1.5(4.5)'] - toiEnd['G1.5(4.5)']
 
-    panel = diffToiG12R85
+    panel = intiG12R85
 
-    # Plotting
+    # Plotting –– map
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12, 2.73*2))
     ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
+    nRlz = len(rlzList[0].realization)-1
     cmap = cmocean.cm.balance if setDict["cmap"] is None else setDict["cmap"]
     cbAuto = [-panel.quantile(0.75).data, panel.quantile(0.75).data]
     cbVals = cbAuto if setDict["cbVals"] is None else setDict["cbVals"]
     md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
     lats = rlzList[0].lat
     lons = rlzList[0].lon
-    plt.rcParams.update({'font.family': 'Fira Sans'})
+    plt.rcParams.update({'font.family': 'Palanquin'})
     plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
-
     fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1],
                     cbarBool=False, fastBool=True, extent='max',
                     addCyclicPoint=setDict["addCyclicPoint"], alph=1)
+
+    # Plotting –– image muting
     if setDict["robustnessBool"]:
-        nRlz = len(rlzList[0].realization)-1
-        robustDarr = fr.mask_rbst(panel, robustness, nRlz=nRlz)
+        muteThr = int(np.ceil(np.nanquantile(rbstns, rbd["muteQuThr"]))) #Threshold to mute below
+        robustDarr = fr.mask_rbst(panel, rbstns, nRlz, muteThr, rbd["sprdFlag"])
         fpt.drawOnGlobe(ax, robustDarr, lats, lons, cmap='Greys', vmin=cbVals[0],
                         vmax=cbVals[1], cbarBool=False, fastBool=True,
                         extent='max', addCyclicPoint=setDict["addCyclicPoint"],
-                        alph=0.8)
+                        alph=0.5)
     # plt.title(" ") #No automatic title, 1-panel is used for custom figures
 
-    savePrfx = 'TESTROBUST_snapGLENS_' #Easy modification for unique filename
+    # Plotting –– settings for output file
+    savePrfx = '4TESTMUTEalph0p5_intiGLENS_' #Easy modification for unique filename
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     # savename = outDict["savePath"] + 'blankmap.eps'
@@ -228,49 +207,39 @@ def plot_single_robust_globe(rlzList, dataDict, setDict, outDict):
     if setDict["robustnessBool"] is False:
         sys.exit('Cannot run robustness globe if robustness is False!')
     rbd = {
-        "sprdFlag": 'min',
+        "sprdFlag": 'below',
         "beatNum": 11,
-        "muteQuantThresh": 0.3
+        "muteQuThr": 0.3
     }
-    # Select data of interest
-    actCntrlDarr = rlzList[0]
-    actFdbckDarr = rlzList[1]
+    rbd, rbstns = fr.handle_robustness(rbd, rlzList)
 
-    # Manually set region for variables with zeros outside certain geographic
-    # areas, i.e. sea ice or snow cover
-    # actCntrlDarr,_,__ = fpd.manage_area(actCntrlDarr, rlib.Antarctica(), areaAvgBool=False)
-    # actFdbckDarr,_,__ = fpd.manage_area(actFdbckDarr, rlib.Antarctica(), areaAvgBool=False)
+    # Plotting –– quantiles vs members
+    fsp.quantiles_vs_members(rbstns, savePath=outDict["savePath"])
+    # sys.exit('STOP') #Uncomment to plot only q vs m
 
-    # Calculate robustness metric
-    rbstEcEv, nans = fr.rbst_num_mn_ecev(actCntrlDarr,actFdbckDarr, spreadFlag=rbd["sprdFlag"])
-    rbstns = fr.beat_rbst(rbstEcEv, beat=rbd["beatNum"])
-    ic(rbstns)
-    rbstns = rbstns.astype(np.float)
-    rbstns[nans] = np.nan #NaNs from e.g. land area in ocean data
-
-    # Plotting
-    fsp.quantiles_vs_members(rbstns, savePath=outDict["savePath"]) #Plot quantiles vs. members here
-
+    # Plotting –– map setup
     panel = rbstns
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
+    # mapProj = cartopy.crs.Orthographic(0, 90)#N: (0,90) S: (180,-90) #For polar variables
     plt.figure(figsize=(12, 2.73*2))
     ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
-
     nRlz = len(actCntrlDarr.realization)-1
-    disc = cmasher.get_sub_cmap(cmasher.cm.eclipse, 0, 1, N=nRlz)
-    # # Try pink, pixel green, ghostlight, gem, pepper, eclipse with muting on 20% or 50% quantile
-    # muteThresh = int(np.ceil(rbstQuant["0.5"])) #11 # "threshold" to mute below
-    # ic(muteThresh)
-    # muteList = fpt.mute_by_numbers(muteThresh)
-    # disc = mpl.colors.ListedColormap(muteList)
-    # # pgCol = [[0.       , 0.       , 0.       ],
-    # #          [0.       , 0.3372549, 0.       ],
-    # #          [0.       , 0.6745098, 0.       ],
-    # #          [0.       , 1.       , 0.       ]]
-    # # disc = mpl.colors.ListedColormap(pgCol)
-    cmap = disc if setDict["cmap"] is None else setDict["cmap"]
+    disc = cmasher.get_sub_cmap(cmasher.cm.ghostlight, 0, 1, N=nRlz)
+    # cmasher ghostlight, eclipse, cmyt pixel green, custom pink are good
+    # cmasher apple to emphasize low robustness
 
+    # Plotting –– image muting
+    # Image muting is implemented for cmasher ghostlight and custom pink
+    if rbd["muteQuThr"] is not None:
+        muteThresh = int(np.ceil(np.nanquantile(rbstns, rbd["muteQuThr"]))) #Threshold to mute below
+        ic(muteThresh)
+        discColors = cmasher.take_cmap_colors(cmasher.cm.ghostlight,
+                                              N=nRlz, cmap_range=(0,1))
+        muteList = fpt.mute_by_numbers(muteThresh)
+        disc = mpl.colors.ListedColormap(muteList)
+
+    cmap = disc if setDict["cmap"] is None else setDict["cmap"]
     cbAuto = [0, nRlz]
     cbVals = cbAuto if setDict["cbVals"] is None else setDict["cbVals"]
     cbarBool = True
@@ -284,17 +253,18 @@ def plot_single_robust_globe(rlzList, dataDict, setDict, outDict):
                             cbarBool=cbarBool, fastBool=True, extent='max',
                             addCyclicPoint=setDict["addCyclicPoint"], alph=1)
 
-    try:
-        cb.set_ticks([0,muteThresh,nRlz])
-    except:
+    if rbd["muteQuThr"] is None:
         cb.set_ticks(np.linspace(0,nRlz,3).astype(int))
+    else:
+        cb.set_ticks([0, muteThresh, nRlz])
+    cb.ax.tick_params(labelsize=11)
     cb.set_label('number of members', size='small', fontweight='light')
-    if rbd["sprdFlag"] == 'min':
+    if rbd["sprdFlag"] == 'below':
         plt.title('Count of SAI members below ' + str(rbd["beatNum"]) + ' no-SAI members: ' + md['varStr'], fontsize=16, fontweight='light') #No automatic title, 1-panel is used for custom figures
-    elif rbd["sprdFlag"] == 'max':
+    elif rbd["sprdFlag"] == 'above':
         plt.title('Count of SAI members above ' + str(rbd["beatNum"]) + ' no-SAI members: ' + md['varStr'], fontsize=16, fontweight='light') #No automatic title, 1-panel is used for custom figures
 
-    savePrfx = '2_TESTGLOBE_robust_' #Easy modification for unique filename
+    savePrfx = '2TESTMUTE_robust_' #Easy modification for unique filename
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     # savename = outDict["savePath"] + 'blankmap.eps'
