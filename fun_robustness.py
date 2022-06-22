@@ -11,6 +11,42 @@ import cftime
 import numpy as np
 import xarray as xr
 
+def handle_robustness(rlzList):
+    ''' Handles robustness calculation '''
+    rbd = { #Settings for robustness calculation
+        "sprdFlag": 'below', #calc based on above/below/outside of Control spread
+        "beatNum": 6, #beat number is number of Control members to beat
+        "muteQuThr": None, #threshold to image mute; None to disable
+        "nRlz": None #Set automatically
+    }
+
+    # Select data of interest
+    if len(rlzList) > 2:
+        sys.exit('Robustness can only be run for GLENS OR ARISE, not both.')
+    for s in rlzList:
+        if 'Control' in s.scenario:
+            actCntrlDarr = s
+        elif 'Feedback' in s.scenario:
+            actFdbckDarr = s
+    rbd["nRlz"] = len(actCntrlDarr.realization)-1 #Skip ens mean at last index
+    ic(rbd) #Show robustness dictionary for easy troubleshooting
+
+    # Calculate robustness metric
+    if 'GLENS' in actCntrlDarr.scenario:
+        rbstEcEv, nans = rbst_num_mn_ecev(actCntrlDarr, actFdbckDarr, spreadFlag=rbd["sprdFlag"])
+    elif 'ARISE' in actCntrlDarr.scenario:
+        rbstEcEv, nans = rbst_num_mn_ecev(actCntrlDarr, actFdbckDarr, spreadFlag=rbd["sprdFlag"], sprd=[2040,2044])
+    # Can use "outside" logic every time–no difference if "above" or "below" since
+    # dictionary contains null arrays
+    rbstnsAbv = beat_rbst(rbstEcEv["above"], beat=rbd["beatNum"])
+    rbstnsBlw = beat_rbst(rbstEcEv["below"], beat=rbd["beatNum"])
+    rbstns = np.maximum(rbstnsAbv, rbstnsBlw) #Composite of both above and below
+    ic(rbstns) #Eyeball robustness array just for fun
+    rbstns = rbstns.astype(np.float)
+    rbstns[nans] = np.nan #NaNs from e.g. land area in ocean data
+
+    return rbd, rbstns
+
 def rbst_num_mn_ecev(cntrlDarr, fdbckDarr, spreadFlag='above', sprd=[2025,2029]):
     ''' "Each-Every" robustness. Evaluates robustness against ensemble spread
         by: for each Feedback time period, count the number of Control members
@@ -24,17 +60,30 @@ def rbst_num_mn_ecev(cntrlDarr, fdbckDarr, spreadFlag='above', sprd=[2025,2029])
     fdbckSprdTimeMn = fdbckSprd.mean(dim='time')
 
     # Loop compares EACH feedback to EVERY control realization!
-    countFdbckOutCntrl = np.full(np.shape(fdbckSprdTimeMn), np.nan)
+    countFdbckAbvCntrl = np.full(np.shape(fdbckSprdTimeMn), np.nan)
+    countFdbckBlwCntrl = np.full(np.shape(fdbckSprdTimeMn), np.nan)
     for rc,rv in enumerate(fdbckSprdTimeMn[:-1]): #Skip final ensemble member index, which is the ensemble mean
+        nans = np.isnan(rv.data) #NaNs may be present, e.g. land area for ocean data
         if spreadFlag == 'above':
             fdbckOutCntrl = rv > cntrlSprdTimeMn
+            countFdbckAbvCntrl[rc,:,:] = np.count_nonzero(fdbckOutCntrl.data, axis=2) #axis=2 is realization dimension
+            countFdbckAbvCntrl[rc,nans] = np.nan
         elif spreadFlag == 'below':
             fdbckOutCntrl = rv < cntrlSprdTimeMn
-        countFdbckOutCntrl[rc,:,:] = np.count_nonzero(fdbckOutCntrl.data, axis=2) #axis=2 is realization dimension
-        nans = np.isnan(rv.data) #NaNs may be present, e.g. land area for ocean data
-        countFdbckOutCntrl[rc,nans] = np.nan
+            countFdbckBlwCntrl[rc,:,:] = np.count_nonzero(fdbckOutCntrl.data, axis=2) #axis=2 is realization dimension
+            countFdbckBlwCntrl[rc,nans] = np.nan
+        elif spreadFlag == 'outside':
+            fdbckAbvCntrl = rv > cntrlSprdTimeMn
+            countFdbckAbvCntrl[rc,:,:] = np.count_nonzero(fdbckAbvCntrl.data, axis=2) #axis=2 is realization dimension
+            countFdbckAbvCntrl[rc,nans] = np.nan
+            fdbckBlwCntrl = rv < cntrlSprdTimeMn
+            countFdbckBlwCntrl[rc,:,:] = np.count_nonzero(fdbckBlwCntrl.data, axis=2) #axis=2 is realization dimension
+            countFdbckBlwCntrl[rc,nans] = np.nan
 
-    robustness = countFdbckOutCntrl #number of ensemble members outside of spread
+    robustness = {
+        "above": countFdbckAbvCntrl,
+        "below": countFdbckBlwCntrl,
+    }
 
     return robustness, nans
 
@@ -81,35 +130,3 @@ def get_quantiles(robustness):
     ic(rbstQuant)
 
     return rbstQuant
-
-def handle_robustness(rlzList):
-    ''' Handles robustness calculation '''
-    rbd = { #Settings for robustness calculation
-        "sprdFlag": 'below', #calc based on above/below/TODO:outside of Control spread
-        "beatNum": 6, #beat number is number of Control members to beat
-        "muteQuThr": None, #threshold to image mute; None to disable
-        "nRlz": None #Set automatically
-    }
-
-    # Select data of interest
-    if len(rlzList) > 2:
-        sys.exit('Robustness can only be run for GLENS OR ARISE, not both.')
-    for s in rlzList:
-        if 'Control' in s.scenario:
-            actCntrlDarr = s
-        elif 'Feedback' in s.scenario:
-            actFdbckDarr = s
-    rbd["nRlz"] = len(actCntrlDarr.realization)-1 #Skip ens mean at last index
-    ic(rbd) #Show robustness dictionary for easy troubleshooting
-
-    # Calculate robustness metric
-    if 'GLENS' in actCntrlDarr.scenario:
-        rbstEcEv, nans = rbst_num_mn_ecev(actCntrlDarr, actFdbckDarr, spreadFlag=rbd["sprdFlag"])
-    elif 'ARISE' in actCntrlDarr.scenario:
-        rbstEcEv, nans = rbst_num_mn_ecev(actCntrlDarr, actFdbckDarr, spreadFlag=rbd["sprdFlag"], sprd=[2040,2044])
-    rbstns = beat_rbst(rbstEcEv, beat=rbd["beatNum"])
-    ic(rbstns) #Eyeball robustness array just for fun
-    rbstns = rbstns.astype(np.float)
-    rbstns[nans] = np.nan #NaNs from e.g. land area in ocean data
-
-    return rbd, rbstns

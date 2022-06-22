@@ -58,7 +58,7 @@ setDict = {
     "robustnessBool": True #True/False to run robustness
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220617_ariseRobust/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220622_robustOutsideAndPaperFig/',
     "dpiVal": 400
 }
 loopDict = {
