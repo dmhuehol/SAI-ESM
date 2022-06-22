@@ -38,55 +38,6 @@ def rbst_num_mn_ecev(cntrlDarr, fdbckDarr, spreadFlag='above', sprd=[2025,2029])
 
     return robustness, nans
 
-def rbst_num_mn_ecec(cntrlDarr, fdbckDarr, spreadFlag='min', sprd=[15,20,5,10]):
-    ''' "Each-each" Evaluate robustness against ensemble spread by counting the
-        number of Feedback members with a TIME MEAN less/greater than the
-        corresponding Control member. Relies on there being a theoretically-
-        motivated reason to pair a Feedback member of interest with a particular
-        Control member. '''
-    cntrlSprd = cntrlDarr.isel(time=np.arange(sprd[0],sprd[1]))
-    cntrlSprdTimeMn = cntrlSprd.mean(dim='time')
-    fdbckSprd = fdbckDarr.isel(time=np.arange(sprd[2],sprd[3]))
-    fdbckSprdTimeMn = fdbckSprd.mean(dim='time')
-
-    fdbckOutCntrl = fdbckSprdTimeMn < cntrlSprdTimeMn
-    countOutCntrl = np.count_nonzero(fdbckOutCntrl.data, axis=0) #axis=0 is realization dimension
-    ic(np.max(countOutCntrl),np.mean(countOutCntrl), np.median(countOutCntrl), np.mean(countOutCntrl))
-
-    robustness = countOutCntrl
-
-    return robustness
-
-def rbst_spread(cntrlDarr, fdbckDarr, spreadFlag='min', sprd=[15,20,5,10]):
-    ''' Evaluate robustness against ensemble spread by counting the number of
-        Feedback members that fall outside of the Control max/min. This is an
-        impractically stringent constraint, but is kept around for historical
-        reasons. '''
-    cntrlSprd = cntrlDarr.isel(time=np.arange(sprd[0],sprd[1]))
-
-    if spreadFlag == 'max':
-        cntrlSprdThresh = cntrlSprd.max()
-    elif spreadFlag == 'min':
-        cntrlSprdThresh = cntrlSprd.min()
-    else:
-        raise NotImplementedError('Check spread flag--must be "max" or "min"')
-
-    fdbckSprd = fdbckDarr.isel(time=np.arange(sprd[2],sprd[3]))
-    if spreadFlag == 'max':
-        fdbckOutCntrl = fdbckSprd > cntrlSprdThresh
-    elif spreadFlag == 'min':
-        fdbckOutCntrl = fdbckSprd < cntrlSprdThresh
-    fdbckOutCntrlYrs = np.count_nonzero(fdbckOutCntrl.data,axis=1)
-    yrsThresh = 5
-    fdbckOutCntrlYrsThresh = fdbckOutCntrlYrs >= yrsThresh
-    fdbckOutCntrlYrsNum = np.count_nonzero(fdbckOutCntrlYrsThresh)
-    # ic(len(fdbckOutCntrlYrs),fdbckOutCntrlYrsNum)
-
-    robustness = fdbckOutCntrlYrsNum #number of ensemble members outside of spread
-    ic(robustness)
-
-    return robustness
-
 def beat_rbst(rbstIn, beat=None):
     ''' Count how many members "beat" a given threshold value. '''
     if beat is None: #Default beat is greater than half of members
