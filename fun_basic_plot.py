@@ -157,7 +157,7 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     # blank = toiEnd['G1.5(4.5)'].copy()
     # blank.data = toiEnd['G1.5(4.5)'] - toiEnd['G1.5(4.5)']
 
-    panel = intiG12R85
+    panel = diffToiG12R85
 
     # Plotting –– map
     CL = 0.
@@ -179,6 +179,7 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     # Plotting –– image muting by adding separate layer of muted data
     if setDict["robustnessBool"]:
         muteThr = int(np.ceil(np.nanquantile(rbstns, rbd["muteQuThr"]))) #Threshold to mute below
+        ic(muteThr)
         robustDarr = fr.mask_rbst(panel, rbstns, rbd["nRlz"], muteThr, rbd["sprdFlag"])
         fpt.drawOnGlobe(ax, robustDarr, lats, lons, cmap='Greys', vmin=cbVals[0],
                         vmax=cbVals[1], cbarBool=False, fastBool=True,
@@ -187,77 +188,7 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     # plt.title(" ") #No automatic title, 1-panel is used for custom figures
 
     # Plotting –– settings for output file
-    savePrfx = 'intiGLENS_' #Easy modification for unique filename
-    saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
-    savename = outDict["savePath"] + savePrfx + saveStr + '.png'
-    # savename = outDict["savePath"] + 'blankmap.eps'
-    plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
-    # plt.savefig(savename,format='eps')
-    plt.close()
-    ic(savename)
-
-def plot_single_robust_globe(rlzList, dataDict, setDict, outDict):
-    ''' Plot 1 panel robustness globe '''
-    # Calculate robustness
-    if setDict["robustnessBool"] is False:
-        sys.exit('Cannot run robustness globe if robustness is False!')
-    rbd, rbstns = fr.handle_robustness(rlzList)
-
-    # Plotting –– quantiles vs members
-    # fsp.quantiles_vs_members(rbstns, rbd["nRlz"], savePath=outDict["savePath"])
-    # sys.exit('STOP') #Uncomment to plot only q vs m
-
-    # Plotting –– map setup
-    panel = rbstns
-    CL = 0.
-    mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
-    # mapProj = cartopy.crs.Orthographic(0, 90)#N: (0,90) S: (180,-90) #For polar variables
-    plt.figure(figsize=(12, 2.73*2))
-    ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
-    disc = cmasher.get_sub_cmap(cmasher.cm.ghostlight, 0, 1, N=rbd["nRlz"])
-    # cmasher ghostlight, eclipse, cmyt pixel green, custom pink are good
-    # cmasher apple to emphasize low robustness
-
-    # Plotting –– image muting by altering discrete colorbar
-    # Image muting is implemented for cmasher ghostlight and custom pink
-    if rbd["muteQuThr"] is not None:
-        muteThresh = int(np.ceil(np.nanquantile(rbstns, rbd["muteQuThr"]))) #Threshold to mute below
-        ic(muteThresh)
-        discColors = cmasher.take_cmap_colors(cmasher.cm.ghostlight,
-                                              N=rbd["nRlz"], cmap_range=(0,1))
-        muteList = fpt.mute_by_numbers(muteThresh)
-        disc = mpl.colors.ListedColormap(muteList)
-
-    # Plotting –– map
-    cmap = disc if setDict["cmap"] is None else setDict["cmap"]
-    cbAuto = [0, rbd["nRlz"]]
-    cbVals = cbAuto if setDict["cbVals"] is None else setDict["cbVals"]
-    cbarBool = True
-    md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
-    lats = rlzList[0].lat
-    lons = rlzList[0].lon
-    plt.rcParams.update({'font.family': 'Palanquin'})
-    plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
-
-    cb,Im = fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1],
-                            cbarBool=cbarBool, fastBool=True, extent='max',
-                            addCyclicPoint=setDict["addCyclicPoint"], alph=1)
-
-    if rbd["muteQuThr"] is not None: #Muting
-        cb.set_ticks([0, muteThresh, rbd["nRlz"]])
-    else: #No muting
-        cb.set_ticks(np.linspace(0,rbd["nRlz"],3).astype(int))
-    cb.ax.tick_params(labelsize=11)
-    cb.set_label('number of members', size='small', fontweight='light')
-    if rbd["sprdFlag"] == 'below':
-        plt.title('Count of SAI members below ' + str(rbd["beatNum"]) + ' no-SAI members: ' + md['varStr'], fontsize=16, fontweight='light') #No automatic title, 1-panel is used for custom figures
-    elif rbd["sprdFlag"] == 'above':
-        plt.title('Count of SAI members above ' + str(rbd["beatNum"]) + ' no-SAI members: ' + md['varStr'], fontsize=16, fontweight='light') #No automatic title, 1-panel is used for custom figures
-    elif rbd["sprdFlag"] == 'outside':
-        plt.title('Count of SAI members outside of ' + str(rbd["beatNum"]) + ' no-SAI members: ' + md['varStr'], fontsize=16, fontweight='light') #No automatic title, 1-panel is used for custom figures
-
-    # Plotting –– settings for output file
-    savePrfx = 'robust_' #Easy modification for unique filename
+    savePrfx = 'snapGLENS_' #Easy modification for unique filename
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     # savename = outDict["savePath"] + 'blankmap.eps'
@@ -509,7 +440,7 @@ def plot_paper_robust_globe(rlzList, dataDict, setDict, outDict):
     cmap = disc if setDict["cmap"] is None else setDict["cmap"]
     cbAuto = [0, rbd["nRlz"]]
     cbVals = cbAuto if setDict["cbVals"] is None else setDict["cbVals"]
-    cbarBool = True
+    cbarBool = False
     md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
     lats = rlzList[0].lat
     lons = rlzList[0].lon
@@ -519,27 +450,13 @@ def plot_paper_robust_globe(rlzList, dataDict, setDict, outDict):
     cb,Im = fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1],
                             cbarBool=cbarBool, fastBool=True, extent='max',
                             addCyclicPoint=setDict["addCyclicPoint"], alph=1)
-
-    if rbd["muteQuThr"] is not None: #Muting
-        cb.set_ticks([0, muteThresh, rbd["nRlz"]])
-    else: #No muting
-        cb.set_ticks(np.linspace(0,rbd["nRlz"],3).astype(int))
-    cb.ax.tick_params(labelsize=11)
-    cb.set_label('number of members', size='small', fontweight='light')
-    if rbd["sprdFlag"] == 'below':
-        plt.title('Count of SAI members below ' + str(rbd["beatNum"]) + ' no-SAI members: ' + md['varStr'], fontsize=16, fontweight='light') #No automatic title, 1-panel is used for custom figures
-    elif rbd["sprdFlag"] == 'above':
-        plt.title('Count of SAI members above ' + str(rbd["beatNum"]) + ' no-SAI members: ' + md['varStr'], fontsize=16, fontweight='light') #No automatic title, 1-panel is used for custom figures
-    elif rbd["sprdFlag"] == 'outside':
-        plt.title('Count of SAI members outside of ' + str(rbd["beatNum"]) + ' no-SAI members: ' + md['varStr'], fontsize=16, fontweight='light') #No automatic title, 1-panel is used for custom figures
+    plt.title('') #Add manually in Keynote
 
     # Plotting –– settings for output file
     savePrfx = 'robust_' #Easy modification for unique filename
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
-    # savename = outDict["savePath"] + 'blankmap.eps'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
-    # plt.savefig(savename,format='eps')
     plt.close()
     ic(savename)
 
@@ -660,6 +577,68 @@ def plot_paper_panels_globe(rlzList, dataDict, setDict, outDict):
         # plt.savefig(savename, format='eps', dpi=10)
         plt.close()
         ic(savename)
+
+def plot_single_robust_globe(rlzList, dataDict, setDict, outDict):
+    ''' Plot 1 panel robustness globe '''
+    # Calculate robustness
+    if setDict["robustnessBool"] is False:
+        sys.exit('Cannot run robustness globe if robustness is False!')
+    rbd, rbstns = fr.handle_robustness(rlzList)
+
+    # Plotting –– map setup
+    panel = rbstns
+    CL = 0.
+    mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
+    # mapProj = cartopy.crs.Orthographic(0, 90)#N: (0,90) S: (180,-90) #For polar variables
+    plt.figure(figsize=(12, 2.73*2))
+    ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
+    disc = cmasher.get_sub_cmap(cmasher.cm.ghostlight, 0, 1, N=rbd["nRlz"])
+
+    # Plotting –– image muting by altering discrete colorbar
+    # Image muting is implemented for cmasher ghostlight and custom pink
+    if rbd["muteQuThr"] is not None:
+        muteThresh = int(np.ceil(np.nanquantile(rbstns, rbd["muteQuThr"]))) #Threshold to mute below
+        ic(muteThresh)
+        discColors = cmasher.take_cmap_colors(cmasher.cm.ghostlight,
+                                              N=rbd["nRlz"], cmap_range=(0,1))
+        muteList = fpt.mute_by_numbers(muteThresh)
+        disc = mpl.colors.ListedColormap(muteList)
+
+    # Plotting –– map
+    cmap = disc if setDict["cmap"] is None else setDict["cmap"]
+    cbAuto = [0, rbd["nRlz"]]
+    cbVals = cbAuto if setDict["cbVals"] is None else setDict["cbVals"]
+    cbarBool = True
+    md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
+    lats = rlzList[0].lat
+    lons = rlzList[0].lon
+    plt.rcParams.update({'font.family': 'Palanquin'})
+    plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
+
+    cb,Im = fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1],
+                            cbarBool=cbarBool, fastBool=True, extent='max',
+                            addCyclicPoint=setDict["addCyclicPoint"], alph=1)
+
+    if rbd["muteQuThr"] is not None: #Muting
+        cb.set_ticks([0, muteThresh, rbd["nRlz"]])
+    else: #No muting
+        cb.set_ticks(np.linspace(0,rbd["nRlz"],3).astype(int))
+    cb.ax.tick_params(labelsize=11)
+    cb.set_label('number of members', size='small', fontweight='light')
+    if rbd["sprdFlag"] == 'below':
+        plt.title('Count of SAI members below ' + str(rbd["beatNum"]) + ' no-SAI members: ' + md['varStr'], fontsize=16, fontweight='light') #No automatic title, 1-panel is used for custom figures
+    elif rbd["sprdFlag"] == 'above':
+        plt.title('Count of SAI members above ' + str(rbd["beatNum"]) + ' no-SAI members: ' + md['varStr'], fontsize=16, fontweight='light') #No automatic title, 1-panel is used for custom figures
+    elif rbd["sprdFlag"] == 'outside':
+        plt.title('Count of SAI members outside of ' + str(rbd["beatNum"]) + ' no-SAI members: ' + md['varStr'], fontsize=16, fontweight='light') #No automatic title, 1-panel is used for custom figures
+
+    # Plotting –– settings for output file
+    savePrfx = 'robust_' #Easy modification for unique filename
+    saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
+    savename = outDict["savePath"] + savePrfx + saveStr + '.png'
+    plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
+    plt.close()
+    ic(savename)
 
 ## TIMESERIES
 

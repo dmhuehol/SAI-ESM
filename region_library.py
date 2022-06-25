@@ -729,6 +729,17 @@ def WesternAustraliaLand():
 
     return regDict
 
+## South America
+def AmazonIsh():
+    regDict = {
+        "regStr": 'AmazonIsh',
+        "regSaveStr": 'AmazonIsh',
+        "regLats": np.array([-17, -3]),
+        "regLons": np.array([280, 310])
+    }
+
+    return regDict
+
 ### Hemispheres and very large regions
 
 def NorthernHemisphere():

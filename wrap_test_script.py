@@ -1,18 +1,21 @@
-import cmocean
+import cmasher
+import matplotlib as mpl
 import matplotlib.pyplot as plt
-import seaborn
 
 import fun_special_plot as fsp
-precipPal = seaborn.diverging_palette(58, 162, s=100, l=45, as_cmap=True)
+discColors = cmasher.take_cmap_colors(cmasher.cm.ghostlight,
+                                      N=21, cmap_range=(0,1))
+disc = mpl.colors.ListedColormap(discColors)
+
 cbarDict = {
-    "cmap": precipPal,
-    "range": [-25,25],
+    "cmap": disc,
+    "range": [0,21],
     "direction": 'vertical',
-    "label": 'cm'
+    "label": ''
 }
 fsp.save_colorbar(cbarDict,
-                  '/Users/dhueholt/Documents/GLENS_fig/20220616_pushRobust/',
-                  'precipPal', dpiVal=400)
+                  '/Users/dhueholt/Documents/GLENS_fig/20220623_PaperFigPoster/2_paperRobust/',
+                  'ghostlight_robust_GLENS', dpiVal=800)
 
 # Emphasize matching members in spaghetti timeseries
 # def plot_ens_spaghetti_timeseries(darrList, dataDict, setDict, outDict):

@@ -14,8 +14,8 @@ import xarray as xr
 def handle_robustness(rlzList):
     ''' Handles robustness calculation '''
     rbd = { #Settings for robustness calculation
-        "sprdFlag": 'below', #calc based on above/below/outside of Control spread
-        "beatNum": 6, #beat number is number of Control members to beat
+        "sprdFlag": 'outside', #calc based on above/below/outside of Control spread
+        "beatNum": 11, #beat number is number of Control members to beat
         "muteQuThr": None, #threshold to image mute; None to disable
         "nRlz": None #Set automatically
     }
@@ -105,7 +105,7 @@ def beat_rbst(rbstIn, beat=None):
 
 def mask_rbst(darr, robustness, nRlz, threshold, spreadFlag):
     ''' Mask array based on robustness '''
-    if spreadFlag == 'below':
+    if (spreadFlag == 'below') or (spreadFlag == 'outside'):
         maskRobustness = robustness < threshold
     elif spreadFlag == 'above':
         maskRobustness = robustness > threshold

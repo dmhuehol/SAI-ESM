@@ -31,7 +31,7 @@ insets = rlib.atlas_insets()
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/sept_ICEEXTENT/',
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_PRECT/',
     "idGlensCntrl": 'control_*', #'control_*' or None
     "idGlensFdbck": 'feedback_*', #'feedback_*' or None
     "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
@@ -49,9 +49,9 @@ setDict = {
     "s245CntrlPoi": [2041], #pdf
     "timePeriod": 20, #pdf
     "plotStyle": 'step', #pdf
-    "areaAvgBool": 'sum', #True=mean, 'sum'=sum (e.g. ice extent), False=functionality that hasn't been tested in two years, and yes I know that's not a boolean
+    "areaAvgBool": True, #True=mean, 'sum'=sum (e.g. ice extent), False=functionality that hasn't been tested in two years, and yes I know that's not a boolean
     "dimOfVrblty": {'rlzBool':True,'timeBool':True,'spcBool':False}, #pdf
-    "convert": (fcu.km2_to_milkm2,), #TUPLE of converter(s), or None if using default units
+    "convert": (fcu.m_to_cm, fcu.persec_peryr), #TUPLE of converter(s), or None if using default units
     "realization": 'ensplot',
     "insetFlag": 2, #ts 0 default, 1 lines only, 2 AMS style
     "mute": False, #ts True/False to use image muting on parts of time period
@@ -61,12 +61,12 @@ setDict = {
     "xticks": True #ts
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220519_seaicearea/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220623_PaperFigPoster/',
     "dpiVal": 400
 }
 loopDict = {
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": (rlib.Arctic(),)
+    "regions": (rlib.AmazonIsh(),)
 }
 
 ic(dataDict, setDict, outDict) #Lowers chances of making the wrong plots by mistake

@@ -285,6 +285,7 @@ def paint_by_numbers(colorsToPlot, scnId, nColors):
 
 def mute_by_numbers(thresh):
     ''' Mute a colorbar. Colors in comments are HSLuv unless otherwise noted'''
+    # TODO: currently only works for GLENS (21 colors)
     grayList = ['#000000',
                 '#111111',
                 '#1b1b1b',
