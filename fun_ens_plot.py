@@ -50,7 +50,7 @@ def plot_ens_spaghetti_timeseries(darrList, dataDict, setDict, outDict):
     ''' Make a simple timeseries of output variable. Ensemble members are
     visualized in a familiar, basic spaghetti plot. '''
     plotRlzMn = True
-    setYear = [2009, 2070]
+    setYear = [2010, 2070]
     timeSlice = slice(cftime.DatetimeNoLeap(setYear[0], 7, 15, 12, 0, 0, 0), cftime.DatetimeNoLeap(setYear[1], 7, 15, 12, 0, 0, 0))
 
     # Plot timeseries
@@ -60,7 +60,7 @@ def plot_ens_spaghetti_timeseries(darrList, dataDict, setDict, outDict):
         rlzInScn = scnDarr['realization'].data #Number of realizations in scenario
         scnToPlot.append(scnDarr.scenario) #Add scenario to list
         if setDict["areaAvgBool"] == True:
-            rlzMn = scnDarr[len(dataToPlot['realization'])-1] #Last member is ensemble mean
+            rlzMn = scnDarr[len(rlzInScn)-1] #Last member is ensemble mean
         elif setDict["areaAvgBool"] == 'sum':
             rlzMn = scnDarr.copy()
         for rc in rlzInScn:
@@ -99,11 +99,11 @@ def plot_ens_spaghetti_timeseries(darrList, dataDict, setDict, outDict):
 def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
     ''' Make a timeseries of output variable. Ensemble variability is visualized
     as the spread between max and min at each timestep. '''
-    setYear = [2009,2095]
+    setYear = [2009,2070]
     timeSlice = slice(cftime.DatetimeNoLeap(setYear[0], 7, 15, 12, 0, 0, 0),cftime.DatetimeNoLeap(setYear[1], 7, 15, 12, 0, 0, 0))
 
     # Make timeseries
-    if setDict["insetFlag"] == 2:
+    if (setDict["insetFlag"] == 2) | (setDict["insetFlag"] == 3):
         plt.rcParams.update({'font.size': 24})
         plt.rcParams.update({'font.family': 'Lato'})
         plt.rcParams.update({'font.weight': 'normal'}) #normal, bold, heavy, light, ultrabold, ultralight
@@ -131,10 +131,9 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
 
         else:
             dataToPlot, locStr, locTitleStr = fpd.manage_area(darrLoi, setDict["regOfInt"], areaAvgBool=setDict["areaAvgBool"])
+
         rlzMax = dataToPlot.max(dim='realization', skipna=True)
-        ic(rlzMax)
         rlzMin = dataToPlot.min(dim='realization', skipna=True)
-        ic(rlzMin)
         if setDict["areaAvgBool"] == True:
             rlzMn = dataToPlot[len(dataToPlot['realization'])-1] #Last member is ensemble mean
         elif setDict["areaAvgBool"] == 'sum':
@@ -182,14 +181,14 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
         else:
             plt.plot(yrsToPlot,rlzMn.data,color=activeColor,label=activeLabel,linewidth=3.5)
             ax.fill_between(yrsToPlot, rlzMax.data, rlzMin.data, color=activeColor, alpha=0.3, linewidth=0)
-    # sys.exit('STOP')
+
     # Plot metadata and settings
     b,t = plt.ylim() if setDict['ylim'] is None else setDict['ylim']
     fpt.plot_metaobjects(scnToPlot, fig, b, t)
     # plt.autoscale(enable=True, axis='x', tight=False)
     # plt.autoscale(enable=True, axis='y', tight=False)
     plt.xlim(setYear[0],setYear[1])
-    plt.xlim(2010,2069)
+    xl,xr = plt.xlim(2010,2069)
     if setDict["insetFlag"] == 0: #Standard plot
         plt.ylabel(md['unit'])
         # plt.ylabel('cm')
@@ -202,7 +201,7 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
     elif setDict["insetFlag"] == 1: #Lines only
         savePrfx = 'INSETQUAL_'
         ax.axis('off')
-    else: #Aesthetics used for figures in posters/presentations/papers/etc
+    elif setDict["insetFlag"] == 2: #Aesthetics used for figures in posters/presentations/papers/etc
         savePrfx = 'AES_'
         if setDict["xticks"]:
             plt.xticks([2015,2040,2065,])
@@ -226,10 +225,32 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
         # ax.axes.xaxis.set_ticklabels([])
         # ax.spines['bottom'].set_visible(False)
         # ax.spines['left'].set_visible(False)
+    elif setDict["insetFlag"] == 3: #Flexible but aesthetic region plotting for IPCC regions
+        savePrfx = 'IPCCregions_'
+        plt.xticks([2015,2040,2065,], size=17)
+        plt.yticks(setDict["yticks"], size=17)
+        plt.ylabel(md['unit'], size=16)
+        titleStr = md['varStr'] + ' ' + str(int(xl)) + '-' + \
+                   str(int(xr)) + ' ' + setDict['regOfInt']["regStr"]
+        plt.title(titleStr, weight='normal', size=20)
+        legProp = {'size': 12,
+                   'weight':'normal'}
+        leg = ax.legend()
+        handles,labels = ax.get_legend_handles_labels()
+        handles = [handles[0], handles[1], handles[3], handles[2]]
+        labels = [labels[0], labels[1], labels[3], labels[2]]
+
+        ax.legend(handles, labels, loc='upper center', prop=legProp,
+                  bbox_to_anchor=(0.5, -0.07), ncol=2, frameon=True)
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        plt.ylim([b,t])
+        saveStr = md['varSve'] + '_' + str(int(xl)) + str(int(xr)) + '_' + locStr + '_' + 'ts'
 
     # Save image
-    savePrfx = savePrfx + '4AR8x7TIGHTOFF_'
-    saveStr = md['varSve'] + '_' + md['levSve'] + '_' + str(setYear[0]) + str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + md['ensPid']['sprd']
+    savePrfx = savePrfx
+    if setDict["insetFlag"] != 3:
+        saveStr = md['varSve'] + '_' + md['levSve'] + '_' + str(setYear[0]) + str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + md['ensPid']['sprd']
     # saveStr = 'SST' + '_' + md['levSve'] + '_' + str(setYear[0]) + str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + md['ensPid']['sprd']
     # savename = outDict["savePath"] + 'asdf.pdf'
     saveStr = saveStr.replace("/",'-')

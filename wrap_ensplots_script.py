@@ -31,7 +31,7 @@ insets = rlib.atlas_insets()
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_PRECT/',
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/extreme_clxTR/',
     "idGlensCntrl": 'control_*', #'control_*' or None
     "idGlensFdbck": 'feedback_*', #'feedback_*' or None
     "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
@@ -51,9 +51,9 @@ setDict = {
     "plotStyle": 'step', #pdf
     "areaAvgBool": True, #True=mean, 'sum'=sum (e.g. ice extent), False=functionality that hasn't been tested in two years, and yes I know that's not a boolean
     "dimOfVrblty": {'rlzBool':True,'timeBool':True,'spcBool':False}, #pdf
-    "convert": (fcu.m_to_cm, fcu.persec_peryr), #TUPLE of converter(s), or None if using default units
+    "convert": None, #TUPLE of converter(s), or None if using default units
     "realization": 'ensplot',
-    "insetFlag": 2, #ts 0 default, 1 lines only, 2 AMS style
+    "insetFlag": 2, #ts 0 default, 1 lines only, 2 AMS style, 3 general IPCC
     "mute": False, #ts True/False to use image muting on parts of time period
     "ylim": None, #ts None for automatic, [min,max] for manual
     "ylabel": '', #ts None for automatic
@@ -61,12 +61,12 @@ setDict = {
     "xticks": True #ts
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220623_PaperFigPoster/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220804_robustForScenarios/',
     "dpiVal": 400
 }
 loopDict = {
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": (rlib.AmazonIsh(),)
+    "regions": ('global',)
 }
 
 ic(dataDict, setDict, outDict) #Lowers chances of making the wrong plots by mistake

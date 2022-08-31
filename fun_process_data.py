@@ -419,8 +419,8 @@ def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
     ''' Compile bits and pieces for filenames and titles '''
     metaDict = {
         "cntrlStr": 'RCP8.5',
-        "fdbckStr": 'G1.2(8.5)',
-        "ariseStr": 'G1.5(2-4.5)',
+        "fdbckStr": 'GLENS-SAI',
+        "ariseStr": 'ARISE-SAI-1.5',
         "s245Cntrl": 'SSP2-4.5',
         "varStr": var_str_lookup(cntrlToPlot.long_name, setDict, strType='title'),
         "varSve": var_str_lookup(cntrlToPlot.long_name, setDict, strType='save'),

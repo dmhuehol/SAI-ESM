@@ -147,17 +147,17 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
 
     # Set up panels
     toiStart, toiEnd = fpt.make_panels(rlzList, setDict)
-    diffToiR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
+    # diffToiR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
     # diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
-    diffToiG12R85 = toiEnd['G1.2(8.5)'] - toiStart['RCP8.5']
-    # diffToiG15S245 = toiEnd['G1.5(4.5)'] - toiStart['SSP2-4.5']
-    intiG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
+    # diffToiG12R85 = toiEnd['G1.2(8.5)'] - toiStart['RCP8.5']
+    diffToiG15S245 = toiEnd['G1.5(4.5)'] - toiStart['SSP2-4.5']
+    # intiG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
     # intiG15S245 = toiEnd['G1.5(4.5)'] - toiEnd['SSP2-4.5']
     # applesToCats = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
     # blank = toiEnd['G1.5(4.5)'].copy()
     # blank.data = toiEnd['G1.5(4.5)'] - toiEnd['G1.5(4.5)']
 
-    panel = diffToiG12R85
+    panel = diffToiG15S245
 
     # Plotting –– map
     CL = 0.
@@ -170,15 +170,18 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
     lats = rlzList[0].lat
     lons = rlzList[0].lon
-    plt.rcParams.update({'font.family': 'Palanquin'})
+    plt.rcParams.update({'font.family': 'Open Sans'})
     plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
     fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1],
-                    cbarBool=False, fastBool=True, extent='max',
+                    cbarBool=True, fastBool=True, extent='max',
                     addCyclicPoint=setDict["addCyclicPoint"], alph=1)
 
     # Plotting –– image muting by adding separate layer of muted data
     if setDict["robustnessBool"]:
-        muteThr = int(np.ceil(np.nanquantile(rbstns, rbd["muteQuThr"]))) #Threshold to mute below
+        if rbd["muteThr"]<1:
+            muteThr = int(np.ceil(np.nanquantile(rbstns, rbd["muteThr"]))) #Threshold to mute below
+        else:
+            muteThr = rbd["muteThr"]
         ic(muteThr)
         robustDarr = fr.mask_rbst(panel, rbstns, rbd["nRlz"], muteThr, rbd["sprdFlag"])
         fpt.drawOnGlobe(ax, robustDarr, lats, lons, cmap='Greys', vmin=cbVals[0],
@@ -188,8 +191,12 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     # plt.title(" ") #No automatic title, 1-panel is used for custom figures
 
     # Plotting –– settings for output file
-    savePrfx = 'snapGLENS_' #Easy modification for unique filename
-    saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
+    savePrfx = 'BEAT6MUTE7snapARISE_' #Easy modification for unique filename
+    if 'ARISE' in panel.scenario:
+        saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['aLstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
+    else:
+        saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
+
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     # savename = outDict["savePath"] + 'blankmap.eps'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
@@ -592,7 +599,7 @@ def plot_single_robust_globe(rlzList, dataDict, setDict, outDict):
     # mapProj = cartopy.crs.Orthographic(0, 90)#N: (0,90) S: (180,-90) #For polar variables
     plt.figure(figsize=(12, 2.73*2))
     ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
-    disc = cmasher.get_sub_cmap(cmasher.cm.ghostlight, 0, 1, N=rbd["nRlz"])
+    disc = cmasher.get_sub_cmap(cmasher.cm.ghostlight, 0, 1, N=rbd["nRlz"]+1)
 
     # Plotting –– image muting by altering discrete colorbar
     # Image muting is implemented for cmasher ghostlight and custom pink

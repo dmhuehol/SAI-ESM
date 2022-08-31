@@ -39,11 +39,11 @@ xtPrecipPal = seaborn.diverging_palette(58, 162, s=100, l=30, as_cmap=True)
 # Dictionaries
 dataDict = {
     "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_TREFHT/',
-    "idGlensCntrl": 'control_*', #'control_*' or None
-    "idGlensFdbck": 'feedback_*', #'feedback_*' or None
-    "idArise": None, #'*SSP245-TSMLT-GAUSS*' or None
-    "idS245Cntrl": None, #'*BWSSP245*' or None
-    "idS245Hist": None, #'*BWHIST*' or None
+    "idGlensCntrl": None, #'control_*' or None
+    "idGlensFdbck": None, #'feedback_*' or None
+    "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
+    "idS245Cntrl": '*BWSSP245*', #'*BWSSP245*' or None
+    "idS245Hist": '*BWHIST*', #'*BWHIST*' or None
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc'
 }
 setDict = {
@@ -58,7 +58,7 @@ setDict = {
     "robustnessBool": True #True/False to run robustness
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220623_PaperFigPoster/1_poster/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220804_robustForScenarios/',
     "dpiVal": 400
 }
 loopDict = {
@@ -80,8 +80,8 @@ for rlz in loopDict["realizations"]:
         setDict["levOfInt"] = lev
         # fbp.plot_basic_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_six_difference_globe(scnList, dataDict, setDict, outDict)
-        # fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict)
-        fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict)
+        fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict)
+        # fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_basic_difference_polar(scnList, dataDict, setDict, outDict)
         # fbp.plot_glens_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_arise_difference_globe(scnList, dataDict, setDict, outDict)

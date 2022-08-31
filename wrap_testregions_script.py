@@ -31,7 +31,7 @@ insets = (rlib.Sahara(),rlib.NorthEurope(),rlib.SoutheasternSouthAmerica(),rlib.
 summaryPaperRegions = (rlib.Amazon(), rlib.AlaskaNorthwestCanada(), rlib.Arctic(), rlib.EastAfricaAyugiEtAl(),
                        rlib.NorthEurope(), rlib.GeenEtAl20AsianMonsoonRegion(), rlib.Antarctica())
 
-activeTest = (rlib.AlaskaNorthwestCanada(),rlib.SouthEuropeMediterranean())
+activeTest = (rlib.GibsonDesert(),)
 
 # The same 9 colors repeated a bunch of times
 # colors = ('Greens_r', 'Purples_r','Greys_r','Greys_r','Greys_r','Oranges_r','Greys_r','Greys_r','Greys_r','Greys_r')
@@ -45,8 +45,8 @@ mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
 fig = plt.figure(figsize=(12, 2.73*2))
 ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
 
-for rc,reg in enumerate(summaryPaperRegions):
+for rc,reg in enumerate(activeTest):
     ic(reg)
     fig,ax = rlib.test_region(reg,colors[rc],fig,ax)
 # plt.title("WG1-AR5 IPCC regions")
-plt.savefig('/Users/dhueholt/Documents/GLENS_fig/20220413_captions/PaperRegions.png', dpi=400)
+plt.savefig('/Users/dhueholt/Documents/GLENS_fig/20220802_sdiiEtc/GibsonDesert.png', dpi=400)

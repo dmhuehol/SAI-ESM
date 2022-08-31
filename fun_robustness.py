@@ -15,8 +15,8 @@ def handle_robustness(rlzList):
     ''' Handles robustness calculation '''
     rbd = { #Settings for robustness calculation
         "sprdFlag": 'outside', #calc based on above/below/outside of Control spread
-        "beatNum": 11, #beat number is number of Control members to beat
-        "muteQuThr": None, #threshold to image mute; None to disable
+        "beatNum": 6, #beat number is number of Control members to beat
+        "muteThr": 7, #threshold to image mute; None to disable
         "nRlz": None #Set automatically
     }
 
@@ -52,6 +52,7 @@ def rbst_num_mn_ecev(cntrlDarr, fdbckDarr, spreadFlag='above', sprd=[2025,2029])
         by: for each Feedback time period, count the number of Control members
         that the given period is less/greater than. This is the only robustness
         function that fully accounts for NaN values. '''
+    ic(sprd)
     timeSlice = slice(cftime.DatetimeNoLeap(sprd[0], 7, 15, 12, 0, 0, 0),
                       cftime.DatetimeNoLeap(sprd[1], 7, 15, 12, 0, 0, 0))
     cntrlSprd = cntrlDarr.sel(time=timeSlice)

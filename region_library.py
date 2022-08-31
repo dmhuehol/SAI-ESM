@@ -723,8 +723,18 @@ def WesternAustraliaLand():
     regDict = {
         "regStr": 'WesternAustraliaLand',
         "regSaveStr": 'WAusLnd',
-        "regLats": np.array([-38, -11]),
+        "regLats": np.array([-42, -13]),
         "regLons": np.array([112, 136])
+    }
+
+    return regDict
+
+def GibsonDesert():
+    regDict = {
+        "regStr": 'GibsonDesert',
+        "regSaveStr": 'GibsonDesert',
+        "regLats": np.array([-30, -17]),
+        "regLons": np.array([122, 144])
     }
 
     return regDict
