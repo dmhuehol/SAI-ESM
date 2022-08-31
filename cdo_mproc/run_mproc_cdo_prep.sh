@@ -20,8 +20,8 @@ mkdir -p $TMPDIR
 
 ### Load modules
 module load cdo
-module load python
-module load ncarenv
+module load conda/latest
+conda activate dh-env
 ncar_pylib ncar_pylib_dhueholt
 
 python wrap_mproc_cdo_prep.py

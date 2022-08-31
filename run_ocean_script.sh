@@ -19,8 +19,7 @@ export TMPDIR=/glade/scratch/dhueholt/temp
 mkdir -p $TMPDIR
 
 # Load modules
-module load python
-module load ncarenv
-ncar_pylib ncar_pylib_dhueholt
+module load conda/latest
+conda activate dh-env
 
 python wrap_ocean_script.py
