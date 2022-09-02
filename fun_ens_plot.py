@@ -99,17 +99,20 @@ def plot_ens_spaghetti_timeseries(darrList, dataDict, setDict, outDict):
 def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
     ''' Make a timeseries of output variable. Ensemble variability is visualized
     as the spread between max and min at each timestep. '''
-    setYear = [2009,2070]
-    timeSlice = slice(cftime.DatetimeNoLeap(setYear[0], 7, 15, 12, 0, 0, 0),cftime.DatetimeNoLeap(setYear[1], 7, 15, 12, 0, 0, 0))
+    # Get data
+    setYear = [2010,2070]
+    timeSlice = slice(
+        cftime.DatetimeNoLeap(setYear[0], 1, 1, 12, 0, 0, 0),
+        cftime.DatetimeNoLeap(setYear[1], 12, 31, 12, 0, 0, 0)) #arbitrary MDHMS
 
-    # Make timeseries
+    # General plot settings
+    # Valid fontweights: normal, bold, heavy, light, ultrabold, ultralight
     if (setDict["insetFlag"] == 2) | (setDict["insetFlag"] == 3):
         plt.rcParams.update({'font.size': 24})
         plt.rcParams.update({'font.family': 'Lato'})
-        plt.rcParams.update({'font.weight': 'normal'}) #normal, bold, heavy, light, ultrabold, ultralight
+        plt.rcParams.update({'font.weight': 'normal'})
     plt.rcParams.update({'figure.autolayout': True})
     fig, ax = plt.subplots(figsize=[8,7])
-    # fig, ax = plt.subplots()
     scnToPlot = list()
 
     for darr in darrList:
@@ -120,7 +123,8 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
             colLocStr = ''
             colLocTitleStr = ''
             for subreg in setDict["regOfInt"]:
-                subregData, locStr, locTitleStr = fpd.manage_area(darrLoi, subreg, areaAvgBool=setDict["areaAvgBool"])
+                subregData, locStr, locTitleStr = fpd.manage_area(
+                        darrLoi, subreg, areaAvgBool=setDict["areaAvgBool"])
                 subregList.append(subregData)
                 colLocStr += locStr
                 colLocTitleStr += locTitleStr
@@ -128,14 +132,16 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
             dataToPlot = concatAlongReg.mean(dim="regions", skipna=True)
             locStr = colLocStr
             locTitleStr = colLocTitleStr
-
         else:
-            dataToPlot, locStr, locTitleStr = fpd.manage_area(darrLoi, setDict["regOfInt"], areaAvgBool=setDict["areaAvgBool"])
+            dataToPlot, locStr, locTitleStr = fpd.manage_area(
+                    darrLoi, setDict["regOfInt"],
+                    areaAvgBool=setDict["areaAvgBool"])
 
         rlzMax = dataToPlot.max(dim='realization', skipna=True)
         rlzMin = dataToPlot.min(dim='realization', skipna=True)
         if setDict["areaAvgBool"] == True:
-            rlzMn = dataToPlot[len(dataToPlot['realization'])-1] #Last member is ensemble mean
+            ensMnInd = len(dataToPlot['realization'])-1 #Last index is ens mean
+            rlzMn = dataToPlot[ensMnInd]
         elif setDict["areaAvgBool"] == 'sum':
             rlzMn = dataToPlot.mean(dim='realization')
         md = fpd.meta_book(setDict, dataDict, rlzMn, labelsToPlot=None)
@@ -147,61 +153,106 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
         # plt.plot(yrsToPlot,rlzMax.data,color='#D3D3D3',linewidth=0.3) #Border on top of spread
         # plt.plot(yrsToPlot,rlzMin.data,color='#D3D3D3',linewidth=0.3) #Border on bottom of spread
         ic(darr.scenario)
-        if setDict["mute"] == True: #D3D3D3
-            plt.plot(yrsToPlot,rlzMn.data,color='#D3D3D3',label=activeLabel,linewidth=1,alpha=0.5)
-            ax.fill_between(yrsToPlot, rlzMax.data, rlzMin.data, color='#D3D3D3', alpha=0.2, linewidth=0)
+
+        if setDict["mute"] == True:
+            # D3D3D3 is gray for muted objects
+            plt.plot(
+                    yrsToPlot, rlzMn.data, color='#D3D3D3',
+                    linewidth=1, alpha=0.5)
+            ax.fill_between(
+                    yrsToPlot, rlzMax.data, rlzMin.data,
+                    color='#D3D3D3', alpha=0.2, linewidth=0)
+            # Plot "unmuted" sections of the timeseries. This requires specific
+            # indices for each scenario, so it's hard-coded by necessity.
             if 'GLENS:Control' in darr.scenario:
-                gcw = [5,11,15,20] #[5,11] for immediate, [5,11,45,50] for impact, [5,11,15,20] for compromise
-                ic(yrsToPlot[gcw[0]:gcw[1]],rlzMn.data[gcw[0]:gcw[1]])
-                plt.plot(yrsToPlot[gcw[0]:gcw[1]],rlzMn.data[gcw[0]:gcw[1]],color=activeColor,label=activeLabel,linewidth=2)
-                ax.fill_between(yrsToPlot[gcw[0]:gcw[1]], rlzMax.data[gcw[0]:gcw[1]], rlzMin.data[gcw[0]:gcw[1]], color=activeColor, alpha=0.3, linewidth=0)
+                gcw = [5, 11, 15, 20] #[5,11] immediate, [5,11,45,50] impact, [5,11,15,20] compromise
+                ic(yrsToPlot[gcw[0]:gcw[1]], rlzMn.data[gcw[0]:gcw[1]])
+                plt.plot(
+                        yrsToPlot[gcw[0]:gcw[1]], rlzMn.data[gcw[0]:gcw[1]],
+                        color=activeColor, label=activeLabel, linewidth=2)
+                ax.fill_between(
+                    yrsToPlot[gcw[0]:gcw[1]], rlzMax.data[gcw[0]:gcw[1]],
+                    rlzMin.data[gcw[0]:gcw[1]], color=activeColor, alpha=0.3,
+                    linewidth=0)
                 if len(gcw)>2:
                     ic(yrsToPlot[gcw[2]:gcw[3]],rlzMn.data[gcw[2]:gcw[3]])
-                    plt.plot(yrsToPlot[gcw[2]:gcw[3]],rlzMn.data[gcw[2]:gcw[3]],color=activeColor,label=activeLabel,linewidth=2)
-                    ax.fill_between(yrsToPlot[gcw[2]:gcw[3]], rlzMax.data[gcw[2]:gcw[3]], rlzMin.data[gcw[2]:gcw[3]], color=activeColor, alpha=0.3, linewidth=0)
+                    plt.plot(
+                            yrsToPlot[gcw[2]:gcw[3]], rlzMn.data[gcw[2]:gcw[3]],
+                            color=activeColor, linewidth=2)
+                    ax.fill_between(
+                            yrsToPlot[gcw[2]:gcw[3]],
+                            rlzMax.data[gcw[2]:gcw[3]],
+                            rlzMin.data[gcw[2]:gcw[3]],
+                            color=activeColor, alpha=0.3, linewidth=0)
             elif 'GLENS:Feedback' in darr.scenario:
-                gfw = [5,10] #[0,5] for immediate, [35,40] for impact, [5,10] for compromise
-                ic(yrsToPlot[gfw[0]:gfw[1]],rlzMn.data[gfw[0]:gfw[1]])
-                plt.plot(yrsToPlot[gfw[0]:gfw[1]],rlzMn.data[gfw[0]:gfw[1]],color=activeColor,label=activeLabel,linewidth=2)
-                ax.fill_between(yrsToPlot[gfw[0]:gfw[1]], rlzMax.data[gfw[0]:gfw[1]], rlzMin.data[gfw[0]:gfw[1]], color=activeColor, alpha=0.3, linewidth=0)
+                gfw = [5,10] #[0,5] immediate, [35,40] impact, [5,10] compromise
+                ic(yrsToPlot[gfw[0]:gfw[1]], rlzMn.data[gfw[0]:gfw[1]])
+                plt.plot(
+                        yrsToPlot[gfw[0]:gfw[1]], rlzMn.data[gfw[0]:gfw[1]],
+                        color=activeColor, label=activeLabel, linewidth=2)
+                ax.fill_between(
+                        yrsToPlot[gfw[0]:gfw[1]], rlzMax.data[gfw[0]:gfw[1]],
+                        rlzMin.data[gfw[0]:gfw[1]], color=activeColor,
+                        alpha=0.3, linewidth=0)
             elif 'ARISE:Feedback' in darr.scenario:
-                afw = [5,10] #[0,5] for immediate, [20,25] for impact, [5,10] for compromise
-                ic(yrsToPlot[afw[0]:afw[1]],rlzMn.data[afw[0]:afw[1]])
-                plt.plot(yrsToPlot[afw[0]:afw[1]],rlzMn.data[afw[0]:afw[1]],color=activeColor,label=activeLabel,linewidth=2)
-                ax.fill_between(yrsToPlot[afw[0]:afw[1]], rlzMax.data[afw[0]:afw[1]], rlzMin.data[afw[0]:afw[1]], color=activeColor, alpha=0.3, linewidth=0)
+                afw = [5,10] #[0,5] immediate, [20,25] impact, [5,10] compromise
+                ic(yrsToPlot[afw[0]:afw[1]], rlzMn.data[afw[0]:afw[1]])
+                plt.plot(
+                        yrsToPlot[afw[0]:afw[1]], rlzMn.data[afw[0]:afw[1]],
+                        color=activeColor,label=activeLabel,linewidth=2)
+                ax.fill_between(
+                        yrsToPlot[afw[0]:afw[1]], rlzMax.data[afw[0]:afw[1]],
+                        rlzMin.data[afw[0]:afw[1]], color=activeColor,
+                        alpha=0.3, linewidth=0)
             elif 'ARISE:Control' in darr.scenario:
-                acw = [20,26,30,35] #[20,30] for immediate, [20,26,45,50] for impact, [20,26,30,35] for compromise
-                ic(yrsToPlot[acw[0]:acw[1]],rlzMn.data[acw[0]:acw[1]])
-                plt.plot(yrsToPlot[acw[0]:acw[1]],rlzMn.data[acw[0]:acw[1]],color=activeColor,label=activeLabel,linewidth=2)
-                ax.fill_between(yrsToPlot[acw[0]:acw[1]], rlzMax.data[acw[0]:acw[1]], rlzMin.data[acw[0]:acw[1]], color=activeColor, alpha=0.3, linewidth=0)
+                acw = [20,26,30,35] #[20,30] immediate, [20,26,45,50] impact, [20,26,30,35] compromise
+                ic(yrsToPlot[acw[0]:acw[1]], rlzMn.data[acw[0]:acw[1]])
+                plt.plot(
+                        yrsToPlot[acw[0]:acw[1]], rlzMn.data[acw[0]:acw[1]],
+                        color=activeColor, label=activeLabel, linewidth=2)
+                ax.fill_between(
+                        yrsToPlot[acw[0]:acw[1]], rlzMax.data[acw[0]:acw[1]],
+                        rlzMin.data[acw[0]:acw[1]], color=activeColor,
+                        alpha=0.3, linewidth=0)
                 if len(acw)>2:
-                    ic(yrsToPlot[acw[2]:acw[3]],rlzMn.data[acw[2]:acw[3]])
-                    plt.plot(yrsToPlot[acw[2]:acw[3]],rlzMn.data[acw[2]:acw[3]],color=activeColor,label=activeLabel,linewidth=2)
-                    ax.fill_between(yrsToPlot[acw[2]:acw[3]], rlzMax.data[acw[2]:acw[3]], rlzMin.data[acw[2]:acw[3]], color=activeColor, alpha=0.3, linewidth=0)
-        else:
-            plt.plot(yrsToPlot,rlzMn.data,color=activeColor,label=activeLabel,linewidth=3.5)
-            ax.fill_between(yrsToPlot, rlzMax.data, rlzMin.data, color=activeColor, alpha=0.3, linewidth=0)
+                    ic(yrsToPlot[acw[2]:acw[3]], rlzMn.data[acw[2]:acw[3]])
+                    plt.plot(
+                            yrsToPlot[acw[2]:acw[3]], rlzMn.data[acw[2]:acw[3]],
+                            color=activeColor, linewidth=2)
+                    ax.fill_between(
+                            yrsToPlot[acw[2]:acw[3]],
+                            rlzMax.data[acw[2]:acw[3]],
+                            rlzMin.data[acw[2]:acw[3]],
+                            color=activeColor, alpha=0.3, linewidth=0)
+        else: #No muting
+            plt.plot(
+                    yrsToPlot, rlzMn.data, color=activeColor, label=activeLabel,
+                    linewidth=3.5)
+            ax.fill_between(
+                    yrsToPlot, rlzMax.data, rlzMin.data, color=activeColor,
+                    alpha=0.3, linewidth=0)
 
     # Plot metadata and settings
     b,t = plt.ylim() if setDict['ylim'] is None else setDict['ylim']
     fpt.plot_metaobjects(scnToPlot, fig, b, t)
     # plt.autoscale(enable=True, axis='x', tight=False)
     # plt.autoscale(enable=True, axis='y', tight=False)
-    plt.xlim(setYear[0],setYear[1])
-    xl,xr = plt.xlim(2010,2069)
-    if setDict["insetFlag"] == 0: #Standard plot
+    plt.xlim(setYear[0], setYear[1])
+    xl,xr = plt.xlim(2010, 2069)
+    if setDict["insetFlag"] == 0: #Standard plot with all aesthetics automatic
         plt.ylabel(md['unit'])
         # plt.ylabel('cm')
         leg = plt.legend()
-        plt.title(md['varStr'] + ' ' + md['levStr'] + str(setYear[0]) + '-' + str(setYear[1]) + ' ' + locTitleStr  + ' ' + 'spread')
-        # plt.title('SST 2010-2095 ' + locTitleStr + ' spread') #Override automatic title generation
+        plt.title(md['varStr'] + ' ' + md['levStr'] + str(setYear[0]) + '-'
+                + str(setYear[1]) + ' ' + locTitleStr  + ' ' + 'spread')
+        # plt.title('SST 2010-2095 ' + locTitleStr + ' spread') #Manual title
         savePrfx = ''
         plt.ylim([b,t])
-        # plt.ylim([0.6,0.9]) #Override automatic y-axis limits
+        # plt.ylim([0.6,0.9]) #Manual y-axis limits
     elif setDict["insetFlag"] == 1: #Lines only
         savePrfx = 'INSETQUAL_'
         ax.axis('off')
-    elif setDict["insetFlag"] == 2: #Aesthetics used for figures in posters/presentations/papers/etc
+    elif setDict["insetFlag"] == 2: #Use setDict but handle most outside Python
         savePrfx = 'AES_'
         if setDict["xticks"]:
             plt.xticks([2015,2040,2065,])
@@ -225,13 +276,13 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
         # ax.axes.xaxis.set_ticklabels([])
         # ax.spines['bottom'].set_visible(False)
         # ax.spines['left'].set_visible(False)
-    elif setDict["insetFlag"] == 3: #Flexible but aesthetic region plotting for IPCC regions
+    elif setDict["insetFlag"] == 3: #Flexible plotting for IPCC regions in paper
         savePrfx = 'IPCCregions_'
         plt.xticks([2015,2040,2065,], size=17)
         plt.yticks(setDict["yticks"], size=17)
         plt.ylabel(md['unit'], size=16)
-        titleStr = md['varStr'] + ' ' + str(int(xl)) + '-' + \
-                   str(int(xr)) + ' ' + setDict['regOfInt']["regStr"]
+        titleStr = md['varStr'] + ' ' + str(int(xl)) + '-' + str(int(xr)) \
+                + ' ' + setDict['regOfInt']["regStr"]
         plt.title(titleStr, weight='normal', size=20)
         legProp = {'size': 12,
                    'weight':'normal'}
@@ -239,25 +290,25 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
         handles,labels = ax.get_legend_handles_labels()
         handles = [handles[0], handles[1], handles[3], handles[2]]
         labels = [labels[0], labels[1], labels[3], labels[2]]
-
-        ax.legend(handles, labels, loc='upper center', prop=legProp,
-                  bbox_to_anchor=(0.5, -0.07), ncol=2, frameon=True)
+        ax.legend(
+                handles, labels, loc='upper center', prop=legProp,
+                bbox_to_anchor=(0.5, -0.07), ncol=2, frameon=True)
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
         plt.ylim([b,t])
-        saveStr = md['varSve'] + '_' + str(int(xl)) + str(int(xr)) + '_' + locStr + '_' + 'ts'
+        saveStr = md['varSve'] + '_' + str(int(xl)) + str(int(xr)) + '_' + \
+                locStr + '_' + 'ts'
 
     # Save image
     savePrfx = savePrfx
     if setDict["insetFlag"] != 3:
-        saveStr = md['varSve'] + '_' + md['levSve'] + '_' + str(setYear[0]) + str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + md['ensPid']['sprd']
-    # saveStr = 'SST' + '_' + md['levSve'] + '_' + str(setYear[0]) + str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + md['ensPid']['sprd']
-    # savename = outDict["savePath"] + 'asdf.pdf'
+        saveStr = md['varSve'] + '_' + md['levSve'] + '_' + str(setYear[0]) + \
+                str(setYear[1]) + '_' + locStr + '_' + md['ensStr'] + '_' + \
+                md['ensPid']['sprd']
     saveStr = saveStr.replace("/",'-')
     savename = outDict["savePath"] + savePrfx + saveStr + '.pdf'
     # fig.set_size_inches(8, 6)
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
-    # plt.savefig(savename,format='pdf')
     plt.close()
     ic(savename)
 

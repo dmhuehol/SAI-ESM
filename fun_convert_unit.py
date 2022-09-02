@@ -99,6 +99,14 @@ def km2_to_milkm2(darrKm2):
 
     return darrMilKm2
 
+def m_to_cm_ice(darrM):
+    ''' Convert meters to centimeters for ice (correct unit string) '''
+    darrCm = darrM * 100
+    darrCm.attrs = darrM.attrs
+    darrCm.attrs['units'] = darrCm.attrs['units'].replace("m",'cm')
+
+    return darrCm
+
 ### Marine heatwaves
 def bms_to_nannual(darrBms):
     ''' Convert binary MHW start indices to number of annual MHWs '''
