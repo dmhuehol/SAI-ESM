@@ -31,7 +31,7 @@ insets = (rlib.Sahara(),rlib.NorthEurope(),rlib.SoutheasternSouthAmerica(),rlib.
 summaryPaperRegions = (rlib.Amazon(), rlib.AlaskaNorthwestCanada(), rlib.Arctic(), rlib.EastAfricaAyugiEtAl(),
                        rlib.NorthEurope(), rlib.GeenEtAl20AsianMonsoonRegion(), rlib.Antarctica())
 
-activeTest = (rlib.GibsonDesert(),)
+activeTest = (rlib.SouthernAfrica(),rlib.SmallIslandsRegionsCaribbean(),rlib.SouthAsia())
 
 # The same 9 colors repeated a bunch of times
 # colors = ('Greens_r', 'Purples_r','Greys_r','Greys_r','Greys_r','Oranges_r','Greys_r','Greys_r','Greys_r','Greys_r')
@@ -49,4 +49,4 @@ for rc,reg in enumerate(activeTest):
     ic(reg)
     fig,ax = rlib.test_region(reg,colors[rc],fig,ax)
 # plt.title("WG1-AR5 IPCC regions")
-plt.savefig('/Users/dhueholt/Documents/GLENS_fig/20220802_sdiiEtc/GibsonDesert.png', dpi=400)
+plt.savefig('/Users/dhueholt/Documents/GLENS_fig/20220929_slides/5_tsTemp/tempRegs.png', dpi=400)

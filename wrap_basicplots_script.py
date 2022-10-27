@@ -38,9 +38,9 @@ xtPrecipPal = seaborn.diverging_palette(58, 162, s=100, l=30, as_cmap=True)
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_TREFHT/',
-    "idGlensCntrl": None, #'control_*' or None
-    "idGlensFdbck": None, #'feedback_*' or None
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_PRECT/',
+    "idGlensCntrl": 'control_*', #'control_*' or None
+    "idGlensFdbck": 'feedback_*', #'feedback_*' or None
     "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
     "idS245Cntrl": '*BWSSP245*', #'*BWSSP245*' or None
     "idS245Hist": '*BWHIST*', #'*BWHIST*' or None
@@ -49,16 +49,16 @@ dataDict = {
 setDict = {
     "landmaskFlag": None,
     "startIntvl": [2015,2020,2030,2035], #dg [2015,2020,2030,2035]
-    "endIntvl": [2025,2030,2040,2045], #dg [2025,2030,2040,2045]
-    "convert": (fcu.kel_to_cel,), #TUPLE of converter(s), or None if using default units
-    "cmap": None, #None for default cmocean "balance" or choose colormap here
-    "cbVals": [-1.5,1.5], #None for automatic or [min,max] to override #dg,
+    "endIntvl": [2045,2050,2060,2065], #dg [2025,2030,2040,2045]
+    "convert": (fcu.m_to_cm,fcu.persec_peryr), #TUPLE of converter(s), or None if using default units
+    "cmap": precipPal, #None for default cmocean "balance" or choose colormap here
+    "cbVals": [-50,50], #None for automatic or [min,max] to override #dg,
     "addCyclicPoint": False, #True/False for ocean data
     "areaAvgBool": False, #ALWAYS False: no area averaging for a map!
-    "robustnessBool": True #True/False to run robustness
+    "robustnessBool": False #True/False to run robustness
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220804_robustForScenarios/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20221020_itcz/',
     "dpiVal": 400
 }
 loopDict = {
@@ -78,9 +78,9 @@ for rlz in loopDict["realizations"]:
 
     for lev in loopDict["levels"]:
         setDict["levOfInt"] = lev
-        # fbp.plot_basic_difference_globe(scnList, dataDict, setDict, outDict)
+        fbp.plot_basic_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_six_difference_globe(scnList, dataDict, setDict, outDict)
-        fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict)
+        # fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_basic_difference_polar(scnList, dataDict, setDict, outDict)
         # fbp.plot_glens_difference_globe(scnList, dataDict, setDict, outDict)

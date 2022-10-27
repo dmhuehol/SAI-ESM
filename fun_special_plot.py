@@ -58,6 +58,8 @@ def save_colorbar(cbarDict, savePath, saveName, dpiVal=400):
     else:
         sys.exit('Direction must be either horizontal or vertical.')
 
+    if cbarDict["label"] == '':
+        cb.set_ticks([])
     # cb.set_label(cbarDict["label"], size='large')
     # cb.set_label(cbarDict["label"], size='large', fontproperties=FiraSansThin) # Set font
     plt.savefig(savePath + saveName + '.png', dpi=dpiVal)

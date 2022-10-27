@@ -49,8 +49,8 @@ ensPrp = {
 def plot_ens_spaghetti_timeseries(darrList, dataDict, setDict, outDict):
     ''' Make a simple timeseries of output variable. Ensemble members are
     visualized in a familiar, basic spaghetti plot. '''
-    plotRlzMn = True
-    setYear = [2010, 2070]
+    plotRlzMn = False
+    setYear = [2035, 2045]
     timeSlice = slice(cftime.DatetimeNoLeap(setYear[0], 7, 15, 12, 0, 0, 0), cftime.DatetimeNoLeap(setYear[1], 7, 15, 12, 0, 0, 0))
 
     # Plot timeseries
@@ -70,7 +70,7 @@ def plot_ens_spaghetti_timeseries(darrList, dataDict, setDict, outDict):
             md = fpd.meta_book(setDict, dataDict, rlzToPlot, labelsToPlot=None) #Extract metadata
             activeColor, activeLabel = fpt.line_from_scenario(rlzToPlot.scenario, md)
             yrsToPlot = rlzToPlot['time'].dt.year.data #bndDct['mtchYrs']
-            plt.plot(yrsToPlot, rlzToPlot, color=activeColor, linewidth=0.3) #Individual rlz
+            plt.plot(yrsToPlot, rlzToPlot, color=activeColor, linewidth=2) #Individual rlz
         if plotRlzMn:
             rlzToiMn = rlzMn.sel(time=timeSlice)
             rlzLoiMn = fpd.obtain_levels(rlzToiMn, setDict["levOfInt"])
@@ -81,7 +81,7 @@ def plot_ens_spaghetti_timeseries(darrList, dataDict, setDict, outDict):
     # Plot metadata and settings
     b,t = plt.ylim() if setDict['ylim'] is None else setDict['ylim']
     fpt.plot_metaobjects(scnToPlot, fig, b, t)
-    leg = plt.legend()
+    # leg = plt.legend()
     plt.ylabel(md['unit'])
     plt.autoscale(enable=True, axis='x', tight=True)
     plt.autoscale(enable=True, axis='y', tight=True)
@@ -158,18 +158,18 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
             # D3D3D3 is gray for muted objects
             plt.plot(
                     yrsToPlot, rlzMn.data, color='#D3D3D3',
-                    linewidth=1, alpha=0.5)
+                    linewidth=3, alpha=0.5)
             ax.fill_between(
                     yrsToPlot, rlzMax.data, rlzMin.data,
                     color='#D3D3D3', alpha=0.2, linewidth=0)
             # Plot "unmuted" sections of the timeseries. This requires specific
             # indices for each scenario, so it's hard-coded by necessity.
             if 'GLENS:Control' in darr.scenario:
-                gcw = [5, 11, 15, 20] #[5,11] immediate, [5,11,45,50] impact, [5,11,15,20] compromise
+                gcw = [5, 11, 55,60] #[5,11] immediate, [5,11,45,50] impact (+10 for defense), [5,11,15,20] compromise
                 ic(yrsToPlot[gcw[0]:gcw[1]], rlzMn.data[gcw[0]:gcw[1]])
                 plt.plot(
                         yrsToPlot[gcw[0]:gcw[1]], rlzMn.data[gcw[0]:gcw[1]],
-                        color=activeColor, label=activeLabel, linewidth=2)
+                        color=activeColor, label=activeLabel, linewidth=3.5)
                 ax.fill_between(
                     yrsToPlot[gcw[0]:gcw[1]], rlzMax.data[gcw[0]:gcw[1]],
                     rlzMin.data[gcw[0]:gcw[1]], color=activeColor, alpha=0.3,
@@ -178,38 +178,38 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
                     ic(yrsToPlot[gcw[2]:gcw[3]],rlzMn.data[gcw[2]:gcw[3]])
                     plt.plot(
                             yrsToPlot[gcw[2]:gcw[3]], rlzMn.data[gcw[2]:gcw[3]],
-                            color=activeColor, linewidth=2)
+                            color=activeColor, linewidth=3.5)
                     ax.fill_between(
                             yrsToPlot[gcw[2]:gcw[3]],
                             rlzMax.data[gcw[2]:gcw[3]],
                             rlzMin.data[gcw[2]:gcw[3]],
                             color=activeColor, alpha=0.3, linewidth=0)
             elif 'GLENS:Feedback' in darr.scenario:
-                gfw = [5,10] #[0,5] immediate, [35,40] impact, [5,10] compromise
+                gfw = [45,50] #[0,5] immediate, [35,40] impact, [5,10] compromise
                 ic(yrsToPlot[gfw[0]:gfw[1]], rlzMn.data[gfw[0]:gfw[1]])
                 plt.plot(
                         yrsToPlot[gfw[0]:gfw[1]], rlzMn.data[gfw[0]:gfw[1]],
-                        color=activeColor, label=activeLabel, linewidth=2)
+                        color=activeColor, label=activeLabel, linewidth=3.5)
                 ax.fill_between(
                         yrsToPlot[gfw[0]:gfw[1]], rlzMax.data[gfw[0]:gfw[1]],
                         rlzMin.data[gfw[0]:gfw[1]], color=activeColor,
                         alpha=0.3, linewidth=0)
             elif 'ARISE:Feedback' in darr.scenario:
-                afw = [5,10] #[0,5] immediate, [20,25] impact, [5,10] compromise
+                afw = [30,35] #[0,5] immediate, [20,25] impact, [5,10] compromise
                 ic(yrsToPlot[afw[0]:afw[1]], rlzMn.data[afw[0]:afw[1]])
                 plt.plot(
                         yrsToPlot[afw[0]:afw[1]], rlzMn.data[afw[0]:afw[1]],
-                        color=activeColor,label=activeLabel,linewidth=2)
+                        color=activeColor,label=activeLabel,linewidth=3.5)
                 ax.fill_between(
                         yrsToPlot[afw[0]:afw[1]], rlzMax.data[afw[0]:afw[1]],
                         rlzMin.data[afw[0]:afw[1]], color=activeColor,
                         alpha=0.3, linewidth=0)
             elif 'ARISE:Control' in darr.scenario:
-                acw = [20,26,30,35] #[20,30] immediate, [20,26,45,50] impact, [20,26,30,35] compromise
+                acw = [20,26,55,60] #[20,26] immediate, [20,26,45,50] impact, [20,26,30,35] compromise
                 ic(yrsToPlot[acw[0]:acw[1]], rlzMn.data[acw[0]:acw[1]])
                 plt.plot(
                         yrsToPlot[acw[0]:acw[1]], rlzMn.data[acw[0]:acw[1]],
-                        color=activeColor, label=activeLabel, linewidth=2)
+                        color=activeColor, label=activeLabel, linewidth=3.5)
                 ax.fill_between(
                         yrsToPlot[acw[0]:acw[1]], rlzMax.data[acw[0]:acw[1]],
                         rlzMin.data[acw[0]:acw[1]], color=activeColor,
@@ -218,7 +218,7 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
                     ic(yrsToPlot[acw[2]:acw[3]], rlzMn.data[acw[2]:acw[3]])
                     plt.plot(
                             yrsToPlot[acw[2]:acw[3]], rlzMn.data[acw[2]:acw[3]],
-                            color=activeColor, linewidth=2)
+                            color=activeColor, linewidth=3.5)
                     ax.fill_between(
                             yrsToPlot[acw[2]:acw[3]],
                             rlzMax.data[acw[2]:acw[3]],
@@ -253,7 +253,7 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
         savePrfx = 'INSETQUAL_'
         ax.axis('off')
     elif setDict["insetFlag"] == 2: #Use setDict but handle most outside Python
-        savePrfx = 'AES_'
+        savePrfx = 'IMPACTS_THICK0p5_AES_'
         if setDict["xticks"]:
             plt.xticks([2015,2040,2065,])
         else:

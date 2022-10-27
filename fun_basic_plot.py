@@ -74,20 +74,20 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     '''
     # Set up panels
     toiStart, toiEnd = fpt.make_panels(rlzList, setDict)
-    # diffToiR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
-    # diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
+    diffToiR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
+    diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
     diffToiG12R85 = toiEnd['G1.2(8.5)'] - toiStart['RCP8.5']
     diffToiG15S245 = toiEnd['G1.5(4.5)'] - toiStart['SSP2-4.5']
     intiG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
     intiG15S245 = toiEnd['G1.5(4.5)'] - toiEnd['SSP2-4.5']
     # scnrsCmprd = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
 
-    panels = (diffToiG12R85, diffToiG15S245, intiG12R85, intiG15S245)
+    panels = (diffToiR85, diffToiS245, diffToiG12R85, diffToiG15S245)
 
     # Plotting
     plt.rcParams.update({'font.size': 9})
     plt.rcParams.update({'font.family': 'Lato'})
-    CL = 0.
+    CL = 180.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     plt.figure(figsize=(12,2*2.73))
     ax = plt.subplot(2,2,1,projection=mapProj) #nrow ncol index
@@ -101,12 +101,12 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     lons = rlzList[0].lon
 
     fpt.drawOnGlobe(ax, panels[0], lats, lons, cmap, vmin=cbVals[0],
-                    vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max',
+                    vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max',
                     addCyclicPoint=setDict["addCyclicPoint"])
     # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + md['fdbckStr'], fontsize=10) #Fully automated
-    plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + 'GLENS') #AMS style
+    # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + 'GLENS') #AMS style
     # plt.title(md['lstDcd'] + ' ' + 'GLENS' + ' - ' + md['frstDcd'] + ' ' + 'RCP8.5') #Yaga style
-    # plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + 'RCP8.5') #Customize here
+    plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + 'RCP8.5') #Customize here
 
 
     ax2 = plt.subplot(2,2,2,projection=mapProj)
@@ -114,23 +114,25 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
                     vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max',
                     addCyclicPoint=setDict["addCyclicPoint"])
     # plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + md['ariseStr'], fontsize=10) #Fully automated
-    plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + 'ARISE') #AMS style
+    # plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + 'ARISE') #AMS style
     # plt.title(md['aLstDcd'] + ' ' + 'ARISE-SAI-1.5' + ' - ' + md['aFrstDcd'] + ' ' + 'SSP2-4.5')
-    # plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + 'SSP2-4.5')
+    plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + 'SSP2-4.5')
 
     ax3 = plt.subplot(2,2,3,projection=mapProj)
     fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0],
                     vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max',
                     addCyclicPoint=setDict["addCyclicPoint"])
     # plt.title(md['fdbckStr'] + ' - ' + md['cntrlStr'] + ' ' + md['lstDcd'], fontsize=10) #Fully automated
-    plt.title('GLENS - RCP8.5' + ' ' + md['lstDcd']) #AMS style
+    # plt.title('GLENS - RCP8.5' + ' ' + md['lstDcd']) #AMS style
+    plt.title(md['lstDcd'] + ' - ' + md['frstDcd'] + ' ' + 'GLENS') #Customize here
 
     ax4 = plt.subplot(2,2,4,projection=mapProj)
     fpt.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0],
                     vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max',
                     addCyclicPoint=setDict["addCyclicPoint"])
     # plt.title(md['ariseStr'] + ' - ' + md['s245Cntrl'] + ' ' + md['aLstDcd'], fontsize=10) #Fully automated
-    plt.title('ARISE - SSP2-4.5' + ' ' + md['aLstDcd']) #AMS style
+    # plt.title('ARISE - SSP2-4.5' + ' ' + md['aLstDcd']) #AMS style
+    plt.title(md['aLstDcd'] + ' - ' + md['aFrstDcd'] + ' ' + 'ARISE-SAI') #Customize here
 
     savePrfx = 'BASIC_'
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['fcStr']
@@ -150,19 +152,20 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     # diffToiR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
     # diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
     # diffToiG12R85 = toiEnd['G1.2(8.5)'] - toiStart['RCP8.5']
-    diffToiG15S245 = toiEnd['G1.5(4.5)'] - toiStart['SSP2-4.5']
+    # diffToiG15S245 = toiEnd['G1.5(4.5)'] - toiStart['SSP2-4.5']
     # intiG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
     # intiG15S245 = toiEnd['G1.5(4.5)'] - toiEnd['SSP2-4.5']
     # applesToCats = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
-    # blank = toiEnd['G1.5(4.5)'].copy()
-    # blank.data = toiEnd['G1.5(4.5)'] - toiEnd['G1.5(4.5)']
+    blank = toiEnd['G1.2(8.5)'].copy()
+    blank.data = toiEnd['G1.2(8.5)'] - toiEnd['G1.2(8.5)']
 
-    panel = diffToiG15S245
+    panel = blank
 
     # Plotting –– map
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
-    plt.figure(figsize=(12, 2.73*2))
+    fig = plt.figure(figsize=(12, 2.73*2))
+    fig.patch.set_facecolor('#C8DBEC')
     ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
     cmap = cmocean.cm.balance if setDict["cmap"] is None else setDict["cmap"]
     cbAuto = np.sort([-np.nanquantile(panel.data,0.75), np.nanquantile(panel.data,0.75)])
@@ -191,7 +194,7 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     # plt.title(" ") #No automatic title, 1-panel is used for custom figures
 
     # Plotting –– settings for output file
-    savePrfx = 'BEAT6MUTE7snapARISE_' #Easy modification for unique filename
+    savePrfx = 'BLANK0_' #Easy modification for unique filename
     if 'ARISE' in panel.scenario:
         saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['aLstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
     else:
@@ -591,6 +594,7 @@ def plot_single_robust_globe(rlzList, dataDict, setDict, outDict):
     if setDict["robustnessBool"] is False:
         sys.exit('Cannot run robustness globe if robustness is False!')
     rbd, rbstns = fr.handle_robustness(rlzList)
+    ic(np.max(rbstns))
 
     # Plotting –– map setup
     panel = rbstns
@@ -603,12 +607,13 @@ def plot_single_robust_globe(rlzList, dataDict, setDict, outDict):
 
     # Plotting –– image muting by altering discrete colorbar
     # Image muting is implemented for cmasher ghostlight and custom pink
-    if rbd["muteQuThr"] is not None:
-        muteThresh = int(np.ceil(np.nanquantile(rbstns, rbd["muteQuThr"]))) #Threshold to mute below
+    if rbd["muteThr"] is not None:
+        muteThresh = rbd["muteThr"]#int(np.ceil(np.nanquantile(rbstns, rbd["muteThr"]))) #Threshold to mute below
         ic(muteThresh)
         discColors = cmasher.take_cmap_colors(cmasher.cm.ghostlight,
                                               N=rbd["nRlz"], cmap_range=(0,1))
-        muteList = fpt.mute_by_numbers(muteThresh)
+        # muteList = fpt.mute_by_numbers(muteThresh)
+        muteList = fpt.mute_by_numbers_arise(muteThresh)
         disc = mpl.colors.ListedColormap(muteList)
 
     # Plotting –– map
@@ -626,18 +631,20 @@ def plot_single_robust_globe(rlzList, dataDict, setDict, outDict):
                             cbarBool=cbarBool, fastBool=True, extent='max',
                             addCyclicPoint=setDict["addCyclicPoint"], alph=1)
 
-    if rbd["muteQuThr"] is not None: #Muting
+    if rbd["muteThr"] is not None: #Muting
         cb.set_ticks([0, muteThresh, rbd["nRlz"]])
     else: #No muting
         cb.set_ticks(np.linspace(0,rbd["nRlz"],3).astype(int))
     cb.ax.tick_params(labelsize=11)
     cb.set_label('number of members', size='small', fontweight='light')
+    cb.remove()
     if rbd["sprdFlag"] == 'below':
         plt.title('Count of SAI members below ' + str(rbd["beatNum"]) + ' no-SAI members: ' + md['varStr'], fontsize=16, fontweight='light') #No automatic title, 1-panel is used for custom figures
     elif rbd["sprdFlag"] == 'above':
         plt.title('Count of SAI members above ' + str(rbd["beatNum"]) + ' no-SAI members: ' + md['varStr'], fontsize=16, fontweight='light') #No automatic title, 1-panel is used for custom figures
     elif rbd["sprdFlag"] == 'outside':
-        plt.title('Count of SAI members outside of ' + str(rbd["beatNum"]) + ' no-SAI members: ' + md['varStr'], fontsize=16, fontweight='light') #No automatic title, 1-panel is used for custom figures
+        # plt.title('Count of SAI members outside of ' + str(rbd["beatNum"]) + ' no-SAI members: ' + md['varStr'], fontsize=16, fontweight='light') #No automatic title, 1-panel is used for custom figures
+        plt.title('')
 
     # Plotting –– settings for output file
     savePrfx = 'robust_' #Easy modification for unique filename

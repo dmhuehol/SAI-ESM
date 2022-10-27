@@ -382,6 +382,38 @@ def mute_by_numbers(thresh):
 
     return muteList
 
+def mute_by_numbers_arise(thresh):
+    ''' Mute a colorbar. Colors in comments are HSLuv unless otherwise noted'''
+
+    ghostgrayList = ['#131313',
+                     '#282828',
+                     '#3c3c3c',
+                     '#535353',
+                     '#6a6a6a',
+                     '#818181',
+                     '#9a9a9a',
+                     '#b6b6b6',
+                     '#d2d2d2',
+                     '#eeeeee']
+
+    ghostlightList = ['#12111f',
+                      '#2f204a', #5
+                      '#532d61',#8
+                      '#6a4961',#10
+                      '#7b6566', #11#12
+                      '#89816c', #13
+                      '#93a070',
+                      '#9bc26e', #17
+                      '#bce058', #19
+                      '#fef255'] #H,S,L=80.8,93.0,94.0
+
+    grayList = ghostgrayList
+    colorList = ghostlightList
+
+    muteList = grayList[:thresh] + colorList[thresh:]
+
+    return muteList
+
 def write_labels(labelsList, dataScnPoiKey, scnPoiKey, scnId, ensPrpKey, setDict):
     ''' Writes the label text given loop information '''
     for cdc,cdv in enumerate(scnPoiKey):
