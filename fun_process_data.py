@@ -129,9 +129,9 @@ def bind_scenario(darr, inID):
     if 'control' in inID:
         darr.attrs['scenario'] = 'GLENS:Control/RCP8.5'
     elif 'feedback' in inID:
-        darr.attrs['scenario'] = 'GLENS:Feedback/SAI/G1.2(8.5)'
+        darr.attrs['scenario'] = 'GLENS:Feedback/SAI/GLENS-SAI'
     elif 'SSP245-TSMLT-GAUSS' in inID:
-        darr.attrs['scenario'] = 'ARISE:Feedback/SAI/G1.5(4.5)'
+        darr.attrs['scenario'] = 'ARISE:Feedback/SAI/ARISE-SAI-1.5'
     elif 'BWSSP245' in inID:
         darr.attrs['scenario'] = 'CESM2-WACCM/ARISE:Control/SSP2-4.5'
     elif 'BWHIST' in inID:

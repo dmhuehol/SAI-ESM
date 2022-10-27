@@ -886,6 +886,10 @@ def WesternAustraliaMHW_point():
     return regDict
 
 ### Atlases
+# Call atlases as var = rlib.atlas_(); use with var["token"]
+# Ex: to plot all ipccWg1Ar5 regions
+#   ipccWg1Ar5 = rlib.atlas_ipcc_wg1ar5()
+#   Enter to loopDict as ipccWg1Ar5["allRegions"]
 def atlas_insets():
     ''' Common regions for "map and inset"-style figures '''
     insetReg = (Sahara(), NorthEurope(), Amazon(), WestAsia(), SouthernAfrica(),

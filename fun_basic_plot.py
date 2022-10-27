@@ -67,20 +67,20 @@ ensPrp = {
 
 def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     ''' 4-panel difference globe with customizable panels. Default panels:
-        (1) change over time for G1.2(8.5) (snapshot around initiation, GLENS Feedback)
+        (1) change over time for GLENS-SAI (snapshot around initiation, GLENS Feedback)
         (2) change over time for G1.5(2-4.5) (snapshot around initiation, ARISE Feedback)
-        (3) diff between RCP8.5 and G1.2(8.5) for end interval (intervention impact)
-        (4) diff between SSP2-4.5 and G1.5(4.5) for end interval (intervention impact)
+        (3) diff between RCP8.5 and GLENS-SAI for end interval (intervention impact)
+        (4) diff between SSP2-4.5 and ARISE-SAI-1.5 for end interval (intervention impact)
     '''
     # Set up panels
     toiStart, toiEnd = fpt.make_panels(rlzList, setDict)
     diffToiR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
     diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
-    diffToiG12R85 = toiEnd['G1.2(8.5)'] - toiStart['RCP8.5']
-    diffToiG15S245 = toiEnd['G1.5(4.5)'] - toiStart['SSP2-4.5']
-    intiG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
-    intiG15S245 = toiEnd['G1.5(4.5)'] - toiEnd['SSP2-4.5']
-    # scnrsCmprd = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
+    diffToiG12R85 = toiEnd['GLENS-SAI'] - toiStart['RCP8.5']
+    diffToiG15S245 = toiEnd['ARISE-SAI-1.5'] - toiStart['SSP2-4.5']
+    intiG12R85 = toiEnd['GLENS-SAI'] - toiEnd['RCP8.5']
+    intiG15S245 = toiEnd['ARISE-SAI-1.5'] - toiEnd['SSP2-4.5']
+    # scnrsCmprd = toiEnd['GLENS-SAI'] - toiEnd['ARISE-SAI-1.5'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
 
     panels = (diffToiR85, diffToiS245, diffToiG12R85, diffToiG15S245)
 
@@ -149,23 +149,23 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
 
     # Set up panels
     toiStart, toiEnd = fpt.make_panels(rlzList, setDict)
-    # diffToiR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
-    # diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
-    # diffToiG12R85 = toiEnd['G1.2(8.5)'] - toiStart['RCP8.5']
-    # diffToiG15S245 = toiEnd['G1.5(4.5)'] - toiStart['SSP2-4.5']
-    # intiG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
-    # intiG15S245 = toiEnd['G1.5(4.5)'] - toiEnd['SSP2-4.5']
-    # applesToCats = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
-    blank = toiEnd['G1.2(8.5)'].copy()
-    blank.data = toiEnd['G1.2(8.5)'] - toiEnd['G1.2(8.5)']
+    # snapR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
+    # snapS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
+    # snapGLENS = toiEnd['GLENS-SAI'] - toiStart['RCP8.5']
+    # snapARISE15 = toiEnd['ARISE-SAI-1.5'] - toiStart['SSP2-4.5']
+    # intiGLENS = toiEnd['GLENS-SAI'] - toiEnd['RCP8.5']
+    intiARISE15 = toiEnd['ARISE-SAI-1.5'] - toiEnd['SSP2-4.5']
+    # applesToCats = toiEnd['GLENS-SAI'] - toiEnd['ARISE-SAI-1.5'] #Compare ARISE/GLENS scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
+    # blank = toiEnd['GLENS-SAI'].copy()
+    # blank.data = toiEnd['GLENS-SAI'] - toiEnd['GLENS-SAI']
 
-    panel = blank
+    panel = intiARISE15
+    panelStr = 'intiARISE15'
 
     # Plotting –– map
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     fig = plt.figure(figsize=(12, 2.73*2))
-    fig.patch.set_facecolor('#C8DBEC')
     ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
     cmap = cmocean.cm.balance if setDict["cmap"] is None else setDict["cmap"]
     cbAuto = np.sort([-np.nanquantile(panel.data,0.75), np.nanquantile(panel.data,0.75)])
@@ -194,16 +194,18 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     # plt.title(" ") #No automatic title, 1-panel is used for custom figures
 
     # Plotting –– settings for output file
-    savePrfx = 'BLANK0_' #Easy modification for unique filename
+    savePrfx = '' #Easy modification for unique filename
     if 'ARISE' in panel.scenario:
-        saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['aLstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
+        saveStr = panelStr + '_' + md['varSve'] + '_' + md['levSve'] + '_' \
+                   + md['aLstDcd'] + '_' + md['ensStr'] + '_' \
+                   + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
     else:
-        saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
+        saveStr = panelStr + '_' + md['varSve'] + '_' + md['levSve'] + '_' \
+                   + md['lstDcd'] + '_' + md['ensStr'] + '_' \
+                   + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
 
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
-    # savename = outDict["savePath"] + 'blankmap.eps'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
-    # plt.savefig(savename,format='eps')
     plt.close()
     ic(savename)
 
@@ -211,16 +213,16 @@ def plot_basic_difference_polar(rlzList, dataDict, setDict, outDict):
     ''' Plot 4-panel difference map with polar projection
         (1) change over time for RCP8.5 (GLENS control)
         (2) change over time for SSP2-4.5 (ARISE control)
-        (3) diff between RCP8.5 and G1.2(8.5) for end interval (intervention impact)
-        (4) diff between SSP2-4.5 and G1.5(4.5) for end interval (intervention impact)
+        (3) diff between RCP8.5 and GLENS-SAI for end interval (intervention impact)
+        (4) diff between SSP2-4.5 and ARISE-SAI-1.5 for end interval (intervention impact)
     '''
     # Set up panels
     toiStart, toiEnd = fpt.make_panels(rlzList, setDict)
     diffToiR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
     diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
-    wrldAvrtdG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
-    wrldAvrtdG15S245 = toiEnd['G1.5(4.5)'] - toiEnd['SSP2-4.5'] #Subtract the data only
-    # scnrsCmprd = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
+    wrldAvrtdG12R85 = toiEnd['GLENS-SAI'] - toiEnd['RCP8.5']
+    wrldAvrtdG15S245 = toiEnd['ARISE-SAI-1.5'] - toiEnd['SSP2-4.5'] #Subtract the data only
+    # scnrsCmprd = toiEnd['GLENS-SAI'] - toiEnd['ARISE-SAI-1.5'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
 
     panels = (diffToiR85, diffToiS245, wrldAvrtdG12R85, wrldAvrtdG15S245)
 
@@ -266,20 +268,20 @@ def plot_six_difference_globe(rlzList, dataDict, setDict, outDict):
     ''' Plot 6-panel difference globe
         (1) change over time for RCP8.5 (change over time: GLENS control)
         (2) change over time for SSP2-4.5 (change over time: ARISE control)
-        (3) change over time for G1.2(8.5) (snapshot around initiation: GLENS feedback)
+        (3) change over time for GLENS-SAI (snapshot around initiation: GLENS feedback)
         (4) change over time for G1.5(2-4.5) (snapshot around initiation: ARISE feedback)
-        (5) diff between RCP8.5 and G1.2(8.5) for end interval (intervention impact: GLENS)
-        (6) diff between SSP2-4.5 and G1.5(4.5) for end interval (intervention impact: ARISE)
+        (5) diff between RCP8.5 and GLENS-SAI for end interval (intervention impact: GLENS)
+        (6) diff between SSP2-4.5 and ARISE-SAI-1.5 for end interval (intervention impact: ARISE)
     '''
     # Set up panels
     toiStart, toiEnd = fpt.make_panels(rlzList, setDict)
     diffToiR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
     diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
-    diffToiG12R85 = toiEnd['G1.2(8.5)'] - toiStart['RCP8.5']
-    diffToiG15S245 = toiEnd['G1.5(4.5)'] - toiStart['SSP2-4.5']
-    wrldAvrtdG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
-    wrldAvrtdG15S245 = toiEnd['G1.5(4.5)'] - toiEnd['SSP2-4.5']
-    # scnrsCmprd = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
+    diffToiG12R85 = toiEnd['GLENS-SAI'] - toiStart['RCP8.5']
+    diffToiG15S245 = toiEnd['ARISE-SAI-1.5'] - toiStart['SSP2-4.5']
+    wrldAvrtdG12R85 = toiEnd['GLENS-SAI'] - toiEnd['RCP8.5']
+    wrldAvrtdG15S245 = toiEnd['ARISE-SAI-1.5'] - toiEnd['SSP2-4.5']
+    # scnrsCmprd = toiEnd['GLENS-SAI'] - toiEnd['ARISE-SAI-1.5'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
 
     panels = (diffToiR85, diffToiS245, diffToiG12R85, diffToiG15S245, wrldAvrtdG12R85, wrldAvrtdG15S245)
 
@@ -344,9 +346,9 @@ def plot_six_difference_globe(rlzList, dataDict, setDict, outDict):
 def plot_glens_difference_globe(rlzList, dataDict, setDict, outDict):
     ''' Plot 4-panel difference globe
         (1) change over time for RCP8.5 mid-century (GLENS control)
-        (2) change over time for G1.2(8.5) mid-century (GLENS feedback)
-        (3) diff between RCP8.5 and G1.2(8.5) for mid-century (intervention impact)
-        (4) diff between RCP8.5 and G1.2(8.5) for end of century (intervention impact)
+        (2) change over time for GLENS-SAI mid-century (GLENS feedback)
+        (3) diff between RCP8.5 and GLENS-SAI for mid-century (intervention impact)
+        (4) diff between RCP8.5 and GLENS-SAI for end of century (intervention impact)
         Input endIntvl as 4 elements, i.e. [2041,2060,2076,2095]
     '''
     toiStart = dict()
@@ -368,9 +370,9 @@ def plot_glens_difference_globe(rlzList, dataDict, setDict, outDict):
 
     # Set up panels
     diffToiR85MdCn = toiMid['RCP8.5'] - toiStart['RCP8.5']
-    diffToiG12R85MdCn = toiMid['G1.2(8.5)'] - toiStart['RCP8.5'] #Reference for G1.2(8.5) is RCP8.5
-    wrldAvrtdG12R85MdCn = toiMid['G1.2(8.5)'] - toiMid['RCP8.5']
-    wrldAvrtdG12R85EndCn = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
+    diffToiG12R85MdCn = toiMid['GLENS-SAI'] - toiStart['RCP8.5'] #Reference for GLENS-SAI is RCP8.5
+    wrldAvrtdG12R85MdCn = toiMid['GLENS-SAI'] - toiMid['RCP8.5']
+    wrldAvrtdG12R85EndCn = toiEnd['GLENS-SAI'] - toiEnd['RCP8.5']
 
     panels = (diffToiR85MdCn, diffToiG12R85MdCn, wrldAvrtdG12R85MdCn, wrldAvrtdG12R85EndCn)
 
@@ -397,15 +399,15 @@ def plot_glens_difference_globe(rlzList, dataDict, setDict, outDict):
     # dimPalette = seaborn.diverging_palette(213,295, as_cmap=True)
     # fpt.drawOnGlobe(ax2, panels[1], lats, lons, dimPalette, vmin=-10, vmax=10, cbarBool=True, fastBool=True, extent='max')
     fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title('2041-2060 - 2011-2030 G1.2(8.5)')
+    plt.title('2041-2060 - 2011-2030 GLENS-SAI')
 
     ax3 = plt.subplot(2,2,3,projection=mapProj)
     fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title('G1.2(8.5) - RCP8.5 2041-2060')
+    plt.title('GLENS-SAI - RCP8.5 2041-2060')
 
     ax4 = plt.subplot(2,2,4,projection=mapProj)
     fpt.drawOnGlobe(ax4, panels[3], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title('G1.2(8.5) - RCP8.5 2076-2095')
+    plt.title('GLENS-SAI - RCP8.5 2076-2095')
 
     savePrfx = 'GLENS_'
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + '2076-2095' + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['gfcStr']
@@ -473,8 +475,8 @@ def plot_paper_robust_globe(rlzList, dataDict, setDict, outDict):
 def plot_arise_difference_globe(rlzList, dataDict, setDict, outDict):
     ''' Plot 3-panel difference globe
         (1) diff between end and start interval for SSP2-4.5 (change over time)
-        (2) diff between SSP2-4.5 and G1.5(4.5) for end interval (intervention impact)
-        (3) diff between end and start interval for G1.5(4.5) (change over time)
+        (2) diff between SSP2-4.5 and ARISE-SAI-1.5 for end interval (intervention impact)
+        (3) diff between end and start interval for ARISE-SAI-1.5 (change over time)
     '''
     toiStart = dict()
     toiEnd = dict()
@@ -493,11 +495,11 @@ def plot_arise_difference_globe(rlzList, dataDict, setDict, outDict):
     diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
     #CESM2-WACCM SSP2-4.5 uses CMIP6 variable names which are often different
     #than in ARISE; subtracting the two DataArrays directly results in nonsense
-    wrldAvrtdG15S245 = toiEnd['G1.5(4.5)'].copy() #Duplicate pre-existing array to retain ARISE attributes and shape
-    wrldAvrtdG15S245.data = toiEnd['G1.5(4.5)'].data - toiEnd['SSP2-4.5'].data #Subtract the data only
-    diffToiG15S245 = toiEnd['G1.5(4.5)'].copy()
-    diffToiG15S245.data = toiEnd['G1.5(4.5)'].data - toiStart['SSP2-4.5'].data #Subtract the data only
-    # scnrsCmprd = toiEnd['G1.2(8.5)'] - toiEnd['G1.5(4.5)'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
+    wrldAvrtdG15S245 = toiEnd['ARISE-SAI-1.5'].copy() #Duplicate pre-existing array to retain ARISE attributes and shape
+    wrldAvrtdG15S245.data = toiEnd['ARISE-SAI-1.5'].data - toiEnd['SSP2-4.5'].data #Subtract the data only
+    diffToiG15S245 = toiEnd['ARISE-SAI-1.5'].copy()
+    diffToiG15S245.data = toiEnd['ARISE-SAI-1.5'].data - toiStart['SSP2-4.5'].data #Subtract the data only
+    # scnrsCmprd = toiEnd['GLENS-SAI'] - toiEnd['ARISE-SAI-1.5'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
 
     panels = (diffToiS245, wrldAvrtdG15S245, diffToiG15S245)
 
@@ -524,11 +526,11 @@ def plot_arise_difference_globe(rlzList, dataDict, setDict, outDict):
 
     ax2 = plt.subplot(3,1,2,projection=mapProj)
     fpt.drawOnGlobe(ax2, panels[1], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title('2041-2060 G1.5(4.5) - SSP2-4.5')
+    plt.title('2041-2060 ARISE-SAI-1.5 - SSP2-4.5')
 
     ax3 = plt.subplot(3,1,3,projection=mapProj)
     fpt.drawOnGlobe(ax3, panels[2], lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1], cbarBool=True, fastBool=True, extent='max')
-    plt.title('2041-2060 - 2015-2030 G1.5(4.5)')
+    plt.title('2041-2060 - 2015-2030 ARISE-SAI-1.5')
 
     savePrfx = 'ARISE_'
     saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['frstDcd'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g4p'] + '_' + md['glbType']['fcStr']
@@ -547,13 +549,13 @@ def plot_paper_panels_globe(rlzList, dataDict, setDict, outDict):
     diffToiR85.attrs['pnl'] = 'RedGLENS'
     diffToiS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
     diffToiS245.attrs['pnl'] = 'RedARISE'
-    diffToiG12R85 = toiEnd['G1.2(8.5)'] - toiStart['RCP8.5']
+    diffToiG12R85 = toiEnd['GLENS-SAI'] - toiStart['RCP8.5']
     diffToiG12R85.attrs['pnl'] = 'SnapGLENS'
-    diffToiG15S245 = toiEnd['G1.5(4.5)'] - toiStart['SSP2-4.5']
+    diffToiG15S245 = toiEnd['ARISE-SAI-1.5'] - toiStart['SSP2-4.5']
     diffToiG15S245.attrs['pnl'] = 'SnapARISE'
-    intiG12R85 = toiEnd['G1.2(8.5)'] - toiEnd['RCP8.5']
+    intiG12R85 = toiEnd['GLENS-SAI'] - toiEnd['RCP8.5']
     intiG12R85.attrs['pnl'] = 'IntImpGLENS'
-    intiG15S245 = toiEnd['G1.5(4.5)'] - toiEnd['SSP2-4.5']
+    intiG15S245 = toiEnd['ARISE-SAI-1.5'] - toiEnd['SSP2-4.5']
     intiG15S245.attrs['pnl'] = 'IntImpARISE'
 
     if 'TREFHT' in dataDict["dataPath"]: #NOTE HOW HORRIBLY HARDCODED THIS IS!

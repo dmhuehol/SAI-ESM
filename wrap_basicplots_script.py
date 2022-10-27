@@ -1,77 +1,64 @@
 ''' wrap_basicplots_script
-Runs plotting functions in fun_basic_plot.
+Runs map plotting functions in fun_basic_plot.
 
-dataDict is for inputs
-setDict sets settings related to plotting
-outDict is for outputs
-loopDict determines which images are made
+dataDict: defines input data
+setDict: settings for analysis/visualization
+outDict: output image settings
+loopDict: determines which images are made
 
-Written by Daniel Hueholt | February 2022
+Written by Daniel Hueholt
 Graduate Research Assistant at Colorado State University
 '''
 
 from icecream import ic
 import sys
 
-import matplotlib.pyplot as plt
 from matplotlib import cm
-import cmocean
-import cmasher
-import seaborn
-import numpy as np
+import cmasher, cmocean, seaborn  # Colormap packages
 
 import fun_basic_plot as fbp
 import fun_convert_unit as fcu
 import fun_process_data as fpd
 import region_library as rlib
 
-# Call regions
-ipccWg1Ar5 = rlib.atlas_ipcc_wg1ar5() #ipccWg1Ar5["allRegions"]
-testAllTypes = rlib.atlas_all_types() #testAllTypes["allRegions"]
-gnsht = ('global', rlib.Arctic(), rlib.HudsonBay(), rlib.NorthernHemisphere(), rlib.SouthernHemisphere(),)
-
-# Specials
+# Special color palettes
 tropicalPal = seaborn.diverging_palette(133, 324, as_cmap=True)
-indRedPal = seaborn.diverging_palette(16.8, 270.2, s=100, l=40, as_cmap=True)
 precipPal = seaborn.diverging_palette(58, 162, s=100, l=45, as_cmap=True)
-xtPrecipPal = seaborn.diverging_palette(58, 162, s=100, l=30, as_cmap=True)
 
-# Dictionaries
+# Dictionaries to define inputs
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_PRECT/',
-    "idGlensCntrl": 'control_*', #'control_*' or None
-    "idGlensFdbck": 'feedback_*', #'feedback_*' or None
-    "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
-    "idS245Cntrl": '*BWSSP245*', #'*BWSSP245*' or None
-    "idS245Hist": '*BWHIST*', #'*BWHIST*' or None
-    "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc'
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_TREFHT/',
+    "idGlensCntrl": 'control_*',  # 'control_*' or None
+    "idGlensFdbck": 'feedback_*',  # 'feedback_*' or None
+    "idArise": '*SSP245-TSMLT-GAUSS*',  # '*SSP245-TSMLT-GAUSS*' or None
+    "idS245Cntrl": '*BWSSP245*',  # '*BWSSP245*' or None
+    "idS245Hist": '*BWHIST*',  # '*BWHIST*' or None
+    "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc' # Landmask file location
 }
 setDict = {
-    "landmaskFlag": None,
-    "startIntvl": [2015,2020,2030,2035], #dg [2015,2020,2030,2035]
-    "endIntvl": [2045,2050,2060,2065], #dg [2025,2030,2040,2045]
-    "convert": (fcu.m_to_cm,fcu.persec_peryr), #TUPLE of converter(s), or None if using default units
-    "cmap": precipPal, #None for default cmocean "balance" or choose colormap here
-    "cbVals": [-50,50], #None for automatic or [min,max] to override #dg,
-    "addCyclicPoint": False, #True/False for ocean data
-    "areaAvgBool": False, #ALWAYS False: no area averaging for a map!
-    "robustnessBool": False #True/False to run robustness
+    "landmaskFlag": None,  # None no mask, 'land' to mask ocean, 'ocean' to mask land
+    "startIntvl": [2015,2020,2030,2035],  # Window years [glens,glens,arise,arise]
+    "endIntvl": [2025,2030,2040,2045],  # Window years [glens,glens,arise,arise]
+    "convert": (fcu.kel_to_cel,),  # TUPLE of converter(s), None for default units
+    "cmap": None,  # None for default (cmocean balance) or choose colormap
+    "cbVals": [-2,2],  # None for automatic or [min,max] to override,
+    "addCyclicPoint": False,  # True for ocean data/False for others
+    "areaAvgBool": False,  # ALWAYS FALSE: no area averaging for a map!
+    "robustnessBool": False  # True/False to run robustness
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20221020_itcz/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20221027_refiningCode/',
     "dpiVal": 400
 }
 loopDict = {
-    "realizations": ('ensplot',), #number for individual member, 'mean' for ens mean of all available members
-    "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": ('global',),#('global',rlib.Arctic(),rlib.EastNorthAmerica()),
-    "aaBools": (True,)
+    "rlzs": (3,5,7,'mean','ensplot',),  # number(s) for member(s), 'mean' ens mean all members, 'ensplot' for both member information and mean (i.e. for robustness)
+    "levels": (None,),  # 'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
+    "regions": ('global',),  # 'global' only implemented for maps
 }
-
-ic(dataDict, setDict, outDict) #Lowers chances of making the wrong plots by mistake
+ic(dataDict, setDict, outDict, loopDict)  # Show input settings at command line
 
 # Make images
-for rlz in loopDict["realizations"]:
+for rlz in loopDict["rlzs"]:
     setDict["realization"] = rlz
     scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
     dataDict = {**dataDict, **cmnDict}
@@ -80,7 +67,7 @@ for rlz in loopDict["realizations"]:
         setDict["levOfInt"] = lev
         fbp.plot_basic_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_six_difference_globe(scnList, dataDict, setDict, outDict)
-        # fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict)
+        fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_basic_difference_polar(scnList, dataDict, setDict, outDict)
         # fbp.plot_glens_difference_globe(scnList, dataDict, setDict, outDict)
