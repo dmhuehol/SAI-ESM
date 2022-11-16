@@ -416,7 +416,7 @@ def get_ens_mem(files):
     return emem
 
 def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
-    ''' Compile bits and pieces for filenames and titles '''
+    ''' Compile bits and pieces of metadata for filenames and titles '''
     metaDict = {
         "cntrlStr": 'RCP8.5',
         "fdbckStr": 'GLENS-SAI',

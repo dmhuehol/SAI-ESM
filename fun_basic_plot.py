@@ -67,10 +67,10 @@ ensPrp = {
 
 def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     ''' 4-panel difference globe with customizable panels. Default panels:
-        (1) change over time for GLENS-SAI (snapshot around initiation, GLENS Feedback)
-        (2) change over time for G1.5(2-4.5) (snapshot around initiation, ARISE Feedback)
-        (3) diff between RCP8.5 and GLENS-SAI for end interval (intervention impact)
-        (4) diff between SSP2-4.5 and ARISE-SAI-1.5 for end interval (intervention impact)
+        (1) change over time for GLENS-SAI (GLENS snapshot around deployment)
+        (2) change over time for ARISE-SAI-1.5 (ARISE snapshot around deployment)
+        (3) diff between RCP8.5 and GLENS-SAI for end interval (GLENS intervention impact)
+        (4) diff between SSP2-4.5 and ARISE-SAI-1.5 for end interval (ARISE intervention impact)
     '''
     # Set up panels
     toiStart, toiEnd = fpt.make_panels(rlzList, setDict)
@@ -80,7 +80,7 @@ def plot_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     diffToiG15S245 = toiEnd['ARISE-SAI-1.5'] - toiStart['SSP2-4.5']
     intiG12R85 = toiEnd['GLENS-SAI'] - toiEnd['RCP8.5']
     intiG15S245 = toiEnd['ARISE-SAI-1.5'] - toiEnd['SSP2-4.5']
-    # scnrsCmprd = toiEnd['GLENS-SAI'] - toiEnd['ARISE-SAI-1.5'] #Compare ARISE/GLENS CI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
+    # scnrsCmprd = toiEnd['GLENS-SAI'] - toiEnd['ARISE-SAI-1.5'] #Compare ARISE/GLENS SAI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
 
     panels = (diffToiR85, diffToiS245, diffToiG12R85, diffToiG15S245)
 
@@ -153,14 +153,14 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     # snapS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
     # snapGLENS = toiEnd['GLENS-SAI'] - toiStart['RCP8.5']
     # snapARISE15 = toiEnd['ARISE-SAI-1.5'] - toiStart['SSP2-4.5']
-    # intiGLENS = toiEnd['GLENS-SAI'] - toiEnd['RCP8.5']
-    intiARISE15 = toiEnd['ARISE-SAI-1.5'] - toiEnd['SSP2-4.5']
-    # applesToCats = toiEnd['GLENS-SAI'] - toiEnd['ARISE-SAI-1.5'] #Compare ARISE/GLENS scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
+    intiGLENS = toiEnd['GLENS-SAI'] - toiEnd['RCP8.5']
+    # intiARISE15 = toiEnd['ARISE-SAI-1.5'] - toiEnd['SSP2-4.5']
+    # applesToCats = toiEnd['GLENS-SAI'] - toiEnd['ARISE-SAI-1.5'] #Compare ARISE/GLENS SAI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
     # blank = toiEnd['GLENS-SAI'].copy()
     # blank.data = toiEnd['GLENS-SAI'] - toiEnd['GLENS-SAI']
 
-    panel = intiARISE15
-    panelStr = 'intiARISE15'
+    panel = intiGLENS
+    panelStr = 'intiGLENS'
 
     # Plotting –– map
     CL = 0.
@@ -168,7 +168,8 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     fig = plt.figure(figsize=(12, 2.73*2))
     ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
     cmap = cmocean.cm.balance if setDict["cmap"] is None else setDict["cmap"]
-    cbAuto = np.sort([-np.nanquantile(panel.data,0.75), np.nanquantile(panel.data,0.75)])
+    cbAuto = np.sort(
+        [-np.nanquantile(panel.data,0.75), np.nanquantile(panel.data,0.75)])
     cbVals = cbAuto if setDict["cbVals"] is None else setDict["cbVals"]
     md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
     lats = rlzList[0].lat
@@ -181,12 +182,9 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
 
     # Plotting –– image muting by adding separate layer of muted data
     if setDict["robustnessBool"]:
-        if rbd["muteThr"]<1:
-            muteThr = int(np.ceil(np.nanquantile(rbstns, rbd["muteThr"]))) #Threshold to mute below
-        else:
-            muteThr = rbd["muteThr"]
+        muteThr = rbd["muteThr"]
         ic(muteThr)
-        robustDarr = fr.mask_rbst(panel, rbstns, rbd["nRlz"], muteThr, rbd["sprdFlag"])
+        robustDarr = fr.mask_rbst(panel, rbstns, rbd["nRlz"], muteThr)
         fpt.drawOnGlobe(ax, robustDarr, lats, lons, cmap='Greys', vmin=cbVals[0],
                         vmax=cbVals[1], cbarBool=False, fastBool=True,
                         extent='max', addCyclicPoint=setDict["addCyclicPoint"],
@@ -596,26 +594,25 @@ def plot_single_robust_globe(rlzList, dataDict, setDict, outDict):
     if setDict["robustnessBool"] is False:
         sys.exit('Cannot run robustness globe if robustness is False!')
     rbd, rbstns = fr.handle_robustness(rlzList)
-    ic(np.max(rbstns))
 
     # Plotting –– map setup
     panel = rbstns
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
-    # mapProj = cartopy.crs.Orthographic(0, 90)#N: (0,90) S: (180,-90) #For polar variables
+    # mapProj = cartopy.crs.Orthographic(0, 90) # N: (0,90) S: (180,-90) #Polar
     plt.figure(figsize=(12, 2.73*2))
     ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
     disc = cmasher.get_sub_cmap(cmasher.cm.ghostlight, 0, 1, N=rbd["nRlz"]+1)
 
     # Plotting –– image muting by altering discrete colorbar
-    # Image muting is implemented for cmasher ghostlight and custom pink
+    # Implemented for cmasher ghostlight and custom pink
     if rbd["muteThr"] is not None:
-        muteThresh = rbd["muteThr"]#int(np.ceil(np.nanquantile(rbstns, rbd["muteThr"]))) #Threshold to mute below
-        ic(muteThresh)
-        discColors = cmasher.take_cmap_colors(cmasher.cm.ghostlight,
-                                              N=rbd["nRlz"], cmap_range=(0,1))
-        # muteList = fpt.mute_by_numbers(muteThresh)
-        muteList = fpt.mute_by_numbers_arise(muteThresh)
+        discColors = cmasher.take_cmap_colors(
+            cmasher.cm.ghostlight, N=rbd["nRlz"], cmap_range=(0,1))
+        if 'GLENS' in rbd["exp"]:
+            muteList = fpt.mute_by_numbers(rbd["muteThr"])
+        elif 'ARISE' in rbd["exp"]:
+            muteList = fpt.mute_by_numbers_arise(rbd["muteThr"])
         disc = mpl.colors.ListedColormap(muteList)
 
     # Plotting –– map
@@ -628,25 +625,19 @@ def plot_single_robust_globe(rlzList, dataDict, setDict, outDict):
     lons = rlzList[0].lon
     plt.rcParams.update({'font.family': 'Palanquin'})
     plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
-
-    cb,Im = fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1],
-                            cbarBool=cbarBool, fastBool=True, extent='max',
-                            addCyclicPoint=setDict["addCyclicPoint"], alph=1)
-
+    cb, Im = fpt.drawOnGlobe(
+        ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1],
+        cbarBool=cbarBool, fastBool=True, extent='max',
+        addCyclicPoint=setDict["addCyclicPoint"], alph=1)
     if rbd["muteThr"] is not None: #Muting
-        cb.set_ticks([0, muteThresh, rbd["nRlz"]])
+        cb.set_ticks([0, rbd["muteThr"], rbd["nRlz"]])
     else: #No muting
         cb.set_ticks(np.linspace(0,rbd["nRlz"],3).astype(int))
     cb.ax.tick_params(labelsize=11)
     cb.set_label('number of members', size='small', fontweight='light')
     cb.remove()
-    if rbd["sprdFlag"] == 'below':
-        plt.title('Count of SAI members below ' + str(rbd["beatNum"]) + ' no-SAI members: ' + md['varStr'], fontsize=16, fontweight='light') #No automatic title, 1-panel is used for custom figures
-    elif rbd["sprdFlag"] == 'above':
-        plt.title('Count of SAI members above ' + str(rbd["beatNum"]) + ' no-SAI members: ' + md['varStr'], fontsize=16, fontweight='light') #No automatic title, 1-panel is used for custom figures
-    elif rbd["sprdFlag"] == 'outside':
-        # plt.title('Count of SAI members outside of ' + str(rbd["beatNum"]) + ' no-SAI members: ' + md['varStr'], fontsize=16, fontweight='light') #No automatic title, 1-panel is used for custom figures
-        plt.title('')
+    # plt.title('Count of SAI members outside of ' + str(rbd["beatNum"]) + ' no-SAI members: ' + md['varStr'], fontsize=16, fontweight='light') #No automatic title, 1-panel is used for custom figures
+    plt.title('')
 
     # Plotting –– settings for output file
     savePrfx = 'robust_' #Easy modification for unique filename
