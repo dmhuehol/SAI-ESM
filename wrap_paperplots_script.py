@@ -54,7 +54,7 @@ setDict = {
     "dimOfVrblty": {'rlzBool':True,'timeBool':True,'spcBool':False}, #pdf
     "convert": (fcu.kel_to_cel,), #TUPLE of converter(s), or None if using default units
     "realization": 'ensplot',
-    "insetFlag": 2, #ts 0 default, 1 lines only, 2 AMS style
+    "styleFlag": 2, #ts 0 default, 1 lines only, 2 AMS style
     "mute": False, #ts True/False to use image muting on parts of time period
     "ylim": [14, 18.25], #ts None for automatic, [min,max] for manual
     "ylabel": '', #ts
