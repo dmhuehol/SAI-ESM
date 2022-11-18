@@ -23,17 +23,11 @@ import fun_convert_unit as fcu
 import fun_process_data as fpd
 import region_library as rlib
 
-# Call regions
-ipccWg1Ar5 = rlib.atlas_ipcc_wg1ar5() #ipccWg1Ar5["allRegions"]
-seaIcyRegions = rlib.atlas_seaicy_regions()
-planetary = ('global', rlib.Tropics(), rlib.NorthernHemisphere(), rlib.SouthernHemisphere())
-insets = rlib.atlas_insets()
-
 # Dictionaries
 dataDict = {
     "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_TREFHT/',
-    "idGlensCntrl": None, #'control_*' or None
-    "idGlensFdbck": None, #'feedback_*' or None
+    "idGlensCntrl": 'control_*', #'control_*' or None
+    "idGlensFdbck": 'feedback_*', #'feedback_*' or None
     "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
     "idS245Cntrl": '*BWSSP245*', #'*BWSSP245*' or None
     "idS245Hist": '*BWHIST*', #'*BWHIST*' or None
@@ -53,20 +47,20 @@ setDict = {
     "dimOfVrblty": {'rlzBool':True,'timeBool':True,'spcBool':False}, #pdf
     "convert": (fcu.kel_to_cel,), #TUPLE of converter(s), or None if using default units
     "realization": 'ensplot',
-    "insetFlag": 2, #ts 0 default, 1 lines only, 2 AMS style, 3 general IPCC
+    "styleFlag": 3, #ts 0 automatic, 1 lines only, 2 for paper, 3 for IPCC
     "mute": False, #ts True/False to use image muting on parts of time period
-    "ylim": [15.5,16.2], #ts None for automatic, [min,max] for manual
+    "ylim": None, #ts None for automatic, [min,max] for manual
     "ylabel": '', #ts None for automatic
-    "yticks": np.arange(0,600,1), #ts None for automatic, np.arange(mn,mx,step) for manual
+    "yticks": None, #ts None for automatic, np.arange(mn,mx,step) for manual
     "xticks": True #ts
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20221004_robustness/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20221118_refiningSpread/',
     "dpiVal": 400
 }
 loopDict = {
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": ('global',)
+    "regions": ('global', (rlib.Amazon(),rlib.Arctic()), rlib.SouthernAfrica(), rlib.EastNorthAmerica()) #rlib.region() for single (rlib.region(), rlib.region()) to concatenate)
 }
 
 ic(dataDict, setDict, outDict) #Lowers chances of making the wrong plots by mistake
@@ -78,8 +72,8 @@ for lev in loopDict["levels"]:
     setDict["levOfInt"] = lev
     for reg in loopDict["regions"]:
         setDict["regOfInt"] = reg
-        fep.plot_ens_spaghetti_timeseries(scnList, dataDict, setDict, outDict)
-        # fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
+        # fep.plot_ens_spaghetti_timeseries(scnList, dataDict, setDict, outDict)
+        fep.plot_ens_spread_timeseries(scnList, dataDict, setDict, outDict)
         # setDict["plotStyle"] = 'step'
         # fep.plot_ens_pdf(scnList, dataDict, setDict, outDict)
         # setDict["plotStyle"] = 'kde'
