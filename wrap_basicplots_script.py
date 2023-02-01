@@ -1,8 +1,20 @@
 ''' wrap_basicplots_script
-Runs map plotting functions in fun_basic_plot.
+Runs map plotting functions in fun_basic_plot. To replicate figures from
+Hueholt et al. 2023 "Assessing Outcomes in Stratospheric Aerosol Injection
+Scenarios Shortly After Deployment" directly, see
+wrap_paperplots_basicplots_script.
 
 dataDict: defines input data
 setDict: settings for analysis/visualization
+    plotPanel: determines which panel to plot, valid entries given below
+        with relevant figure numbers from Hueholt et al. 2023
+        'snapR85': snapshot for RCP8.5, Fig. 1a
+        'snapS245': snapshot for SSP2-4.5, Fig. 1b
+        'snapGLENS': snapshot around deployment for GLENS, Fig. 3a
+        'snapARISE15': snapshot around deployment for ARISE-SAI-1.5, Fig. 3b
+        'intiGLENS': intervention impact for GLENS, Fig. 6a
+        'intiARISE15': intervention impact for ARISE-SAI-1.5, Fig. 6b
+        any other value: make a blank map
 outDict: output image settings
 loopDict: determines which images are made
 
@@ -28,11 +40,11 @@ precipPal = seaborn.diverging_palette(58, 162, s=100, l=45, as_cmap=True)
 # Dictionaries to define inputs
 dataDict = {
     "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_TREFHT/',
-    "idGlensCntrl": None,  # 'control_*' or None
-    "idGlensFdbck": None,  # 'feedback_*' or None
-    "idArise": '*SSP245-TSMLT-GAUSS*',  # '*SSP245-TSMLT-GAUSS*' or None
-    "idS245Cntrl": '*BWSSP245*',  # '*BWSSP245*' or None
-    "idS245Hist": '*BWHIST*',  # '*BWHIST*' or None
+    "idGlensCntrl": 'control_*',  # 'control_*' or None
+    "idGlensFdbck": 'feedback_*',  # 'feedback_*' or None
+    "idArise": None,  # '*SSP245-TSMLT-GAUSS*' or None
+    "idS245Cntrl": None,  # '*BWSSP245*' or None
+    "idS245Hist": None,  # '*BWHIST*' or None
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc' # Landmask file location
 }
 setDict = {
@@ -44,7 +56,8 @@ setDict = {
     "cbVals": [-2,2],  # None for automatic or [min,max] to override,
     "addCyclicPoint": False,  # True for ocean data/False for others
     "areaAvgBool": False,  # ALWAYS FALSE: no area averaging for a map!
-    "robustnessBool": True  # True/False to run robustness
+    "robustnessBool": True,  # True/False to run robustness
+    "plotPanel": "intiGLENS" # See docstring for valid inputs
 }
 outDict = {
     "savePath": '/Users/dhueholt/Documents/GLENS_fig/20230201_revisitRefactor/',
@@ -52,8 +65,8 @@ outDict = {
 }
 loopDict = {
     "rlzs": ('ensplot',),  # number(s) for member(s), 'mean' ens mean all members, 'ensplot' for both member information and mean (i.e. for robustness)
-    "levels": (None,),  # 'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": ('global',),  # 'global' only implemented for maps
+    "levels": (None,),  # None for single-level variable (as for all variables used in paper), 'stratosphere', 'troposphere', 'total', or numeric level(s) for other variables
+    "regions": ('global',),  # 'global' only for maps
 }
 ic(dataDict, setDict, outDict, loopDict)  # Show input settings at command line
 
@@ -65,12 +78,7 @@ for rlz in loopDict["rlzs"]:
 
     for lev in loopDict["levels"]:
         setDict["levOfInt"] = lev
-        # fbp.plot_basic_difference_globe(scnList, dataDict, setDict, outDict)
-        fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict)
-        # fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict)
-
-        # Will be removed for paper version of record
-        # fbp.plot_six_difference_globe(scnList, dataDict, setDict, outDict)
-        # fbp.plot_basic_difference_polar(scnList, dataDict, setDict, outDict)
-        # fbp.plot_glens_difference_globe(scnList, dataDict, setDict, outDict)
-        # fbp.plot_arise_difference_globe(scnList, dataDict, setDict, outDict)
+        fbp.plot_single_basic_difference_globe(
+            scnList, dataDict, setDict, outDict)
+        # fbp.plot_single_robust_globe(
+        #    scnList, dataDict, setDict, outDict)
