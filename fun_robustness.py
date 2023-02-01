@@ -14,8 +14,8 @@ import xarray as xr
 def handle_robustness(rlzList):
     ''' Handles robustness calculation '''
     rbd = { #Settings for robustness calculation
-        "beatNum": 13, #beat number is number of Control members to beat
-        "muteThr": 11, #threshold to image mute; None to disable
+        "beatNum": 6, #beat number is number of Control members to beat
+        "muteThr": 7, #threshold to image mute; None to disable
         "nRlz": None, #Set automatically
         "exp": None   #Set automatically
     }

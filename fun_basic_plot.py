@@ -150,17 +150,17 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     # Set up panels
     toiStart, toiEnd = fpt.make_panels(rlzList, setDict)
     # snapR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
-    # snapS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
+    snapS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
     # snapGLENS = toiEnd['GLENS-SAI'] - toiStart['RCP8.5']
     # snapARISE15 = toiEnd['ARISE-SAI-1.5'] - toiStart['SSP2-4.5']
-    intiGLENS = toiEnd['GLENS-SAI'] - toiEnd['RCP8.5']
+    # intiGLENS = toiEnd['GLENS-SAI'] - toiEnd['RCP8.5']
     # intiARISE15 = toiEnd['ARISE-SAI-1.5'] - toiEnd['SSP2-4.5']
     # applesToCats = toiEnd['GLENS-SAI'] - toiEnd['ARISE-SAI-1.5'] #Compare ARISE/GLENS SAI scenarios USE WITH CAUTION: usually physically meaningless due to differences in model setup!
     # blank = toiEnd['GLENS-SAI'].copy()
     # blank.data = toiEnd['GLENS-SAI'] - toiEnd['GLENS-SAI']
 
-    panel = intiGLENS
-    panelStr = 'intiGLENS'
+    panel = snapS245
+    panelStr = 'snapS245'
 
     # Plotting –– map
     CL = 0.
@@ -177,7 +177,7 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     plt.rcParams.update({'font.family': 'Open Sans'})
     plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
     fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1],
-                    cbarBool=True, fastBool=True, extent='max',
+                    cbarBool=False, fastBool=True, extent='max',
                     addCyclicPoint=setDict["addCyclicPoint"], alph=1)
 
     # Plotting –– image muting by adding separate layer of muted data
@@ -188,7 +188,7 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
         fpt.drawOnGlobe(ax, robustDarr, lats, lons, cmap='Greys', vmin=cbVals[0],
                         vmax=cbVals[1], cbarBool=False, fastBool=True,
                         extent='max', addCyclicPoint=setDict["addCyclicPoint"],
-                        alph=0.5)
+                        alph=0.65)
     # plt.title(" ") #No automatic title, 1-panel is used for custom figures
 
     # Plotting –– settings for output file

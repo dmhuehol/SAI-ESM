@@ -523,7 +523,7 @@ def line_from_scenario(scn, md):
 
     return activeColor, activeLabel
 
-def plot_metaobjects(scnToPlot, fig, b, t):
+def plot_metaobjects(scnToPlot, fig, b, t, lw=1.2):
     ''' Determines which metaobjects to plot based on scenario '''
     ic('Automatic metaobjects disabled!')
     # if any('ARISE:Control' in scn for scn in scnToPlot): #Triangle for change in number of rlzs
@@ -536,8 +536,8 @@ def plot_metaobjects(scnToPlot, fig, b, t):
     # if any('ARISE:Feedback' in scn for scn in scnToPlot):
     #     plt.plot([2035,2035], [b,t], color='#12D0B2', linewidth=0.7, linestyle='dashed')
 
-    plt.plot([2020,2020], [b,t], color='#8346C1', linewidth=1.2, linestyle='dashed')
-    plt.plot([2035,2035], [b,t], color='#12D0B2', linewidth=1.2, linestyle='dashed')
+    plt.plot([2020,2020], [b,t], color='#8346C1', linewidth=lw, linestyle='dashed')
+    plt.plot([2035,2035], [b,t], color='#12D0B2', linewidth=lw, linestyle='dashed')
 
     return
 

@@ -25,7 +25,7 @@ import region_library as rlib
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/annual_TREFHT/',
+    "dataPath": '/Users/dhueholt/Documents/GLENS_data/extreme_sdii/',
     "idGlensCntrl": 'control_*', #'control_*' or None
     "idGlensFdbck": 'feedback_*', #'feedback_*' or None
     "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
@@ -34,7 +34,7 @@ dataDict = {
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc' #cesm_component_mask.nc
 }
 setDict = {
-    "landmaskFlag": None, #None or 'land'
+    "landmaskFlag": 'land', #None or 'land'
     "startIntvl": [2011,2030], #dg
     "endIntvl": [2041,2060], #dg
     "cntrlPoi": [2011,2041], #pdf
@@ -45,7 +45,7 @@ setDict = {
     "plotStyle": 'step', #pdf
     "areaAvgBool": True, #True=mean, 'sum'=sum (e.g. ice extent), False=functionality that hasn't been tested in two years, and yes I know that's not a boolean
     "dimOfVrblty": {'rlzBool':True,'timeBool':True,'spcBool':False}, #pdf
-    "convert": (fcu.kel_to_cel,), #TUPLE of converter(s), or None if using default units
+    "convert": None, #TUPLE of converter(s), or None if using default units
     "realization": 'ensplot',
     "styleFlag": 3, #ts 0 automatic, 1 lines only, 2 for paper, 3 for IPCC
     "mute": False, #ts True/False to use image muting on parts of time period
@@ -55,12 +55,12 @@ setDict = {
     "xticks": True #ts
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20221118_refiningSpread/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20221207_longTermRobustness/',
     "dpiVal": 400
 }
 loopDict = {
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": ('global', (rlib.Amazon(),rlib.Arctic()), rlib.SouthernAfrica(), rlib.EastNorthAmerica()) #rlib.region() for single (rlib.region(), rlib.region()) to concatenate)
+    "regions": ('global', ) #rlib.region() for single (rlib.region(), rlib.region()) to concatenate)
 }
 
 ic(dataDict, setDict, outDict) #Lowers chances of making the wrong plots by mistake

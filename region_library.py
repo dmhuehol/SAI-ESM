@@ -885,6 +885,16 @@ def WesternAustraliaMHW_point():
 
     return regDict
 
+def arbitrary_point():
+    regDict = {
+        "regStr": '-70,62',
+        "regSaveStr": '70S_62E',
+        "regLats": np.array([-70]),
+        "regLons": np.array([62])
+    }
+
+    return regDict
+
 ### Atlases
 # Call atlases as var = rlib.atlas_(); use with var["token"]
 # Ex: to plot all ipccWg1Ar5 regions

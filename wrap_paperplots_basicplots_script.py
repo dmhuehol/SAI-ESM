@@ -57,10 +57,10 @@ setDict = {
     "cbVals": [-2,2], #None for automatic or [min,max] to override #dg
     "addCyclicPoint": False,
     "areaAvgBool": False,
-    "robustnessBool": False
+    "robustnessBool": True
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220921_2CForPaper/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20221201_sig/',
     "dpiVal": 800 #High-res for paper
 }
 loopDict = {
@@ -80,51 +80,51 @@ setDict["levOfInt"] = None
 
 # Annual mean temperature
 fbp.plot_paper_panels_globe(scnList, dataDict, setDict, outDict)
-#
-# # Annual mean precipitation
-# dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/annual_PRECT/'
-# setDict["convert"] = (fcu.m_to_cm, fcu.persec_peryr)
-# scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-# dataDict = {**dataDict, **cmnDict}
-# setDict["levOfInt"] = None
-# setDict["cmap"] = precipPal
-# setDict["cbVals"] = [-25,25]
-# fbp.plot_paper_panels_globe(scnList, dataDict, setDict, outDict)
-#
-# # Annual mean SDII
-# dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/extreme_sdii/'
-# setDict["areaAvgBool"] = True
-# setDict["convert"] = None
-# setDict["landmaskFlag"] = 'land'
-# scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-# dataDict = {**dataDict, **cmnDict}
-# setDict["levOfInt"] = None
-#
-# setDict["cmap"] = precipPal
-# setDict["cbVals"] = [-1,1]
-# fbp.plot_paper_panels_globe(scnList, dataDict, setDict, outDict)
+
+# Annual mean precipitation
+dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/annual_PRECT/'
+setDict["convert"] = (fcu.m_to_cm, fcu.persec_peryr)
+scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
+dataDict = {**dataDict, **cmnDict}
+setDict["levOfInt"] = None
+setDict["cmap"] = precipPal
+setDict["cbVals"] = [-25,25]
+fbp.plot_paper_panels_globe(scnList, dataDict, setDict, outDict)
+
+# Annual mean SDII
+dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/extreme_sdii/'
+setDict["areaAvgBool"] = True
+setDict["convert"] = None
+setDict["landmaskFlag"] = 'land'
+scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
+dataDict = {**dataDict, **cmnDict}
+setDict["levOfInt"] = None
+
+setDict["cmap"] = precipPal
+setDict["cbVals"] = [-1,1]
+fbp.plot_paper_panels_globe(scnList, dataDict, setDict, outDict)
 
 # SUPPLEMENTAL: Robustness figures
 # TODO: MUST have robustness dictionary as an input somewhere--otherwise cannot
 # automatically generate figures for both GLENS and ARISE!
-dataDict["idArise"] = None
-dataDict["idS245Cntrl"] = None
-dataDict["idS245Hist"] = None
-setDict["realization"] = 'ensplot'
-setDict["robustnessBool"] = True
-setDict["cmap"] = None #cmasher ghostlight is used automatically
-setDict["cbVals"] = None #proper range set automatically
-# Robustness: Annual mean temperature (GLENS)
-dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/annual_TREFHT/'
-setDict["convert"] = (fcu.kel_to_cel,)
-scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-dataDict = {**dataDict, **cmnDict}
-fbp.plot_paper_robust_globe(scnList, dataDict, setDict, outDict)
-# Robustness: Annual mean precipitation (GLENS)
-dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/annual_PRECT/'
-setDict["convert"] = (fcu.m_to_cm, fcu.persec_peryr)
-scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-fbp.plot_paper_robust_globe(scnList, dataDict, setDict, outDict)
+# dataDict["idArise"] = None
+# dataDict["idS245Cntrl"] = None
+# dataDict["idS245Hist"] = None
+# setDict["realization"] = 'ensplot'
+# setDict["robustnessBool"] = True
+# setDict["cmap"] = None #cmasher ghostlight is used automatically
+# setDict["cbVals"] = None #proper range set automatically
+# # Robustness: Annual mean temperature (GLENS)
+# dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/annual_TREFHT/'
+# setDict["convert"] = (fcu.kel_to_cel,)
+# scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
+# dataDict = {**dataDict, **cmnDict}
+# fbp.plot_paper_robust_globe(scnList, dataDict, setDict, outDict)
+# # Robustness: Annual mean precipitation (GLENS)
+# dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/annual_PRECT/'
+# setDict["convert"] = (fcu.m_to_cm, fcu.persec_peryr)
+# scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
+# fbp.plot_paper_robust_globe(scnList, dataDict, setDict, outDict)
 # # Robustness: Annual simple intensity index (GLENS)
 # dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/extreme_sdii/'
 # setDict["convert"] = None

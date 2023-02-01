@@ -316,6 +316,7 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
     plt.close()
     ic(savename)
 
+
 def plot_ens_pdf(rlzList, dataDict, setDict, outDict):
     ''' Plot pdfs for an output variable. Three formats are available: a kernel
     density estimate, a histogram, or a step plot. PDFs are made with respect
