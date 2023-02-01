@@ -19,7 +19,6 @@ import cmasher, cmocean, seaborn  # Colormap packages
 import fun_basic_plot as fbp
 import fun_convert_unit as fcu
 import fun_process_data as fpd
-import fun_zonal_plot as fzp
 import region_library as rlib
 
 # Special color palettes
@@ -69,7 +68,6 @@ for rlz in loopDict["rlzs"]:
         # fbp.plot_basic_difference_globe(scnList, dataDict, setDict, outDict)
         fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict)
         # fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict)
-        # fzp.plot_zonal_avg(scnList, dataDict, setDict, outDict)
 
         # Will be removed for paper version of record
         # fbp.plot_six_difference_globe(scnList, dataDict, setDict, outDict)
