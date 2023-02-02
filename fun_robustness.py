@@ -11,38 +11,30 @@ import cftime
 import numpy as np
 import xarray as xr
 
-def handle_robustness(rlzList):
+def handle_robustness(rlzList, rbd):
     ''' Handles robustness calculation '''
-    rbd = { #Settings for robustness calculation
-        "beatNum": 6, #beat number is number of Control members to beat
-        "muteThr": 7, #threshold to image mute; None to disable
-        "nRlz": None, #Set automatically
-        "exp": None   #Set automatically
-    }
-
     # Select data of interest
-    if len(rlzList) > 2:
-        sys.exit('Robustness can only be run for GLENS OR ARISE, not both.')
     for s in rlzList:
-        if 'Control' in s.scenario:
-            actCntrlDarr = s
-        elif 'Feedback' in s.scenario:
-            actFdbckDarr = s
-    rbd["nRlz"] = len(actCntrlDarr.realization)-1 #Skip ens mean at last index
-    rbd["exp"] = actCntrlDarr.scenario
-    ic(rbd) #Show robustness dictionary for easy troubleshooting
+        if rbd["exp"] == 'GLENS':
+            if 'GLENS:Control' in s.scenario:
+                actCntrlDarr = s
+            elif 'GLENS:Feedback' in s.scenario:
+                actFdbckDarr = s
+        elif rbd["exp"] == 'ARISE15':
+            if 'ARISE:Control' in s.scenario:
+                actCntrlDarr = s
+            elif 'ARISE:Feedback' in s.scenario:
+                actFdbckDarr = s
 
-    if 'GLENS' in actCntrlDarr.scenario:
-        rbstEcEv, nans = calc_robustness_ecev(
-            actCntrlDarr, actFdbckDarr)
-    elif 'ARISE' in actCntrlDarr.scenario:
-        rbstEcEv, nans = calc_robustness_ecev(
-            actCntrlDarr, actFdbckDarr, sprd=[2040,2044])
+    rbd["nRlz"] = len(actCntrlDarr.realization)-1 #Skip ens mean at last index
+    ic(rbd) #Show robustness dictionary for easy troubleshooting
+    rbstEcEv, nans = calc_robustness_ecev(
+        actCntrlDarr, actFdbckDarr, sprd=rbd['sprd'])
+
     rbstAbv = beat_rbst(rbstEcEv["above"], beat=rbd["beatNum"])
     rbstBlw = beat_rbst(rbstEcEv["below"], beat=rbd["beatNum"])
     rbst = np.maximum(rbstAbv, rbstBlw) #Composite of above and below
-    # Eyeball robustness array and statistics for troubleshooting
-    ic(rbst, np.max(rbst), np.min(rbst), np.median(rbst), np.mean(rbst))
+    # ic(rbst, np.max(rbst), np.min(rbst), np.median(rbst), np.mean(rbst)) #troubleshooting
     rbstns = rbst.astype(np.float)
     rbstns[nans] = np.nan #NaNs from e.g. land area in ocean data
 

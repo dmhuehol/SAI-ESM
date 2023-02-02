@@ -52,10 +52,6 @@ import region_library as rlib
 ## DIFFERENCE GLOBES
 def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     ''' Plot 1 panel difference globe '''
-    # Calculate robustness
-    if setDict["robustnessBool"]:
-        rbd, rbstns = fr.handle_robustness(rlzList)
-
     # Set up panels
     toiStart, toiEnd = fpt.make_panels(rlzList, setDict)
     if setDict["plotPanel"] == 'snapR85':
@@ -104,6 +100,25 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
 
     # Plotting –– image muting by adding separate layer of muted data
     if setDict["robustnessBool"]:
+        if 'GLENS' in setDict["plotPanel"]:
+            rbd = { #Settings for robustness calculation
+                "beatNum": 11, #beat number is number of Control members to beat
+                "muteThr": 15, #threshold to image mute; None to disable
+                "sprd": [2025,2029],
+                "nRlz": None, #Set automatically
+                "exp": 'GLENS'
+            }
+        elif 'ARISE15' in setDict["plotPanel"]:
+            rbd = { #Settings for robustness calculation
+                "beatNum": 6, #beat number is number of Control members to beat
+                "muteThr": 7, #threshold to image mute; None to disable
+                "sprd": [2040,2044],
+                "nRlz": None, #Set automatically
+                "exp": 'ARISE15'   #Set automatically
+            }
+        else:
+            rbd = None # Occurs for unknown scenario and won't work (by design)
+        rbd, rbstns = fr.handle_robustness(rlzList, rbd)
         muteThr = rbd["muteThr"]
         ic(muteThr)
         robustDarr = fr.mask_rbst(panel, rbstns, rbd["nRlz"], muteThr)
@@ -132,13 +147,28 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
 def plot_paper_robust_globe(rlzList, dataDict, setDict, outDict):
     ''' Plot 1 panel robustness globe '''
     # Calculate robustness
-    if setDict["robustnessBool"] is False:
+    if setDict["robustnessBool"]:
+        if 'GLENS' in setDict["plotPanel"]:
+            rbd = { #Settings for robustness calculation
+                "beatNum": 11, #beat number is number of Control members to beat
+                "muteThr": 15, #threshold to image mute; None to disable
+                "sprd": [2025,2029],
+                "nRlz": None, #Set automatically
+                "exp": 'GLENS'
+            }
+        elif 'ARISE15' in setDict["plotPanel"]:
+            rbd = { #Settings for robustness calculation
+                "beatNum": 6, #beat number is number of Control members to beat
+                "muteThr": 7, #threshold to image mute; None to disable
+                "sprd": [2040,2044],
+                "nRlz": None, #Set automatically
+                "exp": 'ARISE15'   #Set automatically
+            }
+        else:
+            rbd = None # Occurs for unknown scenario and won't work (by design)
+        rbd, rbstns = fr.handle_robustness(rlzList, rbd)
+    else:
         sys.exit('Cannot run robustness globe if robustness is False!')
-    rbd, rbstns = fr.handle_robustness(rlzList)
-
-    # Plotting –– quantiles vs members
-    # fsp.quantiles_vs_members(rbstns, rbd["nRlz"], savePath=outDict["savePath"])
-    # sys.exit('STOP') #Uncomment to plot only q vs m
 
     # Plotting –– map setup
     panel = rbstns
@@ -148,28 +178,25 @@ def plot_paper_robust_globe(rlzList, dataDict, setDict, outDict):
     plt.figure(figsize=(12, 2.73*2))
     ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
     disc = cmasher.get_sub_cmap(cmasher.cm.ghostlight, 0, 1, N=rbd["nRlz"])
-    # cmasher ghostlight, eclipse, cmyt pixel green, custom pink are good
-    # cmasher apple to emphasize low robustness
 
     # Plotting –– image muting by altering discrete colorbar
     # Image muting is implemented for cmasher ghostlight and custom pink
-    if rbd["muteQuThr"] is not None:
-        muteThresh = int(np.ceil(np.nanquantile(rbstns, rbd["muteQuThr"]))) #Threshold to mute below
-        ic(muteThresh)
-        discColors = cmasher.take_cmap_colors(cmasher.cm.ghostlight,
-                                              N=rbd["nRlz"], cmap_range=(0,1))
-        muteList = fpt.mute_by_numbers(muteThresh)
-        disc = mpl.colors.ListedColormap(muteList)
+    discColors = cmasher.take_cmap_colors(cmasher.cm.ghostlight,
+                                            N=rbd["nRlz"], cmap_range=(0,1))
+    if rbd["exp"] == 'GLENS':
+        muteList = fpt.mute_by_numbers(rbd["muteThr"])
+    elif rbd["exp"] == 'ARISE15':
+        muteList = fpt.mute_by_numbers_arise(rbd["muteThr"])
+    disc = mpl.colors.ListedColormap(muteList)
 
     # Plotting –– map
-    cmap = disc if setDict["cmap"] is None else setDict["cmap"]
-    cbAuto = [0, rbd["nRlz"]]
-    cbVals = cbAuto if setDict["cbVals"] is None else setDict["cbVals"]
-    cbarBool = False
+    cmap = disc
+    cbVals = [0, rbd["nRlz"]] #Robustness ranges up to size of the ensemble
+    cbarBool = True
     md = fpd.meta_book(setDict, dataDict, rlzList[0], labelsToPlot=None)
     lats = rlzList[0].lat
     lons = rlzList[0].lon
-    plt.rcParams.update({'font.family': 'Palanquin'})
+    plt.rcParams.update({'font.family': 'Open Sans'})
     plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
 
     cb,Im = fpt.drawOnGlobe(ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1],
@@ -178,8 +205,10 @@ def plot_paper_robust_globe(rlzList, dataDict, setDict, outDict):
     plt.title('') #Add manually in Keynote
 
     # Plotting –– settings for output file
-    savePrfx = 'robust_' #Easy modification for unique filename
-    saveStr = md['varSve'] + '_' + md['levSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
+    savePrfx = '' #Easy modification for unique filename
+    saveStr = 'robust_' + setDict["plotPanel"] + '_' + md['varSve'] + '_' + \
+              md['levSve'] + '_' + md['lstDcd'] + '_' + md['ensStr'] + '_' + \
+              md['pid']['g1p'] + '_' + md['glbType']['fcStr']
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
     plt.close()
