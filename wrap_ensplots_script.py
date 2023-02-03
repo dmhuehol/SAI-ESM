@@ -47,15 +47,16 @@ setDict = {
     "dimOfVrblty": {'rlzBool':True,'timeBool':True,'spcBool':False}, #pdf
     "convert": None, #TUPLE of converter(s), or None if using default units
     "realization": 'ensplot',
-    "styleFlag": 3, #ts 0 automatic, 1 lines only, 2 for paper, 3 for IPCC
+    "styleFlag": 3, #ts 0 default, 1 lines only, 2 Hueholt et al. 2023 style, 3 IPCC regions automatic
     "mute": False, #ts True/False to use image muting on parts of time period
     "ylim": None, #ts None for automatic, [min,max] for manual
     "ylabel": '', #ts None for automatic
     "yticks": None, #ts None for automatic, np.arange(mn,mx,step) for manual
-    "xticks": True #ts
+    "xticks": True, #ts
 }
 outDict = {
     "savePath": '/Users/dhueholt/Documents/GLENS_fig/20221207_longTermRobustness/',
+    "addToSaveStr": None,
     "dpiVal": 400
 }
 loopDict = {

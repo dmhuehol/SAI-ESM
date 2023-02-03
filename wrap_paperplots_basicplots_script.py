@@ -1,12 +1,7 @@
 ''' wrap_paperplots_basicplots_script
 Replicates figures from Hueholt et al. 2023 "Assessing Outcomes in Stratospheric Aerosol Injection Scenarios Shortly After Deployment" directly.
 Figures are produced in 1-panel format with no annotations. Keynote is used to
-stitch panels together, add title, add colorbar, etc.
-
-dataDict is for inputs
-setDict sets settings related to plotting
-outDict is for outputs
-loopDict determines which images are made
+stitch panels together, add titles, colorbar, etc.
 
 Written by Daniel Hueholt
 Graduate Research Assistant at Colorado State University
@@ -61,16 +56,9 @@ setDict = {
     "plotPanel": 'snapR85'
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20230201_revisitRefactor/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20230203_replicate/',
     "dpiVal": 400 #High-res for paper
 }
-# loopDict = {
-#     "realizations": ('ensplot',),
-#     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-#     "regions": ('global',),#('global',rlib.Arctic(),rlib.EastNorthAmerica()),
-#     "aaBools": (True,)
-# }
-
 ic(dataDict, setDict, outDict) #Lowers chances of making the wrong plots by mistake
 
 # Make images
@@ -93,9 +81,9 @@ fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig
 setDict["plotPanel"] = 'intiARISE15'
 fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 6b
 setDict["plotPanel"] = 'GLENS'
-fbp.plot_paper_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2a
+fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2a
 setDict["plotPanel"] = 'ARISE15'
-fbp.plot_paper_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2b
+fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2b
 
 # Annual mean precipitation
 dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/annual_PRECT/'
@@ -114,9 +102,9 @@ fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig
 setDict["plotPanel"] = 'intiARISE15'
 fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 7b
 setDict["plotPanel"] = 'GLENS'
-fbp.plot_paper_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2c
+fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2c
 setDict["plotPanel"] = 'ARISE15'
-fbp.plot_paper_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2d
+fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2d
 
 # Annual mean SDII
 dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/extreme_sdii/'
@@ -137,6 +125,6 @@ fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig
 setDict["plotPanel"] = 'intiARISE15'
 fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 8b
 setDict["plotPanel"] = 'GLENS'
-fbp.plot_paper_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2e
+fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2e
 setDict["plotPanel"] = 'ARISE15'
-fbp.plot_paper_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2f
+fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2f
