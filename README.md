@@ -5,21 +5,24 @@ Repository for code analyzing stratospheric aerosol injection model (SAI) output
 3. CMIP6 CESM2-WACCM SSP2-4.5, which functions as the ARISE control with 5 members spanning 2015-2100
 4. CESM2-WACCM Historical, which extends the ARISE control back in time to 1850
 
-While this code is targeted at these specific SAI-related model runs, it can be modified to work with other CESM output.
+While this code is targeted at these specific SAI-related model runs, it can be modified to work with other CESM output. The version of this code available in `main` specifically accompanies:
+Hueholt et al. 2023 "Assessing Outcomes in Stratospheric Aerosol Injection
+Scenarios Shortly After Deployment" submitted to *Earth's Future*.
+
+## Replicating paper results
+`wrap_paperplots_basicplots_script` generates all difference globes figures, e.g., Figure 1, 3-8, S2. `wrap_paperplots_ensplots_script` yields all timeseries, e.g., Figure 2, S3, S4.
 
 ## Example plots
-There are three plots which are fundamental to this repository: difference globes, timeseries, and probability density functions (pdfs). These figures are made using `wrap_basicplots_script` and `wrap_ensplots_script`.
-### Four-panel difference globe example
-![Four panel difference globe](images/2mtemp__2011-2030_2041-2060_mngc-mngf-mnsci-mns245c_globe_4p_FdbckCntrl.png)
+These figures can be made using `wrap_basicplots_script` and `wrap_ensplots_script`.
+### Difference globe example
+![Difference globe](images/hueholtetal-f03.png)
+The code generates these figures without the title or colorbar; in Hueholt et al. 2023, these are added manually using Keynote.
+
 
 ### Timeseries example
-![Timeseries](images/2mtemp__20102095_global_ensgc-ensgf-enssci-enss245c_spread.png)
+![Timeseries](images/hueholt-ts-example.png)
+The code generates these figures without the title or annotations, which are added manually using Keynote.
 
-### pdfs
-Three kinds of pdf figure are possible: histograms, kernel density estimates, and step plots.
-![Histogram](images/2mtemp__b20112030_c20412060_global_ensgc-ensgf-enssci-enss245c_pdf_hist_rlzTtmTspcF.png)
-![Kernel density estimate](images/2mtemp__b20112030_c20412060_global_ensgc-ensgf-enssci-enss245c_pdf_kde_rlzTtmTspcF.png)
-![Step](images/2mtemp__b20112030_c20412060_global_ensgc-ensgf-enssci-enss245c_pdf_step_rlzTtmTspcF.png)
 
 ## Sources and Credit
-Unless specified otherwise, all code and documentation was written by Daniel Hueholt as a Graduate Research Assistant advised by Profs. [Elizabeth Barnes](https://barnes.atmos.colostate.edu/) and [James Hurrell](https://sites.google.com/rams.colostate.edu/hurrellgroup/home) at [Colorado State University](https://www.colostate.edu/).
+Unless specified otherwise, all code and documentation was written by [Daniel Hueholt](https://www.hueholt.earth) as a Graduate Research Assistant advised by Prof. [Elizabeth Barnes](https://barnes.atmos.colostate.edu/) and Prof. [James Hurrell](https://sites.google.com/rams.colostate.edu/hurrellgroup/home) at [Colorado State University](https://www.colostate.edu/).
