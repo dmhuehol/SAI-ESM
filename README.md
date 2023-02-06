@@ -1,9 +1,8 @@
 # SAI-CESM
 Repository for code analyzing stratospheric aerosol injection model (SAI) output utilizing the Community Earth System Model (CESM). This code utilizes output from the following modeling experiments:
-1. [Geoengineering Large ENSemble (GLENS)](https://www.cesm.ucar.edu/projects/community-projects/GLENS/), consisting of 21 RCP8.5 Control runs and 21 G1.2(8.5) Feedback runs where SAI is used to target 1.2 Celsius above preindustrial against the RCP8.5 forcing
-2. Assessing Responses and Impacts of Solar climate intervention on the Earth system with stratospheric aerosol injection (ARISE-SAI), consisting of 10 G1.5(2-4.5) runs where SAI is used to target 1.5 Celsius above preindustrial with a SSP2-4.5 scenario
-3. CMIP6 CESM2-WACCM SSP2-4.5, which functions as the ARISE control with 5 members spanning 2015-2100
-4. CESM2-WACCM Historical, which extends the ARISE control back in time to 1850
+1. [Geoengineering Large ENSemble (GLENS)](https://www.cesm.ucar.edu/community-projects/GLENS/), consisting of 21 RCP8.5 Control runs and 21 G1.2(8.5) Feedback runs where SAI is used to target 1.2 Celsius above preindustrial against the RCP8.5 forcing. Citation: [Tilmes et al. 2018](https://doi.org/10.1175/BAMS-D-17-0267.1)
+2. [Assessing Responses and Impacts of Solar climate intervention on the Earth system with stratospheric aerosol injection (ARISE-SAI)](https://www.cesm.ucar.edu/community-projects/arise-sai), consisting of 10 G1.5(2-4.5) runs where SAI is used to target 1.5 Celsius above preindustrial with a SSP2-4.5 scenario. Citation: [Richter et al. 2022](https://doi.org/10.5194/gmd-15-8221-2022)
+3. CESM2-WACCM Historical, which is used here primarily to extend the ARISE control to 2010 as in GLENS. Citation: [Danabasoglu et al. 2020](doi.org/10.1029/2019MS001916)
 
 While this code is targeted at these specific SAI-related model runs, it can be modified to work with other CESM output. The version of this code available in `main` specifically accompanies:
 Hueholt et al. 2023 "Assessing Outcomes in Stratospheric Aerosol Injection
