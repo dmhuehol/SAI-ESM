@@ -313,7 +313,15 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
             darrWght = darr.weighted(latWeights)
             darr = darrWght.sum(dim=['lat','lon'], skipna=True)
     elif isinstance(regionToPlot,dict): #region_library objects
-        if len(regionToPlot["regLats"]) == 1: # Pointal region_library object
+        if len(regionToPlot["regLats"]) == 1: # Point region_library object
+            if 'lat' in darr.dims: #If selecting data as opposed to making strings
+                darr = darr.sel(
+                    lat=regionToPlot['regLats'],
+                    lon=regionToPlot['regLons'],
+                    method="nearest")
+                ic(darr['lat'].data, darr['lon'].data) #Display true lat/lon as 'nearest' is used
+                darr = np.squeeze(darr) #Drop length 1 lat/lon dimensions
+                areaAvgBool = None
             locStr = regionToPlot["regSaveStr"]
             locTitleStr = regionToPlot["regStr"]
             return darr, locStr, locTitleStr # Shortcut the rest of the function
@@ -322,14 +330,8 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
 
         lats = darr['lat'] #GLENS, ARISE, and SSP2-4.5 Control are all on the same grid to within 10^-6
         lons = darr['lon']
-        if len(regionToPlot['regLons']) == 1: #point location
-            darr = darr.sel(
-                lat=regionToPlot['regLats'], lon=regionToPlot['regLons'], method="nearest")
-            ic(darr['lat'], darr['lon']) #True lat/lon since 'nearest' is used
-            darr = np.squeeze(darr) #Drop length 1 lat/lon dimensions
-            areaAvgBool = None
 
-        elif len(regionToPlot['regLons'])>2: #non-rectangular region that does not cross Prime Meridian
+        if len(regionToPlot['regLons'])>2: #non-rectangular region that does not cross Prime Meridian
             gridMask = make_polygon_mask(lats, lons, regionToPlot['regLats'], regionToPlot['regLons'])
             darrMask = darr.copy()
             try:
