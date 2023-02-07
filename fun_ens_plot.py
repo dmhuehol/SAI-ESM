@@ -239,7 +239,7 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
     fpt.plot_metaobjects(scnToPlot, fig, b, t)
     # plt.autoscale(enable=True, axis='x', tight=False)
     # plt.autoscale(enable=True, axis='y', tight=False)
-    xlr,xrt = plt.xlim(setYear[0], setYear[1])
+    xlf,xrt = plt.xlim(setYear[0], setYear[1])
     if setDict["styleFlag"] == 0: # All aesthetics automatic
         plt.ylabel(md['unit'])
         leg = plt.legend()
