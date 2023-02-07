@@ -19,19 +19,19 @@ sd = {
 
 rbd = {
     "beatNum": 6,
-    "muteThresh": 6,
+    "muteThresh": 7,
     "nRlz": 10 #ARISE=10, GLENS=21
 }
 
 holdRbst = list()
 for t in np.arange(0, sd["trials"]):
-    vec1 = np.random.uniform(low=0.0, high=1.0, size=rbd["nRlz"]) #"Feedback"
-    vec2 = np.random.uniform(low=0.0, high=1.0, size=rbd["nRlz"]) #"Control"
-    # ic(vec1, vec2)
+    vec1 = np.random.uniform(low=0.0, high=1.0, size=rbd["nRlz"]) #mimic "SAI"
+    vec2 = np.random.uniform(low=0.0, high=1.0, size=rbd["nRlz"]) #mimic "no-SAI"
+    # ic(vec1, vec2) #troubleshooting
 
     # This is the robustness calculation implemented for our random vectors!
     # Compare to calc_robustness_ecev
-    # This is essentially a timeseries from a single point with nRlz time means
+    # This corresponds to a timeseries from a single point with nRlz time means
     countVec1AbvVec2 = np.full(np.shape(vec1), np.nan)
     countVec1BlwVec2 = np.full(np.shape(vec1), np.nan)
     for rc, rv in enumerate(vec1):
@@ -44,26 +44,23 @@ for t in np.arange(0, sd["trials"]):
         "above": countVec1AbvVec2,
         "below": countVec1BlwVec2,
     }
-    # ic(rob)
+    # ic(rob) #troubleshooting
 
     rbstAbv = fun_robustness.beat_rbst(rob["above"], beat=rbd["beatNum"])
     rbstBlw = fun_robustness.beat_rbst(rob["below"], beat=rbd["beatNum"])
-    # ic(rbstAbv, rbstBlw)
+    # ic(rbstAbv, rbstBlw) #troubleshooting
     rbst = np.maximum(rbstAbv, rbstBlw)
     holdRbst.append(rbst)
-    # ic(rbst)
+    # ic(rbst) #troubleshooting
 
 # ic(holdRbst)
 ic(fun_robustness.get_quantiles(holdRbst))
 ic(st.mode(holdRbst))
 
-# Want to know: what is a statistically significant value of holdRbst at 0.1
-# 0.05 0.01 level
-# t,p = st.ttest_ind(7, holdRbst)
-# ic(t,p)
-z = (rbd["muteThresh"]-np.mean(holdRbst))/np.std(holdRbst)
-ic(z)
-p = st.norm.sf(abs(-z))
-ic(p)
-
-ic(':D')
+# Calculate z-score, p-value as a matter of interest. We prefer to discuss
+# robustness in terms of the percent of randomly-generated values that the
+# threshold falls outside of. See Hueholt et al. 2023 supplementary for details.
+# z = (rbd["muteThresh"]-np.mean(holdRbst))/np.std(holdRbst)
+# ic(z)
+# p = st.norm.sf(abs(-z))
+# ic(p)
