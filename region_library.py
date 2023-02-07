@@ -962,7 +962,7 @@ def west180_to_360(west180):
 
     return east360
 
-def test_region(region, colors, fig, ax):
+def plot_region(region, colors, fig, ax):
     ''' Plots box on map to verify latitude/longitudes '''
     lats = np.arange(-90,91,1)
     lons = np.arange(0,360,1)
