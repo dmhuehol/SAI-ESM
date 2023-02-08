@@ -1,4 +1,4 @@
-# SAI-CESM for Hueholt et al. 2023 "Assessing Outcomes in Stratospheric Aerosol Injection Scenarios Shortly After Deployment"
+# SAI-ESM for Hueholt et al. 2023 "Assessing Outcomes in Stratospheric Aerosol Injection Scenarios Shortly After Deployment"
 Code for analyzing model output from stratospheric aerosol injection (SAI) experiments in Earth system models, particularly the Community Earth System model (CESM). The version of this code available in `main` specifically accompanies:  
 **Hueholt, D.M.**, E.A. Barnes, J.W. Hurrell, J.H. Richter, & L. Sun. "Assessing Outcomes in Stratospheric Aerosol Injection
 Scenarios Shortly After Deployment" submitted to *Earth's Future*, preprint link to be provided.
