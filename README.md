@@ -1,7 +1,7 @@
-# SAI-CESM
-Code for analyzing model output from stratospheric aerosol injection (SAI) experiments in Earth system models, particularly the Community Earth System model (CESM). The version of this code available in `main` specifically accompanies:
-Hueholt et al. 2023 "Assessing Outcomes in Stratospheric Aerosol Injection
-Scenarios Shortly After Deployment" submitted to *Earth's Future*.
+# SAI-CESM for Hueholt et al. 2023 "Assessing Outcomes in Stratospheric Aerosol Injection Scenarios Shortly After Deployment"
+Code for analyzing model output from stratospheric aerosol injection (SAI) experiments in Earth system models, particularly the Community Earth System model (CESM). The version of this code available in `main` specifically accompanies:  
+**Hueholt, D.M.**, E.A. Barnes, J.W. Hurrell, J.H. Richter, & L. Sun. "Assessing Outcomes in Stratospheric Aerosol Injection
+Scenarios Shortly After Deployment" submitted to *Earth's Future*, preprint link to be provided.
 
 For this project, we utilized the following experiments:
 1. [Geoengineering Large ENSemble (GLENS)](https://www.cesm.ucar.edu/community-projects/GLENS/), consisting of 21 RCP8.5 Control runs and 21 G1.2(8.5) Feedback runs where SAI is used to target 1.2 Celsius above preindustrial against the RCP8.5 forcing. Citation: [Tilmes et al. 2018](https://doi.org/10.1175/BAMS-D-17-0267.1)
@@ -10,10 +10,29 @@ For this project, we utilized the following experiments:
 
 While this code is targeted at these specific SAI-related model runs, it can (and in the future, will) be modified to work with other experiments and Earth system models.
 
-## Replicating paper results
+## Table of Contents
+* [Replicating Hueholt et al. 2023](#replicating-hueholt-et-al-2023)  
+* [Making other plots](#making-other-plots)  
+    * [Difference globe example](#difference-globe-example)  
+    * [Timeseries example](#timeseries-example)
+* [Get data](#get-data)
+    * [Raw from NCAR](#raw-from-ncar)
+    * [Pre-processed data](#pre-processed-data)
+* [Process data](#process-data)
+    * [Climate Data Operators (CDO)](#climate-data-operators-cdo)
+    * [Python](#python)
+* [Plot data](#plot-data)
+* [Requirements](#requirements)
+* [Brief description of code within package](#brief-description-of-code-within-package)
+* [Questions and answers](#questions-and-answers)
+    * [What's with all the variable names referencing "control" and "feedback"?](#whats-with-all-the-variable-names-referencing-control-and-feedback)
+    * [What do the "fun_", "run_", and "wrap_" in the filenames mean?](#what-do-the-fun_-run_-and-wrap_-in-the-filenames-mean)
+* [Sources and credit](#sources-and-credit)
+
+## Replicating Hueholt et al. 2023
 `wrap_paperplots_basicplots_script` generates all difference globes figures, e.g., Figure 1, 3-8, S2. `wrap_paperplots_ensplots_script` yields all timeseries, e.g., Figure 2, S3, S4.
 
-## Example plots
+## Making other plots
 To make figures that aren't specifically in the paper, use `wrap_basicplots_script` for difference globes and `wrap_ensplots_script` for timeseries.
 
 ### Difference globe example
@@ -73,20 +92,20 @@ All code written in Python unless specified otherwise.
 * `wrap_paperplots_ensplots_script`: Script to instantly replicate all timeseries figures  (e.g., Figure 2, S3, S4) from Hueholt et al. 2023
 * `wrap_plotregions_script`: Make plots of input region(s) on a map
 * `wrap_stat_robustness`: Calculate statistical metrics for robustness
-* `wrap_test_script`: This is just a file I use as "scratch paper" when coding
+* `wrap_test_script`: This is just a file I use as "scratch paper" when coding  
 
 * `cdo_mproc`: Folder of code that wraps CDO functions in Python to process raw ESM data
-*    `run_mproc_cdo_prep`: Shell script to run wrap_mproc_cdo_script on NCAR Casper
-*    `wrap_mproc_cdo_prep`: Wraps functions which call CDO to carry out various foundational data processing tasks like making annual mean from monthly data
-*    `mproc_bees`: This folder contains the individual CDO functions for each task, these are documented within each file
+    * `run_mproc_cdo_prep`: Shell script to run wrap_mproc_cdo_script on NCAR Casper
+    * `wrap_mproc_cdo_prep`: Wraps functions which call CDO to carry out various foundational data processing tasks like making annual mean from monthly data
+    * `mproc_bees`: This folder contains the individual CDO functions for each task, these are documented within each file  
 
-* `get_data`: Folder of code to obtain data on NCAR Casper
+* `get_data`: Folder of code to obtain data on NCAR Casper  
 
 * `helper_scripts`: Contains a few additional shell scripts for one-off tasks that occasionally need to be run.
-*    `do_move_images`: Shell script to move images into folders by region (of limited use to anyone but me)
-*    `do_sumtwo_makenew`: Shell script to sum data from two files to make a new variable, such as making total precipitation from convective and large-scale precipitation variables in GLENS
-*    `run_selyear`: Shell script to select years from data using CDO
-*    `run_sumtwo_makenew`: Shell script to run `do_sumtwo_makenew` on NCAR Casper
+    * `do_move_images`: Shell script to move images into folders by region (of limited use to anyone but me)
+    * `do_sumtwo_makenew`: Shell script to sum data from two files to make a new variable, such as making total precipitation from convective and large-scale precipitation variables in GLENS
+    * `run_selyear`: Shell script to select years from data using CDO
+    * `run_sumtwo_makenew`: Shell script to run `do_sumtwo_makenew` on NCAR Casper
 
 * `images`: Folder containing images used in the README file.
 
@@ -103,5 +122,5 @@ Generally, code in this repository follows the naming schema:
 ## Sources and Credit
 Unless specified otherwise, all code and documentation was written by [Daniel Hueholt](https://www.hueholt.earth) as a Graduate Research Assistant advised by Prof. [Elizabeth Barnes](https://barnes.atmos.colostate.edu/) and Prof. [James Hurrell](https://sites.google.com/rams.colostate.edu/hurrellgroup/home) at [Colorado State University](https://www.colostate.edu/).
 
-* Code by Daniel Hueholt in this project is licensed under the Open Software License 3.0, included with this repository as LICENSE.txt
+* Code in this project is licensed under the Open Software License 3.0, included with this repository as LICENSE.txt
 * Figures and text associated with this project are licensed under Creative Commons Attribution Share Alike 4.0 International
