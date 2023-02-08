@@ -1,6 +1,6 @@
 ''' fun_convert_unit
-Contains functions for unit conversions. Module is sectioned by type of variable,
-i.e. temperature, chemistry, etc.
+Contains functions for unit conversions. Module is sectioned by type of
+variable, i.e. temperature, chemistry, etc.
 
 Written by Daniel Hueholt
 Graduate Research Assistant at Colorado State University

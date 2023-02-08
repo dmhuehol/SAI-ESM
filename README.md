@@ -7,6 +7,13 @@ Repository for code analyzing stratospheric aerosol injection model (SAI) output
 While this code is targeted at these specific SAI-related model runs, it can be modified to work with other CESM output. The version of this code available in `main` specifically accompanies:
 Hueholt et al. 2023 "Assessing Outcomes in Stratospheric Aerosol Injection
 Scenarios Shortly After Deployment" submitted to *Earth's Future*.
+**NOTE that you need to document the "cntrl" "fdbck" phrasing!**
+**ALSO you need to handle the requirements**
+**To document:**
+**Get data**
+**CDO data**
+**Process data**
+**Plot data**
 
 ## Replicating paper results
 `wrap_paperplots_basicplots_script` generates all difference globes figures, e.g., Figure 1, 3-8, S2. `wrap_paperplots_ensplots_script` yields all timeseries, e.g., Figure 2, S3, S4.

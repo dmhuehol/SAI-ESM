@@ -159,6 +159,7 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
 
         # Apply image muting (e.g., gray out and alpha) on part of timeseries
         # i.e. to emphasize a certain time period such as a window for averaging
+        # (Not used in Hueholt et al. 2023)
         if setDict["mute"] == True:
             # D3D3D3 is gray for muted objects
             plt.plot(

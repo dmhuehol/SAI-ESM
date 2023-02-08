@@ -33,19 +33,6 @@ def regrid(dataIn,latIn,lonIn,latOut,lonOut):
 
     return dataInterpRg
 
-def regrid_3d(dataIn,latIn,lonIn,lev,latOut,lonOut):
-    ''' Takes POP model output on a 3D B-grid (T-cells for scalars,
-    U-cells for vectors) (latInxlonInxlev) and regrids to (latOutxlonOutxlev)
-    NOT ACTUALLY IMPLEMENTED '''
-
-    lonOut,latOut = np.meshgrid(lonOut,latOut) # make grid
-    dataRg = np.ravel(dataIn) # move inputs to vectors
-    lonRg = np.ravel(lonIn)
-    latRg = np.ravel(latIn)
-    dataInterpRg3d = interp.griddata((latRg,lonRg,lev),dataRg,(latOut,lonOut,lev), method='linear')
-
-    return dataInterpRg3d
-
 def operate_regrid(inFile, dataVar, popLat, popLon):
     ''' Carry out regridding and data processing operations from input files '''
     popDataArray = xr.open_dataset(strv,decode_times=False)

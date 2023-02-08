@@ -333,17 +333,21 @@ def line_from_scenario(scn, md):
 
 def plot_metaobjects(scnToPlot, fig, b, t, lw=1.2):
     ''' Determines which metaobjects to plot based on scenario '''
-    ic('Automatic metaobjects disabled!')
-    # if any('ARISE:Control' in scn for scn in scnToPlot): #Triangle for change in number of rlzs
+    # ic('Automatic metaobjects disabled!')
+    # Commented block plots little triangles denoting change in ensemble size
+    # if any('ARISE:Control' in scn for scn in scnToPlot):
     #     plt.plot(2015, b+(abs(b-t))*0.01, color='#F8A53D', marker='v')
     #     plt.plot(2070, b+(abs(b-t))*0.01, mfc='#F8A53D', mec='#12D0B2', marker='v')
     # if any('GLENS:Control' in scn for scn in scnToPlot):
     #     plt.plot(2030, b+(abs(b-t))*0.01, color='#D93636', marker='v')
+
+    # Commented block only plots vertical line denoting deployment for scenarios present
     # if any('GLENS:Feedback' in scn for scn in scnToPlot): #Dashed line for model SAI initiation
     #     plt.plot([2020,2020], [b,t], color='#8346C1', linewidth=0.7, linestyle='dashed')
     # if any('ARISE:Feedback' in scn for scn in scnToPlot):
     #     plt.plot([2035,2035], [b,t], color='#12D0B2', linewidth=0.7, linestyle='dashed')
 
+    # Always plot vertical lines denoting deployment in 2020, 2035
     plt.plot([2020,2020], [b,t], color='#8346C1', linewidth=lw, linestyle='dashed')
     plt.plot([2035,2035], [b,t], color='#12D0B2', linewidth=lw, linestyle='dashed')
 

@@ -60,12 +60,12 @@ setDict = {
     "plotPanel": "intiGLENS" # See docstring for valid inputs
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20230201_revisitRefactor/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20230206_distill/',
     "dpiVal": 400
 }
 loopDict = {
     "rlzs": ('ensplot',),  # number(s) for member(s), 'mean' ens mean all members, 'ensplot' for both member information and mean (i.e. for robustness)
-    "levels": (None,),  # None for single-level variable (as for all variables used in paper), 'stratosphere', 'troposphere', 'total', or numeric level(s) for other variables
+    "levels": (None,),  # None for single-level variable (as for all used in Hueholt et al. 2023)
     "regions": ('global',),  # 'global' only for maps
 }
 ic(dataDict, setDict, outDict, loopDict)  # Show input settings at command line
