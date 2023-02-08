@@ -120,7 +120,9 @@ Generally, code in this repository follows the naming schema:
 *    "run_" runs scripts from the job scheduler on NCAR's Casper and Cheyenne
 
 ## Sources and Credit
-Unless specified otherwise, all code and documentation was written by [Daniel Hueholt](https://www.hueholt.earth) as a Graduate Research Assistant advised by Prof. [Elizabeth Barnes](https://barnes.atmos.colostate.edu/) and Prof. [James Hurrell](https://sites.google.com/rams.colostate.edu/hurrellgroup/home) at [Colorado State University](https://www.colostate.edu/).
+Unless specified otherwise, all code and documentation was written by [Daniel Hueholt](https://www.hueholt.earth) as a Graduate Research Assistant advised by Prof. [Elizabeth Barnes](https://barnes.atmos.colostate.edu/) and Prof. [James Hurrell](https://sites.google.com/rams.colostate.edu/hurrellgroup/home) at [Colorado State University](https://www.colostate.edu/).  
+
+This work was supported by the LAD Climate Fund, DARPA (grant no. HR00112290071), and the National Science Foundation Graduate Research Fellowship Program.  
 
 * Code in this project is licensed under the Open Software License 3.0, included with this repository as LICENSE.txt
 * Figures and text associated with this project are licensed under Creative Commons Attribution Share Alike 4.0 International
