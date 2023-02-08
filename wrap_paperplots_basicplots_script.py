@@ -1,14 +1,9 @@
 ''' wrap_paperplots_basicplots_script
-Make difference globe figures for GLENS/ARISE summary paper in development.
+Replicates figures from Hueholt et al. 2023 "Assessing Outcomes in Stratospheric Aerosol Injection Scenarios Shortly After Deployment" directly.
 Figures are produced in 1-panel format with no annotations. Keynote is used to
-stitch panels together, add title, add colorbar, etc.
+stitch panels together, add titles, colorbar, etc.
 
-dataDict is for inputs
-setDict sets settings related to plotting
-outDict is for outputs
-loopDict determines which images are made
-
-Written by Daniel Hueholt | April 2022
+Written by Daniel Hueholt
 Graduate Research Assistant at Colorado State University
 '''
 
@@ -57,100 +52,79 @@ setDict = {
     "cbVals": [-2,2], #None for automatic or [min,max] to override #dg
     "addCyclicPoint": False,
     "areaAvgBool": False,
-    "robustnessBool": False
+    "robustnessBool": False,
+    "plotPanel": 'snapR85'
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20220921_2CForPaper/',
-    "dpiVal": 800 #High-res for paper
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20230207_moreDistill/1_check/',
+    "dpiVal": 400 #High-res for paper
 }
-loopDict = {
-    "realizations": ('mean',), #number for individual member, 'mean' for ens mean of all available members
-    "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": ('global',),#('global',rlib.Arctic(),rlib.EastNorthAmerica()),
-    "aaBools": (True,)
-}
-
 ic(dataDict, setDict, outDict) #Lowers chances of making the wrong plots by mistake
 
-# # Make images
-setDict["realization"] = 'mean'
+# Make images
+setDict["realization"] = 'ensplot'
 scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
 dataDict = {**dataDict, **cmnDict}
 setDict["levOfInt"] = None
 
 # Annual mean temperature
-fbp.plot_paper_panels_globe(scnList, dataDict, setDict, outDict)
-#
-# # Annual mean precipitation
-# dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/annual_PRECT/'
-# setDict["convert"] = (fcu.m_to_cm, fcu.persec_peryr)
-# scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-# dataDict = {**dataDict, **cmnDict}
-# setDict["levOfInt"] = None
-# setDict["cmap"] = precipPal
-# setDict["cbVals"] = [-25,25]
-# fbp.plot_paper_panels_globe(scnList, dataDict, setDict, outDict)
-#
-# # Annual mean SDII
-# dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/extreme_sdii/'
-# setDict["areaAvgBool"] = True
-# setDict["convert"] = None
-# setDict["landmaskFlag"] = 'land'
-# scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-# dataDict = {**dataDict, **cmnDict}
-# setDict["levOfInt"] = None
-#
-# setDict["cmap"] = precipPal
-# setDict["cbVals"] = [-1,1]
-# fbp.plot_paper_panels_globe(scnList, dataDict, setDict, outDict)
+fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 1a
+setDict["plotPanel"] = 'snapS245'
+fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 1b
+setDict["robustnessBool"] = True #Run robustness for all SAI panels
+setDict["plotPanel"] = 'snapGLENS'
+fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 3a
+setDict["plotPanel"] = 'snapARISE15'
+fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 3b
+setDict["plotPanel"] = 'intiGLENS'
+fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 6a
+setDict["plotPanel"] = 'intiARISE15'
+fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 6b
+setDict["plotPanel"] = 'GLENS'
+fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2a
+setDict["plotPanel"] = 'ARISE15'
+fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2b
 
-# SUPPLEMENTAL: Robustness figures
-# TODO: MUST have robustness dictionary as an input somewhere--otherwise cannot
-# automatically generate figures for both GLENS and ARISE!
-dataDict["idArise"] = None
-dataDict["idS245Cntrl"] = None
-dataDict["idS245Hist"] = None
-setDict["realization"] = 'ensplot'
-setDict["robustnessBool"] = True
-setDict["cmap"] = None #cmasher ghostlight is used automatically
-setDict["cbVals"] = None #proper range set automatically
-# Robustness: Annual mean temperature (GLENS)
-dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/annual_TREFHT/'
-setDict["convert"] = (fcu.kel_to_cel,)
-scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-dataDict = {**dataDict, **cmnDict}
-fbp.plot_paper_robust_globe(scnList, dataDict, setDict, outDict)
-# Robustness: Annual mean precipitation (GLENS)
+# Annual mean precipitation
 dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/annual_PRECT/'
 setDict["convert"] = (fcu.m_to_cm, fcu.persec_peryr)
 scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-fbp.plot_paper_robust_globe(scnList, dataDict, setDict, outDict)
-# # Robustness: Annual simple intensity index (GLENS)
-# dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/extreme_sdii/'
-# setDict["convert"] = None
-# setDict["landmaskFlag"] = 'land'
-# scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-# fbp.plot_paper_robust_globe(scnList, dataDict, setDict, outDict)
-# # Robustness: Annual mean temperature (ARISE)
-# dataDict["idArise"] = '*SSP245-TSMLT-GAUSS*'
-# dataDict["idS245Cntrl"] = '*BWSSP245*'
-# dataDict["idS245Hist"] = '*BWHIST*'
-# dataDict["idGlensCntrl"] = None
-# dataDict["idGlensFdbck"] = None
-# dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/annual_TREFHT/'
-# setDict["convert"] = (fcu.kel_to_cel,)
-# setDict["landmaskFlag"] = None
-# scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-# dataDict = {**dataDict, **cmnDict}
-# fbp.plot_paper_robust_globe(scnList, dataDict, setDict, outDict)
-# # Robustness: Annual mean precipitation (ARISE)
-# dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/annual_PRECT/'
-# setDict["convert"] = (fcu.m_to_cm, fcu.persec_peryr)
-# scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-# fbp.plot_paper_robust_globe(scnList, dataDict, setDict, outDict)
-# # Robustness: Annual simple intensity index (ARISE)
-# dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/extreme_sdii/'
-# setDict["convert"] = None
-# setDict["landmaskFlag"] = 'land'
-# scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-# fbp.plot_paper_robust_globe(scnList, dataDict, setDict, outDict)
+dataDict = {**dataDict, **cmnDict}
+setDict["levOfInt"] = None
+setDict["cmap"] = precipPal
+setDict["cbVals"] = [-25,25]
+setDict["plotPanel"] = 'snapGLENS'
+fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 4a
+setDict["plotPanel"] = 'snapARISE15'
+fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 4b
+setDict["plotPanel"] = 'intiGLENS'
+fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 7a
+setDict["plotPanel"] = 'intiARISE15'
+fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 7b
+setDict["plotPanel"] = 'GLENS'
+fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2c
+setDict["plotPanel"] = 'ARISE15'
+fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2d
+
+# Annual mean SDII
+dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/extreme_sdii/'
+setDict["areaAvgBool"] = True
+setDict["convert"] = None
+setDict["landmaskFlag"] = 'land'
+scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
+dataDict = {**dataDict, **cmnDict}
+setDict["levOfInt"] = None
+setDict["cmap"] = precipPal
+setDict["cbVals"] = [-1,1]
+setDict["plotPanel"] = 'snapGLENS'
+fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 5a
+setDict["plotPanel"] = 'snapARISE15'
+fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 5b
+setDict["plotPanel"] = 'intiGLENS'
+fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 8a
+setDict["plotPanel"] = 'intiARISE15'
+fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 8b
+setDict["plotPanel"] = 'GLENS'
+fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2e
+setDict["plotPanel"] = 'ARISE15'
+fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2f

@@ -129,9 +129,9 @@ def bind_scenario(darr, inID):
     if 'control' in inID:
         darr.attrs['scenario'] = 'GLENS:Control/RCP8.5'
     elif 'feedback' in inID:
-        darr.attrs['scenario'] = 'GLENS:Feedback/SAI/G1.2(8.5)'
+        darr.attrs['scenario'] = 'GLENS:Feedback/SAI/GLENS-SAI'
     elif 'SSP245-TSMLT-GAUSS' in inID:
-        darr.attrs['scenario'] = 'ARISE:Feedback/SAI/G1.5(4.5)'
+        darr.attrs['scenario'] = 'ARISE:Feedback/SAI/ARISE-SAI-1.5'
     elif 'BWSSP245' in inID:
         darr.attrs['scenario'] = 'CESM2-WACCM/ARISE:Control/SSP2-4.5'
     elif 'BWHIST' in inID:
@@ -209,23 +209,6 @@ def manage_realizations(setDict, darr, emem):
         ememSave = ''
 
     return darrOut, ememSave
-
-def extract_intvl(intervalsToPlot, years, timePeriod, darr, handlesToPlot):
-    ''' Extract intervals of interest (used by PDF plots) '''
-    originalPoi = timePeriod
-    for intvl in intervalsToPlot:
-        if intvl == 2015:
-            timePeriod = 15
-        else:
-            timePeriod = originalPoi
-        startInd = np.where(years==intvl)[0][0]
-        if intvl+timePeriod == 2100:
-            endInd = len(years)
-        else:
-            endInd = np.where(years==intvl+timePeriod)[0][0]
-        handlesToPlot.append(darr.isel(time=np.arange(startInd,endInd)))
-
-    return handlesToPlot
 
 def find_closest_level(darr, levOfInt, levName='lev'):
     ''' Find the index of the level which is closest to an input value '''
@@ -330,21 +313,25 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
             darrWght = darr.weighted(latWeights)
             darr = darrWght.sum(dim=['lat','lon'], skipna=True)
     elif isinstance(regionToPlot,dict): #region_library objects
-        if len(regionToPlot["regLats"]) == 1:
-            ic('hello')
+        if len(regionToPlot["regLats"]) == 1: # Point region_library object
+            if 'lat' in darr.dims: #If selecting data as opposed to making strings
+                darr = darr.sel(
+                    lat=regionToPlot['regLats'],
+                    lon=regionToPlot['regLons'],
+                    method="nearest")
+                ic(darr['lat'].data, darr['lon'].data) #Display true lat/lon as 'nearest' is used
+                darr = np.squeeze(darr) #Drop length 1 lat/lon dimensions
+                areaAvgBool = None
             locStr = regionToPlot["regSaveStr"]
             locTitleStr = regionToPlot["regStr"]
-            return darr, locStr, locTitleStr
+            return darr, locStr, locTitleStr # Shortcut the rest of the function
         locStr = regionToPlot['regSaveStr']
         locTitleStr = regionToPlot['regSaveStr']
 
         lats = darr['lat'] #GLENS, ARISE, and SSP2-4.5 Control are all on the same grid to within 10^-6
         lons = darr['lon']
-        if len(regionToPlot['regLons']) == 1: #point location
-            darr = darr.sel(lat=regionToPlot['regLats'], lon=regionToPlot['regLons'], method="nearest")
-            areaAvgBool = None
 
-        elif len(regionToPlot['regLons'])>2: #non-rectangular region that does not cross Prime Meridian
+        if len(regionToPlot['regLons'])>2: #non-rectangular region that does not cross Prime Meridian
             gridMask = make_polygon_mask(lats, lons, regionToPlot['regLats'], regionToPlot['regLons'])
             darrMask = darr.copy()
             try:
@@ -415,8 +402,8 @@ def get_ens_mem(files):
 
     return emem
 
-def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
-    ''' Compile bits and pieces for filenames and titles '''
+def meta_book(setDict, dataDict, cntrlToPlot):
+    ''' Compile bits and pieces of metadata for filenames and titles '''
     metaDict = {
         "cntrlStr": 'RCP8.5',
         "fdbckStr": 'GLENS-SAI',
@@ -426,43 +413,32 @@ def meta_book(setDict, dataDict, cntrlToPlot, labelsToPlot=None):
         "varSve": var_str_lookup(cntrlToPlot.long_name, setDict, strType='save'),
         "strtStr": str(cntrlToPlot['time'].data[0].year),
         "endStr": str(cntrlToPlot['time'].data[len(cntrlToPlot)-1].year),
-        "frstDcd": str(setDict["startIntvl"][0]) + '-' + str(setDict["startIntvl"][1]-1),
-        "aFrstDcd": str(setDict["startIntvl"][2]) + '-' + str(setDict["startIntvl"][3]-1) if len(setDict["startIntvl"]) > 2 else '',
-        "lstDcd": str(setDict["endIntvl"][0]) + '-' + str(setDict["endIntvl"][1]-1),
-        "aLstDcd": str(setDict["endIntvl"][2]) + '-' + str(setDict["endIntvl"][3]-1) if len(setDict["startIntvl"]) > 2 else '',
-        "tmStr": rcf_parser(labelsToPlot),
+        "frstDcd": str(setDict["startIntvl"][0]) + '-' + str(setDict["startIntvl"][1]-1) if "startIntvl" in setDict.keys() else '',
+        "lstDcd": str(setDict["endIntvl"][0]) + '-' + str(setDict["endIntvl"][1]-1) if "endIntvl" in setDict.keys() else '',
         "levStr": make_level_string(cntrlToPlot, setDict["levOfInt"]) if "levOfInt" in setDict.keys() else '',
         "levSve": make_level_string(cntrlToPlot, setDict["levOfInt"]).replace(" ","") if "levOfInt" in setDict.keys() else '',
         "ensStr": dataDict["ememSave"],
         "yStr": cntrlToPlot.units,
         "unit": cntrlToPlot.attrs['units'],
-        "pdfStyle": setDict["plotStyle"] if "plotStyle" in setDict.keys() else '',
         "spcStr": make_spc_string(setDict),
-        "pid": {'g1p': 'globe_1p', 'g2p': 'globe_2p', 'g4p': 'globe_4p', 'g6p': 'globe_6p', 'ts': 'timeseries', 'pdf': 'pdf'},
+        "pid": {'g1p': 'globe_1p', 'g2p': 'globe_2p', 'g4p': 'globe_4p', 'g6p': 'globe_6p', 'ts': 'timeseries'},
         "ensPid": {'spg': 'spghtti', 'sprd': 'spread'},
         "glbType": {'vGl': 'vertical', 'bGl': 'baseline', 'fcStr': 'FdbckCntrl', 'gfcStr': 'glensFdbckCntrl'}
     }
 
+    # Statements involving multiple conditions can't be set with ternary
+    if "startIntvl" in setDict.keys():
+        if len(setDict["startIntvl"]) > 2:
+            metaDict["aFrstDcd"] = str(setDict["startIntvl"][2]) + '-' + str(setDict["startIntvl"][3]-1)
+        else:
+            metaDict["aFrstDcd"] = None
+    if "endIntvl" in setDict.keys():
+        if len(setDict["endIntvl"]) > 2:
+            metaDict["aLstDcd"] = str(setDict["endIntvl"][2]) + '-' + str(setDict["endIntvl"][3]-1)
+        else:
+            metaDict["aLstDcd"] = None
+
     return metaDict
-
-def rcf_parser(labelsToPlot):
-    ''' Parse labels to make filenames '''
-    timeStr = list()
-    if labelsToPlot != None:
-        for lab in labelsToPlot:
-            if 'Reference' in lab:
-                timeStr.append('r' + lab[0:9].replace("-","")) #Reference
-            elif 'RCP8.5' in lab:
-                timeStr.append('gc' + lab[0:9].replace("-","")) #GLENS control
-            elif 'SSP2-4.5' in lab:
-                timeStr.append('ac' + lab[0:9].replace("-","")) #ARISE control
-            elif 'G1.2(8.5)' in lab:
-                timeStr.append('gf' + lab[0:9].replace("-","")) #GLENS feedback
-            elif 'G1.5(2-4.5)' in lab:
-                timeStr.append('af' + lab[0:9].replace("-","")) #ARISE feedback
-    timeStr = "_".join(timeStr)
-
-    return timeStr
 
 def make_polygon_mask(lats, lons, regionLats, regionLons):
     ''' Make mask for a non-rectangular polygonal region '''

@@ -885,7 +885,21 @@ def WesternAustraliaMHW_point():
 
     return regDict
 
+def arbitrary_point():
+    regDict = {
+        "regStr": '-70,62',
+        "regSaveStr": '70S_62E',
+        "regLats": np.array([-70]),
+        "regLons": np.array([62])
+    }
+
+    return regDict
+
 ### Atlases
+# Call atlases as var = rlib.atlas_(); use with var["token"]
+# Ex: to plot all ipccWg1Ar5 regions
+#   ipccWg1Ar5 = rlib.atlas_ipcc_wg1ar5()
+#   Enter to loopDict as ipccWg1Ar5["allRegions"]
 def atlas_insets():
     ''' Common regions for "map and inset"-style figures '''
     insetReg = (Sahara(), NorthEurope(), Amazon(), WestAsia(), SouthernAfrica(),
@@ -948,7 +962,7 @@ def west180_to_360(west180):
 
     return east360
 
-def test_region(region, colors, fig, ax):
+def plot_region(region, colors, fig, ax):
     ''' Plots box on map to verify latitude/longitudes '''
     lats = np.arange(-90,91,1)
     lons = np.arange(0,360,1)

@@ -3,7 +3,10 @@ Runs functions to derive and save data from a base dataset to new files. Used
 for derivations that require multiple datasets or time-consuming calculations
 where spending the space to save the data is more efficient than spending the
 time to do the calculation each time. For non-intensive in-line calculations,
-see fun_convert_unit or fun_calc_vars.
+see fun_convert_unit.
+
+Default form uploaded to GitHub demonstrates deriving marine heatwave presence
+from daily sea surface temperature output.
 
 Written by Daniel Hueholt
 Graduate Research Assistant at Colorado State University
