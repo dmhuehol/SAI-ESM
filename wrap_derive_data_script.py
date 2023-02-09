@@ -21,12 +21,12 @@ import subprocess
 
 import fun_derive_data as fdd
 
-inPath = '/Users/dhueholt/Documents/GLENS_data/daily_SST/' #LOCAL
+inPath = '/Users/dhueholt/Documents/UKESM_data/landmask/' #LOCAL
 # inPath = '/glade/scratch/dhueholt/daily_SST/' #CASPER
-inToken = ['*control*','*feedback*']
+inToken = ['*sftlf*']
 # inTokens for raw: ['*control*','*feedback*','*SSP245-TSMLT*','*BWSSP245*','*BWHIST*']
 # inTokens for cdo merged: ['*control*', '*feedback*', '*SSP245-TSMLT*', '*BWSSP245*', '*BWHIST*']
-outPath = '/Users/dhueholt/Documents/GLENS_data/extreme_MHW/' #LOCAL
+outPath = '/Users/dhueholt/Documents/UKESM_data/landmask/' #LOCAL
 # outPath = '/glade/scratch/dhueholt/extreme_CLXTR/' #CASPER
 nProc = 1
 
@@ -35,7 +35,7 @@ for scen in inToken:
     for fc,fn in enumerate(theGlob):
         ic(fn)
         if __name__== '__main__': #If statement required by multiprocessing
-            shard = Process(target=fdd.derive_mhw_presence, args=(fn,outPath))
+            shard = Process(target=fdd.generate_binary_landmask, args=(fn,outPath))
         if fc % nProc == 0 and fc != 0:
             shard.start()
             shard.join() #Forces nProc+1 processes to run to completion before beginning more

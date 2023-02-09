@@ -60,7 +60,7 @@ setDict = {
     "plotPanel": "intiGLENS" # See docstring for valid inputs
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20230206_distill/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230209_incorpUkesmClimvel/',
     "dpiVal": 400
 }
 loopDict = {

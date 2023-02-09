@@ -33,12 +33,12 @@ def call_to_open(dataDict, setDict):
             try:
                 inPath = dataDict["dataPath"] + dataDict[dky]
                 lf['globs'].append(sorted(glob.glob(inPath)))
-                ic(inPath)
-                rawDset = xr.open_mfdataset(inPath, concat_dim='realization', combine='nested', coords='minimal')
-                maskDset = apply_mask(rawDset, dataDict, setDict)
-                dataKey = discover_data_var(maskDset)
-                maskDarr = maskDset[dataKey]
-                scnDarr = bind_scenario(maskDarr, dataDict[dky])
+                rawDset = xr.open_mfdataset(
+                    inPath, concat_dim='realization', combine='nested', coords='minimal')
+                dataKey = discover_data_var(rawDset)
+                rawDarr = rawDset[dataKey]
+                scnDarr = bind_scenario(rawDarr, dataDict[dky])
+                maskDarr = apply_mask(scnDarr, dataDict, setDict)
                 if 'ARISE:Control' in scnDarr.scenario: #Two parts to ARISE Control: historical and future
                     lf['chf'].append(scnDarr) #These need to be kept separate
                 else:
@@ -77,37 +77,43 @@ def call_to_open(dataDict, setDict):
 
     return lf['scn'], cmnDict
 
-def apply_mask(dset, dataDict, setDict):
+def apply_mask(darr, dataDict, setDict):
     ''' Apply land/ocean mask, returning masked dataset '''
+    # Need a way to distinguish between applying mask to CESM or UKESM
     if setDict['landmaskFlag'] is not None:
-        activeMaskDset = xr.open_dataset(dataDict["mask"])
-        try:
-            activeMask = activeMaskDset.landmask
-        except:
-            activeMask = activeMaskDset.imask
+        if "UKESM" in darr.scenario:
+            activeMaskDset = xr.open_dataset(dataDict["maskUkesm"])
+            activeMask = activeMaskDset.mask
+        else: # TODO: Check explicitly for CESM
+            activeMaskDset = xr.open_dataset(dataDict["mask"])
+            try:
+                activeMask = activeMaskDset.landmask
+            except:
+                activeMask = activeMaskDset.imask
 
         if setDict['landmaskFlag'] == 'land':
-            maskDset = dset.where(activeMask > 0)
+            maskDarr = darr.where(activeMask > 0)
         elif setDict['landmaskFlag'] == 'ocean':
-            maskDset = dset.where(activeMask == 0)
+            maskDarr = darr.where(activeMask == 0)
         else:
             ic('Invalid landmaskFlag! Continuing with no mask applied')
-            maskDset = dset
-    else:
-        maskDset = dset
+            maskDarr = darr
+    else: # When no mask is applied
+        maskDarr = darr
 
-    return maskDset
+    return maskDarr
 
 def discover_data_var(dset):
     ''' Find the data variable among the many variables in a CESM file '''
     fileKeys = list(dset.keys())
-    notDataKeys = ['time_bnds', 'date', 'datesec', 'lev_bnds', 'gw', 'ch4vmr',
-                   'co2vmr', 'ndcur', 'nscur', 'sol_tsi', 'nsteph', 'f11vmr',
-                   'n2ovmr', 'f12vmr', 'lon_bnds', 'lat_bnds', 'ZSOI', 'BSW',
-                   'WATSAT', 'landmask', 'ZLAKE', 'DZLAKE', 'SUCSAT', 'area',
-                   'landfrac', 'topo', 'DZSOI', 'pftmask', 'HKSAT', 'nstep',
-                   'mdcur', 'mscur', 'mcdate', 'mcsec', 'nbedrock',
-                   'binary_mhw_start']
+    notDataKeys = [
+        'time_bnds', 'date', 'datesec', 'lev_bnds', 'gw', 'ch4vmr',
+        'co2vmr', 'ndcur', 'nscur', 'sol_tsi', 'nsteph', 'f11vmr',
+        'n2ovmr', 'f12vmr', 'lon_bnds', 'lat_bnds', 'ZSOI', 'BSW',
+        'WATSAT', 'landmask', 'ZLAKE', 'DZLAKE', 'SUCSAT', 'area',
+        'landfrac', 'topo', 'DZSOI', 'pftmask', 'HKSAT', 'nstep',
+        'mdcur', 'mscur', 'mcdate', 'mcsec', 'nbedrock',
+        'binary_mhw_start']
     notDataInDset = list()
     dataKey = None
 
@@ -138,6 +144,10 @@ def bind_scenario(darr, inID):
         darr.attrs['scenario'] = 'CESM2-WACCM/ARISE:Control/Historical'
     elif 'SSP245cmip6' in inID:
         darr.attrs['scenario'] = 'CESM2-WACCM/ARISE:Control/SSP2-4.5/CMIP6'
+    elif 'ssp245' in inID:
+        darr.attrs['scenario'] = 'UKESM-ARISE:No-SAI/SSP2-4.5'
+    elif 'arise-sai-1p5' in inID:
+        darr.attrs['scenario'] = 'UKESM-ARISE:SAI/ARISE-SAI-1.5'
     else:
         ic('Unable to match scenario, binding empty string to array')
         darr.attrs['scenario'] = ''
@@ -183,6 +193,10 @@ def manage_realizations(setDict, darr, emem):
             scnStr = 'arif' #arisefeedback
         elif 'ARISE:Control' in darr.scenario:
             scnStr = 'aric' #arisecontrol
+        elif 'UKESM-ARISE:No-SAI' in darr.scenario:
+            scnStr = 'ukan' #ukarisenosai
+        elif 'UKESM-ARISE:SAI' in darr.scenario:
+            scnStr = 'ukas' #ukarisesai
         else:
             ic('Unknown scenario!')
             #No sys.exit(); want to know what the error is

@@ -375,3 +375,40 @@ def generate_gridcellarea(saveFlag=False):
         newDset.to_netcdf(outFile) #Save data
 
     return newDset
+
+def generate_binary_landmask(inFileLandFrac, outPath):
+    ''' Generate a binary landmask from surface land fraction. Designed for
+    UKESM to match CESM-style binary landmask file. '''
+    inKey = 'sftlf'
+    outKey = 'mask'
+    threshold = 99.5 #By convention (Sellar et al. 2019)
+
+    landfracDset = xr.open_dataset(inFileLandFrac)
+    landfracDarr = landfracDset[inKey]
+    landfracData = landfracDarr.data
+    landmask = landfracData.copy()
+
+    landmask[landmask <= threshold] = 0
+    landmask[landmask > threshold] = 1
+
+    newDset = xr.Dataset(
+        {outKey: (("lat","lon"), landmask)},
+        coords={
+            "lat": landfracDarr['lat'],
+            "lon": landfracDarr['lon']
+        }
+    )
+    newDset[outKey].attrs['long_name'] = 'Binary land mask'
+    newDset[outKey].attrs['units'] = 'dimensionless'
+
+    strOut = 'ukesm_binary_landmask.nc'
+    outFile = outPath + strOut
+    newDset.to_netcdf(outFile) #Save data
+    ic(strOut, outFile, newDset) #icecream all useful parts of the output
+
+
+
+
+
+
+
