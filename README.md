@@ -1,7 +1,7 @@
 # SAI-ESM for Hueholt et al. 2023 "Assessing Outcomes in Stratospheric Aerosol Injection Scenarios Shortly After Deployment"
 Code for analyzing model output from stratospheric aerosol injection (SAI) experiments in Earth system models, particularly the Community Earth System model (CESM). The version of this code available in `main` specifically accompanies:  
 **Hueholt, D.M.**, E.A. Barnes, J.W. Hurrell, J.H. Richter, & L. Sun. "Assessing Outcomes in Stratospheric Aerosol Injection
-Scenarios Shortly After Deployment" submitted to *Earth's Future*, preprint link to be provided.
+Scenarios Shortly After Deployment" submitted to *Earth's Future*, [preprint available at ESSOaR](doi.org/10.22541/essoar.167591089.94758275/v1).
 
 For this project, we utilized the following experiments:
 1. [Geoengineering Large ENSemble (GLENS)](https://www.cesm.ucar.edu/community-projects/GLENS/), consisting of 21 RCP8.5 Control runs and 21 G1.2(8.5) Feedback runs where SAI is used to target 1.2 Celsius above preindustrial against the RCP8.5 forcing. Citation: [Tilmes et al. 2018](https://doi.org/10.1175/BAMS-D-17-0267.1)
