@@ -36,18 +36,21 @@ import region_library as rlib
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/GLENS_data/extreme_sdii/',
-    "idGlensCntrl": 'control_*', #'control_*' or None
-    "idGlensFdbck": 'feedback_*', #'feedback_*' or None
-    "idArise": '*SSP245-TSMLT-GAUSS*', #'*SSP245-TSMLT-GAUSS*' or None
-    "idS245Cntrl": '*BWSSP245*', #'*BWSSP245*' or None
-    "idS245Hist": '*BWHIST*', #'*BWHIST*' or None
-    "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc' #cesm_component_mask.nc
+    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_tas/',
+    "idGlensCntrl": None,  # 'control_*' or None
+    "idGlensFdbck": None,  # 'feedback_*' or None
+    "idArise": None,  # '*SSP245-TSMLT-GAUSS*' or None
+    "idS245Cntrl": None,  # '*BWSSP245*' or None
+    "idS245Hist": None,  # '*BWHIST*' or None
+    "idUkesmNoSai": '*ssp245*', #'*ssp245*' or None
+    "idUkesmArise": '*arise-sai-1p5*', #'*arise-sai-1p5*' or None
+    "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc', # Landmask file location (CESM)
+    "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary_landmask.nc' #Landmask file location (UKESM)
 }
 setDict = {
-    "landmaskFlag": 'land', # None or 'land'
+    "landmaskFlag": None, # None or 'land'
     "areaAvgBool": True, # see docstring for valid inputs
-    "convert": None, #TUPLE of converter(s), or None if using default units
+    "convert": (fcu.kel_to_cel,), #TUPLE of converter(s), or None if using default units
     "realization": 'ensplot',
     "styleFlag": 0, # see docstring for valid inputs
     "mute": False, #True/False to use image muting on parts of time period
@@ -57,13 +60,13 @@ setDict = {
     "xticks": True, #True/False to enable/disable x-axis tick labels
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20230206_distill/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230209_incorpUkesmClimvel/',
     "addToSaveStr": None,
     "dpiVal": 400
 }
 loopDict = {
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": ('global', rlib.Amazon(), rlib.Sahara(), rlib.WestNorthAmerica(), rlib.NorthEurope()) #rlib.region() for single (rlib.region(), rlib.region()) to concatenate)
+    "regions": ('global', rlib.Amazon(), rlib.Arctic(), rlib.Antarctica(), rlib.Sahara(), rlib.WestNorthAmerica(), rlib.NorthEurope(), rlib.NoLandLatitude(), rlib.CentralAsia(), rlib.AlaskaNorthwestCanada()) #rlib.region() for single (rlib.region(), rlib.region()) to concatenate)
 }
 
 ic(dataDict, setDict, outDict) #Lowers chances of making the wrong plots by mistake

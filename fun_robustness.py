@@ -25,6 +25,11 @@ def handle_robustness(rlzList, rbd):
                 actCntrlDarr = s
             elif 'ARISE:Feedback' in s.scenario:
                 actFdbckDarr = s
+        elif rbd["exp"] == 'UKARISE15':
+            if 'No-SAI' in s.scenario:
+                actCntrlDarr = s
+            elif '/SAI/' in s.scenario:
+                actFdbckDarr = s
 
     rbd["nRlz"] = len(actCntrlDarr.realization)-1 #Skip ens mean at last index
     ic(rbd) #Show robustness dictionary for easy troubleshooting
@@ -43,9 +48,14 @@ def handle_robustness(rlzList, rbd):
 def calc_robustness_ecev(cntrlDarr, fdbckDarr, sprd=[2025,2029]):
     ''' "Each-Every" robustness. For each Feedback time period, count number of
         Control members the given period time mean is less/greater than. '''
-    timeSlice = slice(
-        cftime.DatetimeNoLeap(sprd[0], 7, 15, 12, 0, 0, 0),
-        cftime.DatetimeNoLeap(sprd[1], 7, 15, 12, 0, 0, 0))
+    try:
+        timeSlice = slice(
+            cftime.Datetime360Day(sprd[0], 7, 15, 12, 0, 0, 0),
+            cftime.Datetime360Day(sprd[1], 7, 15, 12, 0, 0, 0))
+    except:
+        timeSlice = slice(
+            cftime.DatetimeNoLeap(sprd[0], 7, 15, 12, 0, 0, 0),
+            cftime.DatetimeNoLeap(sprd[1], 7, 15, 12, 0, 0, 0))
 
     # Get time means for input periods
     cntrlSprd = cntrlDarr.sel(time=timeSlice)

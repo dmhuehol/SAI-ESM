@@ -33,10 +33,13 @@ import region_library as rlib
 def plot_ens_spaghetti_timeseries(darrList, dataDict, setDict, outDict):
     ''' Timeseries with ensemble members visualized as spaghetti plot. '''
     plotRlzMn = True # Plot ensemble mean in addition to every member
-    setYear = [2010, 2070]
+    setYear = [2015,2069]
     timeSlice = slice(
-        cftime.DatetimeNoLeap(setYear[0], 7, 15, 12, 0, 0, 0),
-        cftime.DatetimeNoLeap(setYear[1], 7, 15, 12, 0, 0, 0))
+        cftime.DatetimeNoLeap(setYear[0], 1, 1, 12, 0, 0, 0),
+        cftime.DatetimeNoLeap(setYear[1], 12, 31, 12, 0, 0, 0)) #arbitrary MDHMS
+    timeSliceUkesm = slice(
+        cftime.Datetime360Day(setYear[0], 1, 1, 12, 0, 0, 0),
+        cftime.Datetime360Day(setYear[1], 12, 15, 12, 0, 0, 0))
 
     # Plot timeseries
     fig,ax = plt.subplots()
@@ -103,10 +106,13 @@ def plot_ens_spaghetti_timeseries(darrList, dataDict, setDict, outDict):
 def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
     ''' Timeseries with ensemble variability visualized as spread between max
     and min at each timestep. '''
-    setYear = [2010,2069]
+    setYear = [2015,2069]
     timeSlice = slice(
         cftime.DatetimeNoLeap(setYear[0], 1, 1, 12, 0, 0, 0),
         cftime.DatetimeNoLeap(setYear[1], 12, 31, 12, 0, 0, 0)) #arbitrary MDHMS
+    timeSliceUkesm = slice(
+        cftime.Datetime360Day(setYear[0], 1, 1, 12, 0, 0, 0),
+        cftime.Datetime360Day(setYear[1], 12, 15, 12, 0, 0, 0))
 
     # General plot settings
     if (setDict["styleFlag"] == 2) | (setDict["styleFlag"] == 3):
@@ -120,7 +126,10 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
 
     # Plotting
     for darr in darrList:
-        darrToi = darr.sel(time=timeSlice)
+        try:
+            darrToi = darr.sel(time=timeSlice)
+        except:
+            darrToi = darr.sel(time=timeSliceUkesm)
         darrLoi = fpd.obtain_levels(darrToi, setDict["levOfInt"])
         if isinstance(setDict["regOfInt"],tuple): # Avg over multiple regions
             subregList = list()

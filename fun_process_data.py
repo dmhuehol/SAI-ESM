@@ -39,10 +39,10 @@ def call_to_open(dataDict, setDict):
                 rawDarr = rawDset[dataKey]
                 scnDarr = bind_scenario(rawDarr, dataDict[dky])
                 maskDarr = apply_mask(scnDarr, dataDict, setDict)
-                if 'ARISE:Control' in scnDarr.scenario: #Two parts to ARISE Control: historical and future
-                    lf['chf'].append(scnDarr) #These need to be kept separate
+                if 'CESM2-ARISE:Control' in scnDarr.scenario: #Two parts: historical and future
+                    lf['chf'].append(maskDarr) #These need to be kept separate
                 else:
-                    lf['darr'].append(scnDarr) #Others go directly into darrList
+                    lf['darr'].append(maskDarr) #Others go directly into darrList
             except Exception as fileOpenErr: #Usually reached if input is None
                 ic(fileOpenErr) #Or if issues exist in some/all data
                 pass
@@ -133,21 +133,21 @@ def bind_scenario(darr, inID):
     ''' Bind scenario identifiers to xarray attributes. The historical and
     future parts of the ARISE Control are combined later in call_to_open. '''
     if 'control' in inID:
-        darr.attrs['scenario'] = 'GLENS:Control/RCP8.5'
+        darr.attrs['scenario'] = 'GLENS:Control/RCP8.5/No-SAI'
     elif 'feedback' in inID:
         darr.attrs['scenario'] = 'GLENS:Feedback/SAI/GLENS-SAI'
     elif 'SSP245-TSMLT-GAUSS' in inID:
-        darr.attrs['scenario'] = 'ARISE:Feedback/SAI/ARISE-SAI-1.5'
+        darr.attrs['scenario'] = 'CESM2-ARISE:Feedback/SAI/ARISE-SAI-1.5'
     elif 'BWSSP245' in inID:
-        darr.attrs['scenario'] = 'CESM2-WACCM/ARISE:Control/SSP2-4.5'
+        darr.attrs['scenario'] = 'CESM2-WACCM/CESM2-ARISE:Control/No-SAI/SSP2-4.5'
     elif 'BWHIST' in inID:
-        darr.attrs['scenario'] = 'CESM2-WACCM/ARISE:Control/Historical'
+        darr.attrs['scenario'] = 'CESM2-WACCM/CESM2-ARISE:Control/Historical/No-SAI'
     elif 'SSP245cmip6' in inID:
-        darr.attrs['scenario'] = 'CESM2-WACCM/ARISE:Control/SSP2-4.5/CMIP6'
+        darr.attrs['scenario'] = 'CESM2-WACCM/CESM2-ARISE:Control/SSP2-4.5/CMIP6/No-SAI'
     elif 'ssp245' in inID:
-        darr.attrs['scenario'] = 'UKESM-ARISE:No-SAI/SSP2-4.5'
+        darr.attrs['scenario'] = 'UKESM-ARISE:Control/No-SAI/UKESM-SSP2-4.5'
     elif 'arise-sai-1p5' in inID:
-        darr.attrs['scenario'] = 'UKESM-ARISE:SAI/ARISE-SAI-1.5'
+        darr.attrs['scenario'] = 'UKESM-ARISE:Feedback/SAI/UKESM-ARISE-SAI-1.5'
     else:
         ic('Unable to match scenario, binding empty string to array')
         darr.attrs['scenario'] = ''
@@ -427,8 +427,16 @@ def meta_book(setDict, dataDict, cntrlToPlot):
         "varSve": var_str_lookup(cntrlToPlot.long_name, setDict, strType='save'),
         "strtStr": str(cntrlToPlot['time'].data[0].year),
         "endStr": str(cntrlToPlot['time'].data[len(cntrlToPlot)-1].year),
-        "frstDcd": str(setDict["startIntvl"][0]) + '-' + str(setDict["startIntvl"][1]-1) if "startIntvl" in setDict.keys() else '',
-        "lstDcd": str(setDict["endIntvl"][0]) + '-' + str(setDict["endIntvl"][1]-1) if "endIntvl" in setDict.keys() else '',
+        "frstDcd": {
+            "GLENS": '',
+            "CESM2-ARISE": '',
+            "UKESM-ARISE": ''
+            },
+        "lstDcd": {
+            "GLENS": '',
+            "CESM2-ARISE": '',
+            "UKESM-ARISE": ''
+            },
         "levStr": make_level_string(cntrlToPlot, setDict["levOfInt"]) if "levOfInt" in setDict.keys() else '',
         "levSve": make_level_string(cntrlToPlot, setDict["levOfInt"]).replace(" ","") if "levOfInt" in setDict.keys() else '',
         "ensStr": dataDict["ememSave"],
@@ -440,17 +448,40 @@ def meta_book(setDict, dataDict, cntrlToPlot):
         "glbType": {'vGl': 'vertical', 'bGl': 'baseline', 'fcStr': 'FdbckCntrl', 'gfcStr': 'glensFdbckCntrl'}
     }
 
-    # Statements involving multiple conditions can't be set with ternary
-    if "startIntvl" in setDict.keys():
-        if len(setDict["startIntvl"]) > 2:
-            metaDict["aFrstDcd"] = str(setDict["startIntvl"][2]) + '-' + str(setDict["startIntvl"][3]-1)
+    # Fill out start and end interval dictionaries
+    if "strtIntvl" in setDict.keys():
+        if setDict["strtIntvl"]["GLENS"] is not None:
+            metaDict["frstDcd"]["GLENS"] = str(setDict["strtIntvl"]["GLENS"][0]) \
+                + '-' + str(setDict["strtIntvl"]["GLENS"][1]-1)
         else:
-            metaDict["aFrstDcd"] = None
+            metaDict["frstDcd"]["GLENS"] = ''
+        if setDict["strtIntvl"]["CESM2-ARISE"] is not None:
+            metaDict["frstDcd"]["CESM2-ARISE"] = str(setDict["strtIntvl"]["CESM2-ARISE"][0]) \
+                + '-' + str(setDict["strtIntvl"]["CESM2-ARISE"][1]-1)
+        else:
+            metaDict["frstDcd"]["CESM2-ARISE"] = ''
+        if setDict["strtIntvl"]["UKESM-ARISE"] is not None:
+            metaDict["frstDcd"]["UKESM-ARISE"] = str(setDict["strtIntvl"]["UKESM-ARISE"][0]) \
+                + '-' + str(setDict["strtIntvl"]["UKESM-ARISE"][1]-1)
+        else:
+            metaDict["frstDcd"]["UKESM-ARISE"] = ''
+
     if "endIntvl" in setDict.keys():
-        if len(setDict["endIntvl"]) > 2:
-            metaDict["aLstDcd"] = str(setDict["endIntvl"][2]) + '-' + str(setDict["endIntvl"][3]-1)
+        if setDict["endIntvl"]["GLENS"] is not None:
+            metaDict["lstDcd"]["GLENS"] = str(setDict["endIntvl"]["GLENS"][0]) \
+                + '-' + str(setDict["endIntvl"]["GLENS"][1]-1)
         else:
-            metaDict["aLstDcd"] = None
+            metaDict["lstDcd"]["GLENS"] = ''
+        if setDict["endIntvl"]["CESM2-ARISE"] is not None:
+            metaDict["lstDcd"]["CESM2-ARISE"] = str(setDict["endIntvl"]["CESM2-ARISE"][0]) \
+                + '-' + str(setDict["endIntvl"]["CESM2-ARISE"][1]-1)
+        else:
+            metaDict["lstDcd"]["CESM2-ARISE"] = ''
+        if setDict["endIntvl"]["UKESM-ARISE"] is not None:
+            metaDict["lstDcd"]["UKESM-ARISE"] = str(setDict["endIntvl"]["UKESM-ARISE"][0]) \
+                + '-' + str(setDict["endIntvl"]["UKESM-ARISE"][1]-1)
+        else:
+            metaDict["lstDcd"]["UKESM-ARISE"] = ''
 
     return metaDict
 
@@ -554,6 +585,11 @@ def var_str_lookup(longName, setDict, strType='title'):
             outStr = 'Annual tropical nights'
         elif strType == 'save':
             outStr = 'clxTR'
+    elif longName == 'Near-Surface Air Temperature':
+        if strType == 'title':
+            outStr = '2m air temperature'
+        elif strType == 'save':
+            outStr = '2mtemp'
     else:
         outStr = longName
 

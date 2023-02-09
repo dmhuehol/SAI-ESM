@@ -18,9 +18,9 @@ sd = {
 }
 
 rbd = {
-    "beatNum": 6,
-    "muteThresh": 7,
-    "nRlz": 10 #ARISE=10, GLENS=21
+    "beatNum": 3,
+    "muteThresh": 4,
+    "nRlz": 5 #CESM2-ARISE=10, GLENS=21, UKESM-ARISE=5
 }
 
 holdRbst = list()

@@ -69,6 +69,17 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     elif setDict["plotPanel"] == 'intiARISE15':
         intiARISE15 = toiEnd['ARISE-SAI-1.5'] - toiEnd['SSP2-4.5']
         panel = intiARISE15
+    elif setDict["plotPanel"] == 'snapUKS245':
+        snapUKS245 = toiEnd['UKESM-SSP2-4.5'] - toiStart['UKESM-SSP2-4.5']
+        panel = snapUKS245
+    elif setDict["plotPanel"] == 'snapUKARISE15':
+        snapUKS245 = toiEnd['UKESM-ARISE-SAI-1.5'] \
+            - toiStart['UKESM-SSP2-4.5']
+        panel = snapUKS245
+    elif setDict["plotPanel"] == 'intiUKARISE15':
+        intiUKARISE15 = toiEnd['UKESM-ARISE-SAI-1.5'] \
+            - toiEnd['UKESM-SSP2-4.5']
+        panel = intiUKARISE15
     else:
         blank = toiEnd['GLENS-SAI'].copy()
         blank.data = toiEnd['GLENS-SAI'] - toiEnd['GLENS-SAI']
@@ -105,13 +116,20 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
                 "nRlz": None, #Set automatically
                 "exp": 'GLENS'
             }
+        elif 'UK' in setDict["plotPanel"]: #TODO: improve scenario checking
+            rbd = {
+                "beatNum": 3,
+                "muteThr": 4,
+                "sprd": [2040,2044],
+                "nRlz": None,
+                "exp": 'UKARISE15'}
         elif 'ARISE15' in setDict["plotPanel"]:
             rbd = { #Settings for robustness calculation
                 "beatNum": 6, #beat number is number of Control members to beat
                 "muteThr": 7, #threshold to image mute; None to disable
                 "sprd": [2040,2044],
                 "nRlz": None, #Set automatically
-                "exp": 'ARISE15'   #Set automatically
+                "exp": 'ARISE15'
             }
         else:
             rbd = None # Occurs for unknown scenario and won't work (by design)
@@ -126,14 +144,21 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
 
     # Plotting –– settings for output file
     savePrfx = '' #Easy modification for unique filename
-    if 'ARISE' in panel.scenario:
-        saveStr = panelStr + '_' + md['varSve'] + '_' + md['levSve'] + '_' \
-                   + md['aLstDcd'] + '_' + md['ensStr'] + '_' \
-                   + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
+    if 'CESM2-ARISE' in panel.scenario:
+        saveStr = panelStr + '_' + md['varSve'] + '_' + md['levSve'] \
+            + '_' + md['lstDcd']["CESM2-ARISE"] + '_' + md['ensStr'] \
+            + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
+    elif 'GLENS' in panel.scenario:
+        saveStr = panelStr + '_' + md['varSve'] + '_' + md['levSve'] \
+            + '_' + md['lstDcd']["GLENS"] + '_' + md['ensStr'] + '_' \
+            + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
+    elif 'UKESM-ARISE' in panel.scenario:
+        saveStr = panelStr + '_' + md['varSve'] + '_' + md['levSve'] \
+            + '_' + md['lstDcd']["UKESM-ARISE"] + '_' + md['ensStr'] \
+            + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
     else:
-        saveStr = panelStr + '_' + md['varSve'] + '_' + md['levSve'] + '_' \
-                   + md['lstDcd'] + '_' + md['ensStr'] + '_' \
-                   + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
+        ic('Unable to generate saveStr for scenario')
+        saveStr = panelStr
 
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')

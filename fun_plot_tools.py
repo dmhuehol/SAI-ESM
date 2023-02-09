@@ -42,33 +42,65 @@ def make_panels(rlzList, setDict):
             mnInd = len(rlzLoi.realization)-1 # Final index is ensemble mean
             rlzLoi = rlzLoi.isel(realization=mnInd)
         shrtScn = rlzLoi.scenario.split('/')[len(rlzLoi.scenario.split('/'))-1]
-        if 'Control' in rlzLoi.attrs['scenario']:
+        ic(shrtScn)
+        if 'No-SAI' in rlzLoi.attrs['scenario']:
             if 'GLENS' in rlzLoi.attrs['scenario']:
-                # ic('GLENS Control')
+                # ic('GLENS No-SAI')
                 toiStartLp = fpd.average_over_years(
-                    rlzLoi, setDict["startIntvl"][0], setDict["startIntvl"][1])
+                    rlzLoi,
+                    setDict["strtIntvl"]["GLENS"][0],
+                    setDict["strtIntvl"]["GLENS]"][1])
                 toiEndLp = fpd.average_over_years(
-                    rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+                    rlzLoi,
+                    setDict["endIntvl"]["GLENS"][0],
+                    setDict["endIntvl"]["GLENS"][1])
                 toiStart[shrtScn] = toiStartLp
                 toiEnd[shrtScn] = toiEndLp
-            elif 'ARISE' in rlzLoi.attrs['scenario']:
-                # ic('ARISE Control')
+            elif 'CESM2-ARISE' in rlzLoi.attrs['scenario']:
+                # ic('ARISE No-SAI')
                 toiStartLp = fpd.average_over_years(
-                    rlzLoi, setDict["startIntvl"][2], setDict["startIntvl"][3])
+                    rlzLoi,
+                    setDict["strtIntvl"]["CESM2-ARISE"][0],
+                    setDict["strtIntvl"]["CESM2-ARISE"][1])
                 toiEndLp = fpd.average_over_years(
-                    rlzLoi, setDict["endIntvl"][2], setDict["endIntvl"][3])
+                    rlzLoi,
+                    setDict["endIntvl"]["CESM2-ARISE"][0],
+                    setDict["endIntvl"]["CESM2-ARISE"][1])
                 toiStart[shrtScn] = toiStartLp
                 toiEnd[shrtScn] = toiEndLp
-        elif 'Feedback' in rlzLoi.attrs['scenario']:
-            if 'GLENS' in rlzLoi.attrs['scenario']:
-                # ic('GLENS Feedback')
+            elif 'UKESM-ARISE' in rlzLoi.attrs['scenario']:
+                # ic('UKESM-ARISE No-SAI')
+                toiStartLp = fpd.average_over_years(
+                    rlzLoi,
+                    setDict["strtIntvl"]["UKESM-ARISE"][0],
+                    setDict["strtIntvl"]["UKESM-ARISE"][1])
                 toiEndLp = fpd.average_over_years(
-                    rlzLoi, setDict["endIntvl"][0], setDict["endIntvl"][1])
+                    rlzLoi,
+                    setDict["endIntvl"]["UKESM-ARISE"][0],
+                    setDict["endIntvl"]["UKESM-ARISE"][1])
+                toiStart[shrtScn] = toiStartLp
                 toiEnd[shrtScn] = toiEndLp
-            elif 'ARISE' in rlzLoi.attrs['scenario']:
-                # ic('ARISE Feedback')
+        elif '/SAI/' in rlzLoi.attrs['scenario']:
+            if 'GLENS' in rlzLoi.attrs['scenario']:
+                # ic('GLENS SAI')
                 toiEndLp = fpd.average_over_years(
-                    rlzLoi, setDict["endIntvl"][2], setDict["endIntvl"][3])
+                    rlzLoi,
+                    setDict["endIntvl"]["GLENS"][0],
+                    setDict["endIntvl"]["GLENS"][1])
+                toiEnd[shrtScn] = toiEndLp
+            elif 'CESM2-ARISE' in rlzLoi.attrs['scenario']:
+                # ic('ARISE SAI')
+                toiEndLp = fpd.average_over_years(
+                    rlzLoi,
+                    setDict["endIntvl"]["CESM2-ARISE"][0],
+                    setDict["endIntvl"]["CESM2-ARISE"][1])
+                toiEnd[shrtScn] = toiEndLp
+            elif 'UKESM-ARISE' in rlzLoi.attrs['scenario']:
+                # ic('UKESM ARISE SAI')
+                toiEndLp = fpd.average_over_years(
+                    rlzLoi,
+                    setDict["endIntvl"]["UKESM-ARISE"][0],
+                    setDict["endIntvl"]["UKESM-ARISE"][1])
                 toiEnd[shrtScn] = toiEndLp
         else:
             ic('This should not occur, but does it?')
