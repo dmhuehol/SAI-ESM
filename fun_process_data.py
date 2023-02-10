@@ -73,7 +73,10 @@ def call_to_open(dataDict, setDict):
     if setDict["convert"] is not None:
         for cnvrtr in setDict["convert"]:
             for rc,rv in enumerate(lf['scn']):
-                lf['scn'][rc] = cnvrtr(rv) #Use input converter function(s)
+                try:
+                    lf['scn'][rc] = cnvrtr(rv) #Use input converter function(s)
+                except:
+                    lf['scn'][rc] = cnvrtr(rv, setDict) #Sometimes they need setDict
 
     return lf['scn'], cmnDict
 

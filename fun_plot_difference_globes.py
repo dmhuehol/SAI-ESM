@@ -1,4 +1,4 @@
-''' fun_basic_plot
+''' fun_plot_difference_globes
 Contains the difference globe plotting functions used in Hueholt et al. 2023
 "Assessing Outcomes in Stratospheric Aerosol Injection Scenarios Shortly After
 Deployment". The same three dictionary inputs (defining the input files, plot

@@ -145,8 +145,8 @@ def drawOnGlobe(
             image, shrink=.75, orientation="vertical", pad=.02, extend=extent)
         cb.ax.tick_params(labelsize=6) #def: labelsize=6
         try:
-            # cb.set_label(data.attrs['units'],size='small')
-            cb.set_label('\u00B0C',size='medium')
+            cb.set_label(data.attrs['units'],size='small')
+            # cb.set_label('\u00B0C',size='medium')
             # cb.set_label('num ensemble members',size='small')
         except:
             print('No units in attributes; colorbar will be unlabeled.')

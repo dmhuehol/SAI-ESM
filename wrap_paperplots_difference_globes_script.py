@@ -1,4 +1,4 @@
-''' wrap_paperplots_basicplots_script
+''' wrap_paperplots_difference_globes_script
 Replicates figures from Hueholt et al. 2023 "Assessing Outcomes in Stratospheric Aerosol Injection Scenarios Shortly After Deployment" directly.
 Figures are produced in 1-panel format with no annotations. Keynote is used to
 stitch panels together, add titles, colorbar, etc.
@@ -17,7 +17,7 @@ import cmasher
 import seaborn
 import numpy as np
 
-import fun_basic_plot as fbp
+import fun_plot_difference_globes as fpdg
 import fun_convert_unit as fcu
 import fun_process_data as fpd
 import region_library as rlib
@@ -68,22 +68,22 @@ dataDict = {**dataDict, **cmnDict}
 setDict["levOfInt"] = None
 
 # Annual mean temperature
-fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 1a
+fpdg.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 1a
 setDict["plotPanel"] = 'snapS245'
-fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 1b
+fpdg.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 1b
 setDict["robustnessBool"] = True #Run robustness for all SAI panels
 setDict["plotPanel"] = 'snapGLENS'
-fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 3a
+fpdg.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 3a
 setDict["plotPanel"] = 'snapARISE15'
-fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 3b
+fpdg.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 3b
 setDict["plotPanel"] = 'intiGLENS'
-fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 6a
+fpdg.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 6a
 setDict["plotPanel"] = 'intiARISE15'
-fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 6b
+fpdg.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 6b
 setDict["plotPanel"] = 'GLENS'
-fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2a
+fpdg.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2a
 setDict["plotPanel"] = 'ARISE15'
-fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2b
+fpdg.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2b
 
 # Annual mean precipitation
 dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/annual_PRECT/'
@@ -94,17 +94,17 @@ setDict["levOfInt"] = None
 setDict["cmap"] = precipPal
 setDict["cbVals"] = [-25,25]
 setDict["plotPanel"] = 'snapGLENS'
-fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 4a
+fpdg.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 4a
 setDict["plotPanel"] = 'snapARISE15'
-fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 4b
+fpdg.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 4b
 setDict["plotPanel"] = 'intiGLENS'
-fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 7a
+fpdg.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 7a
 setDict["plotPanel"] = 'intiARISE15'
-fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 7b
+fpdg.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 7b
 setDict["plotPanel"] = 'GLENS'
-fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2c
+fpdg.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2c
 setDict["plotPanel"] = 'ARISE15'
-fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2d
+fpdg.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2d
 
 # Annual mean SDII
 dataDict["dataPath"] = '/Users/dhueholt/Documents/GLENS_data/extreme_sdii/'
@@ -117,14 +117,14 @@ setDict["levOfInt"] = None
 setDict["cmap"] = precipPal
 setDict["cbVals"] = [-1,1]
 setDict["plotPanel"] = 'snapGLENS'
-fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 5a
+fpdg.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 5a
 setDict["plotPanel"] = 'snapARISE15'
-fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 5b
+fpdg.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 5b
 setDict["plotPanel"] = 'intiGLENS'
-fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 8a
+fpdg.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 8a
 setDict["plotPanel"] = 'intiARISE15'
-fbp.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 8b
+fpdg.plot_single_basic_difference_globe(scnList, dataDict, setDict, outDict) #Fig 8b
 setDict["plotPanel"] = 'GLENS'
-fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2e
+fpdg.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2e
 setDict["plotPanel"] = 'ARISE15'
-fbp.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2f
+fpdg.plot_single_robust_globe(scnList, dataDict, setDict, outDict) #Fig S2f
