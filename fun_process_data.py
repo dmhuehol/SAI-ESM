@@ -136,7 +136,7 @@ def bind_scenario(darr, inID):
     ''' Bind scenario identifiers to xarray attributes. The historical and
     future parts of the ARISE Control are combined later in call_to_open. '''
     if 'control' in inID:
-        darr.attrs['scenario'] = 'GLENS:Control/RCP8.5/No-SAI'
+        darr.attrs['scenario'] = 'GLENS:Control/RCP8.5/No-SAI/RCP8.5'
     elif 'feedback' in inID:
         darr.attrs['scenario'] = 'GLENS:Feedback/SAI/GLENS-SAI'
     elif 'SSP245-TSMLT-GAUSS' in inID:
@@ -419,17 +419,17 @@ def get_ens_mem(files):
 
     return emem
 
-def meta_book(setDict, dataDict, cntrlToPlot):
+def meta_book(setDict, dataDict, darr):
     ''' Compile bits and pieces of metadata for filenames and titles '''
     metaDict = {
         "cntrlStr": 'RCP8.5',
         "fdbckStr": 'GLENS-SAI',
         "ariseStr": 'ARISE-SAI-1.5',
         "s245Cntrl": 'SSP2-4.5',
-        "varStr": var_str_lookup(cntrlToPlot.long_name, setDict, strType='title'),
-        "varSve": var_str_lookup(cntrlToPlot.long_name, setDict, strType='save'),
-        "strtStr": str(cntrlToPlot['time'].data[0].year),
-        "endStr": str(cntrlToPlot['time'].data[len(cntrlToPlot)-1].year),
+        "varStr": var_str_lookup(darr.long_name, setDict, strType='title'),
+        "varSve": var_str_lookup(darr.long_name, setDict, strType='save'),
+        "strtStr": str(darr['time'].data[0].year) if 'time' in darr.dims else '',
+        "endStr": str(darr['time'].data[len(darr)-1].year)  if 'time' in darr.dims else '',
         "frstDcd": {
             "GLENS": '',
             "CESM2-ARISE": '',
@@ -440,11 +440,11 @@ def meta_book(setDict, dataDict, cntrlToPlot):
             "CESM2-ARISE": '',
             "UKESM-ARISE": ''
             },
-        "levStr": make_level_string(cntrlToPlot, setDict["levOfInt"]) if "levOfInt" in setDict.keys() else '',
-        "levSve": make_level_string(cntrlToPlot, setDict["levOfInt"]).replace(" ","") if "levOfInt" in setDict.keys() else '',
+        "levStr": make_level_string(darr, setDict["levOfInt"]) if "levOfInt" in setDict.keys() else '',
+        "levSve": make_level_string(darr, setDict["levOfInt"]).replace(" ","") if "levOfInt" in setDict.keys() else '',
         "ensStr": dataDict["ememSave"],
-        "yStr": cntrlToPlot.units,
-        "unit": cntrlToPlot.attrs['units'],
+        "yStr": darr.units,
+        "unit": darr.attrs['units'],
         "spcStr": make_spc_string(setDict),
         "pid": {'g1p': 'globe_1p', 'g2p': 'globe_2p', 'g4p': 'globe_4p', 'g6p': 'globe_6p', 'ts': 'timeseries'},
         "ensPid": {'spg': 'spghtti', 'sprd': 'spread'},
@@ -593,6 +593,11 @@ def var_str_lookup(longName, setDict, strType='title'):
             outStr = '2m air temperature'
         elif strType == 'save':
             outStr = '2mtemp'
+    elif 'Decadal climate distance of 2m temperature' in longName:
+        if strType == 'title':
+            outStr = longName #Default is fine here
+        elif strType == 'save':
+            outStr = 'dcd-2mtemp-20352044'
     else:
         outStr = longName
 

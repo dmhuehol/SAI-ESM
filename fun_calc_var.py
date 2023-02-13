@@ -97,7 +97,8 @@ def calc_climate_speed(darr, setDict):
     climSpd = tGrad / sGrad
     climSpd.attrs = darr.attrs
     # TODO: make attribute generation flexible by variable
-    climSpd.attrs['long_name'] = 'Climate speed of 2m temperature'
+    climSpd.attrs['long_name'] = 'Climate speed of 2m temperature' \
+        + ' ' + str(setYrs[0]) + '-' + str(setYrs[1])
     climSpd.attrs['units'] = 'deg C / km'
 
     return climSpd
@@ -109,7 +110,8 @@ def calc_decadal_climate_distance(darr, setDict):
     dcd = np.abs(climSpd) * 10
     dcd.attrs = darr.attrs
     # TODO: make attribute generation flexible by variable
-    dcd.attrs['long_name'] = 'Decadal climate distance of 2m temperature'
+    dcd.attrs['long_name'] = climSpd.attrs['long_name'].replace(
+        'Climate speed', 'Decadal climate distance')
     dcd.attrs['units'] = 'km'
 
     return dcd

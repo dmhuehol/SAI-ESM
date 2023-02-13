@@ -109,6 +109,20 @@ def make_panels(rlzList, setDict):
 
     return toiStart, toiEnd
 
+def make_scenario_dict(rlzList, setDict):
+    ''' Make dictionary accessible by scenario '''
+    # Think about whether it makes sense to do this here? Maybe it would be
+    # better to make a dictionary object back in bind_scenario
+    # This would require substantial rewriting of EVERYTHING, so maybe a long-term
+    # thought
+    scnDict = dict()
+    for darr in rlzList:
+        rlzLoi = fpd.obtain_levels(darr, setDict["levOfInt"])
+        shrtScn = rlzLoi.scenario.split('/')[len(rlzLoi.scenario.split('/'))-1]
+        scnDict[shrtScn] = rlzLoi
+        
+    return scnDict     
+    
 def drawOnGlobe(
         ax, data, lats, lons, cmap='coolwarm', vmin=None, vmax=None, inc=None,
         cbarBool=True, contourMap=[], contourVals = [], fastBool=False,

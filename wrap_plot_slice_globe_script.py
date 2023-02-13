@@ -8,7 +8,7 @@ setDict: settings for analysis/visualization
         'CESMS245': CESM2 SSP2-4.5 (from CESM2-ARISE)
         'UKESMS245': UKESM SSP2-4.5 (from UKESM-ARISE)
         'GLENS': GLENS-SAI
-        'ARISE15': CESM2-ARISE-SAI-1.5
+        'CESMARISE15': CESM2-ARISE-SAI-1.5
         'UKESMARISE15': UKESM-ARISE-SAI-1.5
         any other value: make a blank map
 outDict: output image settings
@@ -39,13 +39,13 @@ tri_map = fpt.get_trifurcate_colormap('cmo.gray', 'cmr.amber', duskPink)
 
 # Dictionaries to define inputs
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_tas/',
-    "idGlensCntrl": None,  # 'control_*' or None
-    "idGlensFdbck": None,  # 'feedback_*' or None
-    "idArise": None,  # '*SSP245-TSMLT-GAUSS*' or None
-    "idS245Cntrl": None,  # '*BWSSP245*' or None
+    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_TREFHT/',
+    "idGlensCntrl": 'control_*',  # 'control_*' or None
+    "idGlensFdbck": 'feedback_*',  # 'feedback_*' or None
+    "idArise": '*SSP245-TSMLT-GAUSS*',  # '*SSP245-TSMLT-GAUSS*' or None
+    "idS245Cntrl": '*BWSSP245*',  # '*BWSSP245*' or None
     "idS245Hist": None,  # '*BWHIST*' or None
-    "idUkesmNoSai": None, #'*ssp245*' or None
+    "idUkesmNoSai": '*ssp245*', #'*ssp245*' or None
     "idUkesmArise": '*arise-sai-1p5*', #'*arise-sai-1p5*' or None
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc', # Landmask file location (CESM)
     "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
@@ -63,7 +63,8 @@ setDict = {
     "addCyclicPoint": False,  # True for ocean data/False for others
     "areaAvgBool": False,  # ALWAYS FALSE: no area averaging for a map!
     "robustnessBool": False,  # True/False to run robustness
-    "plotPanel": 'UKESMARISE15' # See docstring for valid inputs
+    "plotPanel": 'RCP85', # See docstring for valid inputs
+    "plotEnsType": 'mean' #'mean', 'max'/'min' pointwise max/min, num for rlz (0-indexed)
 }
 outDict = {
     "savePath": '/Users/dhueholt/Documents/ecology_fig/20230213_climVelVis/',
@@ -71,6 +72,7 @@ outDict = {
 }
 loopDict = {
     "rlzs": ('ensplot',),  # number(s) for member(s), 'mean' ens mean all members, 'ensplot' for both member information and mean (i.e. for robustness)
+    # Consider refactoring so ensplot is only behavior?
     "levels": (None,),  # None for single-level variable (as for all used in Hueholt et al. 2023)
     "regions": ('global',),  # 'global' only for maps
 }

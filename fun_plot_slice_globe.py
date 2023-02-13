@@ -38,50 +38,36 @@ import region_library as rlib
 
 def plot_single_slice_globe(rlzList, dataDict, setDict, outDict):
     ''' Plot 1 panel slice globe'''
+    # Choose the requested scenario
+    scnDict = fpt.make_scenario_dict(rlzList, setDict)
+    if setDict["plotPanel"] == 'RCP85':
+        actData = scnDict["RCP8.5"]
+    elif setDict["plotPanel"] == 'CESMS245':
+        actData = scnDict['SSP2-4.5']
+    elif setDict["plotPanel"] == 'GLENS':
+        actData = scnDict['GLENS-SAI']
+    elif setDict["plotPanel"] == 'CESMARISE15':
+        actData = scnDict['ARISE-SAI-1.5']
+    elif setDict["plotPanel"] == 'UKESMS245':
+        actData = scnDict['UKESM-SSP2-4.5']
+    elif setDict["plotPanel"] == 'UKESMARISE15':
+        actData = scnDict['UKESM-ARISE-SAI-1.5']
+    else:
+        sys.exit('Check plotPanel input')
 
-    activeData = rlzList[0]
-
-    globeEnsMn = activeData.mean(dim='realization')
-    globeEnsMax = activeData.max(dim='realization')
-    globeEnsMin = activeData.min(dim='realization')
-    rlzInd = 4
-    globeEnsMember = activeData.isel(realization=rlzInd)
-    panel = globeEnsMember
+    # Obtain ens mean, pointwise max/min, or individual realization
+    if setDict["plotEnsType"] == 'mean':
+        panel = actData.mean(dim='realization')
+    elif setDict["plotEnsType"] == 'max':
+        panel = actData.max(dim='realization')
+    elif setDict["plotEnsType"] == 'min':
+        panel = actData.min(dim='realization')
+    elif isinstance(setDict["plotEnsType"], int):
+        panel = actData.isel(realization=setDict["plotEnsType"])
+    else:
+        sys.exit('Check plotEnsType input!')
+        
     panelStr = setDict["plotPanel"]
-    # Need intelligent scenario checking
-    # if setDict["plotPanel"] == 'snapR85':
-    #     snapR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
-    #     panel = snapR85
-    # elif setDict["plotPanel"] == 'snapS245':
-    #     snapS245 = toiEnd['SSP2-4.5'] - toiStart['SSP2-4.5']
-    #     panel = snapS245
-    # elif setDict["plotPanel"] == 'snapGLENS':
-    #     snapGLENS = toiEnd['GLENS-SAI'] - toiStart['RCP8.5']
-    #     panel = snapGLENS
-    # elif setDict["plotPanel"] == 'snapARISE15':
-    #     snapARISE15 = toiEnd['ARISE-SAI-1.5'] - toiStart['SSP2-4.5']
-    #     panel = snapARISE15
-    # elif setDict["plotPanel"] == 'intiGLENS':
-    #     intiGLENS = toiEnd['GLENS-SAI'] - toiEnd['RCP8.5']
-    #     panel = intiGLENS
-    # elif setDict["plotPanel"] == 'intiARISE15':
-    #     intiARISE15 = toiEnd['ARISE-SAI-1.5'] - toiEnd['SSP2-4.5']
-    #     panel = intiARISE15
-    # elif setDict["plotPanel"] == 'snapUKS245':
-    #     snapUKS245 = toiEnd['UKESM-SSP2-4.5'] - toiStart['UKESM-SSP2-4.5']
-    #     panel = snapUKS245
-    # elif setDict["plotPanel"] == 'snapUKARISE15':
-    #     snapUKS245 = toiEnd['UKESM-ARISE-SAI-1.5'] \
-    #         - toiStart['UKESM-SSP2-4.5']
-    #     panel = snapUKS245
-    # elif setDict["plotPanel"] == 'intiUKARISE15':
-    #     intiUKARISE15 = toiEnd['UKESM-ARISE-SAI-1.5'] \
-    #         - toiEnd['UKESM-SSP2-4.5']
-    #     panel = intiUKARISE15
-    # else:
-    #     blank = toiEnd['GLENS-SAI'].copy()
-    #     blank.data = toiEnd['GLENS-SAI'] - toiEnd['GLENS-SAI']
-    #     panel = blank
 
     CL = 0.
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
@@ -91,7 +77,7 @@ def plot_single_slice_globe(rlzList, dataDict, setDict, outDict):
     cbAuto = np.sort(
         [-np.nanquantile(panel.data,0.75), np.nanquantile(panel.data,0.75)])
     cbVals = cbAuto if setDict["cbVals"] is None else setDict["cbVals"]
-    # md = fpd.meta_book(setDict, dataDict, rlzList[0])
+    md = fpd.meta_book(setDict, dataDict, rlzList[0])
     lats = rlzList[0].lat
     lons = rlzList[0].lon
     plt.rcParams.update({'font.family': 'Open Sans'})
@@ -101,26 +87,9 @@ def plot_single_slice_globe(rlzList, dataDict, setDict, outDict):
         cbarBool=True, fastBool=True, extent='max',
         addCyclicPoint=setDict["addCyclicPoint"], alph=1)
 
-    savePrfx = 'rlz' + str(rlzInd) + '_' #Easy modification for unique filename
-    # Need automatic filename generation
-    # if 'CESM2-ARISE' in panel.scenario:
-    #     saveStr = panelStr + '_' + md['varSve'] + '_' + md['levSve'] \
-    #         + '_' + md['lstDcd']["CESM2-ARISE"] + '_' + md['ensStr'] \
-    #         + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
-    # elif 'GLENS' in panel.scenario:
-    #     saveStr = panelStr + '_' + md['varSve'] + '_' + md['levSve'] \
-    #         + '_' + md['lstDcd']["GLENS"] + '_' + md['ensStr'] + '_' \
-    #         + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
-    # elif 'UKESM-ARISE' in panel.scenario:
-    #     saveStr = panelStr + '_' + md['varSve'] + '_' + md['levSve'] \
-    #         + '_' + md['lstDcd']["UKESM-ARISE"] + '_' + md['ensStr'] \
-    #         + '_' + md['pid']['g1p'] + '_' + md['glbType']['fcStr']
-    # else:
-    #     ic('Unable to generate saveStr for scenario')
-    #     saveStr = panelStr
-
-    saveStr = panelStr
-
+    savePrfx = '' #Easy modification for unique filename
+    saveStr = panelStr + '_' + md["varSve"] + '_' \
+        + 'rlz' + str(setDict["plotEnsType"])
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'
     plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')
     plt.close()
