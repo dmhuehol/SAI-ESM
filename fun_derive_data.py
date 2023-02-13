@@ -22,69 +22,6 @@ import fun_calc_var as fcv
 import fun_process_data as fpd
 import region_library as rlib
 
-### Climate velocity
-def derive_climate_velocity(inFile, outPath):
-    ''' Calculate the climate velocity of a variable from monthly mean data '''
-    inPcs = inFile.split('/') #inFile is the entire path to file
-
-    inFn = inPcs[len(inPcs)-1] #Filename is the last part of the path
-    activeKey = 'tas'
-    outKey = 'ClimateVelocity'
-    strOut = inFn.replace(activeKey, activeKey+outKey) #Replace var name with extreme key
-    outFile = outPath + strOut
-    ic(inFn)
-    ic(strOut)
-    ic(outFile)
-    sys.exit('STOP')
-    inKeys = ['TREFHT', 'tas'] #CESM2, UKESM
-    outKey = 'climate_velocity'
-
-    # Find which key applies; also says which experiment the data comes from
-    dset = xr.open_dataset(inFile)
-    dsetKeys = list(dset.keys())
-    activeKey = list(set(dsetKeys).intersection(inKeys))[0]
-    darr = dset[activeKey]
-
-    setYrs = [2035,2044]
-    timeSliceCesm = slice(
-        cftime.DatetimeNoLeap(setYrs[0], 7, 15, 12, 0, 0, 0),
-        cftime.DatetimeNoLeap(setYrs[1], 7, 15, 12, 0, 0, 0))
-    timeSliceUkesm = slice(
-        cftime.Datetime360Day(setYrs[0], 6, 30, 0, 0, 0, 0),
-        cftime.Datetime360Day(setYrs[1], 6, 30, 0, 0, 0, 0))
-    try:
-        darrToi = darr.sel(time=timeSliceCesm)
-    except: # This will get messy when another model runs ARISE :)
-        darrToi = darr.sel(time=timeSliceUkesm)
-
-    tGradDict = fcv.calc_temporal_grad(darrToi, years=setYrs)
-    tGrad = tGradDict["grad"].compute()
-    sGrad = fcv.calc_spatial_grad(darrToi)
-    sGradTimeMn = np.mean(sGrad, axis=0)
-
-    ic(np.shape(tGrad), np.shape(sGradTimeMn))
-    climSpd = tGrad / sGradTimeMn
-
-    newDset = xr.Dataset(
-        {outKey: (("lat","lon"), climSpd.data)},
-        coords={
-            "lat": darr['lat'].data,
-            "lon": darr['lon'].data
-        }
-    )
-    newDset[outKey].attrs = darr.attrs
-    newDset[outKey].attrs['long_name'] = 'Climate speed of temperature'
-    newDset[outKey].attrs['units'] = 'degC/km'
-
-    inPcs = inFile.split('/') #inFile is the entire path to file
-    inFn = inPcs[len(inPcs)-1] #Filename is the last part of the path
-    strOut = inFn.replace(inKey, outKey) #Replace var name with extreme key
-    outFile = outPath + strOut
-    # newDset.to_netcdf(outFile) #Save data
-    ic(strOut, outFile, newDset) #icecream all useful parts of the output
-
-
-
 ### Climdex extremes
 def derive_annual_tropical_nights(inFileTrefht, outPath):
     ''' Obtain annual tropical nights from daily min temperature data '''
@@ -445,7 +382,7 @@ def generate_binary_landmask(inFileLandFrac, outPath):
     UKESM to match CESM-style binary landmask file. '''
     inKey = 'sftlf'
     outKey = 'mask'
-    threshold = 99.5 #By convention (Sellar et al. 2019)
+    threshold = 0.01 #After some trial and error, 0.01 has best aesthetics
 
     landfracDset = xr.open_dataset(inFileLandFrac)
     landfracDarr = landfracDset[inKey]
@@ -465,7 +402,7 @@ def generate_binary_landmask(inFileLandFrac, outPath):
     newDset[outKey].attrs['long_name'] = 'Binary land mask'
     newDset[outKey].attrs['units'] = 'dimensionless'
 
-    strOut = 'ukesm_binary_landmask.nc'
+    strOut = 'ukesm_binary0p01_landmask.nc'
     outFile = outPath + strOut
     newDset.to_netcdf(outFile) #Save data
     ic(strOut, outFile, newDset) #icecream all useful parts of the output

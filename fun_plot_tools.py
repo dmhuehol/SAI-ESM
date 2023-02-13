@@ -23,11 +23,13 @@ for font in fm.findSystemFonts(fontPath):
 
 import cartopy as ct
 import cartopy.crs as ccrs
+import cmasher
 import cmocean as cmocean
-import numpy as np
-import numpy.ma as ma
+import matplotlib.colors as mcolors
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.pyplot as plt
+import numpy as np
+import numpy.ma as ma
 import seaborn as sn
 
 import fun_process_data as fpd
@@ -393,3 +395,19 @@ def find_widest_quantile(darr):
     widestRange = np.array([-bigVal, bigVal])
 
     return widestRange
+    
+def get_trifurcate_colormap(c1, c2, c3):
+    ''' Create trifurcated colormap for decadal climate distance '''
+    # Range parameters below are hard-coded for 0-1, 1-10, 10+
+    pt1 = cmasher.get_sub_cmap(c1, 0.2, 0.2)
+    pt2 = cmasher.get_sub_cmap(c2, 0.5, 1)
+    pt3 = c3
+    
+    map1 = pt1(np.linspace(0, 1, 100)) #0 to 1
+    map2 = pt2(np.linspace(0, 1, 900)) #1 to 10
+    map3 = pt3
+    
+    colors = np.vstack((map1, map2, map3))
+    tri_cmap = mcolors.LinearSegmentedColormap.from_list('tri_map', colors)
+
+    return tri_cmap
