@@ -100,7 +100,9 @@ def calc_climate_speed(darr, setDict):
     climSpd.attrs['long_name'] = 'Climate speed of 2m temperature' \
         + ' ' + str(setYrs[0]) + '-' + str(setYrs[1])
     climSpd.attrs['units'] = 'deg C / km'
-
+    ic(check_stats(tGrad))
+    ic(check_stats(sGrad))
+    ic(check_stats(climSpd))
     return climSpd
 
 def calc_decadal_climate_distance(darr, setDict):
@@ -121,6 +123,7 @@ def check_stats(darr):
     # darr = darr.compute()
 
     statDict = {
+        "shape": np.shape(darr),
         "med": np.median(darr),
         "mean": np.mean(darr),
         "max": np.max(darr),

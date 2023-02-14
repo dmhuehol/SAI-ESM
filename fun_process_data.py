@@ -61,6 +61,8 @@ def call_to_open(dataDict, setDict):
     # Manage ensemble members
     for ec in lf['globs']:
         lf['emem'].append(get_ens_mem(ec))
+    lf['emem'] = list(filter(None,lf['emem']))
+
     for dc,darr in enumerate(lf['darr']):
         scnArr, ememStr = manage_realizations(setDict, darr, lf['emem'][dc])
         lf['scn'].append(scnArr)
@@ -68,7 +70,7 @@ def call_to_open(dataDict, setDict):
     lf['ememStr'] = list(filter(None,lf['ememStr']))
     ememSave = '-'.join(lf['ememStr'])
     cmnDict = {'dataKey': dataKey, 'ememSave': ememSave}
-
+    
     # Convert units (if necessary)
     if setDict["convert"] is not None:
         for cnvrtr in setDict["convert"]:
@@ -216,9 +218,12 @@ def manage_realizations(setDict, darr, emem):
                 darrOut = xr.concat([darr,darrMn], dim='realization').compute() #Add ens mean as another "realization"
             ememSave = 'ens' + scnStr
         else: #Output DataArray of single ens member
-            ememNum = list(map(int, emem))
+            try:
+                ememNum = list(map(int, emem))
+            except:
+                ememNum  = list(map(str, emem))
             rInd = ememNum.index(setDict['realization'])
-            darrOut = darr[rInd,:,:,:].compute()
+            darrOut = darr.isel(realization=rInd).compute()
             activeEmem = emem[rInd]
             ememSave = scnStr + activeEmem
     except:
@@ -226,6 +231,18 @@ def manage_realizations(setDict, darr, emem):
         ememSave = ''
 
     return darrOut, ememSave
+    
+def get_ens_mem(files):
+    ''' Find ensemble members from a list of files '''
+    emem = list()
+    for pth in files:
+        pthPcs = pth.split('/')
+        fName = pthPcs[len(pthPcs)-1]
+        fNamePcs = fName.split('_')
+        # ic(fName, fNamePcs)
+        emem.append(fNamePcs[1])
+        
+    return emem
 
 def find_closest_level(darr, levOfInt, levName='lev'):
     ''' Find the index of the level which is closest to an input value '''
@@ -408,19 +425,9 @@ def manage_area(darr, regionToPlot, areaAvgBool=True):
 
     return darr, locStr, locTitleStr
 
-def get_ens_mem(files):
-    ''' Find ensemble members from a list of files '''
-    emem = list()
-    for pth in files:
-        pthPcs = pth.split('/')
-        fName = pthPcs[len(pthPcs)-1]
-        fNamePcs = fName.split('_')
-        emem.append(fNamePcs[1])
-
-    return emem
-
 def meta_book(setDict, dataDict, darr):
     ''' Compile bits and pieces of metadata for filenames and titles '''
+
     metaDict = {
         "cntrlStr": 'RCP8.5',
         "fdbckStr": 'GLENS-SAI',
@@ -597,7 +604,12 @@ def var_str_lookup(longName, setDict, strType='title'):
         if strType == 'title':
             outStr = longName #Default is fine here
         elif strType == 'save':
-            outStr = 'dcd-2mtemp-20352044'
+            outStr = 'dcd-2mtemp-20352044' #what did you THINK would happen right here
+    elif 'Climate speed of 2m temperature' in longName:
+        if strType == 'title':
+            outStr = longName #Default is fine here
+        elif strType == 'save':
+            outStr = 'cspd-2mtemp-20352044'
     else:
         outStr = longName
 
