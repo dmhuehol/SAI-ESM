@@ -62,7 +62,7 @@ def call_to_open(dataDict, setDict):
     for ec in lf['globs']:
         lf['emem'].append(get_ens_mem(ec))
     lf['emem'] = list(filter(None,lf['emem']))
-
+    
     for dc,darr in enumerate(lf['darr']):
         scnArr, ememStr = manage_realizations(setDict, darr, lf['emem'][dc])
         lf['scn'].append(scnArr)
@@ -75,6 +75,7 @@ def call_to_open(dataDict, setDict):
     if setDict["convert"] is not None:
         for cnvrtr in setDict["convert"]:
             for rc,rv in enumerate(lf['scn']):
+                ic(rc, rv)
                 try:
                     lf['scn'][rc] = cnvrtr(rv) #Use input converter function(s)
                 except:
@@ -216,6 +217,9 @@ def manage_realizations(setDict, darr, emem):
             else:
                 darrMn = darr.mean(dim='realization')
                 darrOut = xr.concat([darr,darrMn], dim='realization').compute() #Add ens mean as another "realization"
+            ememSave = 'ens' + scnStr
+        elif setDict['realization'] == 'allplot': #TODO: this should be only behavior
+            darrOut = darr.compute()
             ememSave = 'ens' + scnStr
         else: #Output DataArray of single ens member
             try:

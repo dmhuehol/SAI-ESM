@@ -68,15 +68,15 @@ setDict = {
     "areaAvgBool": False,  # ALWAYS FALSE: no area averaging for a map!
     "robustnessBool": False,  # True/False to run robustness
     "plotPanel": 'UKESMARISE15', # See docstring for valid inputs
-    "plotEnsType": 'single' #'mean', 'max'/'min' pointwise max/min, 'single' for single member
+    "plotEnsType": 'mean' #'mean', 'max'/'min' pointwise max/min, number for single member
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230214_checkCalc/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230216_fixAndFig/',
     "dpiVal": 400
 }
 loopDict = {
-    "rlzs": ('mean',),  # See docstring for valid inputs
-    # Consider refactoring so ensplot is only behavior?
+    "rlzs": ('allplot',),  # See docstring for valid inputs
+    # TODO: Consider refactoring so ensplot is only behavior?
     "levels": (None,),  # None for single-level variable (as for all used in Hueholt et al. 2023)
     "regions": ('global',),  # 'global' only for maps
 }
@@ -86,6 +86,9 @@ ic(dataDict, setDict, outDict, loopDict)  # Show input settings at command line
 for rlz in loopDict["rlzs"]:
     setDict["realization"] = rlz
     scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
+    # for rc in scnList[0].realization:
+    #     ic(fcv.check_stats(scnList[0].isel(realization=rc).data))
+    # sys.exit('STOP')
     dataDict = {**dataDict, **cmnDict}
 
     for lev in loopDict["levels"]:

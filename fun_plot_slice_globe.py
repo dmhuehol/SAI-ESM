@@ -56,16 +56,14 @@ def plot_single_slice_globe(rlzList, dataDict, setDict, outDict):
         sys.exit('Check plotPanel input')
 
     # Obtain ens mean, pointwise max/min, or individual realization
-    if setDict["plotEnsType"] == 'mean':
-        actData = actData.isel(realization=[0,1,2,3,4])
+    if setDict["plotEnsType"] == 'mean': #Ensemble mean
         panel = actData.mean(dim='realization')
-    elif setDict["plotEnsType"] == 'max':
+    elif setDict["plotEnsType"] == 'max': #Pointwise max
         panel = actData.max(dim='realization')
-    elif setDict["plotEnsType"] == 'min':
+    elif setDict["plotEnsType"] == 'min': #Pointwise min
         panel = actData.min(dim='realization')
-    elif setDict["plotEnsType"] == 'single':
-        panel = actData
-        # panel = actData.isel(realization=setDict["plotEnsType"])
+    elif isinstance(setDict["plotEnsType"], int): #Single member
+        panel = actData.isel(realization=setDict["plotEnsType"])
     else:
         sys.exit('Check plotEnsType input!')
         
