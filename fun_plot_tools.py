@@ -425,3 +425,19 @@ def get_trifurcate_colormap(c1, c2, c3):
     tri_cmap = mcolors.LinearSegmentedColormap.from_list('tri_map', colors)
 
     return tri_cmap
+    
+def get_wacky_colormap(c1, c2, c3):
+    ''' Create trifurcated colormap for decadal climate distance '''
+    # Range parameters below are hard-coded for 0-1, 1-10, 10+
+    pt1 = cmasher.get_sub_cmap(c1, 0.2, 1)
+    pt2 = cmasher.get_sub_cmap(c2, 0.2, 1)
+    pt3 = cmasher.get_sub_cmap(c3, 0.9, 1)
+    
+    map1 = pt1(np.linspace(0, 1, 50)) #0.0001 to 0.001
+    map2 = pt2(np.linspace(0, 1, 50)) #0.001 to 0.01
+    map3 = pt3(np.linspace(0, 1, 900)) #0.01 to 0.1
+    
+    colors = np.vstack((map1, map2, map3))
+    tri_cmap = mcolors.LinearSegmentedColormap.from_list('tri_map', colors)
+
+    return tri_cmap

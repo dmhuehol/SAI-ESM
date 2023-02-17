@@ -61,7 +61,8 @@ def calc_spatial_grad(darr):
     dLat = np.gradient(latGrid)
     dLon = np.gradient(lonGrid)
     distY = dLat[0] * earthRad * np.pi / 180
-    distX = (dLon[1]/180) * np.pi * earthRad * np.cos(latGridRad)
+    distX = (dLon[1]) * np.pi * earthRad * np.cos(latGridRad)
+    # distX = (dLon[1]/180) * np.pi * earthRad * np.cos(latGridRad)
 
     if 'realization' in darr.dims:
         nsGradRlzList = list()
@@ -82,7 +83,7 @@ def calc_spatial_grad(darr):
     ewGradSc = ewGrad / (8 * distX)
     # Total spatial gradient
     totGrad = np.sqrt((nsGradSc ** 2) + (ewGradSc ** 2))
-    spatGrad = np.arctan(totGrad) * 57.29578
+    spatGrad = np.arctan(totGrad) #* 57.29578
 
     return spatGrad
 
@@ -119,7 +120,7 @@ def calc_climate_speed(darr, setDict):
     # TODO: make attribute generation flexible by variable
     climSpd.attrs['long_name'] = 'Climate speed of 2m temperature' \
         + ' ' + str(setYrs[0]) + '-' + str(setYrs[1])
-    climSpd.attrs['units'] = 'deg C / km'
+    climSpd.attrs['units'] = 'km/yr'
     # ic(check_stats(tGrad.data))
     # ic(check_stats(sGrad.data))
     # ic(check_stats(climSpd.data))

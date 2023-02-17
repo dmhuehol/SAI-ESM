@@ -43,13 +43,13 @@ zmzmPal = seaborn.diverging_palette(
     285, 16, s=100, l=50, as_cmap=True)
 # Dictionaries to define inputs
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_tas/',
+    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_TREFHT/',
     "idGlensCntrl": 'control_*',  # 'control_*' or None
     "idGlensFdbck": 'feedback_*',  # 'feedback_*' or None
     "idArise": '*SSP245-TSMLT-GAUSS*',  # '*SSP245-TSMLT-GAUSS*' or None
     "idS245Cntrl": '*BWSSP245*',  # '*BWSSP245*' or None
     "idS245Hist": None,  # '*BWHIST*' or None
-    "idUkesmNoSai": None, #'*ssp245*' or None
+    "idUkesmNoSai": '*ssp245*', #'*ssp245*' or None
     "idUkesmArise": '*arise-sai-1p5*', #'*arise-sai-1p5*' or None
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc', # Landmask file location (CESM)
     "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
@@ -58,16 +58,16 @@ setDict = {
     "landmaskFlag": None,  # None no mask, 'land' to mask ocean, 'ocean' to mask land
     "calcIntvl": { # Years to calculate
         "GLENS": [2085,2095],
-        "CESM2-ARISE": [2035,2044],
+        "CESM2-ARISE": [2060,2069],
         "UKESM-ARISE": [2035,2044]
         },
-    "convert": (fcu.kel_to_cel, fcv.calc_decadal_climate_distance),  # TUPLE of converter(s) or calculators
-    "cmap": cmasher.cm.dusk,  # None for default (cmocean balance) or choose colormap
-    "cbVals": [0,10],  # None for automatic or [min,max] to override,
+    "convert": (fcu.kel_to_cel, fcv.calc_climate_speed),  # TUPLE of converter(s) or calculators
+    "cmap": cmocean.cm.balance,  # None for default (cmocean balance) or choose colormap
+    "cbVals": [-10,10],  # None for automatic or [min,max] to override,
     "addCyclicPoint": False,  # True for ocean data/False for others
     "areaAvgBool": False,  # ALWAYS FALSE: no area averaging for a map!
     "robustnessBool": False,  # True/False to run robustness
-    "plotPanel": 'UKESMARISE15', # See docstring for valid inputs
+    "plotPanel": 'CESMARISE15', # See docstring for valid inputs
     "plotEnsType": 'mean' #'mean', 'max'/'min' pointwise max/min, number for single member
 }
 outDict = {
