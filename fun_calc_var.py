@@ -74,8 +74,8 @@ def calc_spatial_grad(darr):
             ewGradRlz = sndimg.sobel( # Calculate east/west spatial gradient
                 darr.isel(realization=r), axis=1, mode='reflect')
             ewGradRlzList.append(ewGradRlz)
-        nsGrad = np.mean(nsGradRlzList, axis=0)
-        ewGrad = np.mean(ewGradRlzList, axis=0)
+        nsGrad = np.nanmean(nsGradRlzList, axis=0)
+        ewGrad = np.nanmean(ewGradRlzList, axis=0)
     else:
         nsGrad = sndimg.sobel(darr, axis=0, mode='reflect')
         ewGrad = sndimg.sobel(darr, axis=1, mode='reflect')
@@ -89,6 +89,8 @@ def calc_spatial_grad(darr):
 
 def calc_climate_speed(darr, setDict):
     ''' Calculate the climate speed of a variable '''
+    # ic(darr.scenario)
+    
     if 'CESM2-ARISE' in darr.scenario:
         setYrs = setDict["calcIntvl"]["CESM2-ARISE"]
     elif 'UKESM-ARISE' in darr.scenario:
@@ -118,12 +120,14 @@ def calc_climate_speed(darr, setDict):
     climSpd = tGrad / sGrad
     climSpd.attrs = darr.attrs
     # TODO: make attribute generation flexible by variable
+    # ic(setYrs)
     climSpd.attrs['long_name'] = 'Climate speed of 2m temperature' \
         + ' ' + str(setYrs[0]) + '-' + str(setYrs[1])
     climSpd.attrs['units'] = 'km/yr'
     # ic(check_stats(tGrad.data))
     # ic(check_stats(sGrad.data))
     # ic(check_stats(climSpd.data))
+    # ic(climSpd.attrs)
     return climSpd
 
 def calc_decadal_climate_distance(darr, setDict):

@@ -44,10 +44,10 @@ zmzmPal = seaborn.diverging_palette(
 # Dictionaries to define inputs
 dataDict = {
     "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_TREFHT/',
-    "idGlensCntrl": 'control_*',  # 'control_*' or None
+    "idGlensCntrl": None,  # 'control_*' or None
     "idGlensFdbck": 'feedback_*',  # 'feedback_*' or None
-    "idArise": '*SSP245-TSMLT-GAUSS*',  # '*SSP245-TSMLT-GAUSS*' or None
-    "idS245Cntrl": '*BWSSP245*',  # '*BWSSP245*' or None
+    "idArise": None,  # '*SSP245-TSMLT-GAUSS*' or None
+    "idS245Cntrl": None,  # '*BWSSP245*' or None
     "idS245Hist": None,  # '*BWHIST*' or None
     "idUkesmNoSai": '*ssp245*', #'*ssp245*' or None
     "idUkesmArise": '*arise-sai-1p5*', #'*arise-sai-1p5*' or None
@@ -57,7 +57,7 @@ dataDict = {
 setDict = {
     "landmaskFlag": None,  # None no mask, 'land' to mask ocean, 'ocean' to mask land
     "calcIntvl": { # Years to calculate
-        "GLENS": [2085,2095],
+        "GLENS": [2020,2095],
         "CESM2-ARISE": [2060,2069],
         "UKESM-ARISE": [2035,2044]
         },
@@ -67,16 +67,16 @@ setDict = {
     "addCyclicPoint": False,  # True for ocean data/False for others
     "areaAvgBool": False,  # ALWAYS FALSE: no area averaging for a map!
     "robustnessBool": False,  # True/False to run robustness
-    "plotPanel": 'CESMARISE15', # See docstring for valid inputs
+    "plotPanel": 'GLENS', # See docstring for valid inputs
     "plotEnsType": 'mean' #'mean', 'max'/'min' pointwise max/min, number for single member
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230216_fixAndFig/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230222_lineByLine/',
     "dpiVal": 400
 }
 loopDict = {
     "rlzs": ('allplot',),  # See docstring for valid inputs
-    # TODO: Consider refactoring so ensplot is only behavior?
+    # TODO: Refactor so allplot is only behavior
     "levels": (None,),  # None for single-level variable (as for all used in Hueholt et al. 2023)
     "regions": ('global',),  # 'global' only for maps
 }
@@ -88,6 +88,7 @@ for rlz in loopDict["rlzs"]:
     scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
     # for rc in scnList[0].realization:
     #     ic(fcv.check_stats(scnList[0].isel(realization=rc).data))
+    # ic(scnList, cmnDict)
     # sys.exit('STOP')
     dataDict = {**dataDict, **cmnDict}
 

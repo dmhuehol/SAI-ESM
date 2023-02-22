@@ -70,6 +70,7 @@ def plot_single_slice_globe(rlzList, dataDict, setDict, outDict):
     panelStr = setDict["plotPanel"]
 
     CL = 0.
+
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     fig = plt.figure(figsize=(12, 2.73*2))
     ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
@@ -77,7 +78,7 @@ def plot_single_slice_globe(rlzList, dataDict, setDict, outDict):
     cbAuto = np.sort(
         [-np.nanquantile(panel.data,0.75), np.nanquantile(panel.data,0.75)])
     cbVals = cbAuto if setDict["cbVals"] is None else setDict["cbVals"]
-    md = fpd.meta_book(setDict, dataDict, rlzList[0])
+    md = fpd.meta_book(setDict, dataDict, panel)
     lats = rlzList[0].lat
     lons = rlzList[0].lon
     plt.rcParams.update({'font.family': 'Open Sans'})

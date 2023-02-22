@@ -607,12 +607,14 @@ def var_str_lookup(longName, setDict, strType='title'):
         if strType == 'title':
             outStr = longName #Default is fine here
         elif strType == 'save':
-            outStr = 'dcd-2mtemp-20352044' #what did you THINK would happen right here
+            yrs = longName[-9:].replace('-','')
+            outStr = 'dcd-2mtemp-' + yrs
     elif 'Climate speed of 2m temperature' in longName:
         if strType == 'title':
             outStr = longName #Default is fine here
         elif strType == 'save':
-            outStr = 'cspd-2mtemp-20352044'
+            yrs = longName[-9:].replace('-','')
+            outStr = 'cspd-2mtemp-' + yrs
     else:
         outStr = longName
 
