@@ -88,7 +88,7 @@ def plot_single_slice_globe(rlzList, dataDict, setDict, outDict):
         cbarBool=True, fastBool=True, extent='max',
         addCyclicPoint=setDict["addCyclicPoint"], alph=1)
 
-    savePrfx = 'b15_testno57_' #Easy modification for unique filename
+    savePrfx = 'test_' #Easy modification for unique filename
     saveStr = panelStr + '_' + md["varSve"] + '_' \
         + 'rlz' + str(setDict["plotEnsType"])
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'

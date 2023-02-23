@@ -45,9 +45,9 @@ zmzmPal = seaborn.diverging_palette(
 dataDict = {
     "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_TREFHT/',
     "idGlensCntrl": None,  # 'control_*' or None
-    "idGlensFdbck": 'feedback_*',  # 'feedback_*' or None
+    "idGlensFdbck": None,  # 'feedback_*' or None
     "idArise": None,  # '*SSP245-TSMLT-GAUSS*' or None
-    "idS245Cntrl": None,  # '*BWSSP245*' or None
+    "idS245Cntrl": '*BWSSP245*',  # '*BWSSP245*' or None
     "idS245Hist": None,  # '*BWHIST*' or None
     "idUkesmNoSai": '*ssp245*', #'*ssp245*' or None
     "idUkesmArise": '*arise-sai-1p5*', #'*arise-sai-1p5*' or None
@@ -58,16 +58,16 @@ setDict = {
     "landmaskFlag": None,  # None no mask, 'land' to mask ocean, 'ocean' to mask land
     "calcIntvl": { # Years to calculate
         "GLENS": [2020,2095],
-        "CESM2-ARISE": [2060,2069],
+        "CESM2-ARISE": [2035,2044],
         "UKESM-ARISE": [2035,2044]
         },
-    "convert": (fcu.kel_to_cel, fcv.calc_climate_speed),  # TUPLE of converter(s) or calculators
+    "convert": (fcu.kel_to_cel, fcv.calc_climate_speed),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
     "cmap": cmocean.cm.balance,  # None for default (cmocean balance) or choose colormap
-    "cbVals": [-10,10],  # None for automatic or [min,max] to override,
+    "cbVals": [-50,50],  # None for automatic or [min,max] to override,
     "addCyclicPoint": False,  # True for ocean data/False for others
     "areaAvgBool": False,  # ALWAYS FALSE: no area averaging for a map!
     "robustnessBool": False,  # True/False to run robustness
-    "plotPanel": 'GLENS', # See docstring for valid inputs
+    "plotPanel": 'CESMS245', # See docstring for valid inputs
     "plotEnsType": 'mean' #'mean', 'max'/'min' pointwise max/min, number for single member
 }
 outDict = {

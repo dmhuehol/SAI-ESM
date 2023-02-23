@@ -18,30 +18,24 @@ from sklearn.linear_model import LinearRegression
 import xarray as xr
 
 def calc_temporal_grad(darr, years):
-    ''' Calculate temporal gradient by estimating 'heights' between a start and
-    end time. Vectorized linear regression is strongly based on
+    ''' Calculate temporal gradient for an array. Vectorized linear
+    regression is strongly based on implementation found at:
     hrishichandanpurkar.blogspot.com/2017/09/vectorized-functions-for-correlation.html
-    implementation '''
+    '''
     startTime = cftime.DatetimeNoLeap(years[0], 7, 15, 12, 0, 0, 0)
     endTime = cftime.DatetimeNoLeap(years[1], 7, 15, 12, 0, 0, 0)
-
+    
     xData = darr.time.dt.year
-
     timeEntries = len(darr.time)
     xTimeMn = xData.mean(dim='time')
     yTimeMn = darr.mean(dim='time')
     xTimeStdev  = xData.std(dim='time')
     yTimeStdev  = darr.std(dim='time')
-    # ic(timeEntries, xTimeMn, yTimeMn, xTimeStdev, yTimeStdev)
-    # ic(np.shape(timeEntries), np.shape(xTimeMn), np.shape(yTimeMn), np.shape(xTimeStdev), np.shape(yTimeStdev))
-    # ic(np.shape((xData - xTimeMn)*(darr - yTimeMn)))
-    # sys.exit('STOP')
-    cov = np.sum((xData - xTimeMn)*(darr - yTimeMn), axis=0)/(timeEntries)
-    # ic(np.shape(cov))
-    # sys.exit('STOP')
+    cov = np.sum(
+        (xData - xTimeMn) * (darr - yTimeMn), axis=0) / (timeEntries)
     regSlp = cov/(xTimeStdev**2)
     regInt = yTimeMn - xTimeMn*regSlp
-    # ic(cov, regSlp, regInt)
+    # ic(cov, regSlp, regInt) # Troubleshooting
 
     temporalGrad = {
         "grad": regSlp,
@@ -52,18 +46,19 @@ def calc_temporal_grad(darr, years):
 
 def calc_spatial_grad(darr):
     ''' Calculate spatial gradient '''
-    latNew = darr.lat.data
-    lonNew = darr.lon.data
+    ic()
+    lats = darr.lat.data
+    lons = darr.lon.data
     earthRad = 6371000 / 1000 #Earth's radius in km
 
-    lonGrid,latGrid = np.meshgrid(lonNew, latNew)
+    lonGrid, latGrid = np.meshgrid(lons, lats)
     latGridRad = np.deg2rad(latGrid)
-    dLat = np.gradient(latGrid)
-    dLon = np.gradient(lonGrid)
-    distY = dLat[0] * earthRad * np.pi / 180
-    distX = (dLon[1]) * np.pi * earthRad * np.cos(latGridRad)
-    # distX = (dLon[1]/180) * np.pi * earthRad * np.cos(latGridRad)
-
+    dLat = np.gradient(latGrid)[0]
+    dLon = np.gradient(lonGrid)[1]
+    boxLngth = earthRad * np.pi / 180 # Box length in km
+    distY = dLat * boxLngth # Lat distance in km
+    distX = dLon * boxLngth * np.cos(latGridRad) # Lon distance in km
+    
     if 'realization' in darr.dims:
         nsGradRlzList = list()
         ewGradRlzList = list()
@@ -83,15 +78,13 @@ def calc_spatial_grad(darr):
     ewGradSc = ewGrad / (8 * distX)
     # Total spatial gradient
     totGrad = np.sqrt((nsGradSc ** 2) + (ewGradSc ** 2))
-    spatGrad = np.arctan(totGrad) #* 57.29578
+    spatGrad = totGrad
 
     return spatGrad
 
 def calc_climate_speed(darr, setDict):
     ''' Calculate the climate speed of a variable '''
-    # ic(darr.scenario)
-    
-    if 'CESM2-ARISE' in darr.scenario:
+    if 'CESM2' in darr.scenario:
         setYrs = setDict["calcIntvl"]["CESM2-ARISE"]
     elif 'UKESM-ARISE' in darr.scenario:
         setYrs = setDict["calcIntvl"]["UKESM-ARISE"]
@@ -110,20 +103,17 @@ def calc_climate_speed(darr, setDict):
 
     tGradDict = calc_temporal_grad(darrToi, years=setYrs)
     tGrad = tGradDict["grad"].compute()
-    # ic(check_stats(np.abs(tGrad.mean(dim='realization').data)))
-    # ic(check_stats(np.abs(tGrad.data)))
-    # sys.exit('STOP')
     darrTimeMn = darrToi.mean(dim='time')
     sGrad = calc_spatial_grad(darrTimeMn)
-    # ic(check_stats(np.abs(sGrad.data)))
 
     climSpd = tGrad / sGrad
     climSpd.attrs = darr.attrs
     # TODO: make attribute generation flexible by variable
-    # ic(setYrs)
     climSpd.attrs['long_name'] = 'Climate speed of 2m temperature' \
         + ' ' + str(setYrs[0]) + '-' + str(setYrs[1])
     climSpd.attrs['units'] = 'km/yr'
+    
+    # Display for troubleshooting
     # ic(check_stats(tGrad.data))
     # ic(check_stats(sGrad.data))
     # ic(check_stats(climSpd.data))

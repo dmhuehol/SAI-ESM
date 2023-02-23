@@ -11,7 +11,7 @@ Graduate Research Assistant at Colorado State University
 from icecream import ic
 import sys
 
-import collections
+import collections as col
 import dask
 dask.config.set(**{'array.slicing.split_large_chunks': True})
 from datetime import date
@@ -25,71 +25,76 @@ import CustomExceptions
 import fun_convert_unit as fcu
 
 def call_to_open(dataDict, setDict):
-    ''' Common data tasks for all basic plots '''
-    # Open datasets
-    lf = collections.defaultdict(list) #list factory stackoverflow.com/a/2402678
+    ''' Open data and carry out tasks common to all types '''
+    lf = col.defaultdict(list) # List factory stackoverflow.com/a/2402678
+    # Open datasets for each input experiment
     for dky in dataDict.keys():
         if 'id' in dky:
             try:
                 inPath = dataDict["dataPath"] + dataDict[dky]
-                lf['globs'].append(sorted(glob.glob(inPath)))
+                inGlobs = sorted(glob.glob(inPath))
+                lf['globs'].append(inGlobs) # Used to track realizations
                 rawDset = xr.open_mfdataset(
-                    inPath, concat_dim='realization', combine='nested', coords='minimal')
+                    inPath, concat_dim='realization', 
+                    combine='nested', coords='minimal')
                 dataKey = discover_data_var(rawDset)
                 rawDarr = rawDset[dataKey]
                 scnDarr = bind_scenario(rawDarr, dataDict[dky])
                 maskDarr = apply_mask(scnDarr, dataDict, setDict)
-                if 'CESM2-ARISE:Control' in scnDarr.scenario: #Two parts: historical and future
-                    lf['chf'].append(maskDarr) #These need to be kept separate
+                if 'CESM2-ARISE:Control' in scnDarr.scenario: # Two parts: historical and future
+                    lf['chf'].append(maskDarr) # Keep separate for now
                 else:
-                    lf['darr'].append(maskDarr) #Others go directly into darrList
-            except Exception as fileOpenErr: #Usually reached if input is None
-                ic(fileOpenErr) #Or if issues exist in some/all data
-                pass
-    if len(lf['chf']) == 2: #If both historical and future are input
-        acntrlDarr = combine_hist_fut(lf['chf'][0],lf['chf'][1]) #Combine ARISE Control here
-        lf['darr'].append(acntrlDarr) #Append ARISE Control to darrList
+                    lf['darr'].append(maskDarr) # Put other data in darrList
+            except Exception as fileOpenErr: # Reached for None input
+                ic(fileOpenErr) # Display reason for error
+                pass # Move on if possible
+
+    # Handle the two parts of the CESM2-ARISE Control                
+    if len(lf['chf']) == 2: # Hist & future input
+        acntrlDarr = combine_hist_fut(lf['chf'][0], lf['chf'][1])
+        lf['darr'].append(acntrlDarr)
         acntrlDarr.attrs['scenario'] = 'CESM2-WACCM/ARISE:Control/SSP2-4.5'
-    else:
+    else: # Either hist OR future input
         try:
-            lf['darr'].append(lf['chf'][0]) #Append the one that's present
+            lf['darr'].append(lf['chf'][0]) # Use whichever is present
         except:
-            pass #If there is no data, just move on
+            pass # If there is no data, move on if possible
+            
     if len(lf['darr']) == 0:
-        raise CustomExceptions.NoDataError('No data! Check input and try again.')
+        raise CustomExceptions.NoDataError(
+            'No data! Check input and try again.')
 
     # Manage ensemble members
     for ec in lf['globs']:
         lf['emem'].append(get_ens_mem(ec))
-    lf['emem'] = list(filter(None,lf['emem']))
-    
+    lf['emem'] = list(filter(None, lf['emem']))
     for dc,darr in enumerate(lf['darr']):
-        scnArr, ememStr = manage_realizations(setDict, darr, lf['emem'][dc])
+        scnArr, ememStr = manage_realizations(
+            setDict, darr, lf['emem'][dc])
         lf['scn'].append(scnArr)
         lf['ememStr'].append(ememStr)
     lf['ememStr'] = list(filter(None,lf['ememStr']))
     ememSave = '-'.join(lf['ememStr'])
     cmnDict = {'dataKey': dataKey, 'ememSave': ememSave}
     
-    # Convert units (if necessary)
+    # Convert units and calculate variables
     if setDict["convert"] is not None:
-        for cnvrtr in setDict["convert"]:
+        for fcufcv in setDict["convert"]:
             for rc,rv in enumerate(lf['scn']):
                 try:
-                    lf['scn'][rc] = cnvrtr(rv) #Use input converter function(s)
+                    lf['scn'][rc] = fcufcv(rv) # Apply converter or calculator function(s)
                 except:
-                    lf['scn'][rc] = cnvrtr(rv, setDict) #Sometimes they need setDict
+                    lf['scn'][rc] = fcufcv(rv, setDict) # Sometimes they need setDict
 
     return lf['scn'], cmnDict
 
 def apply_mask(darr, dataDict, setDict):
     ''' Apply land/ocean mask, returning masked dataset '''
-    # Need a way to distinguish between applying mask to CESM or UKESM
     if setDict['landmaskFlag'] is not None:
         if "UKESM" in darr.scenario:
             activeMaskDset = xr.open_dataset(dataDict["maskUkesm"])
             activeMask = activeMaskDset.mask
-        else: # TODO: Check explicitly for CESM
+        elif "CESM" in darr.scenario:
             activeMaskDset = xr.open_dataset(dataDict["mask"])
             try:
                 activeMask = activeMaskDset.landmask
@@ -109,9 +114,9 @@ def apply_mask(darr, dataDict, setDict):
     return maskDarr
 
 def discover_data_var(dset):
-    ''' Find the data variable among the many variables in a CESM file '''
+    ''' Find data var among the many keys in an ESM file '''
     fileKeys = list(dset.keys())
-    notDataKeys = [
+    notDataKeys = [ # Manually add keys that don't represent data here
         'time_bnds', 'date', 'datesec', 'lev_bnds', 'gw', 'ch4vmr',
         'co2vmr', 'ndcur', 'nscur', 'sol_tsi', 'nsteph', 'f11vmr',
         'n2ovmr', 'f12vmr', 'lon_bnds', 'lat_bnds', 'ZSOI', 'BSW',
@@ -122,9 +127,9 @@ def discover_data_var(dset):
     notDataInDset = list()
     dataKey = None
 
-    for cKey in fileKeys:
+    for cKey in fileKeys: # Check all keys in file
         if cKey in notDataKeys:
-            notDataInDset.append(cKey)
+            notDataInDset.append(cKey) # Useful for troubleshooting
         else:
             dataKey = cKey
             print('Data key could be: ' + dataKey)
@@ -135,12 +140,11 @@ def discover_data_var(dset):
     return dataKey
 
 def bind_scenario(darr, inID):
-    ''' Bind scenario identifiers to xarray attributes. The historical and
-    future parts of the ARISE Control are combined later in call_to_open. '''
+    ''' Bind scenario identifiers to xarray attributes '''
     if 'control' in inID:
-        darr.attrs['scenario'] = 'GLENS:Control/RCP8.5/No-SAI/RCP8.5'
+        darr.attrs['scenario'] = 'CESM1-GLENS:Control/RCP8.5/No-SAI/RCP8.5'
     elif 'feedback' in inID:
-        darr.attrs['scenario'] = 'GLENS:Feedback/SAI/GLENS-SAI'
+        darr.attrs['scenario'] = 'CESM1-GLENS:Feedback/SAI/GLENS-SAI'
     elif 'SSP245-TSMLT-GAUSS' in inID:
         darr.attrs['scenario'] = 'CESM2-ARISE:Feedback/SAI/ARISE-SAI-1.5'
     elif 'BWSSP245' in inID:
@@ -164,18 +168,21 @@ def combine_hist_fut(darrCntrl, darrHist):
     darrHistForFormat = darrHist.sel(realization=0)
     darrHistNan = copy_blank_darr(darrHistForFormat)
     darrCombine = darrHistNan.copy()
-
     cntrlRlz = darrCntrl['realization']
     for rc in cntrlRlz:
         try:
             activeHist = darrHist.sel(realization=rc)
             activeCntrl = darrCntrl.sel(realization=rc)
-            activeDarr = xr.concat((activeHist,activeCntrl), dim='time')
+            activeDarr = xr.concat(
+                (activeHist, activeCntrl), dim='time')
         except:
             activeCntrl = darrCntrl.sel(realization=rc)
-            activeDarr = xr.concat((darrHistNan,activeCntrl), dim='time')
-        darrCombine = xr.concat((darrCombine,activeDarr), dim='realization')
-    darrCombine = darrCombine.sel(realization=np.arange(0,len(cntrlRlz)))
+            activeDarr = xr.concat(
+                (darrHistNan,activeCntrl), dim='time')
+        darrCombine = xr.concat(
+            (darrCombine, activeDarr), dim='realization')
+    darrCombine = darrCombine.sel( # Ensure correct num of realizations
+        realization=np.arange(0, len(cntrlRlz)))
 
     return darrCombine
 
@@ -217,7 +224,17 @@ def manage_realizations(setDict, darr, emem):
                 darrMn = darr.mean(dim='realization')
                 darrOut = xr.concat([darr,darrMn], dim='realization').compute() #Add ens mean as another "realization"
             ememSave = 'ens' + scnStr
-        elif setDict['realization'] == 'allplot': #TODO: this should be only behavior
+        elif setDict['realization'] == 'allplot':
+            #TODO: this should be only behavior, and could maybe
+            # even result in removing this function completely.
+            # Taking ensemble statistics should be the very LAST step
+            # before plotting, rather than coming as part of the basic
+            # data opening tasks in call_to_open.
+            # This change is easy for the slice globes which already
+            # don't use any of this, but it will break the basicplots
+            # and ensplots functions and require considerable 
+            # refactoring to repair. This is not the highest priority
+            # right now but will be dealt with eventually!
             darrOut = darr.compute()
             ememSave = 'ens' + scnStr
         else: #Output DataArray of single ens member

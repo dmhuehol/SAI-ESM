@@ -29,10 +29,10 @@ def drawOnGlobe(
         lons_cyc = lons
     ax.set_global()
     ax.coastlines(linewidth = 1.2, color='black')
-
+    import matplotlib.colors as colors
     if(fastBool):
         image = ax.pcolormesh(
-            lons_cyc, lats, data_cyc, transform=data_crs, cmap=cmap, alpha=alph)
+            lons_cyc, lats, data_cyc, transform=data_crs, cmap=cmap, alpha=alph, norm=colors.LogNorm(vmin=0.0001, vmax=0.1))
         # lonCirc = np.arange(0,360)
         # latCirc = np.zeros(np.shape(lonCirc)) + 75
         # plt.plot(lonCirc, latCirc, color='r', linewidth=1, transform=data_crs)
@@ -122,7 +122,7 @@ def add_cyclic_point(data, coord=None, axis=-1):
     return return_value
 
 outDict = {
-    "outPath": "/Users/dhueholt/Documents/ecology_fig/20230216_fixAndFig/",
+    "outPath": "/Users/dhueholt/Documents/ecology_fig/20230222_lineByLine/",
     "dpi": 400
 }
 
@@ -138,8 +138,8 @@ def calc_spatial_grad(darr):
     ic(dLat[0])
     dLon = np.gradient(lonGrid)
     ic(dLon)
-    distY = dLat[0] * earthRad * np.pi / 180
-    distX = (dLon[1]) * np.pi * earthRad * np.cos(latGridRad)
+    distY = dLat[0] * earthRad * (np.pi / 180)
+    distX = dLon[1] * (np.pi/180) * earthRad * np.cos(latGridRad)
 
     if 'realization' in darr.dims:
         nsGradRlzList = list()
@@ -160,7 +160,7 @@ def calc_spatial_grad(darr):
     ewGradSc = ewGrad / (8 * distX)
     # Total spatial gradient
     totGrad = np.sqrt((nsGradSc ** 2) + (ewGradSc ** 2))#np.sqrt((nsGradSc ** 2) + (ewGradSc ** 2))
-    spatGrad = np.arctan(totGrad) #* 57.29578
+    spatGrad = totGrad #* 57.29578
 
     return spatGrad
 
