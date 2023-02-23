@@ -158,11 +158,14 @@ def drawOnGlobe(
             colors='fuchsia')
     if(cbarBool):
         cb = plt.colorbar(
-            image, shrink=.75, orientation="vertical", pad=.02, extend=extent)
+            image, shrink=.75, orientation="vertical", 
+            pad=.02, extend=extent,
+            #0-2, 2-10, 10-30, 30-50, 50+
+            ticks=[-50,-30,-10,-2,2,10,30,50])
         cb.ax.tick_params(labelsize=6) #def: labelsize=6
         try:
             cb.set_label(data.attrs['units'],size='small')
-            # cb.set_label('\u00B0C',size='medium')
+            # cb.set_label('\u00B0C/yr',size='medium')
             # cb.set_label('num ensemble members',size='small')
         except:
             print('No units in attributes; colorbar will be unlabeled.')
@@ -357,6 +360,33 @@ def mute_by_numbers_arise(thresh):
     muteList = grayList[:thresh] + colorList[thresh:]
 
     return muteList
+    
+def palette_lists(paletteKey):
+    ''' Just some nice colors '''
+    zmzm = [ 
+        [113/255, 0, 165/255, 1], #286,100,30
+        [149/255, 0, 214/255, 1], #285,100,40
+        [180/255, 40/255, 255/255, 1], #285,100,50
+        [191/255, 104/255, 255/255, 1], #285,100,60
+        [204/255, 146/255, 255/255, 1], #285,100,70
+        [219/255, 184/255, 255/255, 1], #285,100,80
+        [236/255, 220/255, 255/255, 1], #285,100,90
+        [255/255, 255/255, 255/255, 1], #285,100,100
+        [255/255, 218/255, 216/255, 1], #16,100,90
+        [255/255, 179/255, 174/255, 1], #16,100,80
+        [255/255, 137/255, 127/255, 1], #16,100,70
+        [255/255, 85/255, 59/255, 1], #16,100,60
+        [224/255, 54/255, 0, 1], #16,100,50
+        [179/255, 41/255, 0, 1], #16,100,40
+        [137/255, 29/255, 0, 1]  #16,100,30
+    ]
+    
+    colors = {
+        "zmzm": zmzm
+    }
+    palette = colors[paletteKey]
+    
+    return palette
 
 def line_from_scenario(scn, md):
     ''' Get line color and label from scenario information '''
@@ -426,18 +456,32 @@ def get_trifurcate_colormap(c1, c2, c3):
 
     return tri_cmap
     
-def get_wacky_colormap(c1, c2, c3):
-    ''' Create trifurcated colormap for decadal climate distance '''
-    # Range parameters below are hard-coded for 0-1, 1-10, 10+
-    pt1 = cmasher.get_sub_cmap(c1, 0.2, 1)
-    pt2 = cmasher.get_sub_cmap(c2, 0.2, 1)
-    pt3 = cmasher.get_sub_cmap(c3, 0.9, 1)
+def get_cspd_colormap(palKey):
+    ''' Create custom colormap for climate velocity '''
+    #What we really want is 0-2, 2-10, 10-30, 30-50, 50+
+    zmzm = palette_lists(palKey)
+    ic(len(zmzm))
+    map1 = np.reshape(
+        np.tile(zmzm[0], 1), (1,4))
+    map2 = np.reshape(
+        np.tile(zmzm[1], 20), (20,4))
+    map3 = np.reshape(
+        np.tile(zmzm[3], 20), (20,4))
+    map4 = np.reshape(
+        np.tile(zmzm[5], 8), (8,4))
+    map5 = np.reshape(
+        np.tile(zmzm[7], 4), (4,4))
+    map6 = np.reshape(
+        np.tile(zmzm[9], 8), (8,4))
+    map7 = np.reshape(
+        np.tile(zmzm[11], 20), (20,4))
+    map8 = np.reshape(
+        np.tile(zmzm[13], 20), (20,4))
+    map9 = np.reshape(
+        np.tile(zmzm[14], 1), (1,4))
     
-    map1 = pt1(np.linspace(0, 1, 50)) #0.0001 to 0.001
-    map2 = pt2(np.linspace(0, 1, 50)) #0.001 to 0.01
-    map3 = pt3(np.linspace(0, 1, 900)) #0.01 to 0.1
-    
-    colors = np.vstack((map1, map2, map3))
-    tri_cmap = mcolors.LinearSegmentedColormap.from_list('tri_map', colors)
+    colors = np.vstack(
+        (map1, map2, map3, map4, map5, map6, map7, map8, map9))
+    custom_cmap = mcolors.ListedColormap(colors)
 
-    return tri_cmap
+    return custom_cmap

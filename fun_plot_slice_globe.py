@@ -85,10 +85,10 @@ def plot_single_slice_globe(rlzList, dataDict, setDict, outDict):
     plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
     fpt.drawOnGlobe(
         ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1],
-        cbarBool=True, fastBool=True, extent='max',
+        cbarBool=False, fastBool=True, extent='both',
         addCyclicPoint=setDict["addCyclicPoint"], alph=1)
 
-    savePrfx = 'test_' #Easy modification for unique filename
+    savePrfx = '' #Easy modification for unique filename
     saveStr = panelStr + '_' + md["varSve"] + '_' \
         + 'rlz' + str(setDict["plotEnsType"])
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'

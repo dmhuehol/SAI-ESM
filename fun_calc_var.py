@@ -114,7 +114,7 @@ def calc_climate_speed(darr, setDict):
     climSpd.attrs['units'] = 'km/yr'
     
     # Display for troubleshooting
-    # ic(check_stats(tGrad.data))
+    ic(check_stats(tGrad.data))
     # ic(check_stats(sGrad.data))
     # ic(check_stats(climSpd.data))
     # ic(climSpd.attrs)
