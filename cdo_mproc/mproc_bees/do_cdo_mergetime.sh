@@ -29,7 +29,7 @@ RUN_TIMES=()
 RUN_ENSNUMS=()
 for f in $IN_CARD; do
   ACTIVE_FNAME=${f:$PATH_LENGTH}
-  if [[ "$ACTIVE_FNAME" == *"CESM2-WACCM"* ]]; then #CMIP6 format
+  if [[ "$ACTIVE_FNAME" == *"UKESM"* ]]; then #UKESM (CMIP6) format
     ACTIVE_FNAME=${ACTIVE_FNAME//_/.}
     RUN_FNAMES+=( $ACTIVE_FNAME )
     ACTIVE_TIME=$(echo $ACTIVE_FNAME | cut -d'.' -f7)

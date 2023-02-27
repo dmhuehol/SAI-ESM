@@ -161,7 +161,8 @@ def drawOnGlobe(
             image, shrink=.75, orientation="vertical", 
             pad=.02, extend=extent,
             #0-2, 2-10, 10-30, 30-50, 50+
-            ticks=[-50,-30,-10,-2,2,10,30,50])
+            #ticks=[-50,-30,-10,-2,2,10,30,50])
+            ticks=[-2,-1,0,1,2])
         cb.ax.tick_params(labelsize=6) #def: labelsize=6
         try:
             cb.set_label(data.attrs['units'],size='small')
@@ -453,6 +454,22 @@ def get_trifurcate_colormap(c1, c2, c3):
     
     colors = np.vstack((map1, map2, map3))
     tri_cmap = mcolors.LinearSegmentedColormap.from_list('tri_map', colors)
+
+    return tri_cmap
+    
+def get_trifurcate_div_colormap(c1, c2, c3):
+    ''' Create trifurcated colormap for decadal climate distance '''
+    # Range parameters below are hard-coded for 0-1, 1-10, 10+
+    pt1 = c1
+    pt2 = cmasher.get_sub_cmap(c2, 0, 1)
+    pt3 = c3
+    
+    map1 = pt1 #0 to 1
+    map2 = pt2(np.linspace(0, 1, 100)) #1 to 10
+    map3 = pt3
+    
+    colors = np.vstack((map1, map2, map3))
+    tri_cmap = mcolors.ListedColormap(colors)
 
     return tri_cmap
     

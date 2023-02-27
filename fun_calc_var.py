@@ -132,6 +132,45 @@ def calc_decadal_climate_distance(darr, setDict):
     dcd.attrs['units'] = 'km'
 
     return dcd
+                                    
+def calc_seasonal_shift(darr, setDict):
+    ''' Calculate seasonal shift of a variable '''
+    mnthsForMn = 3
+    
+    if 'CESM2' in darr.scenario:
+        setYrs = setDict["calcIntvl"]["CESM2-ARISE"]
+    elif 'UKESM-ARISE' in darr.scenario:
+        setYrs = setDict["calcIntvl"]["UKESM-ARISE"]
+    elif 'GLENS' in darr.scenario:
+        setYrs = setDict["calcIntvl"]["GLENS"]
+    timeSliceCesm = slice(
+        cftime.DatetimeNoLeap(setYrs[0], 1, 1, 0, 0, 0, 0),
+        cftime.DatetimeNoLeap(setYrs[1], 12, 31, 0, 0, 0, 0))
+    timeSliceUkesm = slice(
+        cftime.Datetime360Day(setYrs[0], 1, 1, 0, 0, 0, 0),
+        cftime.Datetime360Day(setYrs[1], 12, 25, 0, 0, 0, 0))
+    try:
+        darrToi = darr.sel(time=timeSliceCesm)
+    except: # This will get messy when another model runs ARISE :)
+        darrToi = darr.sel(time=timeSliceUkesm)
+    
+    val = 3 # Month for which to calculate seasonal shift
+    monthsDarr = darr.groupby("time.month").mean()
+    preDarr = monthsDarr.sel(month=val-1)
+    postDarr = monthsDarr.sel(month=val+1)
+    rateOfChange = (postDarr - preDarr) / 2
+    marchDarr = darr.sel(time=is_val(darr['time.month'], val))
+    tGradDict = calc_temporal_grad(marchDarr, years=setYrs)
+    tGrad = tGradDict["grad"].compute() 
+    
+    ssnShiftMnYr = tGrad / rateOfChange # months/year
+    ssnShift = (ssnShiftMnYr * 10 * 365.25) / 12 # days/decade
+    ssnShift.attrs = darr.attrs
+    ssnShift.attrs['long_name'] = 'Seasonal shift of 2m temperature ' + str(val) \
+        + ' ' + str(setYrs[0]) + '-' + str(setYrs[1])
+    ssnShift.attrs['units'] = 'days/decade'
+    ic(check_stats(ssnShift))
+    return ssnShift
 
 ### Helper functions
 def check_stats(darr):
@@ -146,3 +185,8 @@ def check_stats(darr):
     }
 
     return statDict
+
+def is_val(month, val):
+    ''' Thanks to stackoverflow.com/a/40272331 for this idea! '''
+    mask = month == val
+    return mask

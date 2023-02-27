@@ -411,5 +411,3 @@ def generate_binary_landmask(inFileLandFrac, outPath):
 
 
 
-
-

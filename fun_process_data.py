@@ -85,7 +85,7 @@ def call_to_open(dataDict, setDict):
                     lf['scn'][rc] = fcufcv(rv) # Apply converter or calculator function(s)
                 except:
                     lf['scn'][rc] = fcufcv(rv, setDict) # Sometimes they need setDict
-
+    
     return lf['scn'], cmnDict
 
 def apply_mask(darr, dataDict, setDict):

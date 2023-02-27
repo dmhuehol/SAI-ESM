@@ -39,14 +39,19 @@ import region_library as rlib
 import fun_plot_tools as fpt
 duskPink = np.array([241/256, 191/256, 202/256, 1])
 tri_map = fpt.get_trifurcate_colormap('cmo.gray', 'cmr.amber', duskPink)
+toWinter = [0, 0, 1, 1]
+toSummer = [1, 0, 0, 1]
+ssnPal = seaborn.diverging_palette(
+    247, 321, s=100, l=50, as_cmap=True)
+tri_div = fpt.get_trifurcate_div_colormap(toWinter, ssnPal, toSummer)
 zmzmPal = seaborn.diverging_palette(
     285, 16, s=100, l=50, as_cmap=True)
-
+    
 zmzmDisc = fpt.get_cspd_colormap('zmzm')
 
 # Dictionaries to define inputs
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_tas/',
+    "dataPath": '/Users/dhueholt/Documents/ecology_data/monthly_tas/mergetime/',
     "idGlensCntrl": None,  # 'control_*' or None
     "idGlensFdbck": None,  # 'feedback_*' or None
     "idArise": '*SSP245-TSMLT-GAUSS*',  # '*SSP245-TSMLT-GAUSS*' or None
@@ -55,7 +60,7 @@ dataDict = {
     "idUkesmNoSai": '*ssp245*', #'*ssp245*' or None
     "idUkesmArise": '*arise-sai-1p5*', #'*arise-sai-1p5*' or None
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc', # Landmask file location (CESM)
-    "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
+    "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary_landtropicmask.nc' #Landmask file location (UKESM)
 }
 setDict = {
     "landmaskFlag": 'land',  # None no mask, 'land' to mask ocean, 'ocean' to mask land
@@ -64,17 +69,17 @@ setDict = {
         "CESM2-ARISE": [2045, 2054],
         "UKESM-ARISE": [2035, 2044]
         },
-    "convert": (fcu.kel_to_cel, fcv.calc_climate_speed),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
-    "cmap": zmzmDisc,  # None for default (cmocean balance) or choose colormap
-    "cbVals": [-51,51],  # None for automatic or [min,max] to override,
+    "convert": (fcu.kel_to_cel, fcv.calc_seasonal_shift),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
+    "cmap": tri_div,  # None for default (cmocean balance) or choose colormap
+    "cbVals": [-2.5,2.5],  # None for automatic or [min,max] to override,
     "addCyclicPoint": False,  # True for ocean data/False for others
     "areaAvgBool": False,  # ALWAYS FALSE: no area averaging for a map!
     "robustnessBool": False,  # True/False to run robustness
-    "plotPanel": 'UKESMARISE15', # See docstring for valid inputs
+    "plotPanel": 'UKESMS245', # See docstring for valid inputs
     "plotEnsType": 4 #'mean', 'max'/'min' pointwise max/min, number for single member
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230223_cbarObsgradFigs/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230224_seasonShift/',
     "dpiVal": 400
 }
 loopDict = {
