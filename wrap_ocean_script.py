@@ -1,6 +1,8 @@
 '''  wrap_ocean_script
-Runs functions to process Parallel Ocean Model (POP) output into friendlier
+Runs functions to process ocean model output into friendlier
 form. Uses multiprocessing when possible for efficiency.
+Currently, this code works for output from the Parallel Ocean Program (POP)
+and the Nucleus for European Modelling of the Ocean (NEMO) models.
 Before running: untar (run_untar_prep) and CDO (run_cdo_prep)
 In script:
     If 3D, extracts 2D field like SST or UOHC from 3D output
@@ -22,16 +24,16 @@ from multiprocessing import Process
 import numpy as np
 import xarray as xr
 
-import fun_calc_vars as fcv
+import fun_calc_var as fcv
 import fun_regrid_pop as frp
 import fun_process_data as fpd
 
 # Inputs
 # dataPath = '/glade/scratch/dhueholt/monthly_OCNO2/' #CASPER
-dataPath = '/Users/dhueholt/Documents/GLENS_data/monthly_aice/selname/sept/' #LOCAL
+dataPath = '/Users/dhueholt/Documents/ecology_data/annual_tos/'
 # outPath = '/glade/scratch/dhueholt/monthly_OCNO2/regrid/' #CASPER
-outPath = '/Users/dhueholt/Documents/GLENS_data/monthly_aice/selname/sept/regrid/' #LOCAL
-dataVar = 'aice' #Manually set data variable
+outPath = '/Users/dhueholt/Documents/ecology_data/annual_tos/regrid/' #LOCAL
+dataVar = 'tos' #Manually set data variable
 extract2d = False #fun_calc_vars function handle or False
 nProc = 1 #Spawn nProc+1 (due to zero indexing) processes for regridding
 
@@ -60,15 +62,17 @@ else:
         data2dList.append(darr2d)
 
 # Regrid to standard lat/lon and save
-# inPop = '/glade/work/dhueholt/grids/control_IFRAC_useForGrid.nc' #CASPER
-inPop = '/Users/dhueholt/Documents/GLENS_data/grids/control_IFRAC_useForGrid.nc' #LOCAL
-inNames = ['TLAT','TLONG'] #'TLAT','TLONG' for POP, 'lat', 'lon'
-popLat,popLon = frp.extract_pop_latlons(inPop,inNames[0],inNames[1])
+# inOcn = '/glade/work/dhueholt/grids/control_IFRAC_useForGrid.nc' #CASPER
+# inOcn = '/Users/dhueholt/Documents/GLENS_data/grids/control_IFRAC_useForGrid.nc' #LOCAL
+inOcn = '/Users/dhueholt/Documents/ecology_data/annual_tos/ssp245_r1i1p1f2_tos_201501-204912_205001-210012_annual.nc' #LOCAL
+inNames = ['latitude', 'longitude'] #'TLAT','TLONG' for POP, 'latitude','longitude' for NEMO, 'lat', 'lon'
+ocnCd1,ocnCd2 = frp.extract_ocn_latlons( # Extract ocean coordinates
+    inOcn, inNames[0], inNames[1])
 
 for dc, dv in enumerate(data2dList):
     lenDat = len(data2dList)
     if __name__== '__main__': #If statement required by multiprocessing
-        shard = Process(target=frp.operate_regrid_direct, args=(dv, popLat, popLon)) #Shard processes regrid files and save data in parallel
+        shard = Process(target=frp.operate_regrid_ukesm, args=(dv, ocnCd1, ocnCd2)) #Shard processes regrid files and save data in parallel
         if dc % nProc == 0 and dc != 0:
             shard.start()
             shard.join() #Forces nProc+1 processes to run to completion before starting more

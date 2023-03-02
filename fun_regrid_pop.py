@@ -13,22 +13,24 @@ import numpy as np
 import xarray as xr
 import scipy.interpolate as interp
 
-def extract_pop_latlons(popFile,latName,lonName):
-    ''' Extract lat/lons from the POP grid '''
-    popgrid = xr.open_dataset(popFile)
-    popLat = np.asarray(popgrid[latName].data)
-    popLon = np.asarray(popgrid[lonName].data)
+def extract_ocn_latlons(ocnFile, latName, lonName):
+    ''' Extract lat/lons from an ocean grid (POP, NEMO) '''
+    ocngrid = xr.open_dataset(ocnFile)
+    ocnLat = np.asarray(ocngrid[latName].data)
+    ocnLon = np.asarray(ocngrid[lonName].data)
 
-    return popLat, popLon
+    return ocnLat, ocnLon
 
 def regrid(dataIn,latIn,lonIn,latOut,lonOut):
     ''' Takes POP model output on a B-grid (T-cells for scalars,
-    U-cells for vectors) (latInxlonIn) and regrids to (latOutxlonOut) '''
+    U-cells for vectors) (latInxlonIn) or NEMO output on a C-grid
+    (i,j coordinates) and regrids to (latOutxlonOut) '''
 
     lonOut,latOut = np.meshgrid(lonOut,latOut) # make grid
     dataRg = np.ravel(dataIn) # move inputs to vectors
     lonRg = np.ravel(lonIn)
     latRg = np.ravel(latIn)
+    
     dataInterpRg = interp.griddata((latRg,lonRg),dataRg,(latOut,lonOut), method='linear')
 
     return dataInterpRg
@@ -92,5 +94,36 @@ def operate_regrid_direct(popDataArray, popLat, popLon):
 
     strOut = popDataArray.attrs['outFile'].replace(".nc","_RG.nc")
     outFile = popDataArray.attrs['outPath'] + strOut
+    newDset.to_netcdf(outFile)
+    ic(strOut, outFile, newDset)
+
+def operate_regrid_ukesm(ocnDataArray, ocnLat, ocnLon):
+    ''' Carry out the regridding and data processing operations from direct
+        DataArray input '''
+    varOfInt = ocnDataArray.data
+    time = ocnDataArray.time
+    latNew = np.arange(-89.375, 90, 1.25)
+    lonNew = np.arange(-180, 180, 1.875)
+    # lonNew360 = np.arange(0.9375, 360, 1.875)
+
+    dataRegrid = np.empty((varOfInt.shape[0], latNew.shape[0], lonNew.shape[0]))
+
+    for bc in range(varOfInt.shape[0]):
+        newDat = regrid(varOfInt[bc,:,:], ocnLat, ocnLon, latNew, lonNew)
+        dataRegrid[bc,:,:] = newDat
+
+    dataKey = ocnDataArray.name
+    newDset = xr.Dataset(
+        {dataKey: (("time","lat","lon"), dataRegrid)},
+        coords={
+            "time": time,
+            "lat": latNew,
+            "lon": lonNew
+        }
+    )
+    newDset[dataKey].attrs = ocnDataArray.attrs
+
+    strOut = ocnDataArray.attrs['outFile'].replace(".nc","_RG.nc")
+    outFile = ocnDataArray.attrs['outPath'] + strOut
     newDset.to_netcdf(outFile)
     ic(strOut, outFile, newDset)
