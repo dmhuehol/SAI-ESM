@@ -84,12 +84,14 @@ def calc_spatial_grad(darr):
 
 def calc_climate_speed(darr, setDict):
     ''' Calculate the climate speed of a variable '''
-    if 'CESM2' in darr.scenario:
+    if 'CESM2-ARISE' in darr.scenario:
         setYrs = setDict["calcIntvl"]["CESM2-ARISE"]
     elif 'UKESM-ARISE' in darr.scenario:
         setYrs = setDict["calcIntvl"]["UKESM-ARISE"]
     elif 'GLENS' in darr.scenario:
         setYrs = setDict["calcIntvl"]["GLENS"]
+    elif 'PreindustrialControl' in darr.scenario:
+        setYrs = setDict["calcIntvl"]["piControl"]
     timeSliceCesm = slice(
         cftime.DatetimeNoLeap(setYrs[0], 7, 15, 12, 0, 0, 0),
         cftime.DatetimeNoLeap(setYrs[1], 7, 15, 12, 0, 0, 0))
@@ -100,7 +102,7 @@ def calc_climate_speed(darr, setDict):
         darrToi = darr.sel(time=timeSliceCesm)
     except: # This will get messy when another model runs ARISE :)
         darrToi = darr.sel(time=timeSliceUkesm)
-
+        
     tGradDict = calc_temporal_grad(darrToi, years=setYrs)
     tGrad = tGradDict["grad"].compute()
     darrTimeMn = darrToi.mean(dim='time')
@@ -114,9 +116,14 @@ def calc_climate_speed(darr, setDict):
     climSpd.attrs['units'] = 'km/yr'
     
     # Display for troubleshooting
-    ic(check_stats(tGrad.data))
+    # ic(check_stats(tGrad.data))
     # ic(check_stats(sGrad.data))
+    ic(climSpd.scenario)
+    # for rc in np.arange(0,10):
+        # ic(rc)
+        # ic(check_stats(climSpd.isel(realization=rc).data))
     # ic(check_stats(climSpd.data))
+    # sys.exit('STOP')
     # ic(climSpd.attrs)
     return climSpd
 
@@ -130,6 +137,9 @@ def calc_decadal_climate_distance(darr, setDict):
     dcd.attrs['long_name'] = climSpd.attrs['long_name'].replace(
         'Climate speed', 'Decadal climate distance')
     dcd.attrs['units'] = 'km'
+    for rc in np.arange(0,5):
+        ic(check_stats(dcd.isel(realization=rc).data))
+    sys.exit('STOP')
 
     return dcd
                                     

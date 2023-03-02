@@ -10,7 +10,7 @@ setDict: settings for analysis/visualization
         'GLENS': GLENS-SAI
         'CESMARISE15': CESM2-ARISE-SAI-1.5
         'UKESMARISE15': UKESM-ARISE-SAI-1.5
-        any other value: make a blank map
+        'CESM2PIC': CESM2 preindustrial control
 outDict: output image settings
 loopDict: determines which images are made
     rlzs: 
@@ -51,14 +51,15 @@ zmzmDisc = fpt.get_cspd_colormap('zmzm')
 
 # Dictionaries to define inputs
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/ecology_data/monthly_tas/mergetime/',
+    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_tas/',
     "idGlensCntrl": None,  # 'control_*' or None
     "idGlensFdbck": None,  # 'feedback_*' or None
     "idArise": '*SSP245-TSMLT-GAUSS*',  # '*SSP245-TSMLT-GAUSS*' or None
-    "idS245Cntrl": '*BWSSP245*',  # '*BWSSP245*' or None
-    "idS245Hist": '*BWHIST*',  # '*BWHIST*' or None
-    "idUkesmNoSai": '*ssp245*', #'*ssp245*' or None
+    "idS245Cntrl": None,  # '*BWSSP245*' or None
+    "idS245Hist": None,  # '*BWHIST*' or None
+    "idUkesmNoSai": None, #'*ssp245*' or None
     "idUkesmArise": '*arise-sai-1p5*', #'*arise-sai-1p5*' or None
+    "idPiControl": '*piControl*', #'*piControl*' or None
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc', # Landmask file location (CESM)
     "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary_landtropicmask.nc' #Landmask file location (UKESM)
 }
@@ -66,20 +67,21 @@ setDict = {
     "landmaskFlag": 'land',  # None no mask, 'land' to mask ocean, 'ocean' to mask land
     "calcIntvl": { # Years to calculate
         "GLENS": [2020, 2029],
-        "CESM2-ARISE": [2045, 2054],
-        "UKESM-ARISE": [2035, 2044]
+        "CESM2-ARISE": [2035, 2044],
+        "UKESM-ARISE": [2035, 2044],
+        "piControl": [10, 19],
         },
-    "convert": (fcu.kel_to_cel, fcv.calc_seasonal_shift),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
-    "cmap": tri_div,  # None for default (cmocean balance) or choose colormap
-    "cbVals": [-2.5,2.5],  # None for automatic or [min,max] to override,
+    "convert": (fcu.kel_to_cel, fcv.calc_decadal_climate_distance,),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
+    "cmap": zmzmDisc,  # None for default (cmocean balance) or choose colormap
+    "cbVals": [-51,51],  # None for automatic or [min,max] to override,
     "addCyclicPoint": False,  # True for ocean data/False for others
     "areaAvgBool": False,  # ALWAYS FALSE: no area averaging for a map!
     "robustnessBool": False,  # True/False to run robustness
-    "plotPanel": 'UKESMS245', # See docstring for valid inputs
-    "plotEnsType": 4 #'mean', 'max'/'min' pointwise max/min, number for single member
+    "plotPanel": 'UKESMARISE15', # See docstring for valid inputs
+    "plotEnsType": 2 #'mean', 'max'/'min' pointwise max/min, number for single member
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230224_seasonShift/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230302_pi/',
     "dpiVal": 400
 }
 loopDict = {
@@ -94,10 +96,6 @@ ic(dataDict, setDict, outDict, loopDict)  # Show input settings at command line
 for rlz in loopDict["rlzs"]:
     setDict["realization"] = rlz
     scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-    # for rc in scnList[0].realization:
-    #     ic(fcv.check_stats(scnList[0].isel(realization=rc).data))
-    # ic(scnList, cmnDict)
-    # sys.exit('STOP')
     dataDict = {**dataDict, **cmnDict}
 
     for lev in loopDict["levels"]:

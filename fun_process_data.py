@@ -37,9 +37,16 @@ def call_to_open(dataDict, setDict):
                 rawDset = xr.open_mfdataset(
                     inPath, concat_dim='realization', 
                     combine='nested', coords='minimal')
+                try:
+                    sourceId = rawDset.attrs['source_id']
+                except:
+                    sourceId = None
                 dataKey = discover_data_var(rawDset)
                 rawDarr = rawDset[dataKey]
                 scnDarr = bind_scenario(rawDarr, dataDict[dky])
+                if scnDarr.scenario == 'PreindustrialControl': 
+                # TODO: make this elegant for all
+                    scnDarr.attrs['scenario'] = sourceId + ':' + scnDarr.scenario
                 maskDarr = apply_mask(scnDarr, dataDict, setDict)
                 if 'CESM2-ARISE:Control' in scnDarr.scenario: # Two parts: historical and future
                     lf['chf'].append(maskDarr) # Keep separate for now
@@ -157,6 +164,8 @@ def bind_scenario(darr, inID):
         darr.attrs['scenario'] = 'UKESM-ARISE:Control/No-SAI/UKESM-SSP2-4.5'
     elif 'arise-sai-1p5' in inID:
         darr.attrs['scenario'] = 'UKESM-ARISE:Feedback/SAI/UKESM-ARISE-SAI-1.5'
+    elif 'piControl' in inID:        
+        darr.attrs['scenario'] = 'PreindustrialControl'
     else:
         ic('Unable to match scenario, binding empty string to array')
         darr.attrs['scenario'] = ''
@@ -209,6 +218,8 @@ def manage_realizations(setDict, darr, emem):
             scnStr = 'ukan' #ukarisenosai
         elif 'UKESM-ARISE:SAI' in darr.scenario:
             scnStr = 'ukas' #ukarisesai
+        elif 'PreindustrialControl' in darr.scenario:
+            scnStr = 'pi'
         else:
             ic('Unknown scenario!')
             #No sys.exit(); want to know what the error is

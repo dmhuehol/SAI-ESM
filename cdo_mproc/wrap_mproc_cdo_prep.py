@@ -2,7 +2,17 @@
 Runs functions to process data into friendlier forms, i.e. selecting months or
 calculating annual mean values. Uses multiprocessing for efficiency.
 
-Written by Daniel Hueholt | February 2022
+Valid IN_TOKENS: 
+    '*ssp245*': UKESM no-SAI SSP2-4.5
+    '*arise-sai*': UKESM-ARISE-SAI-1.5
+    '*control*': GLENS no-SAI RCP8.5
+    '*feedback*': GLENS SAI
+    '*SSP245-TSMLT*': CESM2-ARISE-SAI-1.5
+    '*BWSSP245*': CESM2(WACCM6) no-SAI SSP2-4.5
+    '*BWHIST*': CESM2(WACCM6) Historical
+    '*piControl*': CESM2(WACCM6) preindustrial control
+
+Written by Daniel Hueholt
 Graduate Research Assistant at Colorado State University
 '''
 
@@ -152,17 +162,17 @@ nProc = 1
 
 # Shell inputs
 # IN_PATH = '/glade/scratch/dhueholt/monthly_ICEEXTENT/'
-IN_PATH = '/Users/dhueholt/Documents/ecology_data/monthly_tas/'
-IN_TOKEN = ['*ssp245*', '*arise-sai*'] #['*control*','*feedback*','*SSP245-TSMLT*','*BWSSP245*','*BWHIST*'] #GLENS, ARISE, ARISE control, historical
+IN_PATH = '/Users/dhueholt/Documents/ecology_data/picontrol_monthly_tas/'
+IN_TOKEN = ['*piControl*',] # See docstring for valid tokens
 # OUT_PATH = '/glade/scratch/dhueholt/sept_ICEEXTENT/'
-OUT_PATH = '/Users/dhueholt/Documents/ecology_data/monthly_tas/mergetime/'
+OUT_PATH = '/Users/dhueholt/Documents/ecology_data/picontrol_annual_tas/'
 
 if __name__== '__main__':
         lengthFiles = np.size(EMEM)
         for scen in IN_TOKEN:
             for rc,rv in enumerate(EMEM):
                 # Instantiate a new process
-                p = Process(target=cdo_mergetime, args=(IN_PATH, scen+rv, OUT_PATH))
+                p = Process(target=cdo_annualmean, args=(IN_PATH, scen+rv, OUT_PATH))
                 if rc % nProc == 0 and rc != 0:
                     # Run nProc number of processes at a time
                     p.start()

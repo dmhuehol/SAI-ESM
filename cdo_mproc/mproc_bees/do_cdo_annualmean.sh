@@ -27,7 +27,16 @@ RUN_TIMES=()
 RUN_ENSNUMS=()
 for f in $IN_CARD; do
   ACTIVE_FNAME=${f:$PATH_LENGTH} #Extract filename from rest of directory structure
-  if [[ "$ACTIVE_FNAME" == *"CESM2-WACCM"* ]]; then #CMIP6 processed
+  if [[ "$ACTIVE_FNAME" == *"UKESM"* ]]; then #UKESM (CMIP6) format
+    ACTIVE_FNAME=${ACTIVE_FNAME//_/.}
+    RUN_FNAMES+=( $ACTIVE_FNAME )
+    ACTIVE_TIME=$(echo $ACTIVE_FNAME | cut -d'.' -f7)
+    RUN_TIMES+=( $ACTIVE_TIME )
+    ACTIVE_ENSNUM=$(echo $ACTIVE_FNAME | cut -d'.' -f5)
+    RUN_ENSNUMS+=( $ACTIVE_ENSNUM )
+    RUN_TYPE=$(echo $ACTIVE_FNAME | cut -d'.' -f4)
+    RUN_VAR=$(echo $ACTIVE_FNAME | cut -d'.' -f1)
+  elif [[ "$ACTIVE_FNAME" == *"piControl"* ]]; then #preindustrial control (CMIP6 format)
     ACTIVE_FNAME=${ACTIVE_FNAME//_/.}
     RUN_FNAMES+=( $ACTIVE_FNAME )
     ACTIVE_TIME=$(echo $ACTIVE_FNAME | cut -d'.' -f7)
