@@ -52,6 +52,8 @@ def plot_single_slice_globe(rlzList, dataDict, setDict, outDict):
         actData = scnDict['UKESM-SSP2-4.5']
     elif setDict["plotPanel"] == 'UKESMARISE15':
         actData = scnDict['UKESM-ARISE-SAI-1.5']
+    elif setDict["plotPanel"] == 'CESM2PIC':
+        actData = scnDict['CESM2-WACCM:PreindustrialControl']
     else:
         sys.exit('Check plotPanel input')
 
@@ -70,7 +72,6 @@ def plot_single_slice_globe(rlzList, dataDict, setDict, outDict):
     panelStr = setDict["plotPanel"]
 
     CL = 0.
-
     mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     fig = plt.figure(figsize=(12, 2.73*2))
     ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
@@ -85,7 +86,7 @@ def plot_single_slice_globe(rlzList, dataDict, setDict, outDict):
     plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
     fpt.drawOnGlobe(
         ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1],
-        cbarBool=True, fastBool=True, extent='both',
+        cbarBool=False, fastBool=True, extent='both',
         addCyclicPoint=setDict["addCyclicPoint"], alph=1)
 
     savePrfx = '' #Easy modification for unique filename
