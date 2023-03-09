@@ -61,7 +61,7 @@ dataDict = {
     "idUkesmArise": '*arise-sai-1p5*', #'*arise-sai-1p5*' or None
     "idPiControl": '*piControl*', #'*piControl*' or None
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc', # Landmask file location (CESM)
-    "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary_landtropicmask.nc' #Landmask file location (UKESM)
+    "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
 }
 setDict = {
     "landmaskFlag": 'land',  # None no mask, 'land' to mask ocean, 'ocean' to mask land
@@ -71,17 +71,17 @@ setDict = {
         "UKESM-ARISE": [2035, 2044],
         "piControl": [10, 19],
         },
-    "convert": (fcu.kel_to_cel, fcv.calc_decadal_climate_distance,),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
+    "convert": (fcu.kel_to_cel, fcv.calc_climate_speed,),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
     "cmap": zmzmDisc,  # None for default (cmocean balance) or choose colormap
     "cbVals": [-51,51],  # None for automatic or [min,max] to override,
     "addCyclicPoint": False,  # True for ocean data/False for others
     "areaAvgBool": False,  # ALWAYS FALSE: no area averaging for a map!
     "robustnessBool": False,  # True/False to run robustness
     "plotPanel": 'UKESMARISE15', # See docstring for valid inputs
-    "plotEnsType": 2 #'mean', 'max'/'min' pointwise max/min, number for single member
+    "plotEnsType": 'mean' #'mean', 'max'/'min' pointwise max/min, number for single member
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230302_pi/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230308_vecAgain/',
     "dpiVal": 400
 }
 loopDict = {

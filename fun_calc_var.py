@@ -17,6 +17,29 @@ import scipy.ndimage as sndimg
 from sklearn.linear_model import LinearRegression
 import xarray as xr
 
+def time_slice_darr(darr, setDict):
+    '''Make darr over times of interest from input years'''
+    if 'CESM2-ARISE' in darr.scenario:
+        setYrs = setDict["calcIntvl"]["CESM2-ARISE"]
+    elif 'UKESM-ARISE' in darr.scenario:
+        setYrs = setDict["calcIntvl"]["UKESM-ARISE"]
+    elif 'GLENS' in darr.scenario:
+        setYrs = setDict["calcIntvl"]["GLENS"]
+    elif 'PreindustrialControl' in darr.scenario:
+        setYrs = setDict["calcIntvl"]["piControl"]
+    timeSliceCesm = slice(
+        cftime.DatetimeNoLeap(setYrs[0], 7, 15, 12, 0, 0, 0),
+        cftime.DatetimeNoLeap(setYrs[1], 7, 15, 12, 0, 0, 0))
+    timeSliceUkesm = slice(
+        cftime.Datetime360Day(setYrs[0], 6, 30, 0, 0, 0, 0),
+        cftime.Datetime360Day(setYrs[1], 6, 30, 0, 0, 0, 0))    
+    try:
+        darrToi = darr.sel(time=timeSliceCesm)
+    except: # This will get messy when another model runs ARISE :)
+        darrToi = darr.sel(time=timeSliceUkesm)
+        
+    return darrToi
+
 def calc_temporal_grad(darr, years):
     ''' Calculate temporal gradient for an array. Vectorized linear
     regression is strongly based on implementation found at:
@@ -44,9 +67,8 @@ def calc_temporal_grad(darr, years):
 
     return temporalGrad
 
-def calc_spatial_grad(darr):
-    ''' Calculate spatial gradient '''
-    ic()
+def calc_spatial_grad_comp(darr):
+    ''' Calculate spatial gradient components '''
     lats = darr.lat.data
     lons = darr.lon.data
     earthRad = 6371000 / 1000 #Earth's radius in km
@@ -76,55 +98,41 @@ def calc_spatial_grad(darr):
         ewGrad = sndimg.sobel(darr, axis=1, mode='reflect')
     nsGradSc = nsGrad / (8 * distY)
     ewGradSc = ewGrad / (8 * distX)
-    # Total spatial gradient
-    totGrad = np.sqrt((nsGradSc ** 2) + (ewGradSc ** 2))
-    spatGrad = totGrad
 
-    return spatGrad
+    return nsGradSc, ewGradSc
+    
+def calc_spat_temp_grad(darr, setDict):
+    ''' Calculate spatial and temporal gradients of temperature
+    (common tasks for several variables) '''
+    darrToi = time_slice_darr(darr, setDict)
+    yrSpan = [
+            darrToi.time.dt.year.data[0],
+            darrToi.time.dt.year.data[-1]]
+    tGradDict = calc_temporal_grad(darrToi, years=yrSpan)
+    tGrad = tGradDict["grad"].compute()
+    darrTimeMn = darrToi.mean(dim='time')
+    nsGrad, ewGrad = calc_spatial_grad_comp(darrTimeMn)
+    
+    return tGrad, nsGrad, ewGrad, yrSpan
 
 def calc_climate_speed(darr, setDict):
     ''' Calculate the climate speed of a variable '''
-    if 'CESM2-ARISE' in darr.scenario:
-        setYrs = setDict["calcIntvl"]["CESM2-ARISE"]
-    elif 'UKESM-ARISE' in darr.scenario:
-        setYrs = setDict["calcIntvl"]["UKESM-ARISE"]
-    elif 'GLENS' in darr.scenario:
-        setYrs = setDict["calcIntvl"]["GLENS"]
-    elif 'PreindustrialControl' in darr.scenario:
-        setYrs = setDict["calcIntvl"]["piControl"]
-    timeSliceCesm = slice(
-        cftime.DatetimeNoLeap(setYrs[0], 7, 15, 12, 0, 0, 0),
-        cftime.DatetimeNoLeap(setYrs[1], 7, 15, 12, 0, 0, 0))
-    timeSliceUkesm = slice(
-        cftime.Datetime360Day(setYrs[0], 6, 30, 0, 0, 0, 0),
-        cftime.Datetime360Day(setYrs[1], 6, 30, 0, 0, 0, 0))
-    try:
-        darrToi = darr.sel(time=timeSliceCesm)
-    except: # This will get messy when another model runs ARISE :)
-        darrToi = darr.sel(time=timeSliceUkesm)
-        
-    tGradDict = calc_temporal_grad(darrToi, years=setYrs)
-    tGrad = tGradDict["grad"].compute()
-    darrTimeMn = darrToi.mean(dim='time')
-    sGrad = calc_spatial_grad(darrTimeMn)
+    tGrad, nsGrad, ewGrad, yrSpan = calc_spat_temp_grad(darr, setDict)
+    totGrad = np.sqrt((nsGrad ** 2) + (ewGrad ** 2))
+    sGrad = totGrad   
 
     climSpd = tGrad / sGrad
     climSpd.attrs = darr.attrs
     # TODO: make attribute generation flexible by variable
     climSpd.attrs['long_name'] = 'Climate speed of 2m temperature' \
-        + ' ' + str(setYrs[0]) + '-' + str(setYrs[1])
+        + ' ' + str(yrSpan[0]) + '-' + str(yrSpan[1])
     climSpd.attrs['units'] = 'km/yr'
     
     # Display for troubleshooting
     # ic(check_stats(tGrad.data))
     # ic(check_stats(sGrad.data))
-    ic(climSpd.scenario)
-    # for rc in np.arange(0,10):
-        # ic(rc)
-        # ic(check_stats(climSpd.isel(realization=rc).data))
     # ic(check_stats(climSpd.data))
-    # sys.exit('STOP')
-    # ic(climSpd.attrs)
+    
     return climSpd
 
 def calc_decadal_climate_distance(darr, setDict):
@@ -137,11 +145,43 @@ def calc_decadal_climate_distance(darr, setDict):
     dcd.attrs['long_name'] = climSpd.attrs['long_name'].replace(
         'Climate speed', 'Decadal climate distance')
     dcd.attrs['units'] = 'km'
-    for rc in np.arange(0,5):
-        ic(check_stats(dcd.isel(realization=rc).data))
-    sys.exit('STOP')
 
     return dcd
+                                    
+def calc_climate_velocity(darr, setDict):
+    ''' Calculate the climate velocity (vector form) of a variable '''
+    tGrad, nsGrad, ewGrad, yrsSpan = calc_spat_temp_grad(darr, setDict)
+    nsClimVel = tGrad / nsGrad
+    ewClimVel = tGrad / ewGrad
+    # ewGrad, nsGrad
+    totGrad = np.sqrt((nsGrad ** 2) + (ewGrad ** 2))
+    sGrad = totGrad   
+    climSpd = tGrad / sGrad
+    
+    climVelDs = xr.Dataset(
+        data_vars = dict(
+            ns=(["realization","lat","lon"], nsClimVel.data),
+            ew=(["realization","lat","lon"], ewClimVel.data),
+            cspd=(["realization","lat","lon"], climSpd.data)
+        ),
+        coords={
+            "realization": tGrad['realization'].data,
+            "lat": tGrad['lat'],
+            "lon": tGrad['lon']
+        }
+    )
+    climVelDs['ns'].attrs['long_name'] = 'Climate velocity of 2m temp (N-S)'
+    climVelDs['ns'].attrs['scenario'] = darr.scenario
+    climVelDs['ns'].attrs['units'] = 'km/yr'
+    climVelDs['ew'].attrs['long_name'] = 'Climate velocity of 2m temp (E-W)'
+    climVelDs['ew'].attrs['scenario'] = darr.scenario
+    climVelDs['ew'].attrs['units'] = 'km/yr'
+    climVelDs['cspd'].attrs['long_name'] = 'Climate speed of 2m temp'
+    climVelDs['cspd'].attrs['scenario'] = darr.scenario
+    climVelDs['cspd'].attrs['units'] = 'km/yr'
+    climVelDs.attrs['scenario'] = darr.scenario
+
+    return climVelDs
                                     
 def calc_seasonal_shift(darr, setDict):
     ''' Calculate seasonal shift of a variable '''
