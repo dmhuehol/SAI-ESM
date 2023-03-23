@@ -54,12 +54,12 @@ setDict = {
     "addCyclicPoint": False,  # True for ocean data/False for others
     "areaAvgBool": False,  # ALWAYS FALSE: no area averaging for a map!
     "robustnessBool": False,  # True/False to run robustness
-    "plotPanel": 'UKESMS245', # See docstring for valid inputs
+    "plotPanel": 'UKESMARISE15', # See docstring for valid inputs
     "plotEnsType": 'mean' #'mean', 'max'/'min' pointwise max/min, number for single member
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230308_vecAgain/',
-    "dpiVal": 500
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230309_vecStatDot/',
+    "dpiVal": 600
 }
 loopDict = {
     "rlzs": ('allplot',),  # See docstring for valid inputs
