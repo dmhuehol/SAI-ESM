@@ -17,10 +17,10 @@ sd = {
     "trials": 10000
 }
 
-rbd = {
-    "beatNum": 6,
-    "muteThresh": 7,
-    "nRlz": 10 #ARISE=10, GLENS=21
+rbd = { # Commented values used in Hueholt et al. 2023
+    "beatNum": 11, #ARISE=5, GLENS=11
+    "muteThresh": 15, #ARISE=7, GLENS=15
+    "nRlz": 21 #ARISE=10, GLENS=21
 }
 
 holdRbst = list()
@@ -57,10 +57,24 @@ for t in np.arange(0, sd["trials"]):
 ic(fun_robustness.get_quantiles(holdRbst))
 ic(st.mode(holdRbst))
 
-# Calculate z-score, p-value as a matter of interest. We prefer to discuss
-# robustness in terms of the percent of randomly-generated values that the
-# threshold falls outside of. See Hueholt et al. 2023 supplementary for details.
-# z = (rbd["muteThresh"]-np.mean(holdRbst))/np.std(holdRbst)
-# ic(z)
-# p = st.norm.sf(abs(-z))
-# ic(p)
+# We prefer to discuss robustness in terms of the percent of 
+# randomly-generated values that the threshold falls outside. We believe
+# this is the most intuitive way to understand the information that
+# robustness conveys about the consistency of a response. However, it is 
+# possible to formally describe this in terms of statistical significance
+# using a Sign Test as in the following code. The thresholds we recommend
+# for GLENS (beatNum=11, muteThresh=15) and ARISE (beatNum=6, muteThresh=7)
+# correspond to significance at the p<0.1 value.
+# See Hueholt et al. 2023 supplementary for more details.
+td = {
+    "p": (rbd["nRlz"] - rbd["beatNum"]) / rbd["nRlz"], # inherit from beat number
+    "n": rbd["nRlz"], # number of tests
+    "x": rbd["muteThresh"] # meaningful value
+}
+ic(td)
+holdProb = list()
+for xc in np.arange(td["x"], td["n"]+1):
+    prob = fun_robustness.sign_test(td["p"], td["n"], xc)
+    holdProb.append(prob)
+pValueSignTest = np.sum(holdProb)
+ic(pValueSignTest)

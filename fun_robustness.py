@@ -8,6 +8,7 @@ from icecream import ic
 import sys
 
 import cftime
+from math import factorial as factrl
 import numpy as np
 import xarray as xr
 
@@ -110,3 +111,10 @@ def get_quantiles(robustness):
     ic(rbstQuant)
 
     return rbstQuant
+
+def sign_test(p, n, x):
+    ''' Compute the sign test, used for statistical
+    significance of robustness '''
+    prob = factrl(n) / (factrl(x) * factrl(n - x)) \
+        * (p ** x) * ((1 - p) ** (n - x))
+    return prob

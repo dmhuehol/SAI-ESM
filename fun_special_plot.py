@@ -49,6 +49,7 @@ def save_colorbar(cbarDict, savePath, saveName, dpiVal=400):
             print(label)
             # label.set_fontproperties(FiraSansThin) #Set font
             label.set_fontsize(0) #Set font size
+        cb.set_ticks([])
     elif cbarDict["direction"] == 'vertical':
         plt.figure(figsize=(2.5,9))
         img = plt.imshow(cbarRange, cmap=cbarDict["cmap"])
