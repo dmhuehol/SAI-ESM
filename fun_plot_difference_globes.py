@@ -89,7 +89,8 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
 
     # Plotting –– map
     CL = 0.
-    mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
+    mapProj = cartopy.crs.Orthographic(180, -90)#N: (0,90) S: (180,-90) 
+    # mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     fig = plt.figure(figsize=(12, 2.73*2))
     ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
     cmap = cmocean.cm.balance if setDict["cmap"] is None else setDict["cmap"]
@@ -103,7 +104,7 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
     fpt.drawOnGlobe(
         ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1],
-        cbarBool=False, fastBool=True, extent='max',
+        cbarBool=True, fastBool=True, extent='max',
         addCyclicPoint=setDict["addCyclicPoint"], alph=1)
 
     # Plotting –– image muting by adding separate layer of muted data
@@ -143,7 +144,7 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     # plt.title(" ") #No automatic title, 1-panel is used for custom figures
 
     # Plotting –– settings for output file
-    savePrfx = '' #Easy modification for unique filename
+    savePrfx = 'SPole_' #Easy modification for unique filename
     if 'CESM2-ARISE' in panel.scenario:
         saveStr = panelStr + '_' + md['varSve'] + '_' + md['levSve'] \
             + '_' + md['lstDcd']["CESM2-ARISE"] + '_' + md['ensStr'] \

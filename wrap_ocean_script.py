@@ -29,13 +29,13 @@ import fun_regrid_pop as frp
 import fun_process_data as fpd
 
 # Inputs
-# dataPath = '/glade/scratch/dhueholt/monthly_OCNO2/' #CASPER
-dataPath = '/Users/dhueholt/Documents/ecology_data/annual_tos/'
-# outPath = '/glade/scratch/dhueholt/monthly_OCNO2/regrid/' #CASPER
-outPath = '/Users/dhueholt/Documents/ecology_data/annual_tos/regrid/' #LOCAL
-dataVar = 'tos' #Manually set data variable
+dataPath = '/glade/scratch/dhueholt/ukesm/annual_tob/' #CASPER
+# dataPath = '/Users/dhueholt/Documents/ecology_data/annual_tos/'
+outPath = '/glade/scratch/dhueholt/ukesm/annual_tob/regrid/' #CASPER
+# outPath = '/Users/dhueholt/Documents/ecology_data/annual_tos/regrid/' #LOCAL
+dataVar = 'tob' #Manually set data variable
 extract2d = False #fun_calc_vars function handle or False
-nProc = 1 #Spawn nProc+1 (due to zero indexing) processes for regridding
+nProc = 5 #Spawn nProc+1 (due to zero indexing) processes for regridding
 
 # Open files
 strList = sorted(glob.glob(dataPath + "*.nc"))
@@ -63,8 +63,9 @@ else:
 
 # Regrid to standard lat/lon and save
 # inOcn = '/glade/work/dhueholt/grids/control_IFRAC_useForGrid.nc' #CASPER
+inOcn = '/glade/work/dhueholt/grids/tob_Omon_UKESM1-0-LL_arise-sai-1p5_r1i1p1f2_gn_203501-204912.nc' #CASPER
 # inOcn = '/Users/dhueholt/Documents/GLENS_data/grids/control_IFRAC_useForGrid.nc' #LOCAL
-inOcn = '/Users/dhueholt/Documents/ecology_data/annual_tos/ssp245_r1i1p1f2_tos_201501-204912_205001-210012_annual.nc' #LOCAL
+# inOcn = '/Users/dhueholt/Documents/ecology_data/annual_tos/ssp245_r1i1p1f2_tos_201501-204912_205001-210012_annual.nc' #LOCAL
 inNames = ['latitude', 'longitude'] #'TLAT','TLONG' for POP, 'latitude','longitude' for NEMO, 'lat', 'lon'
 ocnCd1,ocnCd2 = frp.extract_ocn_latlons( # Extract ocean coordinates
     inOcn, inNames[0], inNames[1])

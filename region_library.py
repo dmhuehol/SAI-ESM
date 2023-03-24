@@ -428,6 +428,16 @@ def NoLandLatitude():
     }
 
     return regDict
+    
+def SouthernOceanClouds():
+    regDict = {
+        "regStr": 'SouthernOceanClouds',
+        "regSaveStr": 'SouthernOceanClouds',
+        "regLats": np.array([-65,-45]),
+        "regLons": np.array([0,360])
+    }
+
+    return regDict
 
 ## Equatorial special regions
 

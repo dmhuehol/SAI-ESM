@@ -159,9 +159,9 @@ def drawOnGlobe(
     if(cbarBool):
         cb = plt.colorbar(
             image, shrink=.75, orientation="vertical", 
-            pad=.02, extend=extent,
+            pad=.02, extend=extent)
             #0-2, 2-10, 10-30, 30-50, 50+
-            ticks=[-50,-30,-10,-2,2,10,30,50])
+            # ticks=[-50,-30,-10,-2,2,10,30,50])
             # ticks=[-2,-1,0,1,2])
         cb.ax.tick_params(labelsize=6) #def: labelsize=6
         try:

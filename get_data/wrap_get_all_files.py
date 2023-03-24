@@ -10,8 +10,8 @@ import sys
 
 import subprocess
 
-copyBeesCasper = '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/get_data/get_bees/'
-copyBeesLocal = '/Users/dhueholt/Documents/GitHub/SAI-CESM/get_data/get_bees/'
+copyBeesCasper = '/glade/u/home/dhueholt/SAI-ESM/get_data/get_bees/'
+copyBeesLocal = '/Users/dhueholt/Documents/GitHub/SAI-ESM/get_data/get_bees/'
 copyBeesPath = copyBeesCasper
 
 def get_glens_all(IN_TOKEN, MOD_TOKEN, TIME_TOKEN, OUT_PATH):
@@ -36,25 +36,25 @@ def get_hist(IN_TOKEN, MOD_TOKEN, TIME_TOKEN, OUT_PATH):
 
 # Inputs
 scnDict = {
-    "glens": True,
+    "glens": False,
     "ariseFdbck": True,
     "ariseCntrl": True,
     "hist": False,
 }
 inTokens = {
     "glens": "PRECT",
-    "ariseFdbck": "*.PRECT.*",
-    "ariseCntrl": "*.PRECT.*",
+    "ariseFdbck": "*.TEMP.*",
+    "ariseCntrl": "*.TEMP.*",
     "hist": "*.TREFHT.*",
 }
-modToken = "lnd" #mod e.g. ocn, atm, lnd
+modToken = "ocn" #mod e.g. ocn, atm, lnd
 inTimes = { #timecode/
     "glens": "daily/",
-    "ariseFdbck": "day_1/",
-    "ariseCntrl": "day_1/",
+    "ariseFdbck": "month_1/",
+    "ariseCntrl": "month_1/",
     "hist": "month_1/",
 }
-outPath = '/glade/scratch/dhueholt/daily_PRECT/'
+outPath = '/glade/scratch/dhueholt/monthly_TEMP/'
 
 for scn in scnDict.keys():
     if scnDict[scn] == True:

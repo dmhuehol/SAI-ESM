@@ -36,7 +36,7 @@ import region_library as rlib
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_tas/',
+    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_tos/regrid/',
     "idGlensCntrl": None,  # 'control_*' or None
     "idGlensFdbck": None,  # 'feedback_*' or None
     "idArise": None,  # '*SSP245-TSMLT-GAUSS*' or None
@@ -50,7 +50,7 @@ dataDict = {
 setDict = {
     "landmaskFlag": None, # None or 'land'
     "areaAvgBool": True, # see docstring for valid inputs
-    "convert": (fcu.kel_to_cel,), #TUPLE of converter(s), or None if using default units
+    "convert": None, #TUPLE of converter(s), or None if using default units
     "realization": 'ensplot',
     "styleFlag": 0, # see docstring for valid inputs
     "mute": False, #True/False to use image muting on parts of time period
@@ -60,13 +60,13 @@ setDict = {
     "xticks": True, #True/False to enable/disable x-axis tick labels
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230209_incorpUkesmClimvel/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230323_theStateOfThings/',
     "addToSaveStr": None,
     "dpiVal": 400
 }
 loopDict = {
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": ('global', rlib.Amazon(), rlib.Arctic(), rlib.Antarctica(), rlib.Sahara(), rlib.WestNorthAmerica(), rlib.NorthEurope(), rlib.NoLandLatitude(), rlib.CentralAsia(), rlib.AlaskaNorthwestCanada()) #rlib.region() for single (rlib.region(), rlib.region()) to concatenate)
+    "regions": ('global', rlib.SouthernOcean(), rlib.NoLandLatitude(), rlib.DrakePassage(), rlib.LeeuwinCurrent(), rlib.SouthernOceanClouds()) #rlib.region() for single (rlib.region(), rlib.region()) to concatenate)
 }
 
 ic(dataDict, setDict, outDict) #Lowers chances of making the wrong plots by mistake

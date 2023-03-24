@@ -25,8 +25,8 @@ import numpy as np
 import subprocess
 
 def cdo_annualmean(IN_PATH, IN_TOKEN, OUT_PATH):
-    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-ESM/cdo_mproc/mproc_bees/do_cdo_annualmean.sh', IN_PATH, IN_TOKEN, OUT_PATH])
-    # subprocess.run(['sh', '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_annualmean.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    # subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-ESM/cdo_mproc/mproc_bees/do_cdo_annualmean.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    subprocess.run(['sh', '/glade/u/home/dhueholt/SAI-ESM/cdo_mproc/mproc_bees/do_cdo_annualmean.sh', IN_PATH, IN_TOKEN, OUT_PATH])
     return None
 
 def cdo_annualmean_pp(IN_PATH, IN_TOKEN, OUT_PATH):
@@ -56,7 +56,7 @@ def cdo_selfeb(IN_PATH, IN_TOKEN, OUT_PATH):
 
 def cdo_sellevel(IN_PATH, IN_TOKEN, OUT_PATH):
     # subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_select_lev.sh', IN_PATH, IN_TOKEN, OUT_PATH])
-    subprocess.run(['sh', '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_select_lev.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    subprocess.run(['sh', '/glade/u/home/dhueholt/SAI-ESM/cdo_mproc/mproc_bees/do_cdo_select_lev.sh', IN_PATH, IN_TOKEN, OUT_PATH])
     return None
 
 def cdo_selname(IN_PATH, IN_TOKEN, OUT_PATH):
@@ -136,7 +136,7 @@ def return_emem_list(inType):
         "_020_",
         "_021_"]
         )
-    elif inType == "CMIP6":
+    elif inType == "CMIP6": # Includes UKESM
         EMEM=list([
         "r1",
         "r2",
@@ -157,22 +157,22 @@ def return_emem_list(inType):
 
     return EMEM
 
-EMEM = return_emem_list('CMIP6')
-nProc = 1
+EMEM = return_emem_list('raw')
+nProc = 5
 
 # Shell inputs
-# IN_PATH = '/glade/scratch/dhueholt/monthly_ICEEXTENT/'
-IN_PATH = '/Users/dhueholt/Documents/ecology_data/picontrol_monthly_tas/'
-IN_TOKEN = ['*piControl*',] # See docstring for valid tokens
-# OUT_PATH = '/glade/scratch/dhueholt/sept_ICEEXTENT/'
-OUT_PATH = '/Users/dhueholt/Documents/ecology_data/picontrol_annual_tas/'
+IN_PATH = '/glade/scratch/dhueholt/monthly_TEMP/'
+# IN_PATH = '/Users/dhueholt/Documents/ecology_data/picontrol_monthly_tas/'
+IN_TOKEN = ['*SSP245-TSMLT*', '*BWSSP245*'] # See docstring for valid tokens
+OUT_PATH = '/glade/scratch/dhueholt/monthly_TEMP/lev412576p8/'
+# OUT_PATH = '/Users/dhueholt/Documents/ecology_data/picontrol_annual_tas/'
 
 if __name__== '__main__':
         lengthFiles = np.size(EMEM)
         for scen in IN_TOKEN:
             for rc,rv in enumerate(EMEM):
                 # Instantiate a new process
-                p = Process(target=cdo_annualmean, args=(IN_PATH, scen+rv, OUT_PATH))
+                p = Process(target=cdo_sellevel, args=(IN_PATH, scen+rv, OUT_PATH))
                 if rc % nProc == 0 and rc != 0:
                     # Run nProc number of processes at a time
                     p.start()

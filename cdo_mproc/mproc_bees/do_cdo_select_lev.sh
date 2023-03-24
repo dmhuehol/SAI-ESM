@@ -14,7 +14,7 @@
 #######################################
 IN_PATH=$1
 IN_TOKEN=$2
-IN_LEV=500
+IN_LEV=412576.8
 OUT_PATH=$3
 
 for f in $IN_PATH$IN_TOKEN; do

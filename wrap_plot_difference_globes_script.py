@@ -39,7 +39,7 @@ precipPal = seaborn.diverging_palette(58, 162, s=100, l=45, as_cmap=True)
 
 # Dictionaries to define inputs
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_tas/',
+    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_tob/',
     "idGlensCntrl": None,  # 'control_*' or None
     "idGlensFdbck": None,  # 'feedback_*' or None
     "idArise": None,  # '*SSP245-TSMLT-GAUSS*' or None
@@ -52,26 +52,26 @@ dataDict = {
 }
 setDict = {
     "landmaskFlag": None,  # None no mask, 'land' to mask ocean, 'ocean' to mask land
-    "strtIntvl": { # Window years for starting interval
+    "strtIntvl": { # Window years for starting interval [start,end)
         "GLENS": [2015,2020],
         "CESM2-ARISE": [2030,2035],
-        "UKESM-ARISE": [2030,2035]
+        "UKESM-ARISE": [2025,2035]
         },
     "endIntvl": { # Window years for ending interval
         "GLENS": [2025,2030],
-        "CESM2-ARISE": [2040,2045],
-        "UKESM-ARISE": [2040,2045]
+        "CESM2-ARISE": [2040,2050],
+        "UKESM-ARISE": [2040,2050]
         },
-    "convert": (fcu.kel_to_cel,),  # TUPLE of converter(s), None for default units
+    "convert": None,  # TUPLE of converter(s), None for default units
     "cmap": None,  # None for default (cmocean balance) or choose colormap
-    "cbVals": [-2,2],  # None for automatic or [min,max] to override,
+    "cbVals": [-0.5,0.5],  # None for automatic or [min,max] to override,
     "addCyclicPoint": False,  # True for ocean data/False for others
     "areaAvgBool": False,  # ALWAYS FALSE: no area averaging for a map!
     "robustnessBool": False,  # True/False to run robustness
     "plotPanel": 'snapUKS245' # See docstring for valid inputs
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230209_incorpUkesmClimvel/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230323_theStateOfThings/',
     "dpiVal": 400
 }
 loopDict = {

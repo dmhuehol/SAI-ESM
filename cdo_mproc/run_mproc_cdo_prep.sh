@@ -1,14 +1,14 @@
 #!/bin/bash -l
 ### Job Name
-#PBS -N cdo_dailySST_mergetime_mproc
+#PBS -N cdo_cesmarisetemp_sellevel_mproc
 ### Project code
 #PBS -A P06010014
-#PBS -l walltime=45:00
+#PBS -l walltime=25:00
 #PBS -q casper
 ### Merge output and error files
 #PBS -j oe
-### Select 1 nodes with 3 CPUs each
-#PBS -l select=1:ncpus=4:mem=80GB
+### Select 1 nodes with 5 CPUs each
+#PBS -l select=1:ncpus=5:mem=80GB
 ### Send email on abort, begin and end
 #PBS -m abe
 ### Specify mail recipient
@@ -22,6 +22,5 @@ mkdir -p $TMPDIR
 module load cdo
 module load conda/latest
 conda activate dh-env
-ncar_pylib ncar_pylib_dhueholt
 
 python wrap_mproc_cdo_prep.py
