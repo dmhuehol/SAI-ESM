@@ -33,28 +33,44 @@ def get_hist(IN_TOKEN, MOD_TOKEN, TIME_TOKEN, OUT_PATH):
     histBee = copyBeesPath + 'do_hist_copytolocal.sh'
     subprocess.run(['sh', histBee, IN_TOKEN, MOD_TOKEN, TIME_TOKEN, OUT_PATH])
     return None
+    
+def get_arise_ds(IN_TOKEN, MOD_TOKEN, TIME_TOKEN, OUT_PATH):
+    adsBee = copyBeesPath + 'do_ariseds_copytolocal.sh'
+    subprocess.run(['sh', adsBee, IN_TOKEN, MOD_TOKEN, TIME_TOKEN, OUT_PATH])
+    return None
+    
+def get_arise_1p0(IN_TOKEN, MOD_TOKEN, TIME_TOKEN, OUT_PATH):
+    a1p0Bee = copyBeesPath + 'do_arise1p0_copytolocal.sh'
+    subprocess.run(['sh', a1p0Bee, IN_TOKEN, MOD_TOKEN, TIME_TOKEN, OUT_PATH])
+    return None
 
 # Inputs
 scnDict = {
     "glens": False,
-    "ariseFdbck": True,
-    "ariseCntrl": True,
+    "ariseFdbck": False,
+    "ariseCntrl": False,
     "hist": False,
+    "ariseDelayedStart": True,
+    "arise1p0": True
 }
 inTokens = {
     "glens": "PRECT",
     "ariseFdbck": "*.TEMP.*",
     "ariseCntrl": "*.TEMP.*",
     "hist": "*.TREFHT.*",
+    "ariseDelayedStart": "*.TREFHT.*",
+    "arise1p0": "*.TREFHT.*"
 }
-modToken = "ocn" #mod e.g. ocn, atm, lnd
+modToken = "atm" #mod e.g. ocn, atm, lnd
 inTimes = { #timecode/
     "glens": "daily/",
     "ariseFdbck": "month_1/",
     "ariseCntrl": "month_1/",
     "hist": "month_1/",
+    "ariseDelayedStart": "month_1/",
+    "arise1p0": "month_1/"
 }
-outPath = '/glade/scratch/dhueholt/monthly_TEMP/'
+outPath = '/glade/scratch/dhueholt/monthly_TREFHT/'
 
 for scn in scnDict.keys():
     if scnDict[scn] == True:
@@ -66,6 +82,10 @@ for scn in scnDict.keys():
             get_arise_cntrl(inTokens["ariseCntrl"], modToken, inTimes["ariseCntrl"], outPath)
         elif scn == "hist":
             get_hist(inTokens["hist"], modToken, inTimes["hist"], outPath)
+        elif scn == "ariseDelayedStart":
+            get_arise_ds(inTokens["ariseDelayedStart"], modToken, inTimes["ariseDelayedStart"], outPath)
+        elif scn == "arise1p0":
+            get_arise_1p0(inTokens["arise1p0"], modToken, inTimes["arise1p0"], outPath)
         else:
             ic('Unknown scenario!')
             ic(scn)
