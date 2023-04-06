@@ -112,8 +112,8 @@ def get_quantiles(robustness):
 
     return rbstQuant
 
-def sign_test(p, n, x):
-    ''' Compute the sign test, used for statistical
+def binomial_test(p, n, x):
+    ''' Compute the binomial test, used for statistical
     significance of robustness '''
     prob = factrl(n) / (factrl(x) * factrl(n - x)) \
         * (p ** x) * ((1 - p) ** (n - x))

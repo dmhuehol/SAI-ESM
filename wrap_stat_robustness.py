@@ -18,9 +18,9 @@ sd = {
 }
 
 rbd = { # Commented values used in Hueholt et al. 2023
-    "beatNum": 11, #ARISE=5, GLENS=11
-    "muteThresh": 15, #ARISE=7, GLENS=15
-    "nRlz": 21 #ARISE=10, GLENS=21
+    "beatNum": 6, #ARISE=6, GLENS=11
+    "muteThresh": 7, #ARISE=7, GLENS=15
+    "nRlz": 10 #ARISE=10, GLENS=21
 }
 
 holdRbst = list()
@@ -69,12 +69,12 @@ ic(st.mode(holdRbst))
 td = {
     "p": (rbd["nRlz"] - rbd["beatNum"]) / rbd["nRlz"], # inherit from beat number
     "n": rbd["nRlz"], # number of tests
-    "x": rbd["muteThresh"] # meaningful value
+    "x": rbd["muteThresh"] # number of successes
 }
 ic(td)
 holdProb = list()
 for xc in np.arange(td["x"], td["n"]+1):
-    prob = fun_robustness.sign_test(td["p"], td["n"], xc)
+    prob = fun_robustness.binomial_test(td["p"], td["n"], xc)
     holdProb.append(prob)
-pValueSignTest = np.sum(holdProb)
-ic(pValueSignTest)
+pValueBinomialTest = np.sum(holdProb)
+ic(pValueBinomialTest)
