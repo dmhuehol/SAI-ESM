@@ -9,6 +9,8 @@ Valid IN_TOKENS:
     '*feedback*': GLENS SAI
     '*DEFAULT*': CESM2-ARISE-SAI-1.5
     '*DELAYED*': CESM2-ARISE-SAI-1.5-DelayedStart
+    '*LOWER*': CESM2-ARISE-SAI-1.0 raw
+    '*ARISE1P0*': CESM2-ARISE-SAI-1.0 post-CDO processing
     '*BWSSP245*': CESM2(WACCM6) no-SAI SSP2-4.5
     '*BWHIST*': CESM2(WACCM6) Historical
     '*piControl*': CESM2(WACCM6) preindustrial control
@@ -163,10 +165,10 @@ nProc = 1
 
 # Shell inputs
 # IN_PATH = '/glade/scratch/dhueholt/monthly_TEMP/'
-IN_PATH = '/Users/dhueholt/Documents/ecology_data/annual_TREFHT/DelayedStart/nodup/'
-IN_TOKEN = ['*DELAYED*', ] # See docstring for valid tokens
+IN_PATH = '/Users/dhueholt/Documents/ecology_data/annual_TREFHT/arise1p0/nodup/'
+IN_TOKEN = ['*ARISE1P0*', ] # See docstring for valid tokens
 # OUT_PATH = '/glade/scratch/dhueholt/monthly_TEMP/lev412576p8/'
-OUT_PATH = '/Users/dhueholt/Documents/ecology_data/annual_TREFHT/DelayedStart/nodup/ymm/'
+OUT_PATH = '/Users/dhueholt/Documents/ecology_data/annual_TREFHT/arise1p0/nodup/ymm/'
 
 bee = cdo_annualmean_pp
 

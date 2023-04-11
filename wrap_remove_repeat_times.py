@@ -17,7 +17,7 @@ import glob
 import xarray as xr
 
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_TREFHT/DelayedStart/',
+    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_TREFHT/arise1p0/',
     "idGlensCntrl": None,  # 'control_*' or None
     "idGlensFdbck": None,  # 'feedback_*' or None
     "idArise": None,  # '*DEFAULT*' or None
@@ -26,10 +26,11 @@ dataDict = {
     "idUkesmNoSai": None, #'*ssp245*' or None
     "idUkesmArise": None, #'*arise-sai-1p5*' or None
     "idPiControl": None, #'*piControl*' or None
-    "idDelayedStart": '*DELAYED*' # '*DELAYED*' or None
+    "idDelayedStart": None, # '*DELAYED*' or None
+    "idArise1p0": '*ARISE1P0*' # '*ARISE1P0*' or None
 }
 outDict = {
-    "outPath": '/Users/dhueholt/Documents/ecology_data/annual_TREFHT/DelayedStart/nodup/',
+    "outPath": '/Users/dhueholt/Documents/ecology_data/annual_TREFHT/arise1p0/nodup/',
     "saveId": 'nodup' # Bonus string to add to distinguish output files
 }
 

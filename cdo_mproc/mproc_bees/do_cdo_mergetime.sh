@@ -39,23 +39,32 @@ for f in $IN_CARD; do
     RUN_TYPE=$(echo $ACTIVE_FNAME | cut -d'.' -f4)
     RUN_VAR=$(echo $ACTIVE_FNAME | cut -d'.' -f1)
   elif [[ "$ACTIVE_FNAME" == *"CMIP6-SSP2-4.5"* ]]; then #CESM format (unprocessed)
-      ACTIVE_FNAME=${ACTIVE_FNAME//_/.}
-      RUN_FNAMES+=( $ACTIVE_FNAME )
-      ACTIVE_TIME=$(echo $ACTIVE_FNAME | cut -d'.' -f12)
-      RUN_TIMES+=( $ACTIVE_TIME )
-      ACTIVE_ENSNUM=$(echo $ACTIVE_FNAME | cut -d'.' -f8)
-      RUN_ENSNUMS+=( $ACTIVE_ENSNUM )
-      RUN_TYPE=$(echo $ACTIVE_FNAME | cut -d'.' -f3)
-      RUN_VAR=$(echo $ACTIVE_FNAME | cut -d'.' -f11)
+    ACTIVE_FNAME=${ACTIVE_FNAME//_/.}
+    RUN_FNAMES+=( $ACTIVE_FNAME )
+    ACTIVE_TIME=$(echo $ACTIVE_FNAME | cut -d'.' -f12)
+    RUN_TIMES+=( $ACTIVE_TIME )
+    ACTIVE_ENSNUM=$(echo $ACTIVE_FNAME | cut -d'.' -f8)
+    RUN_ENSNUMS+=( $ACTIVE_ENSNUM )
+    RUN_TYPE=$(echo $ACTIVE_FNAME | cut -d'.' -f3)
+    RUN_VAR=$(echo $ACTIVE_FNAME | cut -d'.' -f11)
   elif [[ "$ACTIVE_FNAME" == *"CMIP6-historical"* ]]; then #CESM historical format (unprocessed)
-      ACTIVE_FNAME=${ACTIVE_FNAME//_/.}
-      RUN_FNAMES+=( $ACTIVE_FNAME )
-      ACTIVE_TIME=$(echo $ACTIVE_FNAME | cut -d'.' -f11)
-      RUN_TIMES+=( $ACTIVE_TIME )
-      ACTIVE_ENSNUM=$(echo $ACTIVE_FNAME | cut -d'.' -f7)
-      RUN_ENSNUMS+=( $ACTIVE_ENSNUM )
-      RUN_TYPE=$(echo $ACTIVE_FNAME | cut -d'.' -f3)
-      RUN_VAR=$(echo $ACTIVE_FNAME | cut -d'.' -f10)
+    ACTIVE_FNAME=${ACTIVE_FNAME//_/.}
+    RUN_FNAMES+=( $ACTIVE_FNAME )
+    ACTIVE_TIME=$(echo $ACTIVE_FNAME | cut -d'.' -f11)
+    RUN_TIMES+=( $ACTIVE_TIME )
+    ACTIVE_ENSNUM=$(echo $ACTIVE_FNAME | cut -d'.' -f7)
+    RUN_ENSNUMS+=( $ACTIVE_ENSNUM )
+    RUN_TYPE=$(echo $ACTIVE_FNAME | cut -d'.' -f3)
+    RUN_VAR=$(echo $ACTIVE_FNAME | cut -d'.' -f10)
+  elif [[ "$ACTIVE_FNAME" == *"LOWER"* ]]; then #ARISE-SAI-1.0 has extra "." in filename
+    ACTIVE_FNAME=${ACTIVE_FNAME//_/.}
+    RUN_FNAMES+=( $ACTIVE_FNAME )
+    ACTIVE_TIME=$(echo $ACTIVE_FNAME | cut -d'.' -f12)
+    RUN_TIMES+=( $ACTIVE_TIME )
+    ACTIVE_ENSNUM=$(echo $ACTIVE_FNAME | cut -d'.' -f8)
+    RUN_ENSNUMS+=( $ACTIVE_ENSNUM )
+    RUN_TYPE="ARISE1P0"
+    RUN_VAR=$(echo $ACTIVE_FNAME | cut -d'.' -f11)
   else #GLENS or ARISE format
     RUN_FNAMES+=( $ACTIVE_FNAME )
     ACTIVE_TIME=$(echo $ACTIVE_FNAME | cut -d'.' -f10)

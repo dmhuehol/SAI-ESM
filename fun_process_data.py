@@ -156,6 +156,8 @@ def bind_scenario(darr, inID):
         darr.attrs['scenario'] = 'CESM2-ARISE:Feedback/SAI/ARISE-SAI-1.5'
     elif 'DELAYED' in inID:
         darr.attrs['scenario'] = 'CESM2-ARISE-DelayedStart:Feedback/SAI/ARISE-SAI-1.5-DelayedStart'
+    elif 'ARISE1P0' in inID:
+        darr.attrs['scenario'] = 'CESM2-ARISE-1.0:Feedback/SAI/ARISE-SAI-1.0'
     elif 'BWSSP245' in inID:
         darr.attrs['scenario'] = 'CESM2-WACCM/CESM2-ARISE:Control/No-SAI/SSP2-4.5'
     elif 'BWHIST' in inID:
@@ -215,7 +217,9 @@ def manage_realizations(setDict, darr, emem):
         elif 'ARISE:Feedback' in darr.scenario:
             scnStr = 'arif' #arisefeedback
         elif 'ARISE-DelayedStart:Feedback' in darr.scenario:
-            scnStr = 'aridsf' #arisefeedback
+            scnStr = 'aridsf' #arisedelayedstartfeedback
+        elif 'ARISE-1.0:Feedback' in darr.scenario:
+            scnStr = 'ari1p0f' #arise1p0feedback
         elif 'ARISE:Control' in darr.scenario:
             scnStr = 'aric' #arisecontrol
         elif 'UKESM-ARISE:No-SAI' in darr.scenario:
