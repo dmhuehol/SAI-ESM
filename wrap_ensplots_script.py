@@ -36,7 +36,7 @@ import region_library as rlib
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_TREFHT/arise1p0/nodup/ymm/',
+    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_2mTemp/',
     "idGlensCntrl": 'control_*',  # 'control_*' or None
     "idGlensFdbck": 'feedback_*',  # 'feedback_*' or None
     "idArise": '*DEFAULT*',  # '*DEFAULT*' or None

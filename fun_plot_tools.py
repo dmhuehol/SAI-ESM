@@ -416,12 +416,24 @@ def line_from_scenario(scn, md):
     elif 'GLENS:Feedback' in scn:
         activeColor = '#8346C1' #Purple
         activeLabel = md['fdbckStr']
-    elif 'ARISE:Feedback' in scn:
+    elif 'CESM2-ARISE:Feedback' in scn:
         activeColor = '#12D0B2' #Turquoise
         activeLabel = md['ariseStr']
-    elif 'ARISE:Control' in scn:
+    elif 'ARISE-DelayedStart:Feedback' in scn:
+        activeColor = '#12D0B2'
+        activeLabel = md["arisedsStr"]
+    elif 'ARISE-1.0:Feedback' in scn:
+        activeColor = '#12D0B2'
+        activeLabel = md["arise1p0Str"]
+    elif 'CESM2-ARISE:Control' in scn:
         activeColor = '#F8A53D' #Orange
         activeLabel = md['s245Cntrl']
+    elif 'UKESM-ARISE:Feedback' in scn:
+        activeColor = '#12D0B2'
+        activeLabel = md['ukAriseStr']
+    elif 'UKESM-ARISE:Control' in scn:
+        activeColor = '#F8A53D'
+        activeLabel = md['ukS245Str']
     else:
         activeColor = '#000000'
         activeLabel = 'Unknown'
@@ -448,6 +460,8 @@ def plot_metaobjects(scnToPlot, fig, b, t, lw=1.2):
     # Always plot vertical lines denoting deployment in 2020, 2035
     plt.plot([2020,2020], [b,t], color='#8346C1', linewidth=lw, linestyle='dashed')
     plt.plot([2035,2035], [b,t], color='#12D0B2', linewidth=lw, linestyle='dashed')
+    if ('ARISE-DelayedStart:Feedback' in scn for scn in scnToPlot):
+        plt.plot([2045,2045], [b,t], color='#12D0B2', linewidth=lw, linestyle='dashed')
 
     return
 
