@@ -36,14 +36,15 @@ import region_library as rlib
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_tos/regrid/',
-    "idGlensCntrl": None,  # 'control_*' or None
-    "idGlensFdbck": None,  # 'feedback_*' or None
-    "idArise": None,  # '*SSP245-TSMLT-GAUSS*' or None
-    "idS245Cntrl": None,  # '*BWSSP245*' or None
+    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_TREFHT/DelayedStart/nodup/ymm/',
+    "idGlensCntrl": 'control_*',  # 'control_*' or None
+    "idGlensFdbck": 'feedback_*',  # 'feedback_*' or None
+    "idArise": '*DEFAULT*',  # '*DEFAULT*' or None
+    "idS245Cntrl": '*BWSSP245*',  # '*BWSSP245*' or None
     "idS245Hist": None,  # '*BWHIST*' or None
     "idUkesmNoSai": '*ssp245*', #'*ssp245*' or None
     "idUkesmArise": '*arise-sai-1p5*', #'*arise-sai-1p5*' or None
+    "idDelayedStart": '*DELAYED*', # '*DELAYED*' or None
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc', # Landmask file location (CESM)
     "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary_landmask.nc' #Landmask file location (UKESM)
 }
@@ -60,13 +61,13 @@ setDict = {
     "xticks": True, #True/False to enable/disable x-axis tick labels
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230323_theStateOfThings/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230411_newArise/',
     "addToSaveStr": None,
     "dpiVal": 400
 }
 loopDict = {
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": ('global', rlib.SouthernOcean(), rlib.NoLandLatitude(), rlib.DrakePassage(), rlib.LeeuwinCurrent(), rlib.SouthernOceanClouds()) #rlib.region() for single (rlib.region(), rlib.region()) to concatenate)
+    "regions": ('global', ) #rlib.region() for single (rlib.region(), rlib.region()) to concatenate)
 }
 
 ic(dataDict, setDict, outDict) #Lowers chances of making the wrong plots by mistake

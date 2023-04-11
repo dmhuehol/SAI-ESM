@@ -1,6 +1,11 @@
-''' 
-Remove duplicate timesteps from merged data and resave. Run cdo mergetime from
-wrap_mproc_cdo_prep first.
+''' wrap_remove_repeat_times
+At times, pre-release CESM simulations can contain incorrect repeated timesteps in
+the output files. These repeated timesteps will throw off code that expects time 
+to proceed strictly linearly e.g., cdo yearmonmean. This script opens files,
+removes the repeated timesteps from merged data, then resaves the data. 
+
+Run cdo mergetime from wrap_mproc_cdo_prep before this script--otherwise, the code
+cannot identify the repeated timesteps.
 
 Written by Daniel Hueholt
 Graduate Research Assistant at Colorado State University
@@ -21,28 +26,22 @@ dataDict = {
     "idUkesmNoSai": None, #'*ssp245*' or None
     "idUkesmArise": None, #'*arise-sai-1p5*' or None
     "idPiControl": None, #'*piControl*' or None
-    "idDelayedStart": '*DELAYED*', # '*DELAYED*' or None
-    "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc', # Landmask file location (CESM)
-    "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
+    "idDelayedStart": '*DELAYED*' # '*DELAYED*' or None
 }
 outDict = {
     "outPath": '/Users/dhueholt/Documents/ecology_data/annual_TREFHT/DelayedStart/nodup/',
-    "saveId": 'nodup'
+    "saveId": 'nodup' # Bonus string to add to distinguish output files
 }
 
-# Code adapted from call_to_open
 for dky in dataDict.keys():
     if dataDict[dky] is None:
         continue
     if 'id' in dky:
         inPath = dataDict["dataPath"] + dataDict[dky]
         inGlobs = sorted(glob.glob(inPath))
-        # ic(inGlobs)
         for inFil in inGlobs:
             inDs = xr.open_dataset(inFil)
-            # ic(inDs)
             noDupDs = inDs.drop_duplicates(dim='time')
-            # ic(inDs)
             
             inFn = inFil.split('/')[-1]
             strOut = inFn.replace('.nc', outDict["saveId"] + '.nc')

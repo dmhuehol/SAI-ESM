@@ -7,7 +7,8 @@ Valid IN_TOKENS:
     '*arise-sai*': UKESM-ARISE-SAI-1.5
     '*control*': GLENS no-SAI RCP8.5
     '*feedback*': GLENS SAI
-    '*SSP245-TSMLT*': CESM2-ARISE-SAI-1.5
+    '*DEFAULT*': CESM2-ARISE-SAI-1.5
+    '*DELAYED*': CESM2-ARISE-SAI-1.5-DelayedStart
     '*BWSSP245*': CESM2(WACCM6) no-SAI SSP2-4.5
     '*BWHIST*': CESM2(WACCM6) Historical
     '*piControl*': CESM2(WACCM6) preindustrial control
@@ -25,13 +26,13 @@ import numpy as np
 import subprocess
 
 def cdo_annualmean(IN_PATH, IN_TOKEN, OUT_PATH):
-    # subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-ESM/cdo_mproc/mproc_bees/do_cdo_annualmean.sh', IN_PATH, IN_TOKEN, OUT_PATH])
-    subprocess.run(['sh', '/glade/u/home/dhueholt/SAI-ESM/cdo_mproc/mproc_bees/do_cdo_annualmean.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-ESM/cdo_mproc/mproc_bees/do_cdo_annualmean.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    # subprocess.run(['sh', '/glade/u/home/dhueholt/SAI-ESM/cdo_mproc/mproc_bees/do_cdo_annualmean.sh', IN_PATH, IN_TOKEN, OUT_PATH])
     return None
 
 def cdo_annualmean_pp(IN_PATH, IN_TOKEN, OUT_PATH):
-    # subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_annualmean_postproc.sh', IN_PATH, IN_TOKEN, OUT_PATH])
-    subprocess.run(['sh', '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_annualmean_postproc.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    subprocess.run(['sh', '/Users/dhueholt/Documents/GitHub/SAI-ESM/cdo_mproc/mproc_bees/do_cdo_annualmean_postproc.sh', IN_PATH, IN_TOKEN, OUT_PATH])
+    # subprocess.run(['sh', '/glade/u/home/dhueholt/sai-cesm/SAI-CESM/cdo_mproc/mproc_bees/do_cdo_annualmean_postproc.sh', IN_PATH, IN_TOKEN, OUT_PATH])
     return None
 
 def cdo_mergetime(IN_PATH, IN_TOKEN, OUT_PATH):
@@ -157,22 +158,24 @@ def return_emem_list(inType):
 
     return EMEM
 
-EMEM = return_emem_list('raw')
-nProc = 5
+EMEM = return_emem_list('cdo')
+nProc = 1
 
 # Shell inputs
-IN_PATH = '/glade/scratch/dhueholt/monthly_TEMP/'
-# IN_PATH = '/Users/dhueholt/Documents/ecology_data/picontrol_monthly_tas/'
-IN_TOKEN = ['*SSP245-TSMLT*', '*BWSSP245*'] # See docstring for valid tokens
-OUT_PATH = '/glade/scratch/dhueholt/monthly_TEMP/lev412576p8/'
-# OUT_PATH = '/Users/dhueholt/Documents/ecology_data/picontrol_annual_tas/'
+# IN_PATH = '/glade/scratch/dhueholt/monthly_TEMP/'
+IN_PATH = '/Users/dhueholt/Documents/ecology_data/annual_TREFHT/DelayedStart/nodup/'
+IN_TOKEN = ['*DELAYED*', ] # See docstring for valid tokens
+# OUT_PATH = '/glade/scratch/dhueholt/monthly_TEMP/lev412576p8/'
+OUT_PATH = '/Users/dhueholt/Documents/ecology_data/annual_TREFHT/DelayedStart/nodup/ymm/'
+
+bee = cdo_annualmean_pp
 
 if __name__== '__main__':
         lengthFiles = np.size(EMEM)
         for scen in IN_TOKEN:
             for rc,rv in enumerate(EMEM):
                 # Instantiate a new process
-                p = Process(target=cdo_sellevel, args=(IN_PATH, scen+rv, OUT_PATH))
+                p = Process(target=bee, args=(IN_PATH, scen+rv, OUT_PATH))
                 if rc % nProc == 0 and rc != 0:
                     # Run nProc number of processes at a time
                     p.start()

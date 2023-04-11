@@ -54,7 +54,7 @@ dataDict = {
     "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_tas/',
     "idGlensCntrl": None,  # 'control_*' or None
     "idGlensFdbck": None,  # 'feedback_*' or None
-    "idArise": '*SSP245-TSMLT-GAUSS*',  # '*SSP245-TSMLT-GAUSS*' or None
+    "idArise": '*DEFAULT*',  # '*DEFAULT*' or None
     "idS245Cntrl": None,  # '*BWSSP245*' or None
     "idS245Hist": None,  # '*BWHIST*' or None
     "idUkesmNoSai": '*ssp245*', #'*ssp245*' or None
@@ -81,7 +81,7 @@ setDict = {
     "plotEnsType": 'mean' #'mean', 'max'/'min' pointwise max/min, number for single member
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230309_vecStatDot/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230410_NewEnvAndDelayedStart/',
     "dpiVal": 800
 }
 loopDict = {

@@ -82,9 +82,16 @@ done
 # echo $RUN_VAR
 
 OUT_FNAME="${RUN_TYPE}_${RUN_ENSNUMS[0]}_${RUN_VAR}"
-for t in ${RUN_TIMES[@]}; do
-  OUT_FNAME="${OUT_FNAME}_${t}" #Append start/end YYYYMM from constituent files to output filename
-done
+if [[ ${#RUN_TIMES} -gt 10 ]]; then #When there are tons of individual files
+  ST_FT=${RUN_TIMES[0]}
+  END_FT=${RUN_TIMES[${#RUN_TIMES[@]}-1]}
+  OUT_FNAME="${OUT_FNAME}_${ST_FT}_${END_FT}" #Append start/end YYYYMM from first and last file
+else #When there is a normal amount of individual files
+    for t in ${RUN_TIMES[@]}; do
+      OUT_FNAME="${OUT_FNAME}_${t}" #Append start/end YYYYMM from constituent files to output filename
+    done
+fi
+
 echo $OUT_FNAME
 
 OUT_MERGE="${OUT_PATH}${OUT_FNAME}_merge.nc"
