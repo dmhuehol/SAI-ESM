@@ -274,7 +274,7 @@ def mute_by_numbers(thresh):
     grayList = ghostgrayList
     colorList = ghostlightList
 
-    muteList = grayList[:thresh] + colorList[thresh:]
+    muteList = grayList[:thresh-1] + colorList[thresh-1:]
 
     return muteList
 
@@ -306,7 +306,7 @@ def mute_by_numbers_arise(thresh):
     grayList = ghostgrayList
     colorList = ghostlightList
 
-    muteList = grayList[:thresh] + colorList[thresh:]
+    muteList = grayList[:thresh-1] + colorList[thresh-1:]
 
     return muteList
 

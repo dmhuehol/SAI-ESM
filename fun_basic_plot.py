@@ -99,16 +99,16 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     if setDict["robustnessBool"]:
         if 'GLENS' in setDict["plotPanel"]:
             rbd = { #Settings for robustness calculation
-                "beatNum": 11, #beat number is number of Control members to beat
-                "muteThr": 15, #threshold to image mute; None to disable
+                "B": 11, #number of no-SAI members to fall outside
+                "rhoThr": 15, #threshold to image mute; None to disable
                 "sprd": [2025,2029],
                 "nRlz": None, #Set automatically
                 "exp": 'GLENS'
             }
         elif 'ARISE15' in setDict["plotPanel"]:
             rbd = { #Settings for robustness calculation
-                "beatNum": 6, #beat number is number of Control members to beat
-                "muteThr": 7, #threshold to image mute; None to disable
+                "B": 6, #number of no-SAI members to fall outside
+                "rhoThr": 7, #threshold to image mute; None to disable
                 "sprd": [2040,2044],
                 "nRlz": None, #Set automatically
                 "exp": 'ARISE15'   #Set automatically
@@ -116,9 +116,9 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
         else:
             rbd = None # Occurs for unknown scenario and won't work (by design)
         rbd, rbstns = fr.handle_robustness(rlzList, rbd)
-        muteThr = rbd["muteThr"]
-        ic(muteThr)
-        robustDarr = fr.mask_rbst(panel, rbstns, rbd["nRlz"], muteThr)
+        rhoThr = rbd["rhoThr"]
+        ic(rhoThr)
+        robustDarr = fr.mask_rbst(panel, rbstns, rbd["nRlz"], rhoThr)
         fpt.drawOnGlobe(
             ax, robustDarr, lats, lons, cmap='Greys', vmin=cbVals[0],
             vmax=cbVals[1], cbarBool=False, fastBool=True, extent='max', addCyclicPoint=setDict["addCyclicPoint"], alph=0.65)
@@ -146,16 +146,16 @@ def plot_single_robust_globe(rlzList, dataDict, setDict, outDict):
     if setDict["robustnessBool"]:
         if 'GLENS' in setDict["plotPanel"]:
             rbd = { #Settings for robustness calculation
-                "beatNum": 11, #beat number is number of Control members to beat
-                "muteThr": 15, #threshold to image mute; None to disable
+                "B": 11, #number of no-SAI members to fall outside
+                "rhoThr": 15, #threshold to image mute; None to disable
                 "sprd": [2025,2029],
                 "nRlz": None, #Set automatically
                 "exp": 'GLENS'
             }
         elif 'ARISE15' in setDict["plotPanel"]:
             rbd = { #Settings for robustness calculation
-                "beatNum": 6, #beat number is number of Control members to beat
-                "muteThr": 7, #threshold to image mute; None to disable
+                "B": 6, #number of no-SAI members to fall outside
+                "rhoThr": 7, #threshold to image mute; None to disable
                 "sprd": [2040,2044],
                 "nRlz": None, #Set automatically
                 "exp": 'ARISE15'   #Set automatically
@@ -180,9 +180,9 @@ def plot_single_robust_globe(rlzList, dataDict, setDict, outDict):
     discColors = cmasher.take_cmap_colors(cmasher.cm.ghostlight,
                                             N=rbd["nRlz"], cmap_range=(0,1))
     if rbd["exp"] == 'GLENS':
-        muteList = fpt.mute_by_numbers(rbd["muteThr"])
+        muteList = fpt.mute_by_numbers(rbd["rhoThr"])
     elif rbd["exp"] == 'ARISE15':
-        muteList = fpt.mute_by_numbers_arise(rbd["muteThr"])
+        muteList = fpt.mute_by_numbers_arise(rbd["rhoThr"])
     disc = mpl.colors.ListedColormap(muteList)
 
     # Plotting –– map

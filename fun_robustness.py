@@ -8,6 +8,7 @@ from icecream import ic
 import sys
 
 import cftime
+from math import factorial as factrl
 import numpy as np
 import xarray as xr
 
@@ -31,8 +32,8 @@ def handle_robustness(rlzList, rbd):
     rbstEcEv, nans = calc_robustness_ecev(
         actCntrlDarr, actFdbckDarr, sprd=rbd['sprd'])
 
-    rbstAbv = beat_rbst(rbstEcEv["above"], beat=rbd["beatNum"])
-    rbstBlw = beat_rbst(rbstEcEv["below"], beat=rbd["beatNum"])
+    rbstAbv = beat_rbst(rbstEcEv["above"], beat=rbd["B"])
+    rbstBlw = beat_rbst(rbstEcEv["below"], beat=rbd["B"])
     rbst = np.maximum(rbstAbv, rbstBlw) #Composite of above and below
     # ic(rbst, np.max(rbst), np.min(rbst), np.median(rbst), np.mean(rbst)) #troubleshooting
     rbstns = rbst.astype(np.float)
@@ -110,3 +111,10 @@ def get_quantiles(robustness):
     ic(rbstQuant)
 
     return rbstQuant
+
+def binomial_test(p, n, x):
+    ''' Compute the binomial test, used for statistical
+    significance of robustness '''
+    prob = factrl(n) / (factrl(x) * factrl(n - x)) \
+        * (p ** x) * ((1 - p) ** (n - x))
+    return prob

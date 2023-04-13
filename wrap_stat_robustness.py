@@ -17,9 +17,9 @@ sd = {
     "trials": 10000
 }
 
-rbd = {
-    "beatNum": 6,
-    "muteThresh": 7,
+rbd = { # Commented values used in Hueholt et al. 2023
+    "B": 6, #ARISE=6, GLENS=11
+    "rhoThresh": 7, #ARISE=7, GLENS=15
     "nRlz": 10 #ARISE=10, GLENS=21
 }
 
@@ -46,21 +46,35 @@ for t in np.arange(0, sd["trials"]):
     }
     # ic(rob) #troubleshooting
 
-    rbstAbv = fun_robustness.beat_rbst(rob["above"], beat=rbd["beatNum"])
-    rbstBlw = fun_robustness.beat_rbst(rob["below"], beat=rbd["beatNum"])
+    rbstAbv = fun_robustness.beat_rbst(rob["above"], beat=rbd["B"])
+    rbstBlw = fun_robustness.beat_rbst(rob["below"], beat=rbd["B"])
     # ic(rbstAbv, rbstBlw) #troubleshooting
     rbst = np.maximum(rbstAbv, rbstBlw)
     holdRbst.append(rbst)
     # ic(rbst) #troubleshooting
 
 # ic(holdRbst)
-ic(fun_robustness.get_quantiles(holdRbst))
-ic(st.mode(holdRbst))
+ic(fun_robustness.get_quantiles(holdRbst)) #confidence bounds of the robustness distribution expected by chance
+# ic(st.mode(holdRbst, keepdims=True))
 
-# Calculate z-score, p-value as a matter of interest. We prefer to discuss
-# robustness in terms of the percent of randomly-generated values that the
-# threshold falls outside of. See Hueholt et al. 2023 supplementary for details.
-# z = (rbd["muteThresh"]-np.mean(holdRbst))/np.std(holdRbst)
-# ic(z)
-# p = st.norm.sf(abs(-z))
-# ic(p)
+# We prefer to discuss robustness in terms of the percent of 
+# randomly-generated values that the threshold falls outside. We believe
+# this is the most intuitive way to understand the information that
+# robustness conveys about the consistency of a response. However, it is 
+# possible to formally describe this in terms of statistical significance
+# using a Sign Test as in the following code. The thresholds we recommend
+# for GLENS (B=11, rhoThresh=15) and ARISE (B=6, rhoThresh=7)
+# correspond to significance at the p<0.1 value.
+# See Hueholt et al. 2023 supplementary for more details.
+td = {
+    "p": (rbd["nRlz"] - rbd["B"]) / rbd["nRlz"], # inherit from beat number
+    "n": rbd["nRlz"], # number of tests
+    "x": rbd["rhoThresh"] # number of successes
+}
+ic(td)
+holdProb = list()
+for xc in np.arange(td["x"], td["n"]+1):
+    prob = fun_robustness.binomial_test(td["p"], td["n"], xc)
+    holdProb.append(prob)
+pValueBinomialTest = np.sum(holdProb)
+ic(pValueBinomialTest)
