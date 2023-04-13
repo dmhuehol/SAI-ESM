@@ -468,14 +468,14 @@ def meta_book(setDict, dataDict, darr):
     ''' Compile bits and pieces of metadata for filenames and titles '''
 
     metaDict = {
-        "cntrlStr": 'RCP8.5',
-        "fdbckStr": 'GLENS-SAI',
-        "ariseStr": 'ARISE-SAI-1.5',
-        "arisedsStr": 'ARISE-SAI-1.5-DelayedStart',
-        "arise1p0Str": 'ARISE-SAI-1.0',
+        "cntrlStr": 'CESM1-RCP8.5',
+        "fdbckStr": 'CESM1-GLENS-SAI',
+        "ariseStr": 'CESM2-ARISE-SAI-1.5',
+        "arisedsStr": 'CESM2-ARISE-SAI-1.5-DelayedStart',
+        "arise1p0Str": 'CESM2-ARISE-SAI-1.0',
         "ukAriseStr": 'UKESM-ARISE-SAI-1.5',
         "ukS245Str": 'UKESM-SSP2-4.5',
-        "s245Cntrl": 'SSP2-4.5',
+        "s245Cntrl": 'CESM2-SSP2-4.5',
         "varStr": var_str_lookup(darr.long_name, setDict, strType='title'),
         "varSve": var_str_lookup(darr.long_name, setDict, strType='save'),
         "strtStr": str(darr['time'].data[0].year) if 'time' in darr.dims else '',

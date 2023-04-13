@@ -159,9 +159,9 @@ def drawOnGlobe(
     if(cbarBool):
         cb = plt.colorbar(
             image, shrink=.75, orientation="vertical", 
-            pad=.02, extend=extent)
+            pad=.02, extend=extent,
             #0-2, 2-10, 10-30, 30-50, 50+
-            # ticks=[-50,-30,-10,-2,2,10,30,50])
+            ticks=[-50,-30,-10,-2,2,10,30,50])
             # ticks=[-2,-1,0,1,2])
         cb.ax.tick_params(labelsize=6) #def: labelsize=6
         try:
@@ -420,19 +420,19 @@ def line_from_scenario(scn, md):
         activeColor = '#12D0B2' #Turquoise
         activeLabel = md['ariseStr']
     elif 'ARISE-DelayedStart:Feedback' in scn:
-        activeColor = '#12D0B2'
+        activeColor = '#7BC7B5'
         activeLabel = md["arisedsStr"]
     elif 'ARISE-1.0:Feedback' in scn:
-        activeColor = '#12D0B2'
+        activeColor = '#045E4F'
         activeLabel = md["arise1p0Str"]
     elif 'CESM2-ARISE:Control' in scn:
         activeColor = '#F8A53D' #Orange
         activeLabel = md['s245Cntrl']
     elif 'UKESM-ARISE:Feedback' in scn:
-        activeColor = '#12D0B2'
+        activeColor = '#10D62A'
         activeLabel = md['ukAriseStr']
     elif 'UKESM-ARISE:Control' in scn:
-        activeColor = '#F8A53D'
+        activeColor = '#DAB23D'
         activeLabel = md['ukS245Str']
     else:
         activeColor = '#000000'
@@ -461,7 +461,7 @@ def plot_metaobjects(scnToPlot, fig, b, t, lw=1.2):
     plt.plot([2020,2020], [b,t], color='#8346C1', linewidth=lw, linestyle='dashed')
     plt.plot([2035,2035], [b,t], color='#12D0B2', linewidth=lw, linestyle='dashed')
     if ('ARISE-DelayedStart:Feedback' in scn for scn in scnToPlot):
-        plt.plot([2045,2045], [b,t], color='#12D0B2', linewidth=lw, linestyle='dashed')
+        plt.plot([2045,2045], [b,t], color='#7BC7B5', linewidth=lw, linestyle='dashed')
 
     return
 

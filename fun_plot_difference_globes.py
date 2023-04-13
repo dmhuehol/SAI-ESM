@@ -51,6 +51,7 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     ''' Plot 1 panel difference globe '''
     # Set up panels
     toiStart, toiEnd = fpt.make_panels(rlzList, setDict)
+    
     if setDict["plotPanel"] == 'snapR85':
         snapR85 = toiEnd['RCP8.5'] - toiStart['RCP8.5']
         panel = snapR85
@@ -63,12 +64,24 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     elif setDict["plotPanel"] == 'snapARISE15':
         snapARISE15 = toiEnd['ARISE-SAI-1.5'] - toiStart['SSP2-4.5']
         panel = snapARISE15
+    elif setDict["plotPanel"] == 'snapARISEDS':
+        snapARISEDS = toiEnd['ARISE-SAI-1.5-DelayedStart'] - toiStart['SSP2-4.5']
+        panel = snapARISEDS
+    elif setDict["plotPanel"] == 'snapARISE10':
+        snapARISE10 = toiEnd['ARISE-SAI-1.0'] - toiStart['SSP2-4.5']
+        panel = snapARISE10
     elif setDict["plotPanel"] == 'intiGLENS':
         intiGLENS = toiEnd['GLENS-SAI'] - toiEnd['RCP8.5']
         panel = intiGLENS
     elif setDict["plotPanel"] == 'intiARISE15':
         intiARISE15 = toiEnd['ARISE-SAI-1.5'] - toiEnd['SSP2-4.5']
         panel = intiARISE15
+    elif setDict["plotPanel"] == 'intiARISEDS':
+        intiARISEDS = toiEnd['ARISE-SAI-1.5-DelayedStart'] - toiEnd['SSP2-4.5']
+        panel = intiARISEDS
+    elif setDict["plotPanel"] == 'intiARISE10':
+        intiARISE10 = toiEnd['ARISE-SAI-1.0'] - toiEnd['SSP2-4.5']
+        panel = intiARISE10
     elif setDict["plotPanel"] == 'snapUKS245':
         snapUKS245 = toiEnd['UKESM-SSP2-4.5'] - toiStart['UKESM-SSP2-4.5']
         panel = snapUKS245
@@ -89,8 +102,8 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
 
     # Plotting –– map
     CL = 0.
-    mapProj = cartopy.crs.Orthographic(180, -90)#N: (0,90) S: (180,-90) 
-    # mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
+    # mapProj = cartopy.crs.Orthographic(180, -90)#N: (0,90) S: (180,-90) 
+    mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
     fig = plt.figure(figsize=(12, 2.73*2))
     ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
     cmap = cmocean.cm.balance if setDict["cmap"] is None else setDict["cmap"]
@@ -104,7 +117,7 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
     fpt.drawOnGlobe(
         ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1],
-        cbarBool=True, fastBool=True, extent='max',
+        cbarBool=False, fastBool=True, extent='max',
         addCyclicPoint=setDict["addCyclicPoint"], alph=1)
 
     # Plotting –– image muting by adding separate layer of muted data
@@ -144,7 +157,7 @@ def plot_single_basic_difference_globe(rlzList, dataDict, setDict, outDict):
     # plt.title(" ") #No automatic title, 1-panel is used for custom figures
 
     # Plotting –– settings for output file
-    savePrfx = 'SPole_' #Easy modification for unique filename
+    savePrfx = '' #Easy modification for unique filename
     if 'CESM2-ARISE' in panel.scenario:
         saveStr = panelStr + '_' + md['varSve'] + '_' + md['levSve'] \
             + '_' + md['lstDcd']["CESM2-ARISE"] + '_' + md['ensStr'] \

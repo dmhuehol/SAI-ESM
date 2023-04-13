@@ -48,6 +48,10 @@ def plot_single_slice_globe(rlzList, dataDict, setDict, outDict):
         actData = scnDict['GLENS-SAI']
     elif setDict["plotPanel"] == 'CESMARISE15':
         actData = scnDict['ARISE-SAI-1.5']
+    elif setDict["plotPanel"] == 'ARISEDS':
+        actData = scnDict['ARISE-SAI-1.5-DelayedStart']
+    elif setDict["plotPanel"] == 'ARISE10':
+        actData = scnDict['ARISE-SAI-1.0']
     elif setDict["plotPanel"] == 'UKESMS245':
         actData = scnDict['UKESM-SSP2-4.5']
     elif setDict["plotPanel"] == 'UKESMARISE15':
@@ -89,10 +93,10 @@ def plot_single_slice_globe(rlzList, dataDict, setDict, outDict):
     plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
     fpt.drawOnGlobe(
         ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1],
-        cbarBool=True, fastBool=True, extent='both',
+        cbarBool=False, fastBool=True, extent='both',
         addCyclicPoint=setDict["addCyclicPoint"], alph=1)
 
-    savePrfx = 'SPATGRADEW_' #Easy modification for unique filename
+    savePrfx = '' #Easy modification for unique filename
     saveStr = panelStr + '_' + md["varSve"] + '_' \
         + 'rlz' + str(setDict["plotEnsType"])
     savename = outDict["savePath"] + savePrfx + saveStr + '.png'

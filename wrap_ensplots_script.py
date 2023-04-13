@@ -37,13 +37,13 @@ import region_library as rlib
 # Dictionaries
 dataDict = {
     "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_2mTemp/',
-    "idGlensCntrl": 'control_*',  # 'control_*' or None
-    "idGlensFdbck": 'feedback_*',  # 'feedback_*' or None
-    "idArise": '*DEFAULT*',  # '*DEFAULT*' or None
+    "idGlensCntrl": None,  # 'control_*' or None
+    "idGlensFdbck": None,  # 'feedback_*' or None
+    "idArise": None,  # '*DEFAULT*' or None
     "idS245Cntrl": '*BWSSP245*',  # '*BWSSP245*' or None
     "idS245Hist": None,  # '*BWHIST*' or None
-    "idUkesmNoSai": '*ssp245*', #'*ssp245*' or None
-    "idUkesmArise": '*arise-sai-1p5*', #'*arise-sai-1p5*' or None
+    "idUkesmNoSai": None, #'*ssp245*' or None
+    "idUkesmArise": None, #'*arise-sai-1p5*' or None
     "idDelayedStart": '*DELAYED*', # '*DELAYED*' or None
     "idArise1p0": '*ARISE1P0*', # '*ARISE1P0*' or None
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc', # Landmask file location (CESM)
@@ -52,19 +52,19 @@ dataDict = {
 setDict = {
     "landmaskFlag": None, # None or 'land'
     "areaAvgBool": True, # see docstring for valid inputs
-    "convert": None, #TUPLE of converter(s), or None if using default units
+    "convert": (fcu.kel_to_cel,), #TUPLE of converter(s), or None if using default units
     "realization": 'ensplot',
-    "styleFlag": 0, # see docstring for valid inputs
+    "styleFlag": 4, # see docstring for valid inputs
     "mute": False, #True/False to use image muting on parts of time period
-    "ylim": None, #None for automatic, [min,max] for manual
-    "ylabel": '', #None for automatic
+    "ylim": [14.4,16.8], #None for automatic, [min,max] for manual
+    "ylabel": '\u00b0C', #None for automatic
     "yticks": None, #None for automatic, np.arange(mn,mx,step) for manual
     "xticks": True, #True/False to enable/disable x-axis tick labels
 }
 outDict = {
     "savePath": '/Users/dhueholt/Documents/ecology_fig/20230411_newArise/',
     "addToSaveStr": None,
-    "dpiVal": 400
+    "dpiVal": 500
 }
 loopDict = {
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
