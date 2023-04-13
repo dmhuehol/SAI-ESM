@@ -4,8 +4,8 @@ Code for analyzing model output from stratospheric aerosol injection (SAI) exper
 Scenarios Shortly After Deployment" submitted to *Earth's Future*, [preprint available at ESSOaR](https://www.doi.org/10.22541/essoar.167591089.94758275/v1).
 
 For this project, we utilized the following experiments:
-1. [Geoengineering Large ENSemble (GLENS)](https://www.cesm.ucar.edu/community-projects/GLENS/), consisting of 21 RCP8.5 Control runs and 21 G1.2(8.5) Feedback runs where SAI is used to target 1.2 Celsius above preindustrial against the RCP8.5 forcing. Citation: [Tilmes et al. 2018](https://doi.org/10.1175/BAMS-D-17-0267.1)
-2. [Assessing Responses and Impacts of Solar climate intervention on the Earth system with stratospheric aerosol injection (ARISE-SAI)](https://www.cesm.ucar.edu/community-projects/arise-sai), consisting of 10 G1.5(2-4.5) runs where SAI is used to target 1.5 Celsius above preindustrial with a SSP2-4.5 scenario. Citation: [Richter et al. 2022](https://doi.org/10.5194/gmd-15-8221-2022)
+1. [Geoengineering Large ENSemble (GLENS)](https://www.cesm.ucar.edu/community-projects/GLENS/), consisting of 21 RCP8.5 Control runs and 21 SAI runs where SAI is used to target 1.2 Celsius above preindustrial against the RCP8.5 forcing. Citation: [Tilmes et al. 2018](https://doi.org/10.1175/BAMS-D-17-0267.1)
+2. [Assessing Responses and Impacts of Solar climate intervention on the Earth system with stratospheric aerosol injection (ARISE-SAI)](https://www.cesm.ucar.edu/community-projects/arise-sai), consisting of 10 SAI runs where SAI is used to target 1.5 Celsius above preindustrial with a SSP2-4.5 scenario. Citation: [Richter et al. 2022](https://doi.org/10.5194/gmd-15-8221-2022)
 3. CESM2-WACCM Historical, which is used here primarily to extend the ARISE control to 2010 as in GLENS. Citation: [Danabasoglu et al. 2020](https://doi.org/10.1029/2019MS001916)
 
 While this code is targeted at these specific SAI-related model runs, it can (and in the future, will) be modified to work with other experiments and Earth system models.
