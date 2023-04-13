@@ -56,7 +56,7 @@ setDict = {
     "plotPanel": 'snapR85'
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20230406_checkThresh/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20230413_finalCheck/',
     "dpiVal": 400 #High-res for paper
 }
 ic(dataDict, setDict, outDict) #Lowers chances of making the wrong plots by mistake

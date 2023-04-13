@@ -18,8 +18,8 @@ sd = {
 }
 
 rbd = { # Commented values used in Hueholt et al. 2023
-    "beatNum": 6, #ARISE=6, GLENS=11
-    "muteThresh": 7, #ARISE=7, GLENS=15
+    "B": 6, #ARISE=6, GLENS=11
+    "rhoThresh": 7, #ARISE=7, GLENS=15
     "nRlz": 10 #ARISE=10, GLENS=21
 }
 
@@ -46,16 +46,16 @@ for t in np.arange(0, sd["trials"]):
     }
     # ic(rob) #troubleshooting
 
-    rbstAbv = fun_robustness.beat_rbst(rob["above"], beat=rbd["beatNum"])
-    rbstBlw = fun_robustness.beat_rbst(rob["below"], beat=rbd["beatNum"])
+    rbstAbv = fun_robustness.beat_rbst(rob["above"], beat=rbd["B"])
+    rbstBlw = fun_robustness.beat_rbst(rob["below"], beat=rbd["B"])
     # ic(rbstAbv, rbstBlw) #troubleshooting
     rbst = np.maximum(rbstAbv, rbstBlw)
     holdRbst.append(rbst)
     # ic(rbst) #troubleshooting
 
 # ic(holdRbst)
-ic(fun_robustness.get_quantiles(holdRbst))
-ic(st.mode(holdRbst))
+ic(fun_robustness.get_quantiles(holdRbst)) #confidence bounds of the robustness distribution expected by chance
+# ic(st.mode(holdRbst, keepdims=True))
 
 # We prefer to discuss robustness in terms of the percent of 
 # randomly-generated values that the threshold falls outside. We believe
@@ -63,13 +63,13 @@ ic(st.mode(holdRbst))
 # robustness conveys about the consistency of a response. However, it is 
 # possible to formally describe this in terms of statistical significance
 # using a Sign Test as in the following code. The thresholds we recommend
-# for GLENS (beatNum=11, muteThresh=15) and ARISE (beatNum=6, muteThresh=7)
+# for GLENS (B=11, rhoThresh=15) and ARISE (B=6, rhoThresh=7)
 # correspond to significance at the p<0.1 value.
 # See Hueholt et al. 2023 supplementary for more details.
 td = {
-    "p": (rbd["nRlz"] - rbd["beatNum"]) / rbd["nRlz"], # inherit from beat number
+    "p": (rbd["nRlz"] - rbd["B"]) / rbd["nRlz"], # inherit from beat number
     "n": rbd["nRlz"], # number of tests
-    "x": rbd["muteThresh"] # number of successes
+    "x": rbd["rhoThresh"] # number of successes
 }
 ic(td)
 holdProb = list()

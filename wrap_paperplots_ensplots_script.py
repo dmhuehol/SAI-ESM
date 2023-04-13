@@ -45,7 +45,7 @@ setDict = {
     "xticks": True
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20230207_moreDistill/1_check/',
+    "savePath": '/Users/dhueholt/Documents/GLENS_fig/20230413_finalcheck/',
     "addToSaveStr": None,
     "dpiVal": 'pdf' #numeric dpi, or 'pdf' for vector as in Hueholt et al. 2023
 }

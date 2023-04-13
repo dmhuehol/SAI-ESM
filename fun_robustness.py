@@ -32,8 +32,8 @@ def handle_robustness(rlzList, rbd):
     rbstEcEv, nans = calc_robustness_ecev(
         actCntrlDarr, actFdbckDarr, sprd=rbd['sprd'])
 
-    rbstAbv = beat_rbst(rbstEcEv["above"], beat=rbd["beatNum"])
-    rbstBlw = beat_rbst(rbstEcEv["below"], beat=rbd["beatNum"])
+    rbstAbv = beat_rbst(rbstEcEv["above"], beat=rbd["B"])
+    rbstBlw = beat_rbst(rbstEcEv["below"], beat=rbd["B"])
     rbst = np.maximum(rbstAbv, rbstBlw) #Composite of above and below
     # ic(rbst, np.max(rbst), np.min(rbst), np.median(rbst), np.mean(rbst)) #troubleshooting
     rbstns = rbst.astype(np.float)
