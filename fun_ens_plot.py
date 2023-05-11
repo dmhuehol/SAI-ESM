@@ -119,6 +119,10 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
         plt.rcParams.update({'font.size': 24})
         plt.rcParams.update({'font.family': 'Lato'})
         plt.rcParams.update({'font.weight': 'normal'})
+    elif setDict["styleFlag"] == 5:
+        plt.rcParams.update({'font.size': 24})
+        plt.rcParams.update({'font.family': 'Red Hat Display'})
+        plt.rcParams.update({'font.weight': 'normal'})
         # Valid fontweights: normal, bold, heavy, light, ultrabold, ultralight
     plt.rcParams.update({'figure.autolayout': True})
     fig, ax = plt.subplots(figsize=[8,7])
@@ -301,7 +305,7 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
         saveStr = md['varSve'] + '_' + str(int(xlf)) + str(int(xrt)) + '_' + \
                 locStr + '_' + 'ts'
     elif setDict["styleFlag"] == 4: # Squid plot
-        savePrfx = 'NEWCESM2ARISE_squid_'
+        savePrfx = 'ARISE10_squid_'
         if setDict["xticks"]:
             plt.xticks([2015,2025,2035,2045,2065,])
         else:
@@ -318,6 +322,24 @@ def plot_ens_spread_timeseries(darrList, dataDict, setDict, outDict):
             plt.ylabel(setDict['ylabel'], fontweight='normal')
         plt.xlabel('', fontweight='light')
         plt.title('Global annual mean 2m temperature', fontsize=20, fontweight='bold')
+        # ax.axes.xaxis.set_ticklabels([])
+    elif setDict["styleFlag"] == 5: # Squid plot
+        savePrfx = 'sudden_'
+        if setDict["xticks"]:
+            plt.xticks([2015,2025,2035,2045,2055,2065])
+        else:
+            plt.xticks([2015,2040,2065,])
+            ax.tick_params(labelbottom=False)
+        if setDict['ylim'] is not None:
+            plt.yticks(setDict["yticks"])
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        plt.ylim([b,t])
+        plt.xlim([2015, 2065])
+        if setDict['ylabel'] is not None:
+            plt.ylabel(setDict['ylabel'], fontweight='normal')
+        plt.yticks([15, 15.5, 16, 16.5])
+        plt.xlabel('', fontweight='light')
         # ax.axes.xaxis.set_ticklabels([])
 
     # Save image

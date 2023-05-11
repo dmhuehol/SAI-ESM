@@ -119,7 +119,8 @@ def make_scenario_dict(rlzList, setDict):
     for darr in rlzList:
         rlzLoi = fpd.obtain_levels(darr, setDict["levOfInt"])
         shrtScn = rlzLoi.scenario.split('/')[len(rlzLoi.scenario.split('/'))-1]
-        scnDict[shrtScn] = rlzLoi
+        if shrtScn in setDict["plotScenarios"]:
+            scnDict[shrtScn] = rlzLoi
         
     return scnDict     
     
@@ -161,7 +162,7 @@ def drawOnGlobe(
             image, shrink=.75, orientation="vertical", 
             pad=.02, extend=extent,
             #0-2, 2-10, 10-30, 30-50, 50+
-            ticks=[-50,-30,-10,-2,2,10,30,50])
+            ticks=[-50,-30,-10,-5,-2,2,5,10,30,50])
             # ticks=[-2,-1,0,1,2])
         cb.ax.tick_params(labelsize=6) #def: labelsize=6
         try:
@@ -420,7 +421,7 @@ def line_from_scenario(scn, md):
         activeColor = '#12D0B2' #Turquoise
         activeLabel = md['ariseStr']
     elif 'ARISE-DelayedStart:Feedback' in scn:
-        activeColor = '#7BC7B5'
+        activeColor = '#DDA2FB'
         activeLabel = md["arisedsStr"]
     elif 'ARISE-1.0:Feedback' in scn:
         activeColor = '#045E4F'
@@ -434,12 +435,42 @@ def line_from_scenario(scn, md):
     elif 'UKESM-ARISE:Control' in scn:
         activeColor = '#DAB23D'
         activeLabel = md['ukS245Str']
+    elif 'PreindustrialControl' in scn:
+        activeColor = '#B8B8B8'
+        activeLabel = 'Preindustrial'
     else:
         activeColor = '#000000'
         activeLabel = 'Unknown'
         ic('Unknown scenario! Plotting with black line and unknown label.')
 
     return activeColor, activeLabel
+    
+def yVal_from_scenario(scn, landmaskFlag):
+    ''' Get y-value from scenario information (e.g., rangeplot) '''
+    if 'CESM2-ARISE:Feedback' in scn:
+        if landmaskFlag == 'ocean':
+            yVal = 0.5
+        else:
+            yVal = 0.7
+    elif 'ARISE-DelayedStart:Feedback' in scn:
+        if landmaskFlag == 'ocean':
+            yVal = 1.5
+        else:
+            yVal = 1.7
+    elif 'CESM2-ARISE:Control' in scn:
+        if landmaskFlag == 'ocean':
+            yVal = 1
+        else:
+            yVal = 1.2
+    elif 'PreindustrialControl' in scn:
+        if landmaskFlag == 'ocean':
+            yVal = 0
+        else:
+            yVal = 0.2
+    else:
+        yVal = None
+
+    return yVal
 
 def plot_metaobjects(scnToPlot, fig, b, t, lw=1.2):
     ''' Determines which metaobjects to plot based on scenario '''
@@ -458,10 +489,10 @@ def plot_metaobjects(scnToPlot, fig, b, t, lw=1.2):
     #     plt.plot([2035,2035], [b,t], color='#12D0B2', linewidth=0.7, linestyle='dashed')
 
     # Always plot vertical lines denoting deployment in 2020, 2035
-    plt.plot([2020,2020], [b,t], color='#8346C1', linewidth=lw, linestyle='dashed')
+    # plt.plot([2020,2020], [b,t], color='#8346C1', linewidth=lw, linestyle='dashed')
     plt.plot([2035,2035], [b,t], color='#12D0B2', linewidth=lw, linestyle='dashed')
     if ('ARISE-DelayedStart:Feedback' in scn for scn in scnToPlot):
-        plt.plot([2045,2045], [b,t], color='#7BC7B5', linewidth=lw, linestyle='dashed')
+        plt.plot([2045,2045], [b,t], color='#dda2fb', linewidth=lw, linestyle='dashed')
 
     return
 
@@ -518,11 +549,15 @@ def get_cspd_colormap(palKey):
     map3 = np.reshape(
         np.tile(zmzm[3], 20), (20,4))
     map4 = np.reshape(
-        np.tile(zmzm[5], 8), (8,4))
+        np.tile(zmzm[5], 5), (5,4))
+    map0 = np.reshape(
+        np.tile([233/255, 219/255, 247/255, 1], 3), (3,4)) #lch(89.2% 14.8 306.8)
     map5 = np.reshape(
         np.tile(zmzm[7], 4), (4,4))
+    mapLightRed = np.reshape(
+        np.tile([250/255, 217/255, 205/255, 1], 3), (3,4)) #lch(89.2% 14.8 306.8)
     map6 = np.reshape(
-        np.tile(zmzm[9], 8), (8,4))
+        np.tile(zmzm[9], 5), (5,4))
     map7 = np.reshape(
         np.tile(zmzm[11], 20), (20,4))
     map8 = np.reshape(
@@ -531,7 +566,7 @@ def get_cspd_colormap(palKey):
         np.tile(zmzm[14], 1), (1,4))
     
     colors = np.vstack(
-        (map1, map2, map3, map4, map5, map6, map7, map8, map9))
+        (map1, map2, map3, map4, map0, map5, mapLightRed, map6, map7, map8, map9))
     custom_cmap = mcolors.ListedColormap(colors)
 
     return custom_cmap

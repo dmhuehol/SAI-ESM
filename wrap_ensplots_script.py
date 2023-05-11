@@ -39,13 +39,13 @@ dataDict = {
     "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_2mTemp/',
     "idGlensCntrl": None,  # 'control_*' or None
     "idGlensFdbck": None,  # 'feedback_*' or None
-    "idArise": None,  # '*DEFAULT*' or None
+    "idArise": '*DEFAULT*',  # '*DEFAULT*' or None
     "idS245Cntrl": '*BWSSP245*',  # '*BWSSP245*' or None
     "idS245Hist": None,  # '*BWHIST*' or None
     "idUkesmNoSai": None, #'*ssp245*' or None
     "idUkesmArise": None, #'*arise-sai-1p5*' or None
     "idDelayedStart": '*DELAYED*', # '*DELAYED*' or None
-    "idArise1p0": '*ARISE1P0*', # '*ARISE1P0*' or None
+    "idArise1p0": None, # '*ARISE1P0*' or None
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc', # Landmask file location (CESM)
     "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary_landmask.nc' #Landmask file location (UKESM)
 }
@@ -54,17 +54,17 @@ setDict = {
     "areaAvgBool": True, # see docstring for valid inputs
     "convert": (fcu.kel_to_cel,), #TUPLE of converter(s), or None if using default units
     "realization": 'ensplot',
-    "styleFlag": 4, # see docstring for valid inputs
+    "styleFlag": 5, # see docstring for valid inputs
     "mute": False, #True/False to use image muting on parts of time period
-    "ylim": [14.4,16.8], #None for automatic, [min,max] for manual
+    "ylim": [14.8,16.5], #None for automatic, [min,max] for manual
     "ylabel": '\u00b0C', #None for automatic
     "yticks": None, #None for automatic, np.arange(mn,mx,step) for manual
     "xticks": True, #True/False to enable/disable x-axis tick labels
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230411_newArise/',
-    "addToSaveStr": None,
-    "dpiVal": 500
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230508_multInt/',
+    "addToSaveStr": '',
+    "dpiVal": 'pdf'
 }
 loopDict = {
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable

@@ -155,7 +155,7 @@ def bind_scenario(darr, inID):
     elif 'DEFAULT' in inID:
         darr.attrs['scenario'] = 'CESM2-ARISE:Feedback/SAI/ARISE-SAI-1.5'
     elif 'DELAYED' in inID:
-        darr.attrs['scenario'] = 'CESM2-ARISE-DelayedStart:Feedback/SAI/ARISE-SAI-1.5-DelayedStart'
+        darr.attrs['scenario'] = 'CESM2-ARISE-DelayedStart:Feedback/SAI/ARISE-SAI-DelayedStart'
     elif 'ARISE1P0' in inID:
         darr.attrs['scenario'] = 'CESM2-ARISE-1.0:Feedback/SAI/ARISE-SAI-1.0'
     elif 'BWSSP245' in inID:
@@ -471,7 +471,7 @@ def meta_book(setDict, dataDict, darr):
         "cntrlStr": 'CESM1-RCP8.5',
         "fdbckStr": 'CESM1-GLENS-SAI',
         "ariseStr": 'CESM2-ARISE-SAI-1.5',
-        "arisedsStr": 'CESM2-ARISE-SAI-1.5-DelayedStart',
+        "arisedsStr": 'CESM2-ARISE-SAI-1.37-DelayedStart',
         "arise1p0Str": 'CESM2-ARISE-SAI-1.0',
         "ukAriseStr": 'UKESM-ARISE-SAI-1.5',
         "ukS245Str": 'UKESM-SSP2-4.5',

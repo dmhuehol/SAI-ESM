@@ -19,7 +19,12 @@ import xarray as xr
 
 def time_slice_darr(darr, setDict):
     '''Make darr over times of interest from input years'''
-    if 'CESM2-ARISE' in darr.scenario:
+    # The order of these if statements is important!
+    if 'CESM2-ARISE-DelayedStart' in darr.scenario:
+        setYrs = setDict["calcIntvl"]["CESM2-ARISE-DelayedStart"]
+    elif 'CESM2-ARISE:Control' in darr.scenario:
+        setYrs = setDict["calcIntvl"]["CESM2-SSP245"]
+    elif 'CESM2-ARISE' in darr.scenario:
         setYrs = setDict["calcIntvl"]["CESM2-ARISE"]
     elif 'UKESM-ARISE' in darr.scenario:
         setYrs = setDict["calcIntvl"]["UKESM-ARISE"]
@@ -27,18 +32,30 @@ def time_slice_darr(darr, setDict):
         setYrs = setDict["calcIntvl"]["GLENS"]
     elif 'PreindustrialControl' in darr.scenario:
         setYrs = setDict["calcIntvl"]["piControl"]
-    timeSliceCesm = slice(
-        cftime.DatetimeNoLeap(setYrs[0], 7, 15, 12, 0, 0, 0),
-        cftime.DatetimeNoLeap(setYrs[1], 7, 15, 12, 0, 0, 0))
-    timeSliceUkesm = slice(
-        cftime.Datetime360Day(setYrs[0], 6, 30, 0, 0, 0, 0),
-        cftime.Datetime360Day(setYrs[1], 6, 30, 0, 0, 0, 0))    
-    try:
-        darrToi = darr.sel(time=timeSliceCesm)
-    except: # This will get messy when another model runs ARISE :)
-        darrToi = darr.sel(time=timeSliceUkesm)
-        
-    return darrToi
+
+    darrToiItvlList = list()
+    for sy in setYrs:
+        ic(sy)
+        if 'PreindustrialControl' in darr.scenario:
+            timeSliceCesm = slice(
+                cftime.DatetimeNoLeap(sy[0], 6, 29, 6, 0, 0, 0),
+                cftime.DatetimeNoLeap(sy[1], 6, 29, 6, 0, 0, 0))
+        else:
+            timeSliceCesm = slice(
+                cftime.DatetimeNoLeap(sy[0], 7, 15, 12, 0, 0, 0),
+                cftime.DatetimeNoLeap(sy[1], 7, 15, 12, 0, 0, 0))
+        timeSliceUkesm = slice(
+            cftime.Datetime360Day(sy[0], 6, 30, 0, 0, 0, 0),
+            cftime.Datetime360Day(sy[1], 6, 30, 0, 0, 0, 0))    
+        try:
+            darrToi = darr.sel(time=timeSliceCesm)
+        except: # This will get messy when another model runs ARISE :)
+            darrToi = darr.sel(time=timeSliceUkesm)
+        darrToiItvlList.append(darrToi)
+
+    darrToiIntvl = xr.concat(darrToiItvlList, dim='interval')
+    
+    return darrToiIntvl
 
 def calc_temporal_grad(darr, years):
     ''' Calculate temporal gradient for an array. Vectorized linear
@@ -82,20 +99,25 @@ def calc_spatial_grad_comp(darr):
     distX = dLon * boxLngth * np.cos(latGridRad) # Lon distance in km
     
     if 'realization' in darr.dims:
-        nsGradRlzList = list()
-        ewGradRlzList = list()
+        nsGradRlzIntervalList = list()
+        ewGradRlzIntervalList = list()
         for r in darr.realization.data:
-            nsGradRlz = sndimg.sobel( # Calculate north/south spatial gradient
-                darr.isel(realization=r), axis=0, mode='reflect')
-            nsGradRlzList.append(nsGradRlz)
-            ewGradRlz = sndimg.sobel( # Calculate east/west spatial gradient
-                darr.isel(realization=r), axis=1, mode='reflect')
-            ewGradRlzList.append(ewGradRlz)
-        nsGrad = np.nanmean(nsGradRlzList, axis=0)
-        ewGrad = np.nanmean(ewGradRlzList, axis=0)
+            nsGradIntervalList = list()
+            ewGradIntervalList = list()
+            for itvl in darr.interval.data:
+                nsGradIntervalList.append(sndimg.sobel( # North/south spatial gradient
+                    darr.isel(realization=r).isel(interval=itvl),
+                    axis=0, mode='reflect'))
+                ewGradIntervalList.append(sndimg.sobel( # East/west spatial gradient
+                    darr.isel(realization=r).isel(interval=itvl), 
+                    axis=1, mode='reflect'))
+            nsGradRlzIntervalList.append(nsGradIntervalList) 
+            ewGradRlzIntervalList.append(ewGradIntervalList)
+        nsGrad = np.nanmean(nsGradRlzIntervalList, axis=0)
+        ewGrad = np.nanmean(ewGradRlzIntervalList, axis=0)
     else:
-        nsGrad = sndimg.sobel(darr, axis=0, mode='reflect')
-        ewGrad = sndimg.sobel(darr, axis=1, mode='reflect')
+        nsGrad = sndimg.sobel(darr, axis=1, mode='reflect')
+        ewGrad = sndimg.sobel(darr, axis=2, mode='reflect')
     nsGradSc = nsGrad / (8 * distY)
     ewGradSc = ewGrad / (8 * distX)
 
@@ -108,8 +130,12 @@ def calc_spat_temp_grad(darr, setDict):
     yrSpan = [
             darrToi.time.dt.year.data[0],
             darrToi.time.dt.year.data[-1]]
+    ic(yrSpan)
     tGradDict = calc_temporal_grad(darrToi, years=yrSpan)
     tGrad = tGradDict["grad"].compute()
+    for itv in tGrad.interval:
+        ic(check_stats(tGrad.sel(interval=itv)))
+    sys.exit('STOP')
     darrTimeMn = darrToi.mean(dim='time')
     nsGrad, ewGrad = calc_spatial_grad_comp(darrTimeMn)
     
@@ -120,20 +146,28 @@ def calc_climate_speed(darr, setDict):
     tGrad, nsGrad, ewGrad, yrSpan = calc_spat_temp_grad(darr, setDict)
     totGrad = np.sqrt((nsGrad ** 2) + (ewGrad ** 2))
     sGrad = totGrad   
-
-    climSpd = tGrad / sGrad
-    climSpd.attrs = darr.attrs
-    # TODO: make attribute generation flexible by variable
-    climSpd.attrs['long_name'] = 'Climate speed of 2m temperature' \
+    
+    climSpdList = list() # TODO: someday make this less wacky, hopefully
+    # ic(tGrad, tGrad.interval)
+    for itvlc,itvl in enumerate(tGrad.interval):
+        climSpd = tGrad.sel(interval=itvl) / sGrad[itvlc,:,:]
+        climSpd.attrs = darr.attrs
+        climSpdList.append(climSpd)
+        ic(check_stats(sGrad))
+        ic(check_stats(tGrad.sel(interval=itvl)))
+    climSpdItvl = xr.concat(climSpdList, dim='interval')
+    # TODO: make attributes flexible by variable (e.g., climate speed of X)
+    climSpdItvl.attrs['long_name'] = 'Climate speed of 2m temperature' \
         + ' ' + str(yrSpan[0]) + '-' + str(yrSpan[1])
-    climSpd.attrs['units'] = 'km/yr'
+    climSpdItvl.attrs['units'] = 'km/yr'
     
     # Display for troubleshooting
+    ic(climSpdItvl.scenario)
     # ic(check_stats(tGrad.data))
     # ic(check_stats(sGrad.data))
-    # ic(check_stats(climSpd.data))
+    ic(check_stats(climSpdItvl.data))
     
-    return climSpd
+    return climSpdItvl
     
 def calc_spat_grad(darr, setDict):
     ''' Calculate the climate speed of a variable '''

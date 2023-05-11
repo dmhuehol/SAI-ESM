@@ -46,11 +46,11 @@ dataDict = {
     "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_2mTemp/',
     "idGlensCntrl": None,  # 'control_*' or None
     "idGlensFdbck": None,  # 'feedback_*' or None
-    "idArise": None,  # '*DEFAULT*' or None
-    "idS245Cntrl": None,  # '*BWSSP245*' or None
+    "idArise": '*DEFAULT*',  # '*DEFAULT*' or None
+    "idS245Cntrl": '*BWSSP245*',  # '*BWSSP245*' or None
     "idS245Hist": None,  # '*BWHIST*' or None
-    "idUkesmNoSai": '*ssp245*', #'*ssp245*' or None
-    "idUkesmArise": '*arise-sai-1p5*', #'*arise-sai-1p5*' or None
+    "idUkesmNoSai": None, #'*ssp245*' or None
+    "idUkesmArise": None, #'*arise-sai-1p5*' or None
     "idDelayedStart": None, # '*DELAYED*' or None
     "idArise1p0": None, # '*ARISE1P0*' or None
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc', # Landmask file location (CESM)
@@ -65,19 +65,19 @@ setDict = {
         },
     "endIntvl": { # Window years for ending interval
         "GLENS": [2025,2030],
-        "CESM2-ARISE": [2040,2045],
-        "UKESM-ARISE": [2040,2045]
+        "CESM2-ARISE": [2065,2070],
+        "UKESM-ARISE": [2065,2070]
         },
     "convert": (fcu.kel_to_cel,),  # TUPLE of converter(s), None for default units
     "cmap": None,  # None for default (cmocean balance) or choose colormap
-    "cbVals": [-1.5,1.5],  # None for automatic or [min,max] to override,
+    "cbVals": [-2,2],  # None for automatic or [min,max] to override,
     "addCyclicPoint": False,  # True for ocean data/False for others
     "areaAvgBool": False,  # ALWAYS FALSE: no area averaging for a map!
     "robustnessBool": False,  # True/False to run robustness
-    "plotPanel": 'intiUKARISE15' # See docstring for valid inputs
+    "plotPanel": 'snapARISE15' # See docstring for valid inputs
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230412_newAriseContd/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230420_ukesm/',
     "dpiVal": 400
 }
 loopDict = {

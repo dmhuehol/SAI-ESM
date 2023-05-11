@@ -20,6 +20,7 @@ fontPath = '/Users/dhueholt/Library/Fonts/'  #Location of font files
 for font in fm.findSystemFonts(fontPath):
     fm.fontManager.addfont(font)
 
+import fun_calc_var as fcv
 import fun_process_data as fpd
 import fun_plot_tools as fpt
 
@@ -44,7 +45,7 @@ def save_colorbar(cbarDict, savePath, saveName, dpiVal=400):
         img = plt.imshow(cbarRange, cmap=cbarDict["cmap"])
         plt.gca().set_visible(False)
         colorAx = plt.axes([0.1,0.2,0.8,0.3])
-        cb = plt.colorbar(orientation='horizontal', cax=colorAx)
+        cb = plt.colorbar(orientation='horizontal', cax=colorAx, extend='both')
         for label in cb.ax.get_xticklabels():
             print(label)
             # label.set_fontproperties(FiraSansThin) #Set font
@@ -168,3 +169,54 @@ def plot_rob_spaghetti_demo(darrList, dataDict, setDict, outDict):
     plt.savefig(savename, bbox_inches='tight')
     plt.close()
     ic(savename)
+
+def plot_rangeplot(loRlzList, loDataDictList, setDict, outDict):
+    ''' Make rangeplot '''
+    plt.rcParams.update({'font.size': 12})
+    plt.rcParams.update({'font.family': 'Red Hat Display'})
+    plt.rcParams.update({'font.weight': 'normal'})
+    fig, ax = plt.subplots()
+    for loc,rlzList in enumerate(loRlzList):
+        plotDict = fpt.make_scenario_dict(rlzList, setDict)
+        for pscc,pscn in enumerate(plotDict.keys()):
+            for itvl in plotDict[pscn].interval:
+                ensMed = plotDict[pscn].median(dim=('lat','lon'))
+                ensMedAbs = abs(ensMed)
+                minEnsMed = np.min(ensMedAbs.data)
+                maxEnsMed = np.max(ensMedAbs.data)
+                mnEnsMed = np.mean(ensMedAbs.data)
+                md = fpd.meta_book(
+                        setDict, loDataDictList[loc], ensMed) # Get metadata
+                actCol, actLab = fpt.line_from_scenario(ensMed.scenario, md)
+                yVal = fpt.yVal_from_scenario(
+                    ensMed.scenario, loDataDictList[loc]["landmaskFlag"])
+                if yVal is None:
+                    yVal = pscc/2
+                plt.plot(
+                    [minEnsMed, maxEnsMed], [yVal, yVal], color=actCol, label=actLab,
+                    linewidth=0.5)
+                if pscn == 'CESM2-WACCM:PreindustrialControl':
+                    plt.scatter(
+                        ensMedAbs.data, np.zeros(len(ensMedAbs.interval))+yVal,
+                        color=actCol)
+                    plt.scatter(
+                        mnEnsMed, yVal, s=200, marker='|', color=actCol)
+                else:
+                    plt.scatter(
+                        ensMedAbs.sel(interval=itvl).data, 
+                        np.zeros(len(ensMedAbs.realization))+yVal,
+                        color=actCol)
+                    # plt.scatter(mnEnsMed, yVal, s=200, marker='|', color=actCol)
+                # plt.legend()
+                # plt.xlim([0, 10.5])
+                plt.yticks([])
+                # plt.ylim([-0.25,1.25])
+                plt.xlabel('Magnitude of climate speed (km/yr)')
+        ax.spines[['left', 'top', 'right']].set_visible(False)
+        ax.set_yticklabels([])
+        if outDict["dpiVal"] == 'pdf':
+            savename = outDict["savePath"] + '3landoceanSepPi10yrs' + '.pdf'
+            plt.savefig(savename, bbox_inches='tight')
+        else:
+            savename = outDict["savePath"] + '2_rangetest' + '.png'
+            plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')    

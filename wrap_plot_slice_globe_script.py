@@ -56,13 +56,14 @@ dataDict = {
     "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_2mTemp/',
     "idGlensCntrl": None,  # 'control_*' or None
     "idGlensFdbck": None,  # 'feedback_*' or None
-    "idArise": None,  # '*DEFAULT*' or None
-    "idS245Cntrl": None,  # '*BWSSP245*' or None
+    "idArise": '*DEFAULT*',  # '*DEFAULT*' or None
+    "idS245Cntrl": '*BWSSP245*',  # '*BWSSP245*' or None
     "idS245Hist": None,  # '*BWHIST*' or None
-    "idUkesmNoSai": '*ssp245*', #'*ssp245*' or None
-    "idUkesmArise": '*arise-sai-1p5*', #'*arise-sai-1p5*' or None
-    "idDelayedStart": None, # '*DELAYED*' or None
+    "idUkesmNoSai": None, #'*ssp245*' or None
+    "idUkesmArise": None, #'*arise-sai-1p5*' or None
+    "idDelayedStart": '*DELAYED*', # '*DELAYED*' or None
     "idArise1p0": None, # '*ARISE1P0*' or None
+    "idPiControl": '*piControl*', #'*piControl*'
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc', # Landmask file location (CESM)
     "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
 }
@@ -70,9 +71,10 @@ setDict = {
     "landmaskFlag": 'land',  # None no mask, 'land' to mask ocean, 'ocean' to mask land
     "calcIntvl": { # Years to calculate
         "GLENS": [2020, 2029],
-        "CESM2-ARISE": [2035, 2044],
-        "UKESM-ARISE": [2035, 2044],
-        "piControl": [10, 19],
+        "CESM2-ARISE": [2045, 2054],
+        "CESM2-ARISE-DelayedStart": [2045, 2054],
+        "UKESM-ARISE": [2035, 2054],
+        "piControl": [10, 109],
         },
     "convert": (fcu.kel_to_cel, fcv.calc_climate_speed,),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
     "cmap": zmzmDisc,  # None for default (cmocean balance) or choose colormap
@@ -80,12 +82,12 @@ setDict = {
     "addCyclicPoint": False,  # True for ocean data/False for others
     "areaAvgBool": False,  # ALWAYS FALSE: no area averaging for a map!
     "robustnessBool": False,  # True/False to run robustness
-    "plotPanel": 'UKESMARISE15', # See docstring for valid inputs
-    "plotEnsType": 'mean' #'mean', 'max'/'min' pointwise max/min, number for single member
+    "plotPanel": 'CESMS245', # See docstring for valid inputs
+    "plotEnsType": 'mean' #356'mean', 'max'/'min' pointwise max/min, number for single member
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230412_newAriseContd/',
-    "dpiVal": 800
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230504_figureDrafting/',
+    "dpiVal": 400
 }
 loopDict = {
     "rlzs": ('allplot',),  # See docstring for valid inputs
