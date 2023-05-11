@@ -57,12 +57,12 @@ dataDict = {
     "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_2mTemp/',
     "idGlensCntrl": None,  # 'control_*' or None
     "idGlensFdbck": None,  # 'feedback_*' or None
-    "idArise": None,  # '*DEFAULT*' or None
-    "idS245Cntrl": None,  # '*BWSSP245*' or None
+    "idArise": '*DEFAULT*',  # '*DEFAULT*' or None
+    "idS245Cntrl": '*BWSSP245*',  # '*BWSSP245*' or None
     "idS245Hist": None,  # '*BWHIST*' or None
     "idUkesmNoSai": None, #'*ssp245*' or None
     "idUkesmArise": None, #'*arise-sai-1p5*' or None
-    "idDelayedStart": None, # '*DELAYED*' or None
+    "idDelayedStart": '*DELAYED*', # '*DELAYED*' or None
     "idArise1p0": None, # '*ARISE1P0*' or None
     "idPiControl": '*piControl*', #'*piControl*'
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc', # Landmask file location (CESM)
@@ -76,16 +76,16 @@ setDict = {
         "CESM2-SSP245": ([2045, 2064],),
         "CESM2-ARISE-DelayedStart": ([2045, 2064],),
         "UKESM-ARISE": ([2035, 2054],),
+        # "piControl": (
+        #     [10, 12], [48,50])
+        # "piControl": (
+        #     [10, 19], [48, 57], [100, 109],
+        #     [129, 138], [169, 178], [264, 273],
+        #     [285, 294], [341, 350], [384, 393], [471, 480])
         "piControl": (
-            [10, 12], [48,50])
-        # "piControl": (
-        #     [10, 12], [48, 50], [100, 102],
-        #     [129, 131], [169, 171], [264, 266],
-        #     [285, 287], [341, 343], [384, 386], [471, 473])
-        # "piControl": (
-        #     [10, 29], [48, 67], [100, 119],
-        #     [129, 148], [169, 188], [264, 283],
-        #     [285, 304], [341, 360], [384, 403], [471, 490]),
+            [10, 29], [48, 67], [100, 119],
+            [129, 148], [169, 188], [264, 283],
+            [285, 304], [341, 360], [384, 403], [471, 490]),
         },
     "convert": (fcu.kel_to_cel, fcv.calc_climate_speed,),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
     "cmap": zmzmDisc,  # None for default (cmocean balance) or choose colormap
@@ -109,7 +109,6 @@ loopDict = {
     "regions": ('global',),  # 'global' only for maps
 }
 ic(dataDict, setDict, outDict, loopDict)  # Show input settings at command line
-
 # Make images
 for rlz in loopDict["rlzs"]:
     landoceanScnList = list()

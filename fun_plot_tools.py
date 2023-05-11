@@ -445,32 +445,41 @@ def line_from_scenario(scn, md):
 
     return activeColor, activeLabel
     
-def yVal_from_scenario(scn, landmaskFlag):
-    ''' Get y-value from scenario information (e.g., rangeplot) '''
+def markers_from_scenario(scn, landmaskFlag):
+    ''' Get y-value and marker from scenario info '''
     if 'CESM2-ARISE:Feedback' in scn:
         if landmaskFlag == 'ocean':
             yVal = 0.5
+            fcol = 'none'
         else:
             yVal = 0.7
+            fcol = '#12D0B2' #Turquoise
     elif 'ARISE-DelayedStart:Feedback' in scn:
         if landmaskFlag == 'ocean':
             yVal = 1.5
+            fcol = 'none'
         else:
             yVal = 1.7
+            fcol = '#DDA2FB'
     elif 'CESM2-ARISE:Control' in scn:
         if landmaskFlag == 'ocean':
             yVal = 1
+            fcol = 'none'
         else:
             yVal = 1.2
+            fcol = '#F8A53D'
     elif 'PreindustrialControl' in scn:
         if landmaskFlag == 'ocean':
             yVal = 0
+            fcol = 'none'
         else:
             yVal = 0.2
+            fcol = '#B8B8B8'
     else:
         yVal = None
+        fcol = '#000000'
 
-    return yVal
+    return yVal, fcol
 
 def plot_metaobjects(scnToPlot, fig, b, t, lw=1.2):
     ''' Determines which metaobjects to plot based on scenario '''

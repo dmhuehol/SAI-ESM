@@ -52,10 +52,8 @@ def time_slice_darr(darr, setDict):
         except: # This will get messy when another model runs ARISE :)
             darrToi = darr.sel(time=timeSliceUkesm)
         darrToiItvlList.append(darrToi)
-
-    darrToiIntvl = xr.concat(darrToiItvlList, dim='interval')
     
-    return darrToiIntvl
+    return darrToiItvlList
 
 def calc_temporal_grad(darr, years):
     ''' Calculate temporal gradient for an array. Vectorized linear
@@ -99,22 +97,17 @@ def calc_spatial_grad_comp(darr):
     distX = dLon * boxLngth * np.cos(latGridRad) # Lon distance in km
     
     if 'realization' in darr.dims:
-        nsGradRlzIntervalList = list()
-        ewGradRlzIntervalList = list()
+        nsGradRlzList = list()
+        ewGradRlzList = list()
         for r in darr.realization.data:
-            nsGradIntervalList = list()
-            ewGradIntervalList = list()
-            for itvl in darr.interval.data:
-                nsGradIntervalList.append(sndimg.sobel( # North/south spatial gradient
-                    darr.isel(realization=r).isel(interval=itvl),
-                    axis=0, mode='reflect'))
-                ewGradIntervalList.append(sndimg.sobel( # East/west spatial gradient
-                    darr.isel(realization=r).isel(interval=itvl), 
-                    axis=1, mode='reflect'))
-            nsGradRlzIntervalList.append(nsGradIntervalList) 
-            ewGradRlzIntervalList.append(ewGradIntervalList)
-        nsGrad = np.nanmean(nsGradRlzIntervalList, axis=0)
-        ewGrad = np.nanmean(ewGradRlzIntervalList, axis=0)
+            nsGradRlzList.append(
+                sndimg.sobel( # North/south spatial gradient
+                    darr.isel(realization=r), axis=0, mode='reflect'))
+            ewGradRlzList.append(
+                sndimg.sobel( # East/west spatial gradient
+                    darr.isel(realization=r), axis=1, mode='reflect'))
+        nsGrad = np.nanmean(nsGradRlzList, axis=0)
+        ewGrad = np.nanmean(ewGradRlzList, axis=0)
     else:
         nsGrad = sndimg.sobel(darr, axis=1, mode='reflect')
         ewGrad = sndimg.sobel(darr, axis=2, mode='reflect')
@@ -123,19 +116,15 @@ def calc_spatial_grad_comp(darr):
 
     return nsGradSc, ewGradSc
     
-def calc_spat_temp_grad(darr, setDict):
+def calc_spat_temp_grad(darrToi, setDict):
     ''' Calculate spatial and temporal gradients of temperature
     (common tasks for several variables) '''
-    darrToi = time_slice_darr(darr, setDict)
     yrSpan = [
             darrToi.time.dt.year.data[0],
             darrToi.time.dt.year.data[-1]]
     ic(yrSpan)
     tGradDict = calc_temporal_grad(darrToi, years=yrSpan)
     tGrad = tGradDict["grad"].compute()
-    for itv in tGrad.interval:
-        ic(check_stats(tGrad.sel(interval=itv)))
-    sys.exit('STOP')
     darrTimeMn = darrToi.mean(dim='time')
     nsGrad, ewGrad = calc_spatial_grad_comp(darrTimeMn)
     
@@ -143,18 +132,24 @@ def calc_spat_temp_grad(darr, setDict):
 
 def calc_climate_speed(darr, setDict):
     ''' Calculate the climate speed of a variable '''
-    tGrad, nsGrad, ewGrad, yrSpan = calc_spat_temp_grad(darr, setDict)
-    totGrad = np.sqrt((nsGrad ** 2) + (ewGrad ** 2))
-    sGrad = totGrad   
-    
-    climSpdList = list() # TODO: someday make this less wacky, hopefully
-    # ic(tGrad, tGrad.interval)
-    for itvlc,itvl in enumerate(tGrad.interval):
-        climSpd = tGrad.sel(interval=itvl) / sGrad[itvlc,:,:]
+    darrIntvlList = time_slice_darr(darr, setDict)
+    climSpdList = list()
+    for darr in darrIntvlList:
+        tGrad, nsGrad, ewGrad, yrSpan = calc_spat_temp_grad(darr, setDict)
+        totGrad = np.sqrt((nsGrad ** 2) + (ewGrad ** 2))
+        sGrad = totGrad
+        climSpd = tGrad / sGrad
         climSpd.attrs = darr.attrs
         climSpdList.append(climSpd)
-        ic(check_stats(sGrad))
-        ic(check_stats(tGrad.sel(interval=itvl)))
+    
+    # climSpdList = list() # TODO: someday make this less wacky, hopefully
+    # # ic(tGrad, tGrad.interval)
+    # for itvlc,itvl in enumerate(tGrad.interval):
+    #     climSpd = tGrad.sel(interval=itvl) / sGrad[itvlc,:,:]
+    #     climSpd.attrs = darr.attrs
+    #     climSpdList.append(climSpd)
+    #     ic(check_stats(sGrad))
+    #     ic(check_stats(tGrad.sel(interval=itvl)))
     climSpdItvl = xr.concat(climSpdList, dim='interval')
     # TODO: make attributes flexible by variable (e.g., climate speed of X)
     climSpdItvl.attrs['long_name'] = 'Climate speed of 2m temperature' \
@@ -162,11 +157,11 @@ def calc_climate_speed(darr, setDict):
     climSpdItvl.attrs['units'] = 'km/yr'
     
     # Display for troubleshooting
-    ic(climSpdItvl.scenario)
+    # ic(climSpdItvl.scenario)
     # ic(check_stats(tGrad.data))
     # ic(check_stats(sGrad.data))
-    ic(check_stats(climSpdItvl.data))
-    
+    # ic(check_stats(climSpdItvl.data))
+
     return climSpdItvl
     
 def calc_spat_grad(darr, setDict):

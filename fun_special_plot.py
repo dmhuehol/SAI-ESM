@@ -172,7 +172,7 @@ def plot_rob_spaghetti_demo(darrList, dataDict, setDict, outDict):
 
 def plot_rangeplot(loRlzList, loDataDictList, setDict, outDict):
     ''' Make rangeplot '''
-    plt.rcParams.update({'font.size': 12})
+    plt.rcParams.update({'font.size': 10})
     plt.rcParams.update({'font.family': 'Red Hat Display'})
     plt.rcParams.update({'font.weight': 'normal'})
     fig, ax = plt.subplots()
@@ -180,7 +180,9 @@ def plot_rangeplot(loRlzList, loDataDictList, setDict, outDict):
         plotDict = fpt.make_scenario_dict(rlzList, setDict)
         for pscc,pscn in enumerate(plotDict.keys()):
             for itvl in plotDict[pscn].interval:
-                ensMed = plotDict[pscn].median(dim=('lat','lon'))
+                latWeights = np.cos(np.deg2rad(plotDict[pscn]['lat']))
+                darrWght = plotDict[pscn].weighted(latWeights)
+                ensMed = darrWght.quantile(0.5, dim=('lat','lon'), skipna=True)
                 ensMedAbs = abs(ensMed)
                 minEnsMed = np.min(ensMedAbs.data)
                 maxEnsMed = np.max(ensMedAbs.data)
@@ -188,7 +190,8 @@ def plot_rangeplot(loRlzList, loDataDictList, setDict, outDict):
                 md = fpd.meta_book(
                         setDict, loDataDictList[loc], ensMed) # Get metadata
                 actCol, actLab = fpt.line_from_scenario(ensMed.scenario, md)
-                yVal = fpt.yVal_from_scenario(
+                fcol = 'k'
+                yVal, fcol = fpt.markers_from_scenario(
                     ensMed.scenario, loDataDictList[loc]["landmaskFlag"])
                 if yVal is None:
                     yVal = pscc/2
@@ -198,24 +201,32 @@ def plot_rangeplot(loRlzList, loDataDictList, setDict, outDict):
                 if pscn == 'CESM2-WACCM:PreindustrialControl':
                     plt.scatter(
                         ensMedAbs.data, np.zeros(len(ensMedAbs.interval))+yVal,
-                        color=actCol)
+                        color=actCol, facecolor=fcol)
                     plt.scatter(
                         mnEnsMed, yVal, s=200, marker='|', color=actCol)
                 else:
-                    plt.scatter(
-                        ensMedAbs.sel(interval=itvl).data, 
-                        np.zeros(len(ensMedAbs.realization))+yVal,
-                        color=actCol)
-                    # plt.scatter(mnEnsMed, yVal, s=200, marker='|', color=actCol)
+                    try:
+                        plt.scatter(
+                            ensMedAbs.sel(interval=itvl).data, 
+                            np.zeros(len(ensMedAbs.realization))+yVal,
+                            color=actCol, facecolor=fcol)
+                    except:
+                        plt.scatter(
+                            ensMedAbs.data, 
+                            np.zeros(len(ensMedAbs.realization))+yVal,
+                            color=actCol, facecolor=fcol)
+                    plt.scatter(mnEnsMed, yVal, s=200, marker='|', color=actCol)
                 # plt.legend()
-                # plt.xlim([0, 10.5])
+                plt.xlim([-0.001, 11])
                 plt.yticks([])
+                b,t = plt.ylim()
                 # plt.ylim([-0.25,1.25])
                 plt.xlabel('Magnitude of climate speed (km/yr)')
+        # plt.plot([0,0],[b,t], color='#dedede', linestyle='dotted', linewidth=1)
         ax.spines[['left', 'top', 'right']].set_visible(False)
         ax.set_yticklabels([])
         if outDict["dpiVal"] == 'pdf':
-            savename = outDict["savePath"] + '3landoceanSepPi10yrs' + '.pdf'
+            savename = outDict["savePath"] + '4landoceanAllWidthAbsX001' + '.pdf'
             plt.savefig(savename, bbox_inches='tight')
         else:
             savename = outDict["savePath"] + '2_rangetest' + '.png'
