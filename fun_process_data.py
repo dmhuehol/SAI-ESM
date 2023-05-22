@@ -119,6 +119,20 @@ def apply_mask(darr, dataDict, setDict):
         maskDarr = darr
 
     return maskDarr
+    
+def get_mask(dataDict, scenario):
+    ''' Get land/ocean mask '''
+    if "UKESM" in scenario:
+        activeMaskDset = xr.open_dataset(dataDict["maskUkesm"])
+        activeMask = activeMaskDset.mask
+    elif "CESM" in scenario:
+        activeMaskDset = xr.open_dataset(dataDict["mask"])
+        try:
+            activeMask = activeMaskDset.landmask
+        except:
+            activeMask = activeMaskDset.imask
+
+    return activeMask
 
 def discover_data_var(dset):
     ''' Find data var among the many keys in an ESM file '''

@@ -68,7 +68,7 @@ dataDict = {
     "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
 }
 setDict = {
-    "landmaskFlag": 'land',  # None no mask, 'land' to mask ocean, 'ocean' to mask land
+    "landmaskFlag": 'See loop',  # None no mask, 'land' to mask ocean, 'ocean' to mask land
     "calcIntvl": { # Years to calculate
         "GLENS": ([2020, 2039],),
         "CESM2-ARISE": ([2035, 2054], ),
@@ -86,16 +86,15 @@ setDict = {
             [129, 148], [169, 188], [264, 283],
             [285, 304], [341, 360], [384, 403], [471, 490]),
         },
-    "convert": (fcu.kel_to_cel, fcv.calc_warming_rate,),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
+    "convert": (fcu.kel_to_cel, fcv.calc_climate_speed,),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
     "cmap": zmzmDisc,  # None for default (cmocean balance) or choose colormap
     "cbVals": [-51,51],  # None for automatic or [min,max] to override,
     "addCyclicPoint": False,  # True for ocean data/False for others
     "areaAvgBool": False,  # ALWAYS FALSE: no area averaging for a map!
     "robustnessBool": False,  # True/False to run robustness
     "plotScenarios": (
-        'SSP2-4.5', 
-        # 'ARISE-SAI-1.5', 'ARISE-SAI-DelayedStart', 
-        # 'CESM2-WACCM:PreindustrialControl',
+        'SSP2-4.5', 'ARISE-SAI-1.5', 'ARISE-SAI-DelayedStart', 
+        'CESM2-WACCM:PreindustrialControl',
         ), # See docstring for valid inputs
 }
 outDict = {
@@ -111,17 +110,22 @@ loopDict = {
 ic(dataDict, setDict, outDict, loopDict)  # Show input settings at command line
 # Make images
 for rlz in loopDict["rlzs"]:
-    setDict["realization"] = rlz
-    scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-    # You can write custom opening functions for datasets that can't
-    # plug into call_to_open and do them here. Remember this is a
-    # sort of bespoke function--it needs to be replicable, not flexible
-    # (kind of like your old ice diagram code)
-    dataDict = {**dataDict, **cmnDict}
-
-    for lev in loopDict["levels"]:
-        setDict["levOfInt"] = lev
-        fsp.plot_warmrate_areaexposed(
-            scnList, dataDict, setDict, outDict)
+    landoceanScnList = list()
+    landoceanDdList = list()
+    for landocean in ('ocean',):
+        setDict["landmaskFlag"] = landocean
+        setDict["realization"] = rlz
+        scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
+        dataDict = {**dataDict, **cmnDict}
+        dataDict["landmaskFlag"] = setDict["landmaskFlag"] # Required info for rangeplot
+        landoceanScnList.append(scnList)
+        landoceanDdList.append(dataDict)
+    
+        for lev in loopDict["levels"]:
+            setDict["levOfInt"] = lev
+            fsp.plot_area_exposed(
+                landoceanScnList, landoceanDdList, setDict, outDict)
+        landoceanScnList = list()
+        landoceanDdList = list()
 
 ic('Completed! :D')

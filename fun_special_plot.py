@@ -180,9 +180,7 @@ def plot_rangeplot(loRlzList, loDataDictList, setDict, outDict):
         plotDict = fpt.make_scenario_dict(rlzList, setDict)
         for pscc,pscn in enumerate(plotDict.keys()):
             for itvl in plotDict[pscn].interval:
-                latWeights = np.cos(np.deg2rad(plotDict[pscn]['lat']))
-                darrWght = plotDict[pscn].weighted(latWeights)
-                ensMed = darrWght.quantile(0.5, dim=('lat','lon'), skipna=True)
+                ensMed = fcv.calc_weighted_med(plotDict[pscn])
                 ensMedAbs = abs(ensMed)
                 minEnsMed = np.min(ensMedAbs.data)
                 maxEnsMed = np.max(ensMedAbs.data)
@@ -216,18 +214,163 @@ def plot_rangeplot(loRlzList, loDataDictList, setDict, outDict):
                             np.zeros(len(ensMedAbs.realization))+yVal,
                             color=actCol, facecolor=fcol)
                     plt.scatter(mnEnsMed, yVal, s=200, marker='|', color=actCol)
-                # plt.legend()
                 plt.xlim([-0.001, 11])
                 plt.yticks([])
                 b,t = plt.ylim()
-                # plt.ylim([-0.25,1.25])
                 plt.xlabel('Magnitude of climate speed (km/yr)')
-        # plt.plot([0,0],[b,t], color='#dedede', linestyle='dotted', linewidth=1)
         ax.spines[['left', 'top', 'right']].set_visible(False)
         ax.set_yticklabels([])
+        
+        savePrefix = 'r4autoname_'
+        saveStr = 'rangeplot' + '_' + md['varSve'][:11] + '_' + 'landocean' + \
+            '_' + md['ensStr']
         if outDict["dpiVal"] == 'pdf':
-            savename = outDict["savePath"] + '4landoceanAllWidthAbsX001' + '.pdf'
+            savename = outDict["savePath"] + savePrefix + saveStr + '.pdf'
             plt.savefig(savename, bbox_inches='tight')
         else:
-            savename = outDict["savePath"] + '2_rangetest' + '.png'
+            savename = outDict["savePath"] + savePrefix + saveStr + '.png'
             plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')    
+                            
+def plot_area_exposed(loRlzList, loDataDictList, setDict, outDict):
+    ''' Make area exposed plot '''
+    plt.rcParams.update({'font.size': 10})
+    plt.rcParams.update({'font.family': 'Red Hat Display'})
+    plt.rcParams.update({'font.weight': 'normal'})
+    fig, ax = plt.subplots()
+    paeTestList = list()
+    # TODO: Rewrite to modularize (use a list factory)
+    pae2List = list()
+    pae5List = list()
+    pae10List = list()
+    pae30List = list()
+    pae50List = list()
+    pae2ListMn = list()
+    pae5ListMn = list()
+    pae10ListMn = list()
+    pae30ListMn = list()
+    pae50ListMn = list()
+    for loc,rlzList in enumerate(loRlzList):
+        plotDict = fpt.make_scenario_dict(rlzList, setDict)
+        for pscc,pscn in enumerate(plotDict.keys()):
+            plotIntRlzMn = plotDict[pscn].mean(dim=('interval','realization'))
+            pae2Mn = fcv.calc_area_exposed(
+                plotIntRlzMn, setDict, loDataDictList[loc], 2)
+            pae5Mn = fcv.calc_area_exposed(
+                plotIntRlzMn, setDict, loDataDictList[loc], 5)
+            pae10Mn = fcv.calc_area_exposed(
+                plotIntRlzMn, setDict, loDataDictList[loc], 10)
+            pae30Mn = fcv.calc_area_exposed(
+                plotIntRlzMn, setDict, loDataDictList[loc], 30)
+            pae50Mn = fcv.calc_area_exposed(
+                plotIntRlzMn, setDict, loDataDictList[loc], 50)
+            pae2ListMn.append(pae2Mn.data)
+            pae5ListMn.append(pae5Mn.data)
+            pae10ListMn.append(pae10Mn.data)
+            pae30ListMn.append(pae30Mn.data)
+            pae50ListMn.append(pae50Mn.data)
+            ic(plotIntRlzMn.scenario)
+            ic(pae2ListMn, pae5ListMn, pae10ListMn, pae30ListMn, pae50ListMn)
+            for itvl in plotDict[pscn].interval:
+                plotIntDarr = plotDict[pscn].sel(interval=itvl)
+                for rlz in plotDict[pscn].realization:
+                    plotRlzDarr = plotIntDarr.sel(realization=rlz)
+                    pae2 = fcv.calc_area_exposed(
+                        plotRlzDarr, setDict, loDataDictList[loc], 2)
+                    pae5 = fcv.calc_area_exposed(
+                        plotRlzDarr, setDict, loDataDictList[loc], 5)
+                    pae10 = fcv.calc_area_exposed(
+                        plotRlzDarr, setDict, loDataDictList[loc], 10)
+                    pae30 = fcv.calc_area_exposed(
+                        plotRlzDarr, setDict, loDataDictList[loc], 30)
+                    pae50 = fcv.calc_area_exposed(
+                        plotRlzDarr, setDict, loDataDictList[loc], 50)
+                    pae2List.append(pae2)
+                    pae5List.append(pae5)
+                    pae10List.append(pae10)
+                    pae30List.append(pae30)
+                    pae50List.append(pae50)
+                    
+                if  'CESM2-ARISE:Feedback' in plotRlzDarr.scenario:
+                    plt.plot([0, pae2Mn], [0.5, 0.5], color='#12D0B2', linewidth=5.5)
+                elif 'PreindustrialControl' in plotRlzDarr.scenario:
+                    plt.plot([0, pae2Mn], [0.6, 0.6], color='#B8B8B8', linewidth=5.5)
+                elif 'CESM2-ARISE:Control' in plotRlzDarr.scenario:
+                    plt.plot([0, pae2Mn], [0.7, 0.7], color='#F8A53D', linewidth=5.5)
+                elif 'ARISE-DelayedStart:Feedback' in plotRlzDarr.scenario:
+                    plt.plot([0, pae2Mn], [0.8, 0.8], color='#DDA2FB', linewidth=5.5)
+                    
+                if  'CESM2-ARISE:Feedback' in plotRlzDarr.scenario:
+                    plt.plot([0, pae5Mn], [1.5, 1.5], color='#12D0B2', linewidth=5.5)
+                elif 'PreindustrialControl' in plotRlzDarr.scenario:
+                    plt.plot([0, pae5Mn], [1.6, 1.6], color='#B8B8B8', linewidth=5.5)
+                elif 'CESM2-ARISE:Control' in plotRlzDarr.scenario:
+                    plt.plot([0, pae5Mn], [1.7, 1.7], color='#F8A53D', linewidth=5.5)
+                elif 'ARISE-DelayedStart:Feedback' in plotRlzDarr.scenario:
+                    plt.plot([0, pae5Mn], [1.8, 1.8], color='#DDA2FB', linewidth=5.5)
+                    
+                if  'CESM2-ARISE:Feedback' in plotRlzDarr.scenario:
+                    plt.plot([0, pae10Mn], [2.5, 2.5], color='#12D0B2', linewidth=5.5)
+                elif 'PreindustrialControl' in plotRlzDarr.scenario:
+                    plt.plot([0, pae10Mn], [2.6, 2.6], color='#B8B8B8', linewidth=5.5)
+                elif 'CESM2-ARISE:Control' in plotRlzDarr.scenario:
+                    plt.plot([0, pae10Mn], [2.7, 2.7], color='#F8A53D', linewidth=5.5)
+                elif 'ARISE-DelayedStart:Feedback' in plotRlzDarr.scenario:
+                    plt.plot([0, pae10Mn], [2.8, 2.8], color='#DDA2FB', linewidth=5.5)
+
+                if  'CESM2-ARISE:Feedback' in plotRlzDarr.scenario:
+                    plt.plot([0, pae30Mn], [3.5, 3.5], color='#12D0B2', linewidth=5.5)
+                elif 'PreindustrialControl' in plotRlzDarr.scenario:
+                    plt.plot([0, pae30Mn], [3.6, 3.6], color='#B8B8B8', linewidth=5.5)
+                elif 'CESM2-ARISE:Control' in plotRlzDarr.scenario:
+                    plt.plot([0, pae30Mn], [3.7, 3.7], color='#F8A53D', linewidth=5.5)
+                elif 'ARISE-DelayedStart:Feedback' in plotRlzDarr.scenario:
+                    plt.plot([0, pae30Mn], [3.8, 3.8], color='#DDA2FB', linewidth=5.5)
+                    
+                if  'CESM2-ARISE:Feedback' in plotRlzDarr.scenario:
+                    plt.plot([0, pae50Mn], [4.5, 4.5], color='#12D0B2', linewidth=5.5)
+                elif 'PreindustrialControl' in plotRlzDarr.scenario:
+                    plt.plot([0, pae50Mn], [4.6, 4.6], color='#B8B8B8', linewidth=5.5)
+                elif 'CESM2-ARISE:Control' in plotRlzDarr.scenario:
+                    plt.plot([0, pae50Mn], [4.7, 4.7], color='#F8A53D', linewidth=5.5)
+                elif 'ARISE-DelayedStart:Feedback' in plotRlzDarr.scenario:
+                    plt.plot([0, pae50Mn], [4.8, 4.8], color='#DDA2FB', linewidth=5.5)
+                
+                pae2List = list()
+                pae5List = list()
+                pae10List = list()
+                pae30List = list()
+                pae50List = list()
+                pae2ListMn = list()
+                pae5ListMn = list()
+                pae10ListMn = list()
+                pae30ListMn = list()
+                pae50ListMn = list()
+        
+    plt.xlim([0, 100])
+    plt.ylim([0, 5])
+    plt.yticks([])
+    ax.spines[['top', 'right']].set_visible(False)
+    ax.set_xticklabels([])
+    
+    md = fpd.meta_book(
+            setDict, loDataDictList[loc], plotIntRlzMn) # Get metadata
+    savePrefix = '2face_'
+    saveStr = 'aaexposed' + '_' + md['varSve'][:11] + '_' + setDict["landmaskFlag"] + \
+        '_' + md['ensStr']
+    if outDict["dpiVal"] == 'pdf':
+        savename = outDict["savePath"] + savePrefix + saveStr + '.pdf'
+        plt.savefig(savename, bbox_inches='tight')
+    else:
+        savename = outDict["savePath"] + savePrefix + saveStr + '.png'
+        plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')    
+
+def plot_warmrate_areaexposed(scnList, dataDict, setDict, outDict):
+    ''' Make warming rate vs area exposed plot ("risk plot") '''
+    plt.rcParams.update({'font.size': 10})
+    plt.rcParams.update({'font.family': 'Red Hat Display'})
+    plt.rcParams.update({'font.weight': 'normal'})
+    fig, ax = plt.subplots()
+    plotDict = fpt.make_scenario_dict(scnList, setDict)
+    ic(plotDict)
+    #Calculate warming rate
+    #Calculate global land area exposed to threshold >2km/y

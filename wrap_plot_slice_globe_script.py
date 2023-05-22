@@ -70,11 +70,21 @@ dataDict = {
 setDict = {
     "landmaskFlag": 'land',  # None no mask, 'land' to mask ocean, 'ocean' to mask land
     "calcIntvl": { # Years to calculate
-        "GLENS": [2020, 2029],
-        "CESM2-ARISE": [2045, 2054],
-        "CESM2-ARISE-DelayedStart": [2045, 2054],
-        "UKESM-ARISE": [2035, 2054],
-        "piControl": [10, 109],
+        "GLENS": ([2020, 2039],),
+        "CESM2-ARISE": ([2035, 2054], ),
+        "CESM2-SSP245": ([2045, 2064],),
+        "CESM2-ARISE-DelayedStart": ([2045, 2064],),
+        "UKESM-ARISE": ([2035, 2054],),
+        "piControl": (
+            [10, 29], )
+        # "piControl": (
+        #     [10, 19], [48, 57], [100, 109],
+        #     [129, 138], [169, 178], [264, 273],
+        #     [285, 294], [341, 350], [384, 393], [471, 480])
+        # "piControl": (
+        #     [10, 29], [48, 67], [100, 119],
+        #     [129, 148], [169, 188], [264, 283],
+        #     [285, 304], [341, 360], [384, 403], [471, 490]),
         },
     "convert": (fcu.kel_to_cel, fcv.calc_climate_speed,),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
     "cmap": zmzmDisc,  # None for default (cmocean balance) or choose colormap
@@ -82,11 +92,13 @@ setDict = {
     "addCyclicPoint": False,  # True for ocean data/False for others
     "areaAvgBool": False,  # ALWAYS FALSE: no area averaging for a map!
     "robustnessBool": False,  # True/False to run robustness
-    "plotPanel": 'CESMS245', # See docstring for valid inputs
-    "plotEnsType": 'mean' #356'mean', 'max'/'min' pointwise max/min, number for single member
+    "plotScenarios": (
+        'CESM2-WACCM:PreindustrialControl',
+        ), # See docstring for valid inputs
+    "plotEnsType": 'mean' # 'mean', 'max'/'min' pointwise max/min, number for single member
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230504_figureDrafting/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230519_area/',
     "dpiVal": 400
 }
 loopDict = {

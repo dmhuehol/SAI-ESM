@@ -56,13 +56,13 @@ setDict = {
     "realization": 'ensplot',
     "styleFlag": 5, # see docstring for valid inputs
     "mute": False, #True/False to use image muting on parts of time period
-    "ylim": [14.8,16.5], #None for automatic, [min,max] for manual
+    "ylim": [14.8,16.7], #None for automatic, [min,max] for manual
     "ylabel": '\u00b0C', #None for automatic
     "yticks": None, #None for automatic, np.arange(mn,mx,step) for manual
     "xticks": True, #True/False to enable/disable x-axis tick labels
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230508_multInt/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230519_area/',
     "addToSaveStr": '',
     "dpiVal": 'pdf'
 }

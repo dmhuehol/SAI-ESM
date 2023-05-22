@@ -17,6 +17,9 @@ import scipy.ndimage as sndimg
 from sklearn.linear_model import LinearRegression
 import xarray as xr
 
+import fun_process_data as fpd
+import fun_derive_data as fdd
+
 def time_slice_darr(darr, setDict):
     '''Make darr over times of interest from input years'''
     # The order of these if statements is important!
@@ -122,7 +125,7 @@ def calc_spat_temp_grad(darrToi, setDict):
     yrSpan = [
             darrToi.time.dt.year.data[0],
             darrToi.time.dt.year.data[-1]]
-    ic(yrSpan)
+    # ic(yrSpan)
     tGradDict = calc_temporal_grad(darrToi, years=yrSpan)
     tGrad = tGradDict["grad"].compute()
     darrTimeMn = darrToi.mean(dim='time')
@@ -141,15 +144,7 @@ def calc_climate_speed(darr, setDict):
         climSpd = tGrad / sGrad
         climSpd.attrs = darr.attrs
         climSpdList.append(climSpd)
-    
-    # climSpdList = list() # TODO: someday make this less wacky, hopefully
-    # # ic(tGrad, tGrad.interval)
-    # for itvlc,itvl in enumerate(tGrad.interval):
-    #     climSpd = tGrad.sel(interval=itvl) / sGrad[itvlc,:,:]
-    #     climSpd.attrs = darr.attrs
-    #     climSpdList.append(climSpd)
-    #     ic(check_stats(sGrad))
-    #     ic(check_stats(tGrad.sel(interval=itvl)))
+
     climSpdItvl = xr.concat(climSpdList, dim='interval')
     # TODO: make attributes flexible by variable (e.g., climate speed of X)
     climSpdItvl.attrs['long_name'] = 'Climate speed of 2m temperature' \
@@ -163,6 +158,23 @@ def calc_climate_speed(darr, setDict):
     # ic(check_stats(climSpdItvl.data))
 
     return climSpdItvl
+    
+def calc_warming_rate(darr, setDict):
+    ''' Calculate the warming rate (TODO: make this less
+        snarled) '''
+    darrIntvlList = time_slice_darr(darr, setDict)
+    tGradList = list()
+    for darr in darrIntvlList:
+        tGrad, nsGrad, ewGrad, yrSpan = calc_spat_temp_grad(darr, setDict)
+        tGradList.append(tGrad)
+
+    tGradItvl = xr.concat(climSpdList, dim='interval')
+    # TODO: make attributes flexible by variable (e.g., climate speed of X)
+    tGradItvl.attrs['long_name'] = 'Temporal gradient of 2m temperature' \
+        + ' ' + str(yrSpan[0]) + '-' + str(yrSpan[1])
+    tGradItvl.attrs['units'] = 'degC/yr'
+
+    return tGradItvl
     
 def calc_spat_grad(darr, setDict):
     ''' Calculate the climate speed of a variable '''
@@ -324,6 +336,36 @@ def calc_seasonal_shift(darr, setDict):
     ssnShift.attrs['units'] = 'days/decade'
     ic(check_stats(ssnShift))
     return ssnShift
+    
+def calc_area_exposed(cSpdDarr, setDict, dataDict, threshold):
+    ''' Calculate area exposed to certain climate velocity '''
+    cSpdData = cSpdDarr.data # Must be dimension lat x lon, no realization or interval
+    cellAreaDset = fdd.generate_gridcellarea(saveFlag=False)
+    cellAreaDarr = cellAreaDset['grid_cell_area']
+    cesmMask = fpd.get_mask(dataDict, cSpdDarr.scenario)
+    if dataDict["landmaskFlag"] == 'land':
+        loMask = cesmMask > 0
+    elif dataDict["landmaskFlag"] == 'ocean':
+        loMask = cesmMask == 0
+    else:
+        loMask = cesmMask > -1
+    cellAreaLandmask = cellAreaDarr.copy()
+    cellAreaLandmask.data[~loMask] = np.nan
+    cellAreaData = cellAreaLandmask.data
+    cSpdDataAbs = abs(cSpdData)
+    # ic(check_stats(cSpdDataAbs))
+    velMask = cSpdDataAbs >= threshold
+    # ic(velMask, loMask)
+    # ic(np.array_equal(velMask, loMask))
+    # sys.exit('STOP')
+    areaExposed = cellAreaLandmask.copy()
+    areaExposed.data[~velMask] = np.nan
+    
+    totalLandmaskArea = cellAreaLandmask.sum(skipna=True)
+    totalAreaExposed = np.nansum(areaExposed)
+    percAreaExposed = (totalAreaExposed / totalLandmaskArea) * 100
+
+    return percAreaExposed
 
 ### Helper functions
 def check_stats(darr):
@@ -343,3 +385,9 @@ def is_val(month, val):
     ''' Thanks to stackoverflow.com/a/40272331 for this idea! '''
     mask = month == val
     return mask
+    
+def calc_weighted_med(data):
+    latWeights = np.cos(np.deg2rad(data['lat']))
+    darrWght = data.weighted(latWeights)
+    ensMed = darrWght.quantile(0.5, dim=('lat','lon'), skipna=True)
+    return ensMed
