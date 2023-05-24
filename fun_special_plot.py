@@ -364,13 +364,56 @@ def plot_area_exposed(loRlzList, loDataDictList, setDict, outDict):
         savename = outDict["savePath"] + savePrefix + saveStr + '.png'
         plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')    
 
-def plot_warmrate_areaexposed(scnList, dataDict, setDict, outDict):
+def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
     ''' Make warming rate vs area exposed plot ("risk plot") '''
+    # refer to rangeplot for help understanding a similar approach
+    # making a single figure from a list of a list of dataarrays
     plt.rcParams.update({'font.size': 10})
     plt.rcParams.update({'font.family': 'Red Hat Display'})
     plt.rcParams.update({'font.weight': 'normal'})
     fig, ax = plt.subplots()
-    plotDict = fpt.make_scenario_dict(scnList, setDict)
-    ic(plotDict)
+    
+    warmratePlotDict = fpt.make_scenario_dict(wrCsList[0], setDict)
+    warmrateDictList = wrCsDictList[0]
+    cspdPlotDict = fpt.make_scenario_dict(wrCsList[1], setDict)
+    cspdDictList = wrCsDictList[1]
+
+    pae2ListMn = list()
+    pae2List = list()
+    for pscc,pscn in enumerate(cspdPlotDict.keys()):
+        plotIntRlzMn = cspdPlotDict[pscn].mean(dim=('interval','realization'))
+        pae2Mn = fcv.calc_area_exposed(
+            plotIntRlzMn, setDict, cspdDictList, 2)
+        pae2ListMn.append(pae2Mn.data)
+        for itvl in cspdPlotDict[pscn].interval:
+            plotIntDarr = cspdPlotDict[pscn].sel(interval=itvl)
+            for rlz in cspdPlotDict[pscn].realization:
+                plotRlzDarr = plotIntDarr.sel(realization=rlz)
+                pae2 = fcv.calc_area_exposed(
+                    plotRlzDarr, setDict, cspdDictList, 2)
+                pae2List.append(pae2)
+                warmrateScnRlz = warmratePlotDict[pscn].sel(interval=itvl).sel(realization=rlz)
+                latWeights = np.cos(np.deg2rad(warmrateScnRlz['lat']))
+                darrWght = warmrateScnRlz.weighted(latWeights)
+                warmrateScnGlobal = darrWght.mean(dim=['lat','lon'], skipna=True)
+                
+                fcol = fpt.colors_from_scenario(warmrateScnGlobal.scenario)
+                plt.scatter(warmrateScnGlobal, pae2.data, color=fcol)
+        pae2List = list()
+        pae2ListMn = list()
+
+    md = fpd.meta_book(
+        setDict, cspdDictList, plotIntRlzMn) # Get metadata             
+    savePrefix = '3color_'
+    saveStr = 'wrae' + '_'  + '_' + setDict["landmaskFlag"] + \
+        '_' + md['ensStr']
+    if outDict["dpiVal"] == 'pdf':
+        savename = outDict["savePath"] + savePrefix + saveStr + '.pdf'
+        plt.savefig(savename, bbox_inches='tight')
+    else:
+        savename = outDict["savePath"] + savePrefix + saveStr + '.png'
+        plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')                    
+                #Plot here and clear list
     #Calculate warming rate
     #Calculate global land area exposed to threshold >2km/y
+    #Make scatterplot

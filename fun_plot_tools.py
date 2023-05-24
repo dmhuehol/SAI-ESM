@@ -579,3 +579,18 @@ def get_cspd_colormap(palKey):
     custom_cmap = mcolors.ListedColormap(colors)
 
     return custom_cmap
+    
+def colors_from_scenario(scn):
+    ''' Get y-value and marker from scenario info '''
+    if 'CESM2-ARISE:Feedback' in scn:
+        fcol = '#12D0B2' #Turquoise
+    elif 'ARISE-DelayedStart:Feedback' in scn:
+        fcol = '#DDA2FB'
+    elif 'CESM2-ARISE:Control' in scn:
+        fcol = '#F8A53D'
+    elif 'PreindustrialControl' in scn:
+        fcol = '#B8B8B8'
+    else:
+        fcol = '#000000'
+
+    return fcol

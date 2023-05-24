@@ -1,18 +1,18 @@
-''' wrap_plot_slice_globe_script
-Run map plotting functions for a single time slice.
+''' wrap_wrae_script
+Plots warming rate vs. area exposed to given value (as for climate velocity)
 
 dataDict: defines input data
 setDict: settings for analysis/visualization
-    plotPanel: determines panel to plot, valid entries given below
-        'RCP85': RCP8.5
-        'CESMS245': CESM2 SSP2-4.5 (from CESM2-ARISE)
-        'UKESMS245': UKESM SSP2-4.5 (from UKESM-ARISE)
-        'GLENS': GLENS-SAI
-        'CESMARISE15': CESM2-ARISE-SAI-1.5
-        'ARISEDS': CESM2-ARISE-SAI-1.5-DelayedStart
-        'ARISE10': CESM2-ARISE-SAI-1.0
-        'UKESMARISE15': UKESM-ARISE-SAI-1.5
-        'CESM2PIC': CESM2 preindustrial control
+    plotScenarios: determines panel to plot, valid entries given below
+        'RCP8.5': RCP8.5
+        'SSP2-4.5': CESM2 SSP2-4.5 (from CESM2-ARISE)
+        'UKESM-SSP2-4.5': UKESM SSP2-4.5 (from UKESM-ARISE)
+        'GLENS-SAI': GLENS-SAI
+        'ARISE-SAI-1.5': CESM2-ARISE-SAI-1.5
+        'ARISE-SAI-DelayedStart': CESM2-ARISE-SAI-1.37-DelayedStart
+        'ARISE-SAI-1.0': CESM2-ARISE-SAI-1.0
+        'UKESM-ARISE-SAI-1.5': UKESM-ARISE-SAI-1.5
+        'CESM2-WACCM:PreindustrialControl': CESM2 preindustrial control
 outDict: output image settings
 loopDict: determines which images are made
     rlzs: 
@@ -31,10 +31,10 @@ from matplotlib import cm
 import numpy as np
 import cmasher, cmocean, seaborn  # Colormap packages
 
-import fun_plot_slice_globe as fpsg
 import fun_convert_unit as fcu
 import fun_calc_var as fcv
 import fun_process_data as fpd
+import fun_special_plot as fsp
 import region_library as rlib
 #
 # Special color palettes
@@ -75,31 +75,32 @@ setDict = {
         "CESM2-SSP245": ([2045, 2064],),
         "CESM2-ARISE-DelayedStart": ([2045, 2064],),
         "UKESM-ARISE": ([2035, 2054],),
-        "piControl": (
-            [10, 29], )
+        # "piControl": (
+        #     [10, 12], [48,50])
         # "piControl": (
         #     [10, 19], [48, 57], [100, 109],
         #     [129, 138], [169, 178], [264, 273],
         #     [285, 294], [341, 350], [384, 393], [471, 480])
-        # "piControl": (
-        #     [10, 29], [48, 67], [100, 119],
-        #     [129, 148], [169, 188], [264, 283],
-        #     [285, 304], [341, 360], [384, 403], [471, 490]),
+        "piControl": (
+            [10, 29], [48, 67], [100, 119],
+            [129, 148], [169, 188], [264, 283],
+            [285, 304], [341, 360], [384, 403], [471, 490]),
         },
-    "convert": (fcu.kel_to_cel, fcv.calc_warming_rate,),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
-    "cmap": None,  # None for default (cmocean balance) or choose colormap
-    "cbVals": [-0.1,0.1],  # None for automatic or [min,max] to override,
+    "convert": 'See loop',  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
+    "cmap": zmzmDisc,  # None for default (cmocean balance) or choose colormap
+    "cbVals": [-51,51],  # None for automatic or [min,max] to override,
     "addCyclicPoint": False,  # True for ocean data/False for others
     "areaAvgBool": False,  # ALWAYS FALSE: no area averaging for a map!
     "robustnessBool": False,  # True/False to run robustness
     "plotScenarios": (
-        'ARISE-SAI-DelayedStart',
+        'SSP2-4.5', 
+        'ARISE-SAI-1.5', 'ARISE-SAI-DelayedStart', 
+        # 'CESM2-WACCM:PreindustrialControl',
         ), # See docstring for valid inputs
-    "plotEnsType": 'mean' # 'mean', 'max'/'min' pointwise max/min, number for single member
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230523_area/',
-    "dpiVal": 400
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230524_wrae/',
+    "dpiVal": 'pdf'
 }
 loopDict = {
     "rlzs": ('allplot',),  # See docstring for valid inputs
@@ -108,18 +109,28 @@ loopDict = {
     "regions": ('global',),  # 'global' only for maps
 }
 ic(dataDict, setDict, outDict, loopDict)  # Show input settings at command line
-
 # Make images
+wrCsList = list()
+wrCsDictList = list()
 for rlz in loopDict["rlzs"]:
     setDict["realization"] = rlz
-    scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-    dataDict = {**dataDict, **cmnDict}
+    for dax in (
+        (fcu.kel_to_cel, fcv.calc_warming_rate,), 
+        (fcv.calc_climate_speed,)):
+        setDict["convert"] = dax
+        scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
+        dataDict["landmaskFlag"] = setDict["landmaskFlag"] # Required info for wrae plot
+        # You can put custom opening functions for datasets that can't
+        # plug into call_to_open here. Remember this is "bespoke"--it needs
+        # to be replicable, not flexible (kind of like your old ice diagram code)
+        
+        dataDict = {**dataDict, **cmnDict}
+        wrCsList.append(scnList)
+        wrCsDictList.append(dataDict)
 
     for lev in loopDict["levels"]:
         setDict["levOfInt"] = lev
-        fpsg.plot_single_slice_globe(
-            scnList, dataDict, setDict, outDict)
-        # fpsg.plot_single_slice_vector_globe(
-        #     scnList, dataDict, setDict, outDict)
+        fsp.plot_warmrate_areaexposed(
+            wrCsList, wrCsDictList, setDict, outDict)
 
 ic('Completed! :D')

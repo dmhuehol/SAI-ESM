@@ -160,15 +160,15 @@ def calc_climate_speed(darr, setDict):
     return climSpdItvl
     
 def calc_warming_rate(darr, setDict):
-    ''' Calculate the warming rate (TODO: make this less
-        snarled) '''
+    ''' Calculate the warming rate '''
     darrIntvlList = time_slice_darr(darr, setDict)
     tGradList = list()
     for darr in darrIntvlList:
         tGrad, nsGrad, ewGrad, yrSpan = calc_spat_temp_grad(darr, setDict)
         tGradList.append(tGrad)
+        tGrad.attrs['scenario'] = darr.scenario
 
-    tGradItvl = xr.concat(climSpdList, dim='interval')
+    tGradItvl = xr.concat(tGradList, dim='interval')
     # TODO: make attributes flexible by variable (e.g., climate speed of X)
     tGradItvl.attrs['long_name'] = 'Temporal gradient of 2m temperature' \
         + ' ' + str(yrSpan[0]) + '-' + str(yrSpan[1])
@@ -177,7 +177,7 @@ def calc_warming_rate(darr, setDict):
     return tGradItvl
     
 def calc_spat_grad(darr, setDict):
-    ''' Calculate the climate speed of a variable '''
+    ''' Calculate the spatial gradient of a variable '''
     tGrad, nsGrad, ewGrad, yrSpan = calc_spat_temp_grad(darr, setDict)  
     totGrad = np.sqrt((nsGrad ** 2) + (ewGrad ** 2))
     sGradDs = xr.Dataset(
