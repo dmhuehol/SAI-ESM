@@ -590,6 +590,8 @@ def colors_from_scenario(scn):
         fcol = '#F8A53D'
     elif 'PreindustrialControl' in scn:
         fcol = '#B8B8B8'
+    elif 'GLENS:Feedback' in scn:
+        fcol = '#8346C1'
     else:
         fcol = '#000000'
 

@@ -370,7 +370,6 @@ def calc_area_exposed(cSpdDarr, setDict, dataDict, threshold):
 ### Helper functions
 def check_stats(darr):
     # darr = darr.compute()
-
     statDict = {
         "shape": np.shape(darr),
         "med": np.nanmedian(darr),
@@ -378,7 +377,6 @@ def check_stats(darr):
         "max": np.nanmax(darr),
         "min": np.nanmin(darr)
     }
-
     return statDict
 
 def is_val(month, val):
@@ -387,6 +385,7 @@ def is_val(month, val):
     return mask
     
 def calc_weighted_med(data):
+    ''' Calculated latitude-weighted global median of an array '''
     latWeights = np.cos(np.deg2rad(data['lat']))
     darrWght = data.weighted(latWeights)
     ensMed = darrWght.quantile(0.5, dim=('lat','lon'), skipna=True)

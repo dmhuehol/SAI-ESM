@@ -269,7 +269,7 @@ def plot_area_exposed(loRlzList, loDataDictList, setDict, outDict):
             pae30ListMn.append(pae30Mn.data)
             pae50ListMn.append(pae50Mn.data)
             ic(plotIntRlzMn.scenario)
-            ic(pae2ListMn, pae5ListMn, pae10ListMn, pae30ListMn, pae50ListMn)
+            # ic(pae2ListMn, pae5ListMn, pae10ListMn, pae30ListMn, pae50ListMn)
             for itvl in plotDict[pscn].interval:
                 plotIntDarr = plotDict[pscn].sel(interval=itvl)
                 for rlz in plotDict[pscn].realization:
@@ -284,11 +284,11 @@ def plot_area_exposed(loRlzList, loDataDictList, setDict, outDict):
                         plotRlzDarr, setDict, loDataDictList[loc], 30)
                     pae50 = fcv.calc_area_exposed(
                         plotRlzDarr, setDict, loDataDictList[loc], 50)
-                    pae2List.append(pae2)
-                    pae5List.append(pae5)
-                    pae10List.append(pae10)
-                    pae30List.append(pae30)
-                    pae50List.append(pae50)
+                    pae2List.append(pae2.data)
+                    pae5List.append(pae5.data)
+                    pae10List.append(pae10.data)
+                    pae30List.append(pae30.data)
+                    pae50List.append(pae50.data)
                     
                 if  'CESM2-ARISE:Feedback' in plotRlzDarr.scenario:
                     plt.plot([0, pae2Mn], [0.5, 0.5], color='#12D0B2', linewidth=5.5)
@@ -335,6 +335,7 @@ def plot_area_exposed(loRlzList, loDataDictList, setDict, outDict):
                 elif 'ARISE-DelayedStart:Feedback' in plotRlzDarr.scenario:
                     plt.plot([0, pae50Mn], [4.8, 4.8], color='#DDA2FB', linewidth=5.5)
                 
+                # ic(pae2List, pae5List, pae10List, pae30List, pae50List)
                 pae2List = list()
                 pae5List = list()
                 pae10List = list()
@@ -354,12 +355,14 @@ def plot_area_exposed(loRlzList, loDataDictList, setDict, outDict):
     
     md = fpd.meta_book(
             setDict, loDataDictList[loc], plotIntRlzMn) # Get metadata
-    savePrefix = '2face_'
+    savePrefix = '2_'
     saveStr = 'aaexposed' + '_' + md['varSve'][:11] + '_' + setDict["landmaskFlag"] + \
         '_' + md['ensStr']
     if outDict["dpiVal"] == 'pdf':
         savename = outDict["savePath"] + savePrefix + saveStr + '.pdf'
         plt.savefig(savename, bbox_inches='tight')
+    elif outDict["dpiVal"] == None:
+        pass
     else:
         savename = outDict["savePath"] + savePrefix + saveStr + '.png'
         plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')    
@@ -378,34 +381,53 @@ def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
     cspdPlotDict = fpt.make_scenario_dict(wrCsList[1], setDict)
     cspdDictList = wrCsDictList[1]
 
-    pae2ListMn = list()
-    pae2List = list()
+    paeThrshListMn = list()
+    paeThrshList = list()
+    thrsh = 2 # km/yr
     for pscc,pscn in enumerate(cspdPlotDict.keys()):
+        ic(pscn)
         plotIntRlzMn = cspdPlotDict[pscn].mean(dim=('interval','realization'))
-        pae2Mn = fcv.calc_area_exposed(
-            plotIntRlzMn, setDict, cspdDictList, 2)
-        pae2ListMn.append(pae2Mn.data)
+        climvelGlobalMedMn = fcv.calc_weighted_med(plotIntRlzMn)
+        paeThrshMn = fcv.calc_area_exposed(
+            plotIntRlzMn, setDict, cspdDictList, thrsh)
+        paeThrshListMn.append(paeThrshMn.data)
+        # warmrateScnMn = warmratePlotDict[pscn].mean(dim=('interval','realization'))
+        # latWeights = np.cos(np.deg2rad(warmrateScnMn['lat']))
+        # darrMnWght = warmrateScnMn.weighted(latWeights)
+        # warmrateScnGlobalMed = fcv.calc_weighted_med(cspdPlotDict[pscn])
+        
+        # warmrateScnGlobalMn = darrMnWght.mean(dim=['lat','lon'], skipna=True)
+        
+        fcol = fpt.colors_from_scenario(climvelGlobalMedMn.scenario)
+        # plt.scatter(climvelGlobalMedMn, paeThrshMn.data, s=100, marker='+', color=fcol)
+        plt.scatter(climvelGlobalMedMn, paeThrshMn.data, s=100, color=fcol)
+        
         for itvl in cspdPlotDict[pscn].interval:
             plotIntDarr = cspdPlotDict[pscn].sel(interval=itvl)
             for rlz in cspdPlotDict[pscn].realization:
                 plotRlzDarr = plotIntDarr.sel(realization=rlz)
-                pae2 = fcv.calc_area_exposed(
-                    plotRlzDarr, setDict, cspdDictList, 2)
-                pae2List.append(pae2)
-                warmrateScnRlz = warmratePlotDict[pscn].sel(interval=itvl).sel(realization=rlz)
-                latWeights = np.cos(np.deg2rad(warmrateScnRlz['lat']))
-                darrWght = warmrateScnRlz.weighted(latWeights)
-                warmrateScnGlobal = darrWght.mean(dim=['lat','lon'], skipna=True)
+                paeThrsh = fcv.calc_area_exposed(
+                    plotRlzDarr, setDict, cspdDictList, thrsh)
+                climvelGlobalMed = fcv.calc_weighted_med(plotRlzDarr)
+                paeThrshList.append(paeThrsh)
+                # paeThrshList.append(fcv.calc_weighted_med(plotRlzDarr))
+                # warmrateScnRlz = warmratePlotDict[pscn].sel(interval=itvl).sel(realization=rlz)
+                # latWeights = np.cos(np.deg2rad(warmrateScnRlz['lat']))
+                # darrWght = warmrateScnRlz.weighted(latWeights)
+                # warmrateScnGlobal = darrWght.mean(dim=['lat','lon'], skipna=True)
                 
-                fcol = fpt.colors_from_scenario(warmrateScnGlobal.scenario)
-                plt.scatter(warmrateScnGlobal, pae2.data, color=fcol)
-        pae2List = list()
-        pae2ListMn = list()
+                # plt.scatter(
+                    # climvelGlobalMed, paeThrsh.data, color=fcol, s=20, facecolor='none')
+                
+        paeThrshListMn = list()
+        paeThrshList = list()
 
+    # plt.xlim([-0.02, 0.02])
+    # plt.ylim([0, 100])
     md = fpd.meta_book(
         setDict, cspdDictList, plotIntRlzMn) # Get metadata             
-    savePrefix = '3color_'
-    saveStr = 'wrae' + '_'  + '_' + setDict["landmaskFlag"] + \
+    savePrefix = '4_cvae_mnonly'
+    saveStr = 'wrae' + '_' + str(thrsh) + 'kmyr' + '_' + setDict["landmaskFlag"] + \
         '_' + md['ensStr']
     if outDict["dpiVal"] == 'pdf':
         savename = outDict["savePath"] + savePrefix + saveStr + '.pdf'

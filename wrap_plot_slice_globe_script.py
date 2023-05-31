@@ -4,15 +4,15 @@ Run map plotting functions for a single time slice.
 dataDict: defines input data
 setDict: settings for analysis/visualization
     plotPanel: determines panel to plot, valid entries given below
-        'RCP85': RCP8.5
-        'CESMS245': CESM2 SSP2-4.5 (from CESM2-ARISE)
-        'UKESMS245': UKESM SSP2-4.5 (from UKESM-ARISE)
-        'GLENS': GLENS-SAI
-        'CESMARISE15': CESM2-ARISE-SAI-1.5
-        'ARISEDS': CESM2-ARISE-SAI-1.5-DelayedStart
-        'ARISE10': CESM2-ARISE-SAI-1.0
-        'UKESMARISE15': UKESM-ARISE-SAI-1.5
-        'CESM2PIC': CESM2 preindustrial control
+        'RCP8.5': RCP8.5
+        'SSP2-4.5': CESM2 SSP2-4.5 (from CESM2-ARISE)
+        'UKESM-SSP2-4.5': UKESM SSP2-4.5 (from UKESM-ARISE)
+        'GLENS-SAI': GLENS-SAI
+        'ARISE-SAI-1.5': CESM2-ARISE-SAI-1.5
+        'ARISE-SAI-DelayedStart': CESM2-ARISE-SAI-1.37-DelayedStart
+        'ARISE-SAI-1.0': CESM2-ARISE-SAI-1.0
+        'UKESM-ARISE-SAI-1.5': UKESM-ARISE-SAI-1.5
+        'CESM2-WACCM:PreindustrialControl': CESM2 preindustrial control
 outDict: output image settings
 loopDict: determines which images are made
     rlzs: 
@@ -55,7 +55,7 @@ zmzmDisc = fpt.get_cspd_colormap('zmzm')
 dataDict = {
     "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_2mTemp/',
     "idGlensCntrl": None,  # 'control_*' or None
-    "idGlensFdbck": None,  # 'feedback_*' or None
+    "idGlensFdbck": 'feedback_*',  # 'feedback_*' or None
     "idArise": '*DEFAULT*',  # '*DEFAULT*' or None
     "idS245Cntrl": '*BWSSP245*',  # '*BWSSP245*' or None
     "idS245Hist": None,  # '*BWHIST*' or None
@@ -76,7 +76,7 @@ setDict = {
         "CESM2-ARISE-DelayedStart": ([2045, 2064],),
         "UKESM-ARISE": ([2035, 2054],),
         "piControl": (
-            [10, 29], )
+            [471, 490], )
         # "piControl": (
         #     [10, 19], [48, 57], [100, 109],
         #     [129, 138], [169, 178], [264, 273],
@@ -86,19 +86,22 @@ setDict = {
         #     [129, 148], [169, 188], [264, 283],
         #     [285, 304], [341, 360], [384, 403], [471, 490]),
         },
-    "convert": (fcu.kel_to_cel, fcv.calc_warming_rate,),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
-    "cmap": None,  # None for default (cmocean balance) or choose colormap
-    "cbVals": [-0.1,0.1],  # None for automatic or [min,max] to override,
+    "convert": (fcu.kel_to_cel, fcv.calc_climate_speed,),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
+    "cmap": zmzmDisc,  # None for default (cmocean balance) or choose colormap
+    "cbVals": [-51, 51],  # None for automatic or [min,max] to override,
     "addCyclicPoint": False,  # True for ocean data/False for others
     "areaAvgBool": False,  # ALWAYS FALSE: no area averaging for a map!
     "robustnessBool": False,  # True/False to run robustness
     "plotScenarios": (
-        'ARISE-SAI-DelayedStart',
+        # 'ARISE-SAI-DelayedStart',
+        # 'ARISE-SAI-1.5',
+        # 'CESM2-WACCM:PreindustrialControl',
+        'GLENS-SAI',
         ), # See docstring for valid inputs
     "plotEnsType": 'mean' # 'mean', 'max'/'min' pointwise max/min, number for single member
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230523_area/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230531_wraeVerifyAndAddData/',
     "dpiVal": 400
 }
 loopDict = {
