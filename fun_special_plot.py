@@ -383,24 +383,21 @@ def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
 
     paeThrshListMn = list()
     paeThrshList = list()
+    pwrList = list()
     thrsh = 2 # km/yr
     for pscc,pscn in enumerate(cspdPlotDict.keys()):
         ic(pscn)
         plotIntRlzMn = cspdPlotDict[pscn].mean(dim=('interval','realization'))
-        climvelGlobalMedMn = fcv.calc_weighted_med(plotIntRlzMn)
         paeThrshMn = fcv.calc_area_exposed(
             plotIntRlzMn, setDict, cspdDictList, thrsh)
-        paeThrshListMn.append(paeThrshMn.data)
-        # warmrateScnMn = warmratePlotDict[pscn].mean(dim=('interval','realization'))
-        # latWeights = np.cos(np.deg2rad(warmrateScnMn['lat']))
-        # darrMnWght = warmrateScnMn.weighted(latWeights)
-        # warmrateScnGlobalMed = fcv.calc_weighted_med(cspdPlotDict[pscn])
+        # paeThrshListMn.append(paeThrshMn.data)
+        warmrateScnMn = warmratePlotDict[pscn].mean(dim=('interval','realization'))
+        latWeights = np.cos(np.deg2rad(warmrateScnMn['lat']))
+        darrMnWght = warmrateScnMn.weighted(latWeights)
+        warmrateScnGlobalMn = darrMnWght.mean(dim=['lat','lon'], skipna=True)
         
-        # warmrateScnGlobalMn = darrMnWght.mean(dim=['lat','lon'], skipna=True)
-        
-        fcol = fpt.colors_from_scenario(climvelGlobalMedMn.scenario)
-        # plt.scatter(climvelGlobalMedMn, paeThrshMn.data, s=100, marker='+', color=fcol)
-        plt.scatter(climvelGlobalMedMn, paeThrshMn.data, s=100, color=fcol)
+        fcol = fpt.colors_from_scenario(warmrateScnGlobalMn.scenario)
+        plt.scatter(warmrateScnGlobalMn, paeThrshMn.data, s=80, color=fcol)
         
         for itvl in cspdPlotDict[pscn].interval:
             plotIntDarr = cspdPlotDict[pscn].sel(interval=itvl)
@@ -408,25 +405,29 @@ def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
                 plotRlzDarr = plotIntDarr.sel(realization=rlz)
                 paeThrsh = fcv.calc_area_exposed(
                     plotRlzDarr, setDict, cspdDictList, thrsh)
-                climvelGlobalMed = fcv.calc_weighted_med(plotRlzDarr)
                 paeThrshList.append(paeThrsh)
-                # paeThrshList.append(fcv.calc_weighted_med(plotRlzDarr))
-                # warmrateScnRlz = warmratePlotDict[pscn].sel(interval=itvl).sel(realization=rlz)
-                # latWeights = np.cos(np.deg2rad(warmrateScnRlz['lat']))
-                # darrWght = warmrateScnRlz.weighted(latWeights)
-                # warmrateScnGlobal = darrWght.mean(dim=['lat','lon'], skipna=True)
-                
+                warmrateScnRlz = warmratePlotDict[pscn].sel(interval=itvl).sel(realization=rlz)
+                darrWghtRlz = warmrateScnRlz.weighted(latWeights)
+                warmrateScnGlobal = darrWghtRlz.mean(dim=['lat','lon'], skipna=True)
+                pwrList.append(warmrateScnGlobal)
                 # plt.scatter(
-                    # climvelGlobalMed, paeThrsh.data, color=fcol, s=20, facecolor='none')
+                    # warmrateScnGlobal, paeThrsh.data, color=fcol, s=20, facecolor='none')
+        wrSpanRlz = np.max(np.abs(pwrList)) - np.min(np.abs(pwrList))
+        pwrSpanRlz = [warmrateScnGlobalMn - wrSpanRlz/2, warmrateScnGlobalMn + wrSpanRlz/2]
+        aeSpanRlz = np.max(np.abs(paeThrshList)) - np.min(np.abs(paeThrshList))
+        paeSpanRlz = [paeThrshMn.data - aeSpanRlz/2, paeThrshMn.data + aeSpanRlz/2]
+        plt.plot(pwrSpanRlz, [paeThrshMn.data, paeThrshMn.data], color=fcol)
+        plt.plot([warmrateScnGlobalMn.data, warmrateScnGlobalMn.data], paeSpanRlz, color=fcol)
                 
-        paeThrshListMn = list()
+        # paeThrshList.Mn = list()
         paeThrshList = list()
+        pwrList = list()
 
-    # plt.xlim([-0.02, 0.02])
-    # plt.ylim([0, 100])
+    plt.xlim([-0.02, 0.02])
+    plt.ylim([0, 100])
     md = fpd.meta_book(
         setDict, cspdDictList, plotIntRlzMn) # Get metadata             
-    savePrefix = '4_cvae_mnonly'
+    savePrefix = '1_centeredAsymPlus_'
     saveStr = 'wrae' + '_' + str(thrsh) + 'kmyr' + '_' + setDict["landmaskFlag"] + \
         '_' + md['ensStr']
     if outDict["dpiVal"] == 'pdf':

@@ -54,8 +54,8 @@ zmzmDisc = fpt.get_cspd_colormap('zmzm')
 # Dictionaries to define inputs
 dataDict = {
     "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_2mTemp/',
-    "idGlensCntrl": 'control_*',  # 'control_*' or None
-    "idGlensFdbck": 'feedback_*',  # 'feedback_*' or None
+    "idGlensCntrl": None,  # 'control_*' or None
+    "idGlensFdbck": None,  # 'feedback_*' or None
     "idArise": '*DEFAULT*',  # '*DEFAULT*' or None
     "idS245Cntrl": '*BWSSP245*',  # '*BWSSP245*' or None
     "idS245Hist": None,  # '*BWHIST*' or None
@@ -96,11 +96,10 @@ setDict = {
         'SSP2-4.5', 
         'ARISE-SAI-1.5', 'ARISE-SAI-DelayedStart', 
         'CESM2-WACCM:PreindustrialControl',
-        'GLENS-SAI'
         ), # See docstring for valid inputs
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230531_wraeVerifyAndAddData/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230601_wraeAsymmetricPlusAndAddData/',
     "dpiVal": 'pdf'
 }
 loopDict = {
