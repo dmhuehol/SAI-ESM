@@ -173,6 +173,9 @@ def calc_warming_rate(darr, setDict):
     tGradItvl.attrs['long_name'] = 'Temporal gradient of 2m temperature' \
         + ' ' + str(yrSpan[0]) + '-' + str(yrSpan[1])
     tGradItvl.attrs['units'] = 'degC/yr'
+    
+    # ic(tGradItvl.scenario)
+    # ic(check_stats(tGradItvl))
 
     return tGradItvl
     

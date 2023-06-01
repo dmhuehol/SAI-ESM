@@ -68,7 +68,7 @@ dataDict = {
     "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
 }
 setDict = {
-    "landmaskFlag": 'land',  # None no mask, 'land' to mask ocean, 'ocean' to mask land
+    "landmaskFlag": 'ocean',  # None no mask, 'land' to mask ocean, 'ocean' to mask land
     "calcIntvl": { # Years to calculate
         "GLENS": ([2020, 2039],),
         "CESM2-ARISE": ([2035, 2054], ),
@@ -81,10 +81,16 @@ setDict = {
         #     [10, 19], [48, 57], [100, 109],
         #     [129, 138], [169, 178], [264, 273],
         #     [285, 294], [341, 350], [384, 393], [471, 480])
+        # "piControl": (
+        #     [10, 29], [48, 67], [100, 119],
+        #     [129, 148], [169, 188], [264, 283],
+        #     [285, 304], [341, 360], [384, 403], [471, 490]),
         "piControl": (
-            [10, 29], [48, 67], [100, 119],
-            [129, 148], [169, 188], [264, 283],
-            [285, 304], [341, 360], [384, 403], [471, 490]),
+            [0, 19], [20, 39], [40, 59], [60, 79], [80, 99],
+            [100, 119], [120, 139], [140, 159], [160, 179], [180, 199],
+            [200, 219], [220, 239], [240, 259], [260, 279], [280, 299],
+            [300, 319], [320, 339], [340, 359], [360, 379], [380, 399],
+            [400, 419], [420, 439], [440, 459], [460, 479], [480, 499]),
         },
     "convert": 'See loop',  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
     "cmap": zmzmDisc,  # None for default (cmocean balance) or choose colormap

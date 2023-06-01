@@ -373,10 +373,10 @@ def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
     wrDictList = wrCsDictList[0] # HARD CODED
     cspdDict = fpt.make_scenario_dict(wrCsList[1], setDict)
     cspdDictList = wrCsDictList[1] # HARD CODED
-    paeThrshListMn = list()
     paeThrshList = list()
     pwrList = list()
-    thrsh = 2 # FREE PARAMETER km/yr
+    piLine = None
+    thrsh = 8 # FREE PARAMETER km/yr
     
     plt.rcParams.update({'font.size': 10})
     plt.rcParams.update({'font.family': 'Red Hat Display'})
@@ -417,18 +417,34 @@ def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
             pwrSpanRlz, [paeThrshMn.data, paeThrshMn.data], color=fcol)
         plt.plot(
             [wrScnGlobalMn.data, wrScnGlobalMn.data], paeSpanRlz, color=fcol)
+        if 'Preindustrial' in pscn:
+            piLine = paeThrshMn.data + aeSpanRlz / 2
         paeThrshList = list()
         pwrList = list()
-    plt.xlim([-0.02, 0.02])
-    plt.ylim([0, 100])
+    xlim = [-0.04, 0.04] #0.02 land, 0.04 ocean
+    plt.plot(
+        [0, 0], [0, 100], color='#242424', linewidth=0.4, linestyle='dashed',
+        zorder=0.5)
+    plt.plot(
+        xlim, [piLine, piLine], color='#b8b8b8', linewidth=0.4, 
+        linestyle='dashed', zorder=0.51)
+    plt.xticks([-0.05, -0.04, -0.03, -0.02, -0.01, 0, 0.01, 0.02, 0.03, 0.04, 0.05])
+    plt.xlim(xlim)
+    plt.ylim([0, 60])
+    ax.spines[['top', 'right']].set_visible(False)
        
     md = fpd.meta_book(setDict, cspdDictList, plotIntRlzMn) # Get metadata
-    savePrefix = '2_refactor_'
+    savePrefix = '1_'
+    if setDict["landmaskFlag"] is None:
+        setDict["landmaskFlag"] = 'none'
     saveStr = 'wrae' + '_' + str(thrsh) + 'kmyr' + '_' + \
         setDict["landmaskFlag"] + '_' + md['ensStr']
     if outDict["dpiVal"] == 'pdf':
         savename = outDict["savePath"] + savePrefix + saveStr + '.pdf'
         plt.savefig(savename, bbox_inches='tight')
+    elif outDict["dpiVal"] == None:
+        ic('Image generation disabled')
+        pass
     else:
         savename = outDict["savePath"] + savePrefix + saveStr + '.png'
         plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')                    
