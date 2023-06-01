@@ -105,10 +105,10 @@ outDict = {
 loopDict = {
     "rlzs": ('allplot',),  # See docstring for valid inputs
     # TODO: Refactor so allplot is only behavior
-    "levels": (None,),  # None for single-level variable (as for all used in Hueholt et al. 2023)
+    "levels": (None,),  # None for single-level variable
     "regions": ('global',),  # 'global' only for maps
 }
-ic(dataDict, setDict, outDict, loopDict)  # Show input settings at command line
+ic(dataDict, setDict, outDict, loopDict)  # Show input settings at terminal
 # Make images
 wrCsList = list()
 wrCsDictList = list()
@@ -119,11 +119,14 @@ for rlz in loopDict["rlzs"]:
         (fcv.calc_climate_speed,)):
         setDict["convert"] = dax
         scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-        dataDict["landmaskFlag"] = setDict["landmaskFlag"] # Required info for wrae plot
+        dataDict["landmaskFlag"] = setDict["landmaskFlag"] # Needed by wrae
         # You can put custom opening functions for datasets that can't
-        # plug into call_to_open here. Remember this is "bespoke"--it needs
-        # to be replicable, not flexible (kind of like your old ice diagram code)
-        
+        # plug into call_to_open here. Remember this is "bespoke"--it 
+        # needs to be replicable, not flexible. (Kind of like your old
+        # ice diagram code!)
+        #
+        # Note that plot_warmrate_areaexposed RELIES ON THE ORDER OF 
+        # DATASETS IN THE INPUT LISTS. DO NOT MODIFY THIS.
         dataDict = {**dataDict, **cmnDict}
         wrCsList.append(scnList)
         wrCsDictList.append(dataDict)

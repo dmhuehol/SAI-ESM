@@ -368,75 +368,67 @@ def plot_area_exposed(loRlzList, loDataDictList, setDict, outDict):
         plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')    
 
 def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
-    ''' Make warming rate vs area exposed plot ("risk plot") '''
-    # refer to rangeplot for help understanding a similar approach
-    # making a single figure from a list of a list of dataarrays
+    ''' Make warming rate vs area exposed (wrae) plot '''
+    wrPlotDict = fpt.make_scenario_dict(wrCsList[0], setDict)
+    wrDictList = wrCsDictList[0] # HARD CODED
+    cspdDict = fpt.make_scenario_dict(wrCsList[1], setDict)
+    cspdDictList = wrCsDictList[1] # HARD CODED
+    paeThrshListMn = list()
+    paeThrshList = list()
+    pwrList = list()
+    thrsh = 2 # FREE PARAMETER km/yr
+    
     plt.rcParams.update({'font.size': 10})
     plt.rcParams.update({'font.family': 'Red Hat Display'})
     plt.rcParams.update({'font.weight': 'normal'})
     fig, ax = plt.subplots()
-    
-    warmratePlotDict = fpt.make_scenario_dict(wrCsList[0], setDict)
-    warmrateDictList = wrCsDictList[0]
-    cspdPlotDict = fpt.make_scenario_dict(wrCsList[1], setDict)
-    cspdDictList = wrCsDictList[1]
-
-    paeThrshListMn = list()
-    paeThrshList = list()
-    pwrList = list()
-    thrsh = 2 # km/yr
-    for pscc,pscn in enumerate(cspdPlotDict.keys()):
-        ic(pscn)
-        plotIntRlzMn = cspdPlotDict[pscn].mean(dim=('interval','realization'))
+    for pscc,pscn in enumerate(cspdDict.keys()):
+        ic(pscn) # Troubleshooting
+        plotIntRlzMn = cspdDict[pscn].mean(dim=('interval','realization'))
         paeThrshMn = fcv.calc_area_exposed(
             plotIntRlzMn, setDict, cspdDictList, thrsh)
-        # paeThrshListMn.append(paeThrshMn.data)
-        warmrateScnMn = warmratePlotDict[pscn].mean(dim=('interval','realization'))
-        latWeights = np.cos(np.deg2rad(warmrateScnMn['lat']))
-        darrMnWght = warmrateScnMn.weighted(latWeights)
-        warmrateScnGlobalMn = darrMnWght.mean(dim=['lat','lon'], skipna=True)
-        
-        fcol = fpt.colors_from_scenario(warmrateScnGlobalMn.scenario)
-        plt.scatter(warmrateScnGlobalMn, paeThrshMn.data, s=80, color=fcol)
-        
-        for itvl in cspdPlotDict[pscn].interval:
-            plotIntDarr = cspdPlotDict[pscn].sel(interval=itvl)
-            for rlz in cspdPlotDict[pscn].realization:
-                plotRlzDarr = plotIntDarr.sel(realization=rlz)
+        wrScnMn = wrPlotDict[pscn].mean(dim=('interval','realization'))
+        latWeights = np.cos(np.deg2rad(wrScnMn['lat']))
+        darrMnWght = wrScnMn.weighted(latWeights)
+        wrScnGlobalMn = darrMnWght.mean(dim=['lat','lon'], skipna=True)
+        fcol = fpt.colors_from_scenario(wrScnGlobalMn.scenario)
+        plt.scatter(wrScnGlobalMn, paeThrshMn.data, s=80, color=fcol)
+        for itvl in cspdDict[pscn].interval:
+            for rlz in cspdDict[pscn].realization:
+                cspdAct = cspdDict[pscn]
+                plotRlzDarr = cspdAct.sel(interval=itvl).sel(realization=rlz)
                 paeThrsh = fcv.calc_area_exposed(
                     plotRlzDarr, setDict, cspdDictList, thrsh)
                 paeThrshList.append(paeThrsh)
-                warmrateScnRlz = warmratePlotDict[pscn].sel(interval=itvl).sel(realization=rlz)
-                darrWghtRlz = warmrateScnRlz.weighted(latWeights)
-                warmrateScnGlobal = darrWghtRlz.mean(dim=['lat','lon'], skipna=True)
-                pwrList.append(warmrateScnGlobal)
-                # plt.scatter(
-                    # warmrateScnGlobal, paeThrsh.data, color=fcol, s=20, facecolor='none')
+                wrAct = wrPlotDict[pscn]
+                wrScnRlz = wrAct.sel(interval=itvl).sel(realization=rlz)
+                darrWghtRlz = wrScnRlz.weighted(latWeights)
+                wrScnGlobal = darrWghtRlz.mean(dim=['lat','lon'], skipna=True)
+                pwrList.append(wrScnGlobal)
+                # plt.scatter( # Plot individual realizations, CAN BE MISLEADING
+                    # wrScnGlobal, paeThrsh.data, color=fcol, s=20,
+                    # facecolor='none')
         wrSpanRlz = np.max(np.abs(pwrList)) - np.min(np.abs(pwrList))
-        pwrSpanRlz = [warmrateScnGlobalMn - wrSpanRlz/2, warmrateScnGlobalMn + wrSpanRlz/2]
+        pwrSpanRlz = [wrScnGlobalMn - wrSpanRlz/2, wrScnGlobalMn + wrSpanRlz/2]
         aeSpanRlz = np.max(np.abs(paeThrshList)) - np.min(np.abs(paeThrshList))
-        paeSpanRlz = [paeThrshMn.data - aeSpanRlz/2, paeThrshMn.data + aeSpanRlz/2]
-        plt.plot(pwrSpanRlz, [paeThrshMn.data, paeThrshMn.data], color=fcol)
-        plt.plot([warmrateScnGlobalMn.data, warmrateScnGlobalMn.data], paeSpanRlz, color=fcol)
-                
-        # paeThrshList.Mn = list()
+        paeSpanRlz = [
+            paeThrshMn.data - aeSpanRlz / 2, paeThrshMn.data + aeSpanRlz / 2]
+        plt.plot(
+            pwrSpanRlz, [paeThrshMn.data, paeThrshMn.data], color=fcol)
+        plt.plot(
+            [wrScnGlobalMn.data, wrScnGlobalMn.data], paeSpanRlz, color=fcol)
         paeThrshList = list()
         pwrList = list()
-
     plt.xlim([-0.02, 0.02])
     plt.ylim([0, 100])
-    md = fpd.meta_book(
-        setDict, cspdDictList, plotIntRlzMn) # Get metadata             
-    savePrefix = '1_centeredAsymPlus_'
-    saveStr = 'wrae' + '_' + str(thrsh) + 'kmyr' + '_' + setDict["landmaskFlag"] + \
-        '_' + md['ensStr']
+       
+    md = fpd.meta_book(setDict, cspdDictList, plotIntRlzMn) # Get metadata
+    savePrefix = '2_refactor_'
+    saveStr = 'wrae' + '_' + str(thrsh) + 'kmyr' + '_' + \
+        setDict["landmaskFlag"] + '_' + md['ensStr']
     if outDict["dpiVal"] == 'pdf':
         savename = outDict["savePath"] + savePrefix + saveStr + '.pdf'
         plt.savefig(savename, bbox_inches='tight')
     else:
         savename = outDict["savePath"] + savePrefix + saveStr + '.png'
         plt.savefig(savename, dpi=outDict["dpiVal"], bbox_inches='tight')                    
-                #Plot here and clear list
-    #Calculate warming rate
-    #Calculate global land area exposed to threshold >2km/y
-    #Make scatterplot
