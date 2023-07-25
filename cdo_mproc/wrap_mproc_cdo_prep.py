@@ -160,17 +160,17 @@ def return_emem_list(inType):
 
     return EMEM
 
-EMEM = return_emem_list('cdo')
+EMEM = return_emem_list('CMIP6')
 nProc = 1
 
 # Shell inputs
 # IN_PATH = '/glade/scratch/dhueholt/monthly_TEMP/'
-IN_PATH = '/Users/dhueholt/Documents/ecology_data/annual_TREFHT/arise1p0/nodup/'
-IN_TOKEN = ['*ARISE1P0*', ] # See docstring for valid tokens
+IN_PATH = '/Users/dhueholt/Documents/ecology_data/monthly_tas/'
+IN_TOKEN = ['*ssp126*', ] # See docstring for valid tokens
 # OUT_PATH = '/glade/scratch/dhueholt/monthly_TEMP/lev412576p8/'
-OUT_PATH = '/Users/dhueholt/Documents/ecology_data/annual_TREFHT/arise1p0/nodup/ymm/'
+OUT_PATH = '/Users/dhueholt/Documents/ecology_data/'
 
-bee = cdo_annualmean_pp
+bee = cdo_annualmean
 
 if __name__== '__main__':
         lengthFiles = np.size(EMEM)

@@ -25,18 +25,29 @@ def time_slice_darr(darr, setDict):
     # The order of these if statements is important!
     if 'CESM2-ARISE-DelayedStart' in darr.scenario:
         setYrs = setDict["calcIntvl"]["CESM2-ARISE-DelayedStart"]
+    elif 'Historical' in darr.scenario:
+        setYrs = setDict["calcIntvl"]["Historical"]
     elif 'CESM2-ARISE:Control' in darr.scenario:
         setYrs = setDict["calcIntvl"]["CESM2-SSP245"]
     elif 'CESM2-ARISE' in darr.scenario:
         setYrs = setDict["calcIntvl"]["CESM2-ARISE"]
     elif 'UKESM-ARISE' in darr.scenario:
         setYrs = setDict["calcIntvl"]["UKESM-ARISE"]
-    elif 'GLENS' in darr.scenario:
+    elif 'GLENS:Feedback' in darr.scenario:
         setYrs = setDict["calcIntvl"]["GLENS"]
+    elif 'GLENS:Control' in darr.scenario:
+        setYrs = setDict["calcIntvl"]["RCP8.5"]
     elif 'PreindustrialControl' in darr.scenario:
         setYrs = setDict["calcIntvl"]["piControl"]
+    elif 'SSP1-2.6' in darr.scenario:
+        setYrs = setDict["calcIntvl"]["CESM2-SSP126"]
+    elif 'ERA5' in darr.scenario:
+        setYrs = setDict["calcIntvl"]["ERA5"]
+    elif 'CRU_TS4' in darr.scenario:
+        setYrs = setDict["calcIntvl"]["CRU_TS4"]
 
     darrToiItvlList = list()
+    # sys.exit('STOP')
     for sy in setYrs:
         ic(sy)
         if 'PreindustrialControl' in darr.scenario:
@@ -49,12 +60,19 @@ def time_slice_darr(darr, setDict):
                 cftime.DatetimeNoLeap(sy[1], 7, 15, 12, 0, 0, 0))
         timeSliceUkesm = slice(
             cftime.Datetime360Day(sy[0], 6, 30, 0, 0, 0, 0),
-            cftime.Datetime360Day(sy[1], 6, 30, 0, 0, 0, 0))    
+            cftime.Datetime360Day(sy[1], 6, 30, 0, 0, 0, 0))
+        timeSliceDt64 = slice(
+            str(sy[0])+'-01', str(sy[1])+'-01')    
         try:
             darrToi = darr.sel(time=timeSliceCesm)
-        except: # This will get messy when another model runs ARISE :)
-            darrToi = darr.sel(time=timeSliceUkesm)
-        darrToiItvlList.append(darrToi)
+        except:
+            if type(darr.time.data[0]) is cftime.Datetime360Day:
+                darrToi = darr.sel(time=timeSliceUkesm)
+            else:
+                darrToi = darr.sel(time=timeSliceDt64)
+        # ic(darrToi)
+        darrToiDropNan = darrToi.dropna(dim='realization', how='all')
+        darrToiItvlList.append(darrToiDropNan)
     
     return darrToiItvlList
 
@@ -63,9 +81,6 @@ def calc_temporal_grad(darr, years):
     regression is strongly based on implementation found at:
     hrishichandanpurkar.blogspot.com/2017/09/vectorized-functions-for-correlation.html
     '''
-    startTime = cftime.DatetimeNoLeap(years[0], 7, 15, 12, 0, 0, 0)
-    endTime = cftime.DatetimeNoLeap(years[1], 7, 15, 12, 0, 0, 0)
-    
     xData = darr.time.dt.year
     timeEntries = len(darr.time)
     xTimeMn = xData.mean(dim='time')
@@ -343,30 +358,42 @@ def calc_seasonal_shift(darr, setDict):
 def calc_area_exposed(cSpdDarr, setDict, dataDict, threshold):
     ''' Calculate area exposed to certain climate velocity '''
     cSpdData = cSpdDarr.data # Must be dimension lat x lon, no realization or interval
-    cellAreaDset = fdd.generate_gridcellarea(saveFlag=False)
+    if 'CESM' in cSpdDarr.scenario:
+        cellAreaDset = fdd.generate_gridcellarea(saveFlag=False)
+    elif 'UKESM' in cSpdDarr.scenario:
+        cellAreaDset = fdd.generate_gridcellarea(saveFlag=False, scn='ukesm')
+    elif 'ERA5' in cSpdDarr.scenario:
+        cellAreaDset = fdd.generate_gridcellarea(saveFlag=False, scn='era5')
+    elif 'CRU_TS4' in cSpdDarr.scenario:
+        cellAreaDset = fdd.generate_gridcellarea(saveFlag=False, scn='cruts4')
     cellAreaDarr = cellAreaDset['grid_cell_area']
     cesmMask = fpd.get_mask(dataDict, cSpdDarr.scenario)
-    if dataDict["landmaskFlag"] == 'land':
-        loMask = cesmMask > 0
-    elif dataDict["landmaskFlag"] == 'ocean':
-        loMask = cesmMask == 0
+    if cesmMask is not None:
+        if dataDict["landmaskFlag"] == 'land':
+            loMask = cesmMask > 0
+        elif dataDict["landmaskFlag"] == 'ocean':
+            loMask = cesmMask == 0
+        else:
+            loMask = cesmMask > -1
+        cellAreaLandmask = cellAreaDarr.copy()
+        cellAreaLandmask.data[~loMask] = np.nan
+        # cellAreaData = cellAreaLandmask.data
+        areaExposed = cellAreaLandmask.copy()
+        totalArea = cellAreaLandmask.sum(skipna=True)
     else:
-        loMask = cesmMask > -1
-    cellAreaLandmask = cellAreaDarr.copy()
-    cellAreaLandmask.data[~loMask] = np.nan
-    cellAreaData = cellAreaLandmask.data
+        # cellAreaData = cellAreaDarr.copy()
+        areaExposed = cellAreaDarr.copy()
+        totalArea = cellAreaDarr.sum(skipna=True)
     cSpdDataAbs = abs(cSpdData)
     # ic(check_stats(cSpdDataAbs))
     velMask = cSpdDataAbs >= threshold
     # ic(velMask, loMask)
     # ic(np.array_equal(velMask, loMask))
     # sys.exit('STOP')
-    areaExposed = cellAreaLandmask.copy()
-    areaExposed.data[~velMask] = np.nan
     
-    totalLandmaskArea = cellAreaLandmask.sum(skipna=True)
+    areaExposed.data[~velMask] = np.nan
     totalAreaExposed = np.nansum(areaExposed)
-    percAreaExposed = (totalAreaExposed / totalLandmaskArea) * 100
+    percAreaExposed = (totalAreaExposed / totalArea) * 100
 
     return percAreaExposed
 

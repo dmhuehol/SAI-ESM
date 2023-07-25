@@ -45,8 +45,9 @@ def call_to_open(dataDict, setDict):
                 rawDarr = rawDset[dataKey]
                 scnDarr = bind_scenario(rawDarr, dataDict[dky])
                 if scnDarr.scenario == 'PreindustrialControl': 
-                # TODO: make this elegant for all
                     scnDarr.attrs['scenario'] = sourceId + ':' + scnDarr.scenario
+                if 'ERA5' in scnDarr.scenario:
+                    scnDarr = scnDarr.rename({'longitude': 'lon', 'latitude': 'lat'})
                 maskDarr = apply_mask(scnDarr, dataDict, setDict)
                 if 'CESM2-ARISE:Control' in scnDarr.scenario: # Two parts: historical and future
                     lf['chf'].append(maskDarr) # Keep separate for now
@@ -60,7 +61,8 @@ def call_to_open(dataDict, setDict):
     if len(lf['chf']) == 2: # Hist & future input
         acntrlDarr = combine_hist_fut(lf['chf'][0], lf['chf'][1])
         lf['darr'].append(acntrlDarr)
-        acntrlDarr.attrs['scenario'] = 'CESM2-WACCM/ARISE:Control/SSP2-4.5'
+        acntrlDarr.attrs['scenario'] = 'CESM2-WACCM/CESM2-ARISE:Control/No-SAI/SSP2-4.5'
+        lf['darr'].append(lf['chf'][1]) # Also append Historical separately
     else: # Either hist OR future input
         try:
             lf['darr'].append(lf['chf'][0]) # Use whichever is present
@@ -131,6 +133,8 @@ def get_mask(dataDict, scenario):
             activeMask = activeMaskDset.landmask
         except:
             activeMask = activeMaskDset.imask
+    else:
+        activeMask = None
 
     return activeMask
 
@@ -144,7 +148,7 @@ def discover_data_var(dset):
         'WATSAT', 'landmask', 'ZLAKE', 'DZLAKE', 'SUCSAT', 'area',
         'landfrac', 'topo', 'DZSOI', 'pftmask', 'HKSAT', 'nstep',
         'mdcur', 'mscur', 'mcdate', 'mcsec', 'nbedrock',
-        'binary_mhw_start']
+        'binary_mhw_start', 'longitude', 'latitude', 'stn']
     notDataInDset = list()
     dataKey = None
 
@@ -175,7 +179,7 @@ def bind_scenario(darr, inID):
     elif 'BWSSP245' in inID:
         darr.attrs['scenario'] = 'CESM2-WACCM/CESM2-ARISE:Control/No-SAI/SSP2-4.5'
     elif 'BWHIST' in inID:
-        darr.attrs['scenario'] = 'CESM2-WACCM/CESM2-ARISE:Control/Historical/No-SAI'
+        darr.attrs['scenario'] = 'CESM2-WACCM/CESM2-ARISE:Control/No-SAI/Historical'
     elif 'SSP245cmip6' in inID:
         darr.attrs['scenario'] = 'CESM2-WACCM/CESM2-ARISE:Control/SSP2-4.5/CMIP6/No-SAI'
     elif 'ssp245' in inID:
@@ -184,6 +188,12 @@ def bind_scenario(darr, inID):
         darr.attrs['scenario'] = 'UKESM-ARISE:Feedback/SAI/UKESM-ARISE-SAI-1.5'
     elif 'piControl' in inID:        
         darr.attrs['scenario'] = 'PreindustrialControl'
+    elif '126' in inID:
+        darr.attrs['scenario'] = 'CESM2-WACCM/CMIP6/No-SAI/SSP1-2.6'
+    elif 'era5' in inID:
+        darr.attrs['scenario'] = 'ERA5/ERA5/Reanalysis/ERA5'
+    elif 'cruts4' in inID:
+        darr.attrs['scenario'] = 'CRU_TS4/CRU_TS4/Station/CRU_TS4'
     else:
         ic('Unable to match scenario, binding empty string to array')
         darr.attrs['scenario'] = ''
@@ -242,6 +252,12 @@ def manage_realizations(setDict, darr, emem):
             scnStr = 'ukas' #ukarisesai
         elif 'PreindustrialControl' in darr.scenario:
             scnStr = 'pi'
+        elif 'SSP1-2.6' in darr.scenario:
+            scnStr = 's126'
+        elif 'ERA5' in darr.scenario:
+            scnStr = 'e5'
+        elif 'CRU_TS4' in darr.scenario:
+            scnStr = 'ct4'
         else:
             ic('Unknown scenario!')
             #No sys.exit(); want to know what the error is

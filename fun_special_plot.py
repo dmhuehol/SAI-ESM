@@ -269,7 +269,7 @@ def plot_area_exposed(loRlzList, loDataDictList, setDict, outDict):
             pae30ListMn.append(pae30Mn.data)
             pae50ListMn.append(pae50Mn.data)
             ic(plotIntRlzMn.scenario)
-            # ic(pae2ListMn, pae5ListMn, pae10ListMn, pae30ListMn, pae50ListMn)
+            ic(pae2ListMn, pae5ListMn, pae10ListMn, pae30ListMn, pae50ListMn)
             for itvl in plotDict[pscn].interval:
                 plotIntDarr = plotDict[pscn].sel(interval=itvl)
                 for rlz in plotDict[pscn].realization:
@@ -290,49 +290,49 @@ def plot_area_exposed(loRlzList, loDataDictList, setDict, outDict):
                     pae30List.append(pae30.data)
                     pae50List.append(pae50.data)
                     
-                if  'CESM2-ARISE:Feedback' in plotRlzDarr.scenario:
+                if  'CESM2-ARISE:Feedback' in plotIntRlzMn.scenario:
                     plt.plot([0, pae2Mn], [0.5, 0.5], color='#12D0B2', linewidth=5.5)
-                elif 'PreindustrialControl' in plotRlzDarr.scenario:
+                elif 'PreindustrialControl' in plotIntRlzMn.scenario:
                     plt.plot([0, pae2Mn], [0.6, 0.6], color='#B8B8B8', linewidth=5.5)
-                elif 'CESM2-ARISE:Control' in plotRlzDarr.scenario:
+                elif 'CESM2-ARISE:Control' in plotIntRlzMn.scenario:
                     plt.plot([0, pae2Mn], [0.7, 0.7], color='#F8A53D', linewidth=5.5)
-                elif 'ARISE-DelayedStart:Feedback' in plotRlzDarr.scenario:
+                elif 'ARISE-DelayedStart:Feedback' in plotIntRlzMn.scenario:
                     plt.plot([0, pae2Mn], [0.8, 0.8], color='#DDA2FB', linewidth=5.5)
                     
-                if  'CESM2-ARISE:Feedback' in plotRlzDarr.scenario:
+                if  'CESM2-ARISE:Feedback' in plotIntRlzMn.scenario:
                     plt.plot([0, pae5Mn], [1.5, 1.5], color='#12D0B2', linewidth=5.5)
-                elif 'PreindustrialControl' in plotRlzDarr.scenario:
+                elif 'PreindustrialControl' in plotIntRlzMn.scenario:
                     plt.plot([0, pae5Mn], [1.6, 1.6], color='#B8B8B8', linewidth=5.5)
-                elif 'CESM2-ARISE:Control' in plotRlzDarr.scenario:
+                elif 'CESM2-ARISE:Control' in plotIntRlzMn.scenario:
                     plt.plot([0, pae5Mn], [1.7, 1.7], color='#F8A53D', linewidth=5.5)
-                elif 'ARISE-DelayedStart:Feedback' in plotRlzDarr.scenario:
+                elif 'ARISE-DelayedStart:Feedback' in plotIntRlzMn.scenario:
                     plt.plot([0, pae5Mn], [1.8, 1.8], color='#DDA2FB', linewidth=5.5)
                     
-                if  'CESM2-ARISE:Feedback' in plotRlzDarr.scenario:
+                if  'CESM2-ARISE:Feedback' in plotIntRlzMn.scenario:
                     plt.plot([0, pae10Mn], [2.5, 2.5], color='#12D0B2', linewidth=5.5)
-                elif 'PreindustrialControl' in plotRlzDarr.scenario:
+                elif 'PreindustrialControl' in plotIntRlzMn.scenario:
                     plt.plot([0, pae10Mn], [2.6, 2.6], color='#B8B8B8', linewidth=5.5)
-                elif 'CESM2-ARISE:Control' in plotRlzDarr.scenario:
+                elif 'CESM2-ARISE:Control' in plotIntRlzMn.scenario:
                     plt.plot([0, pae10Mn], [2.7, 2.7], color='#F8A53D', linewidth=5.5)
-                elif 'ARISE-DelayedStart:Feedback' in plotRlzDarr.scenario:
+                elif 'ARISE-DelayedStart:Feedback' in plotIntRlzMn.scenario:
                     plt.plot([0, pae10Mn], [2.8, 2.8], color='#DDA2FB', linewidth=5.5)
 
-                if  'CESM2-ARISE:Feedback' in plotRlzDarr.scenario:
+                if  'CESM2-ARISE:Feedback' in plotIntRlzMn.scenario:
                     plt.plot([0, pae30Mn], [3.5, 3.5], color='#12D0B2', linewidth=5.5)
-                elif 'PreindustrialControl' in plotRlzDarr.scenario:
+                elif 'PreindustrialControl' in plotIntRlzMn.scenario:
                     plt.plot([0, pae30Mn], [3.6, 3.6], color='#B8B8B8', linewidth=5.5)
-                elif 'CESM2-ARISE:Control' in plotRlzDarr.scenario:
+                elif 'CESM2-ARISE:Control' in plotIntRlzMn.scenario:
                     plt.plot([0, pae30Mn], [3.7, 3.7], color='#F8A53D', linewidth=5.5)
-                elif 'ARISE-DelayedStart:Feedback' in plotRlzDarr.scenario:
+                elif 'ARISE-DelayedStart:Feedback' in plotIntRlzMn.scenario:
                     plt.plot([0, pae30Mn], [3.8, 3.8], color='#DDA2FB', linewidth=5.5)
                     
-                if  'CESM2-ARISE:Feedback' in plotRlzDarr.scenario:
+                if  'CESM2-ARISE:Feedback' in plotIntRlzMn.scenario:
                     plt.plot([0, pae50Mn], [4.5, 4.5], color='#12D0B2', linewidth=5.5)
-                elif 'PreindustrialControl' in plotRlzDarr.scenario:
+                elif 'PreindustrialControl' in plotIntRlzMn.scenario:
                     plt.plot([0, pae50Mn], [4.6, 4.6], color='#B8B8B8', linewidth=5.5)
-                elif 'CESM2-ARISE:Control' in plotRlzDarr.scenario:
+                elif 'CESM2-ARISE:Control' in plotIntRlzMn.scenario:
                     plt.plot([0, pae50Mn], [4.7, 4.7], color='#F8A53D', linewidth=5.5)
-                elif 'ARISE-DelayedStart:Feedback' in plotRlzDarr.scenario:
+                elif 'ARISE-DelayedStart:Feedback' in plotIntRlzMn.scenario:
                     plt.plot([0, pae50Mn], [4.8, 4.8], color='#DDA2FB', linewidth=5.5)
                 
                 # ic(pae2List, pae5List, pae10List, pae30List, pae50List)
@@ -355,7 +355,7 @@ def plot_area_exposed(loRlzList, loDataDictList, setDict, outDict):
     
     md = fpd.meta_book(
             setDict, loDataDictList[loc], plotIntRlzMn) # Get metadata
-    savePrefix = '2_'
+    savePrefix = '2_a15threemembers'
     saveStr = 'aaexposed' + '_' + md['varSve'][:11] + '_' + setDict["landmaskFlag"] + \
         '_' + md['ensStr']
     if outDict["dpiVal"] == 'pdf':
@@ -376,7 +376,8 @@ def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
     paeThrshList = list()
     pwrList = list()
     piLine = None
-    thrsh = 8 # FREE PARAMETER km/yr
+    thrsh = 9.8 # FREE PARAMETER km/yr
+    # ic(wrPlotDict.keys())
     
     plt.rcParams.update({'font.size': 10})
     plt.rcParams.update({'font.family': 'Red Hat Display'})
@@ -388,10 +389,15 @@ def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
         paeThrshMn = fcv.calc_area_exposed(
             plotIntRlzMn, setDict, cspdDictList, thrsh)
         wrScnMn = wrPlotDict[pscn].mean(dim=('interval','realization'))
+        ic(wrScnMn)
         latWeights = np.cos(np.deg2rad(wrScnMn['lat']))
         darrMnWght = wrScnMn.weighted(latWeights)
-        wrScnGlobalMn = darrMnWght.mean(dim=['lat','lon'], skipna=True)
+        if 'ERA5' in pscn:
+            wrScnGlobalMn = wrScnMn.mean(dim=['lat','lon'], skipna=True)
+        else:
+            wrScnGlobalMn = darrMnWght.mean(dim=['lat','lon'], skipna=True)
         fcol = fpt.colors_from_scenario(wrScnGlobalMn.scenario)
+        ic(wrScnGlobalMn, paeThrshMn.data)
         plt.scatter(wrScnGlobalMn, paeThrshMn.data, s=80, color=fcol)
         for itvl in cspdDict[pscn].interval:
             for rlz in cspdDict[pscn].realization:
@@ -421,20 +427,23 @@ def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
             piLine = paeThrshMn.data + aeSpanRlz / 2
         paeThrshList = list()
         pwrList = list()
-    xlim = [-0.04, 0.04] #0.02 land, 0.04 ocean
-    plt.plot(
+    xlim = [-0.1, 0.1] #0.02 land, 0.04 ocean
+    plt.plot( # Zero line
         [0, 0], [0, 100], color='#242424', linewidth=0.4, linestyle='dashed',
         zorder=0.5)
-    plt.plot(
+    plt.plot( # Preindustrial boundary
         xlim, [piLine, piLine], color='#b8b8b8', linewidth=0.4, 
         linestyle='dashed', zorder=0.51)
-    plt.xticks([-0.05, -0.04, -0.03, -0.02, -0.01, 0, 0.01, 0.02, 0.03, 0.04, 0.05])
+    ic(piLine)
+    plt.xticks(
+        [-0.1, -0.08, -0.06, -0.04, -0.02, 
+            0, 0.02, 0.04, 0.06, 0.08, 0.1])
     plt.xlim(xlim)
-    plt.ylim([0, 60])
+    plt.ylim([0, 70])
     ax.spines[['top', 'right']].set_visible(False)
        
     md = fpd.meta_book(setDict, cspdDictList, plotIntRlzMn) # Get metadata
-    savePrefix = '1_'
+    savePrefix = '5_era5_'
     if setDict["landmaskFlag"] is None:
         setDict["landmaskFlag"] = 'none'
     saveStr = 'wrae' + '_' + str(thrsh) + 'kmyr' + '_' + \

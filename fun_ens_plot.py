@@ -32,8 +32,8 @@ import region_library as rlib
 
 def plot_ens_spaghetti_timeseries(darrList, dataDict, setDict, outDict):
     ''' Timeseries with ensemble members visualized as spaghetti plot. '''
-    plotRlzMn = True # Plot ensemble mean in addition to every member
-    setYear = [2015,2069]
+    plotRlzMn = False # Plot ensemble mean in addition to every member
+    setYear = [2035,2069]
     timeSlice = slice(
         cftime.DatetimeNoLeap(setYear[0], 1, 1, 12, 0, 0, 0),
         cftime.DatetimeNoLeap(setYear[1], 12, 31, 12, 0, 0, 0)) #arbitrary MDHMS
@@ -79,7 +79,7 @@ def plot_ens_spaghetti_timeseries(darrList, dataDict, setDict, outDict):
 
     # Plot metadata and settings
     b,t = plt.ylim() if setDict['ylim'] is None else setDict['ylim']
-    fpt.plot_metaobjects(scnToPlot, fig, b, t)
+    # fpt.plot_metaobjects(scnToPlot, fig, b, t)
     # leg = plt.legend()
     plt.ylabel(md['unit'])
     plt.autoscale(enable=True, axis='x', tight=True)

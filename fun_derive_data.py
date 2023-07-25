@@ -344,14 +344,27 @@ def derive_iceextent(inFileIcefrac, outPath):
     ic(strOut, outFile, newDset) #icecream all useful parts of the output
 
 ### Misc
-def generate_gridcellarea(saveFlag=False):
+def generate_gridcellarea(saveFlag=False, scn='cesm'):
     ''' Generate a file with grid cell area data '''
-    outFile = '/Users/dhueholt/Documents/GLENS_data/Misc/gridCellArea.nc'
     outKey = 'grid_cell_area'
 
-    latNew = np.arange(-90,91,0.94240838)
-    latNew = latNew[:-1]
-    lonNew = np.arange(0,360,1.25)
+    if scn == 'cesm':
+        outFile = '/Users/dhueholt/Documents/GLENS_data/Misc/gridCellArea.nc'
+        latNew = np.arange(-90,91,0.94240838)
+        latNew = latNew[:-1]
+        lonNew = np.arange(0,360,1.25)
+    elif scn == 'ukesm':
+        outFile = '/Users/dhueholt/Documents/ecology_data/Misc/gridCellAreaUkesm.nc'
+        latNew = np.arange(-89.375,90,1.25)
+        lonNew = np.arange(0.9375,360,1.875)
+    elif scn == 'era5':
+        outFile = '/Users/dhueholt/Documents/ecology_data/Misc/gridCellAreaEra5.nc'
+        latNew = np.flip(np.arange(-90,90.25,0.25))
+        lonNew = np.arange(0, 360, 0.25)
+    elif scn == 'cruts4':
+        outFile = '/Users/dhueholt/Documents/ecology_data/Misc/gridCellAreaCruts4.nc'
+        latNew = np.arange(-89.75, 90, 0.5)
+        lonNew = np.arange(-179.75, 180, 0.5)
     earthRad = 6371000 / 1000 #Earth's radius in km
 
     lonGrid,latGrid = np.meshgrid(lonNew, latNew)

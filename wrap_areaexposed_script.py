@@ -71,10 +71,10 @@ setDict = {
     "landmaskFlag": 'See loop',  # None no mask, 'land' to mask ocean, 'ocean' to mask land
     "calcIntvl": { # Years to calculate
         "GLENS": ([2020, 2039],),
-        "CESM2-ARISE": ([2035, 2054], ),
+        "CESM2-ARISE": ([2035, 2054],),
         "CESM2-SSP245": ([2045, 2064],),
         "CESM2-ARISE-DelayedStart": ([2045, 2064],),
-        "UKESM-ARISE": ([2035, 2054],),
+        "UKESM-ARISE": ([2035, 2044],),
         # "piControl": (
         #     [10, 12], [48,50])
         # "piControl": (
@@ -98,7 +98,7 @@ setDict = {
         ), # See docstring for valid inputs
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230531_wraeVerifyAndAddData/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230629_addRisk/',
     "dpiVal": 'pdf'
 }
 loopDict = {
@@ -116,6 +116,7 @@ for rlz in loopDict["rlzs"]:
         setDict["landmaskFlag"] = landocean
         setDict["realization"] = rlz
         scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
+        # ic(scnList)
         dataDict = {**dataDict, **cmnDict}
         dataDict["landmaskFlag"] = setDict["landmaskFlag"] # Required info for rangeplot
         landoceanScnList.append(scnList)

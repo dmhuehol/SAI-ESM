@@ -62,7 +62,7 @@ setDict = {
     "xticks": True, #True/False to enable/disable x-axis tick labels
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230531_wraeVerifyAndAddData/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230608_revisitOcean/',
     "addToSaveStr": '',
     "dpiVal": 'pdf'
 }
