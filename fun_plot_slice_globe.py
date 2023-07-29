@@ -55,6 +55,8 @@ def plot_single_slice_globe(rlzList, dataDict, setDict, outDict):
         except:
             panel = actData
         
+        # panel = panel - actData.mean(dim=('realization','interval'))
+        
         CL = 0.
         mapProj = cartopy.crs.EqualEarth(central_longitude = CL)
         fig = plt.figure(figsize=(12, 2.73*2))

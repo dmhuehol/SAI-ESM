@@ -50,33 +50,35 @@ zmzmPal = seaborn.diverging_palette(
     285, 16, s=100, l=50, as_cmap=True)
     
 zmzmDisc = fpt.get_cspd_colormap('zmzm')
+zmzmDiscOcn = fpt.get_cspd_ocean_colormap('zmzm')
 
 # Dictionaries to define inputs
 dataDict = {
     "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_2mTemp/',
     "idGlensCntrl": None,  # 'control_*' or None
-    "idGlensFdbck": 'feedback_*',  # 'feedback_*' or None
+    "idGlensFdbck": None,  # 'feedback_*' or None
     "idArise": '*DEFAULT*',  # '*DEFAULT*' or None
-    "idS245Cntrl": '*BWSSP245*',  # '*BWSSP245*' or None
+    "idS245Cntrl": None,  # '*BWSSP245*' or None
     "idS245Hist": None,  # '*BWHIST*' or None
     "idUkesmNoSai": None, #'*ssp245*' or None
     "idUkesmArise": None, #'*arise-sai-1p5*' or None
-    "idDelayedStart": '*DELAYED*', # '*DELAYED*' or None
+    "idDelayedStart": None, # '*DELAYED*' or None
     "idArise1p0": None, # '*ARISE1P0*' or None
-    "idPiControl": '*piControl*', #'*piControl*'
+    "idPiControl": None, #'*piControl*'
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc', # Landmask file location (CESM)
     "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
 }
 setDict = {
-    "landmaskFlag": 'land',  # None no mask, 'land' to mask ocean, 'ocean' to mask land
+    "landmaskFlag": 'ocean',  # None no mask, 'land' to mask ocean, 'ocean' to mask land
     "calcIntvl": { # Years to calculate
         "GLENS": ([2020, 2039],),
-        "CESM2-ARISE": ([2035, 2054], ),
+        "RCP8.5": ([2045, 2064],),
+        "CESM2-ARISE": ([2035, 2044], ),
         "CESM2-SSP245": ([2045, 2064],),
-        "CESM2-ARISE-DelayedStart": ([2045, 2064],),
-        "UKESM-ARISE": ([2035, 2054],),
-        "piControl": (
-            [471, 490], )
+        "CESM2-ARISE-DelayedStart": ([2045, 2054],),
+        "UKESM-ARISE": ([2035, 2044],),
+        # "piControl": (
+        #     [471, 490], )
         # "piControl": (
         #     [10, 19], [48, 57], [100, 109],
         #     [129, 138], [169, 178], [264, 273],
@@ -84,24 +86,36 @@ setDict = {
         # "piControl": (
         #     [10, 29], [48, 67], [100, 119],
         #     [129, 148], [169, 188], [264, 283],
-        #     [285, 304], [341, 360], [384, 403], [471, 490]),
+        #     [285, 304], [341, 360], [384, 403], [471, 490])
+        "piControl": ( #main
+            [5, 24], [43, 62], [95, 114],
+            [124, 143], [164, 183], [259, 278],
+            [280, 299], [336, 355], [379, 398], [465, 484]),
+        # "piControl": (
+        #     [17, 36], [93, 112], [132, 151],
+        #     [234, 253], [300, 319], [321, 340],
+        #     [367, 386], [392, 411], [412, 431], [438, 457]),
         },
-    "convert": (fcu.kel_to_cel, fcv.calc_climate_speed,),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
-    "cmap": zmzmDisc,  # None for default (cmocean balance) or choose colormap
-    "cbVals": [-51, 51],  # None for automatic or [min,max] to override,
+    "convert": (fcu.kel_to_cel, fcv.calc_warming_rate,),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
+    "cmap": None,#zmzmDisc,  # None for default (cmocean balance) or choose colormap
+    "cbVals": [-0.1, 0.1],#[-5051, 5051],  # None for automatic or [min,max] to override,
     "addCyclicPoint": False,  # True for ocean data/False for others
     "areaAvgBool": False,  # ALWAYS FALSE: no area averaging for a map!
     "robustnessBool": False,  # True/False to run robustness
     "plotScenarios": (
         # 'ARISE-SAI-DelayedStart',
-        # 'ARISE-SAI-1.5',
+        'ARISE-SAI-1.5',
+        # 'ARISE-SAI-1.0',
+        # 'UKESM-ARISE-SAI-1.5',
         # 'CESM2-WACCM:PreindustrialControl',
-        'GLENS-SAI',
+        # 'SSP2-4.5',
+        # 'GLENS-SAI',
+        # 'RCP8.5',
         ), # See docstring for valid inputs
-    "plotEnsType": 'mean' # 'mean', 'max'/'min' pointwise max/min, number for single member
+    "plotEnsType": '' # 'mean', 'max'/'min' pointwise max/min, number for single member
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230531_wraeVerifyAndAddData/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230727_revVariability/',
     "dpiVal": 400
 }
 loopDict = {
@@ -111,18 +125,21 @@ loopDict = {
     "regions": ('global',),  # 'global' only for maps
 }
 ic(dataDict, setDict, outDict, loopDict)  # Show input settings at command line
+# ic(np.diff(setDict["calcIntvl"]["piControl"]))
 
 # Make images
-for rlz in loopDict["rlzs"]:
-    setDict["realization"] = rlz
-    scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
-    dataDict = {**dataDict, **cmnDict}
-
-    for lev in loopDict["levels"]:
-        setDict["levOfInt"] = lev
-        fpsg.plot_single_slice_globe(
-            scnList, dataDict, setDict, outDict)
-        # fpsg.plot_single_slice_vector_globe(
-        #     scnList, dataDict, setDict, outDict)
+for pet in ('mean',):
+    setDict["plotEnsType"] = pet
+    for rlz in loopDict["rlzs"]:
+        setDict["realization"] = rlz
+        scnList, cmnDict = fpd.call_to_open(dataDict, setDict)
+        dataDict = {**dataDict, **cmnDict}
+    
+        for lev in loopDict["levels"]:
+            setDict["levOfInt"] = lev
+            fpsg.plot_single_slice_globe(
+                scnList, dataDict, setDict, outDict)
+            # fpsg.plot_single_slice_vector_globe(
+            #     scnList, dataDict, setDict, outDict)
 
 ic('Completed! :D')

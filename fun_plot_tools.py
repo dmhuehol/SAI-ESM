@@ -135,7 +135,7 @@ def drawOnGlobe(
     if addCyclicPoint: # Add cyclic point to prime meridian for ocean data
         data_cyc, lons_cyc = add_cyclic_point(data, coord=lons, axis=-1)
     else:
-        data_cyc = data
+        data_cyc = data.fillna(-9999)
         lons_cyc = lons
     ax.set_global()
     ax.coastlines(linewidth = 1.2, color='black')
@@ -176,6 +176,8 @@ def drawOnGlobe(
     else:
         cb = None
     image.set_clim(vmin,vmax)
+    # cmap.set_over('#e6e6e6',1.)
+    # cmap.set_under('#e6e6e6',1.)
 
     return cb, image
 
@@ -553,8 +555,10 @@ def get_cspd_colormap(palKey):
     #What we really want is 0-2, 2-10, 10-30, 30-50, 50+
     zmzm = palette_lists(palKey)
     ic(len(zmzm))
+    # map1 = np.reshape(
+    #     np.tile(zmzm[0], 1), (1,4))
     map1 = np.reshape(
-        np.tile(zmzm[0], 1), (1,4))
+        np.tile(zmzm[0], 5001), (5001,4))
     map2 = np.reshape(
         np.tile(zmzm[1], 20), (20,4))
     map3 = np.reshape(
@@ -573,8 +577,10 @@ def get_cspd_colormap(palKey):
         np.tile(zmzm[11], 20), (20,4))
     map8 = np.reshape(
         np.tile(zmzm[13], 20), (20,4))
+    # map9 = np.reshape(
+    #     np.tile(zmzm[14], 1), (1,4))
     map9 = np.reshape(
-        np.tile(zmzm[14], 1), (1,4))
+        np.tile(zmzm[14], 5001), (5001,4))
     
     colors = np.vstack(
         (map1, map2, map3, map4, map0, map5, mapLightRed, map6, map7, map8, map9))

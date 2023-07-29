@@ -172,7 +172,7 @@ def plot_rob_spaghetti_demo(darrList, dataDict, setDict, outDict):
 
 def plot_rangeplot(loRlzList, loDataDictList, setDict, outDict):
     ''' Make rangeplot '''
-    plt.rcParams.update({'font.size': 10})
+    plt.rcParams.update({'font.size': 8})
     plt.rcParams.update({'font.family': 'Red Hat Display'})
     plt.rcParams.update({'font.weight': 'normal'})
     fig, ax = plt.subplots()
@@ -200,6 +200,9 @@ def plot_rangeplot(loRlzList, loDataDictList, setDict, outDict):
                     plt.scatter(
                         ensMedAbs.data, np.zeros(len(ensMedAbs.interval))+yVal,
                         color=actCol, facecolor=fcol)
+                    # for imc, imv in enumerate(ensMedAbs.data):
+                    #     plt.annotate(
+                    #         str(imc), (imv, yVal+0.03), fontsize=8, color=actCol)
                     plt.scatter(
                         mnEnsMed, yVal, s=200, marker='|', color=actCol)
                 else:
@@ -213,13 +216,18 @@ def plot_rangeplot(loRlzList, loDataDictList, setDict, outDict):
                             ensMedAbs.data, 
                             np.zeros(len(ensMedAbs.realization))+yVal,
                             color=actCol, facecolor=fcol)
+                        # ic(ensMedAbs.data)
+                        # for emc,emv in enumerate(ensMedAbs.data):
+                        #     plt.annotate(
+                        #         str(emc), (emv, yVal+0.03), fontsize=8, color=actCol)
                     plt.scatter(mnEnsMed, yVal, s=200, marker='|', color=actCol)
-                plt.xlim([-0.001, 11])
+                plt.xlim([-0.1, 11])
                 plt.yticks([])
                 b,t = plt.ylim()
-                plt.xlabel('Magnitude of climate speed (km/yr)')
+                # plt.xlabel('Magnitude of climate speed (km/yr)')
         ax.spines[['left', 'top', 'right']].set_visible(False)
         ax.set_yticklabels([])
+        ax.set_xticklabels([])
         
         savePrefix = 'r4autoname_'
         saveStr = 'rangeplot' + '_' + md['varSve'][:11] + '_' + 'landocean' + \
@@ -376,7 +384,7 @@ def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
     paeThrshList = list()
     pwrList = list()
     piLine = None
-    thrsh = 9.8 # FREE PARAMETER km/yr
+    thrsh = 10 # FREE PARAMETER km/yr
     # ic(wrPlotDict.keys())
     
     plt.rcParams.update({'font.size': 10})

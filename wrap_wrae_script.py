@@ -66,7 +66,7 @@ dataDict = {
     "idPiControl": '*piControl*', #'*piControl*'
     "idS126": '*ssp126*', # '*ssp126' or None
     "idEra5": '*era5*', # '*era5*' or None
-    "idCruTs4": '*cruts4*', # '*cruts4*' or None
+    "idCruTs4": None, # '*cruts4*' or None
     # "idGlensCntrl": None,  # 'control_*' or None
     # "idGlensFdbck": None,  # 'feedback_*' or None
     # "idArise": None,  # '*DEFAULT*' or None
@@ -127,7 +127,7 @@ setDict = {
         ), # See docstring for valid inputs
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230629_addRisk/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230727_revVariability/',
     "dpiVal": 'pdf'
 }
 loopDict = {
