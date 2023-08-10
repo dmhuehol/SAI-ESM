@@ -55,6 +55,7 @@ def plot_single_slice_globe(rlzList, dataDict, setDict, outDict):
         except:
             panel = actData
         
+        # panel = panel.mean(dim='interval')
         # panel = panel - actData.mean(dim=('realization','interval'))
         
         CL = 0.

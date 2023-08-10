@@ -174,6 +174,55 @@ def calc_climate_speed(darr, setDict):
 
     return climSpdItvl
     
+def calc_climate_speed_forced_response(darr, setDict):
+    ''' Calculate the climate speed in the forced response of a variable '''
+    darrIntvlList = time_slice_darr(darr, setDict)
+    climSpdList = list()
+    # ic(darrIntvlList, len(darrIntvlList))
+    darrItvl = xr.concat(darrIntvlList, dim='interval')
+        # ic(darrItvl)
+    # ic(darrItvl, darrItvl.time, darrItvl.interval)
+    # sys.exit('STOP')
+    darrItvlMn =  darrItvl.mean(dim='interval')
+    # ic(darrItvlMn.time)
+    # sys.exit('STOP')
+    tGrad, nsGrad, ewGrad, yrSpan = calc_spat_temp_grad(darrItvlMn, setDict)
+    tGrad = tGrad.mean(dim='realization')
+    # nsGrad = nsGrad.mean(dim='realization')
+    # ewGrad = ewGrad.mean(dim='realization')
+    try: 
+        tGrad = tGrad.mean(dim='interval')
+        # nsGrad = nsGrad.mean(dim='interval') 
+        # ewGrad = ewGrad.mean(dim='interval')
+    except:
+        pass
+    totGrad = np.sqrt((nsGrad ** 2) + (ewGrad ** 2))
+    sGrad = totGrad
+    climSpdItvl = tGrad / sGrad
+    climSpdItvl.attrs = darrItvlMn.attrs
+    # climSpdList.append(climSpd)
+    # for darr in darrItvlMn:
+        # tGrad, nsGrad, ewGrad, yrSpan = calc_spat_temp_grad(darr, setDict)
+        # totGrad = np.sqrt((nsGrad ** 2) + (ewGrad ** 2))
+        # sGrad = totGrad
+        # climSpd = tGrad / sGrad
+        # climSpd.attrs = darr.attrs
+        # climSpdList.append(climSpd)
+
+    # climSpdItvl = xr.concat(climSpdList, dim='interval')
+    # TODO: make attributes flexible by variable (e.g., climate speed of X)
+    climSpdItvl.attrs['long_name'] = 'Climate speed of forced response of 2m temperature' \
+        + ' ' + str(yrSpan[0]) + '-' + str(yrSpan[1])
+    climSpdItvl.attrs['units'] = 'km/yr'
+    
+    # Display for troubleshooting
+    # ic(climSpdItvl.scenario)
+    # ic(check_stats(tGrad.data))
+    # ic(check_stats(sGrad.data))
+    # ic(check_stats(climSpdItvl.data))
+
+    return climSpdItvl
+    
 def calc_warming_rate(darr, setDict):
     ''' Calculate the warming rate '''
     darrIntvlList = time_slice_darr(darr, setDict)

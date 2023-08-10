@@ -177,7 +177,7 @@ def drawOnGlobe(
         cb = None
     image.set_clim(vmin,vmax)
     # cmap.set_over('#e6e6e6',1.)
-    # cmap.set_under('#e6e6e6',1.)
+    cmap.set_under('#e6e6e6',1.)
 
     return cb, image
 
@@ -454,28 +454,28 @@ def markers_from_scenario(scn, landmaskFlag):
     if 'CESM2-ARISE:Feedback' in scn:
         if landmaskFlag == 'ocean':
             yVal = 0.5
-            fcol = 'none'
+            fcol = '#12D0B2' #'none'
         else:
             yVal = 0.7
             fcol = '#12D0B2' #Turquoise
     elif 'ARISE-DelayedStart:Feedback' in scn:
         if landmaskFlag == 'ocean':
             yVal = 1.5
-            fcol = 'none'
+            fcol = '#DDA2FB' #'none'
         else:
             yVal = 1.7
             fcol = '#DDA2FB'
     elif 'CESM2-ARISE:Control' in scn:
         if landmaskFlag == 'ocean':
             yVal = 1
-            fcol = 'none'
+            fcol = '#F8A53D' #'none'
         else:
             yVal = 1.2
             fcol = '#F8A53D'
     elif 'PreindustrialControl' in scn:
         if landmaskFlag == 'ocean':
             yVal = 0
-            fcol = 'none'
+            fcol = '#B8B8B8' #'none'
         else:
             yVal = 0.2
             fcol = '#B8B8B8'

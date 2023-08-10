@@ -99,7 +99,7 @@ setDict = {
         ), # See docstring for valid inputs
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230727_revVariability/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230731_editing/',
     "dpiVal": 'pdf'
 }
 loopDict = {
