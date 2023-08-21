@@ -123,11 +123,11 @@ setDict = {
         'UKESM-ARISE-SAI-1.5', 'UKESM-SSP2-4.5',
         'CESM2-WACCM:PreindustrialControl',
         'SSP1-2.6',
-        'ERA5', 'CRU_TS4'
+        'ERA5',
         ), # See docstring for valid inputs
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230727_revVariability/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230818_samegridEra5/',
     "dpiVal": 'pdf'
 }
 loopDict = {

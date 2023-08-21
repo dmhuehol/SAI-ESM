@@ -16,6 +16,9 @@ import numpy as np
 import scipy.ndimage as sndimg
 from sklearn.linear_model import LinearRegression
 import xarray as xr
+import xesmf as xe
+# import os
+# os.environ['ESMFMKFILE'] = '/Users/dhueholt/opt/anaconda3/envs/sai-esm/lib/esmf.mk'
 
 import fun_process_data as fpd
 import fun_derive_data as fdd
@@ -412,7 +415,17 @@ def calc_area_exposed(cSpdDarr, setDict, dataDict, threshold):
     elif 'UKESM' in cSpdDarr.scenario:
         cellAreaDset = fdd.generate_gridcellarea(saveFlag=False, scn='ukesm')
     elif 'ERA5' in cSpdDarr.scenario:
-        cellAreaDset = fdd.generate_gridcellarea(saveFlag=False, scn='era5')
+        # gridref_path = '/Users/dhueholt/Documents/UKESM_data/grid_ref/ukesm_arise_latlon.nc'
+        gridref_path = '/Users/dhueholt/Documents/ecology_data/annual_2mTemp/SSP245-TSMLT-GAUSS-DELAYED-2045_006_TREFHT_204501-204512_206812-206912_anmnnodup.nc'
+        grid_ref = xr.open_dataset(gridref_path)
+        remap = xe.Regridder(cSpdDarr, grid_ref, "bilinear")
+        cSpdCoarse = remap(cSpdDarr)
+        # cSpdCoarse = cSpdDarr.coarsen(lon=5, lat=4, boundary='pad').mean()
+        cSpdData = cSpdCoarse.data
+        ic(np.diff(cSpdCoarse.lon.data))
+        ic(np.diff(cSpdCoarse.lat.data))
+        # sys.exit('STOP')
+        cellAreaDset = fdd.generate_gridcellarea(saveFlag=False, scn='era5coarse')
     elif 'CRU_TS4' in cSpdDarr.scenario:
         cellAreaDset = fdd.generate_gridcellarea(saveFlag=False, scn='cruts4')
     cellAreaDarr = cellAreaDset['grid_cell_area']

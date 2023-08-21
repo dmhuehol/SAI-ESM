@@ -448,6 +448,9 @@ def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
             0, 0.02, 0.04, 0.06, 0.08, 0.1])
     plt.xlim(xlim)
     plt.ylim([0, 70])
+    
+    plt.xlim(0, 0.1)
+    plt.ylim(10, 70)
     ax.spines[['top', 'right']].set_visible(False)
        
     md = fpd.meta_book(setDict, cspdDictList, plotIntRlzMn) # Get metadata

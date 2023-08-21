@@ -48,6 +48,8 @@ def plot_single_slice_globe(rlzList, dataDict, setDict, outDict):
                 panel = actData.max(dim='realization')
             elif setDict["plotEnsType"] == 'min': #Pointwise min
                 panel = actData.min(dim='realization')
+            elif setDict["plotEnsType"] == 'stdev': #Pointwise stdev
+                panel = actData.std(dim=('realization','interval'))
             elif isinstance(setDict["plotEnsType"], int): #Single member
                 panel = actData.isel(realization=setDict["plotEnsType"]).squeeze()
             else:
@@ -55,6 +57,7 @@ def plot_single_slice_globe(rlzList, dataDict, setDict, outDict):
         except:
             panel = actData
         
+        # ic(panel)
         # panel = panel.mean(dim='interval')
         # panel = panel - actData.mean(dim=('realization','interval'))
         

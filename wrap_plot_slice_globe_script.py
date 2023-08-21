@@ -55,7 +55,7 @@ dataDict = {
     "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
 }
 setDict = {
-    "landmaskFlag": 'land',  # None no mask, 'land' to mask ocean, 'ocean' to mask land
+    "landmaskFlag": 'ocean',  # None no mask, 'land' to mask ocean, 'ocean' to mask land
     "calcIntvl": { # Years to calculate
         "GLENS": ([2020, 2039],),
         "RCP8.5": ([2045, 2064],),
@@ -72,7 +72,7 @@ setDict = {
         #     [234, 253], [300, 319], [321, 340],
         #     [367, 386], [392, 411], [412, 431], [438, 457]),
         },
-    "convert": (fcu.kel_to_cel, fcv.calc_climate_speed_forced_response,),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
+    "convert": (fcu.kel_to_cel, fcv.calc_climate_speed),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
     "cmap": zmzmDisc,  # None for default (cmocean balance) or choose colormap
     "cbVals": [-5051, 5051],  # None for automatic or [min,max] to override,
     "addCyclicPoint": False,  # True for ocean data/False for others
@@ -91,7 +91,7 @@ setDict = {
     "plotEnsType": '' # 'mean', 'max'/'min' pointwise max/min, number for single member
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230803_orderAndCode/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230821_spatGradRlz/',
     "dpiVal": 400
 }
 loopDict = {
