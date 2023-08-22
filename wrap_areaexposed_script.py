@@ -76,15 +76,9 @@ setDict = {
         "CESM2-ARISE-DelayedStart": ([2045, 2064],),
         "UKESM-ARISE": ([2035, 2044],),
         # "piControl": (
-        #     [10, 12], [48,50])
-        # "piControl": (
-        #     [10, 19], [48, 57], [100, 109],
-        #     [129, 138], [169, 178], [264, 273],
-        #     [285, 294], [341, 350], [384, 393], [471, 480])
-        "piControl": (
-            [10, 29], [48, 67], [100, 119],
-            [129, 148], [169, 188], [264, 283],
-            [285, 304], [341, 360], [384, 403], [471, 490]),
+        #     [10, 29], [48, 67], [100, 119],
+        #     [129, 148], [169, 188], [264, 283],
+        #     [285, 304], [341, 360], [384, 403], [471, 490]),
         },
     "convert": (fcu.kel_to_cel, fcv.calc_climate_speed,),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
     "cmap": zmzmDisc,  # None for default (cmocean balance) or choose colormap
@@ -98,7 +92,7 @@ setDict = {
         ), # See docstring for valid inputs
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230629_addRisk/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230821_spatGradRlz/',
     "dpiVal": 'pdf'
 }
 loopDict = {
@@ -112,7 +106,7 @@ ic(dataDict, setDict, outDict, loopDict)  # Show input settings at command line
 for rlz in loopDict["rlzs"]:
     landoceanScnList = list()
     landoceanDdList = list()
-    for landocean in ('ocean',):
+    for landocean in ('land',):
         setDict["landmaskFlag"] = landocean
         setDict["realization"] = rlz
         scnList, cmnDict = fpd.call_to_open(dataDict, setDict)

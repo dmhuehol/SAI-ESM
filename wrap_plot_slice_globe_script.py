@@ -48,14 +48,14 @@ dataDict = {
     "idS245Hist": None,  # '*BWHIST*' or None
     "idUkesmNoSai": None, #'*ssp245*' or None
     "idUkesmArise": None, #'*arise-sai-1p5*' or None
-    "idDelayedStart": '*DELAYED*', # '*DELAYED*' or None
+    "idDelayedStart": None, # '*DELAYED*' or None
     "idArise1p0": None, # '*ARISE1P0*' or None
-    "idPiControl": None, #'*piControl*'
+    "idPiControl": '*piControl*', #'*piControl*' or None
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc', # Landmask file location (CESM)
     "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
 }
 setDict = {
-    "landmaskFlag": 'ocean',  # None no mask, 'land' to mask ocean, 'ocean' to mask land
+    "landmaskFlag": 'land',  # None no mask, 'land' to mask ocean, 'ocean' to mask land
     "calcIntvl": { # Years to calculate
         "GLENS": ([2020, 2039],),
         "RCP8.5": ([2045, 2064],),
@@ -79,11 +79,11 @@ setDict = {
     "areaAvgBool": False,  # ALWAYS FALSE: no area averaging for a map!
     "robustnessBool": False,  # True/False to run robustness
     "plotScenarios": (
-        'ARISE-SAI-DelayedStart',
+        # 'ARISE-SAI-DelayedStart',
         # 'ARISE-SAI-1.5',
         # 'ARISE-SAI-1.0',
         # 'UKESM-ARISE-SAI-1.5',
-        # 'CESM2-WACCM:PreindustrialControl',
+        'CESM2-WACCM:PreindustrialControl',
         # 'SSP2-4.5',
         # 'GLENS-SAI',
         # 'RCP8.5',
@@ -103,6 +103,7 @@ ic(dataDict, setDict, outDict, loopDict)  # Show input settings at command line
 # ic(np.diff(setDict["calcIntvl"]["piControl"])) # Check to ensure correct time periods
 
 # Make images
+# for pet in (0,1,2,3,4,5,6,7,8,9):
 for pet in ('mean',):
     setDict["plotEnsType"] = pet
     for rlz in loopDict["rlzs"]:

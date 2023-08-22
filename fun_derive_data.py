@@ -362,9 +362,11 @@ def generate_gridcellarea(saveFlag=False, scn='cesm'):
         latNew = np.flip(np.arange(-90,90.25,0.25))
         lonNew = np.arange(0, 360, 0.25)
     elif scn == 'era5coarse':
-        latNew = np.arange(-90,91,0.94240838)
-        latNew = latNew[:-1]
-        lonNew = np.arange(0,360,1.25)    
+        # latNew = np.arange(-89.375,90,1.25) #UKESM
+        # lonNew = np.arange(0.9375,360,1.875) #UKESM
+        latNew = np.arange(-90,91,0.94240838) #CESM
+        latNew = latNew[:-1] #CESM
+        lonNew = np.arange(0,360,1.25) #CESM
     elif scn == 'cruts4':
         outFile = '/Users/dhueholt/Documents/ecology_data/Misc/gridCellAreaCruts4.nc'
         latNew = np.arange(-89.75, 90, 0.5)

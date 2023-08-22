@@ -127,14 +127,13 @@ def calc_spatial_grad_comp(darr):
             ewGradRlzList.append(
                 sndimg.sobel( # East/west spatial gradient
                     darr.isel(realization=r), axis=1, mode='reflect'))
-        nsGrad = np.nanmean(nsGradRlzList, axis=0)
-        ewGrad = np.nanmean(ewGradRlzList, axis=0)
+        
     else:
         nsGrad = sndimg.sobel(darr, axis=1, mode='reflect')
         ewGrad = sndimg.sobel(darr, axis=2, mode='reflect')
-    nsGradSc = nsGrad / (8 * distY)
-    ewGradSc = ewGrad / (8 * distX)
-
+    nsGradSc = nsGradRlzList / (8 * distY)
+    ewGradSc = ewGradRlzList / (8 * distX)
+    
     return nsGradSc, ewGradSc
     
 def calc_spat_temp_grad(darrToi, setDict):
@@ -418,9 +417,9 @@ def calc_area_exposed(cSpdDarr, setDict, dataDict, threshold):
         # gridref_path = '/Users/dhueholt/Documents/UKESM_data/grid_ref/ukesm_arise_latlon.nc'
         gridref_path = '/Users/dhueholt/Documents/ecology_data/annual_2mTemp/SSP245-TSMLT-GAUSS-DELAYED-2045_006_TREFHT_204501-204512_206812-206912_anmnnodup.nc'
         grid_ref = xr.open_dataset(gridref_path)
+        # cSpdCoarse = cSpdDarr
         remap = xe.Regridder(cSpdDarr, grid_ref, "bilinear")
         cSpdCoarse = remap(cSpdDarr)
-        # cSpdCoarse = cSpdDarr.coarsen(lon=5, lat=4, boundary='pad').mean()
         cSpdData = cSpdCoarse.data
         ic(np.diff(cSpdCoarse.lon.data))
         ic(np.diff(cSpdCoarse.lat.data))

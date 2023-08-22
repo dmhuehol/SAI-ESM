@@ -363,7 +363,7 @@ def plot_area_exposed(loRlzList, loDataDictList, setDict, outDict):
     
     md = fpd.meta_book(
             setDict, loDataDictList[loc], plotIntRlzMn) # Get metadata
-    savePrefix = '2_a15threemembers'
+    savePrefix = ''
     saveStr = 'aaexposed' + '_' + md['varSve'][:11] + '_' + setDict["landmaskFlag"] + \
         '_' + md['ensStr']
     if outDict["dpiVal"] == 'pdf':
@@ -449,8 +449,8 @@ def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
     plt.xlim(xlim)
     plt.ylim([0, 70])
     
-    plt.xlim(0, 0.1)
-    plt.ylim(10, 70)
+    # plt.xlim(0, 0.1) #Supplemental Fig. 7
+    # plt.ylim(10, 70) #Supplemental Fig. 7
     ax.spines[['top', 'right']].set_visible(False)
        
     md = fpd.meta_book(setDict, cspdDictList, plotIntRlzMn) # Get metadata
