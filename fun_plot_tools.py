@@ -649,7 +649,6 @@ def colors_from_scenario(scn):
         fcol = '#F9E166'
     elif 'ERA5' in scn:
         fcol = '#956a36'
-        ic()
     else:
         fcol = '#000000'
 
