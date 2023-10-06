@@ -118,16 +118,19 @@ setDict = {
     "robustnessBool": False,  # True/False to run robustness
     "plotScenarios": (
         'SSP2-4.5', 'Historical',
-        'ARISE-SAI-1.5', 'ARISE-SAI-DelayedStart', 'ARISE-SAI-1.0',
-        'GLENS-SAI', 'RCP8.5',
-        'UKESM-ARISE-SAI-1.5', 'UKESM-SSP2-4.5',
+        'ARISE-SAI-1.5',
+        'ARISE-SAI-DelayedStart', 'ARISE-SAI-1.0',
+        'GLENS-SAI',
+        'RCP8.5',
+        'UKESM-ARISE-SAI-1.5',
+        'UKESM-SSP2-4.5',
         'CESM2-WACCM:PreindustrialControl',
         'SSP1-2.6',
-        'ERA5',
+        # 'ERA5',
         ), # See docstring for valid inputs
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230821_spatGradRlz/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230824_forScri/',
     "dpiVal": 'pdf'
 }
 loopDict = {

@@ -177,14 +177,26 @@ def plot_rangeplot(loRlzList, loDataDictList, setDict, outDict):
     plt.rcParams.update({'font.weight': 'normal'})
     fig, ax = plt.subplots()
     for loc,rlzList in enumerate(loRlzList):
+        if loc == 0: #Land, because there isn't a better way to track this
+            disperseThrsh = 2
+            disperseThrshMinus = -2
+        elif loc == 1: #Ocean
+            disperseThrsh = 7
+            disperseThrshMinus = -7
         plotDict = fpt.make_scenario_dict(rlzList, setDict)
         for pscc,pscn in enumerate(plotDict.keys()):
             for itvl in plotDict[pscn].interval:
                 ensMed = fcv.calc_weighted_med(plotDict[pscn])
-                ensMedAbs = abs(ensMed)
+                ensMedAbs = ensMed.copy()#abs(ensMed)
                 minEnsMed = np.min(ensMedAbs.data)
                 maxEnsMed = np.max(ensMedAbs.data)
                 mnEnsMed = np.mean(ensMedAbs.data)
+                if mnEnsMed > 0: #Guess sign of response
+                    gtThreshInd = ensMedAbs > disperseThrsh
+                else:
+                    gtThreshInd = ensMedAbs < disperseThrshMinus #greater than the MAGNITUDE, anyway
+                ensMedAbsGtThr = ensMedAbs[gtThreshInd]
+                ensMedAbsLteThr = ensMedAbs[~gtThreshInd]
                 md = fpd.meta_book(
                         setDict, loDataDictList[loc], ensMed) # Get metadata
                 actCol, actLab = fpt.line_from_scenario(ensMed.scenario, md)
@@ -198,8 +210,13 @@ def plot_rangeplot(loRlzList, loDataDictList, setDict, outDict):
                     linewidth=0.5)
                 if pscn == 'CESM2-WACCM:PreindustrialControl':
                     plt.scatter(
-                        ensMedAbs.data, np.zeros(len(ensMedAbs.interval))+yVal,
+                        ensMedAbsGtThr.data, 
+                        np.zeros(len(ensMedAbsGtThr.interval))+yVal,
                         color=actCol, facecolor=fcol)
+                    plt.scatter(
+                        ensMedAbsLteThr.data, 
+                        np.zeros(len(ensMedAbsLteThr.interval))+yVal,
+                        color=actCol, facecolor='none')    
                     # for imc, imv in enumerate(ensMedAbs.data):
                     #     plt.annotate(
                     #         str(imc), (imv, yVal+0.03), fontsize=8, color=actCol)
@@ -208,20 +225,30 @@ def plot_rangeplot(loRlzList, loDataDictList, setDict, outDict):
                 else:
                     try:
                         plt.scatter(
-                            ensMedAbs.sel(interval=itvl).data, 
-                            np.zeros(len(ensMedAbs.realization))+yVal,
+                            ensMedAbsGtThr.sel(interval=itvl).data, 
+                            np.zeros(len(ensMedAbsGtThr.realization))+yVal,
                             color=actCol, facecolor=fcol)
+                        plt.scatter(
+                            ensMedAbsLteThr.sel(interval=itvl).data, 
+                            np.zeros(len(ensMedAbsLteThr.realization))+yVal,
+                            color=actCol, facecolor='none')
                     except:
                         plt.scatter(
-                            ensMedAbs.data, 
-                            np.zeros(len(ensMedAbs.realization))+yVal,
+                            ensMedAbsGtThr.data, 
+                            np.zeros(len(ensMedAbsGtThr.realization))+yVal,
                             color=actCol, facecolor=fcol)
-                        # ic(ensMedAbs.data)
+                        plt.scatter(
+                            ensMedAbsLteThr.data, 
+                            np.zeros(len(ensMedAbsLteThr.realization))+yVal,
+                            color=actCol, facecolor='none')
                         # for emc,emv in enumerate(ensMedAbs.data):
                         #     plt.annotate(
                         #         str(emc), (emv, yVal+0.03), fontsize=8, color=actCol)
                     plt.scatter(mnEnsMed, yVal, s=200, marker='|', color=actCol)
-                plt.xlim([-0.1, 11])
+                # plt.xlim([-0.1, 11])
+                plt.xlim([-10.5,10.5])
+                
+                plt.xticks([-10, -7, -2, 0, 2, 7, 10])
                 plt.yticks([])
                 b,t = plt.ylim()
                 # plt.xlabel('Magnitude of climate speed (km/yr)')
@@ -229,7 +256,7 @@ def plot_rangeplot(loRlzList, loDataDictList, setDict, outDict):
         ax.set_yticklabels([])
         ax.set_xticklabels([])
         
-        savePrefix = 'r4autoname_'
+        savePrefix = '5_noabsFixThreshold_'
         saveStr = 'rangeplot' + '_' + md['varSve'][:11] + '_' + 'landocean' + \
             '_' + md['ensStr']
         if outDict["dpiVal"] == 'pdf':

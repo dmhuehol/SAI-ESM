@@ -99,7 +99,7 @@ setDict = {
         ), # See docstring for valid inputs
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230821_spatGradRlz/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230928_rangeplot/',
     "dpiVal": 'pdf'
 }
 loopDict = {
