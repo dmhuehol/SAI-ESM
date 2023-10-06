@@ -414,19 +414,17 @@ def calc_area_exposed(cSpdDarr, setDict, dataDict, threshold):
     elif 'UKESM' in cSpdDarr.scenario:
         cellAreaDset = fdd.generate_gridcellarea(saveFlag=False, scn='ukesm')
     elif 'ERA5' in cSpdDarr.scenario:
-        # gridref_path = '/Users/dhueholt/Documents/UKESM_data/grid_ref/ukesm_arise_latlon.nc'
-        gridref_path = '/Users/dhueholt/Documents/ecology_data/annual_2mTemp/SSP245-TSMLT-GAUSS-DELAYED-2045_006_TREFHT_204501-204512_206812-206912_anmnnodup.nc'
+        # gridref_path = setDict["dataPath"] + 'arise-sai-1p5_r4i1p1f2_tas_203501-204912_205001-207012_annual.nc' # Regrid to UKESM (Supplementary Fig. 8)
+        gridref_path = setDict["dataPath"] + 'SSP245-TSMLT-GAUSS-DELAYED-2045_006_TREFHT_204501-204512_206812-206912_anmnnodup.nc' # Regrid to CESM2 (Fig. 3, Supplementary Fig. 8)
         grid_ref = xr.open_dataset(gridref_path)
-        # cSpdCoarse = cSpdDarr
         remap = xe.Regridder(cSpdDarr, grid_ref, "bilinear")
         cSpdCoarse = remap(cSpdDarr)
+        # cSpdCoarse = cSpdDarr # Native grid (Supplementary Fig. 8a)
         cSpdData = cSpdCoarse.data
-        ic(np.diff(cSpdCoarse.lon.data))
-        ic(np.diff(cSpdCoarse.lat.data))
-        # sys.exit('STOP')
-        cellAreaDset = fdd.generate_gridcellarea(saveFlag=False, scn='era5coarse')
-    elif 'CRU_TS4' in cSpdDarr.scenario:
-        cellAreaDset = fdd.generate_gridcellarea(saveFlag=False, scn='cruts4')
+        # ic(np.diff(cSpdCoarse.lon.data)) # Print grid spacing to console
+        # ic(np.diff(cSpdCoarse.lat.data)) # Print grid spacing to console
+        cellAreaDset = fdd.generate_gridcellarea(saveFlag=False, scn='era5coarse') # (Fig. 3, Supplementary Fig. 8b, 8c)
+        # cellAreaDset = fdd.generate_gridcellarea(saveFlag=False, scn='era5') # (Supplementary Fig. 8a)
     cellAreaDarr = cellAreaDset['grid_cell_area']
     cesmMask = fpd.get_mask(dataDict, cSpdDarr.scenario)
     if cesmMask is not None:

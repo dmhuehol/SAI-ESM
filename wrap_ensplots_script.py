@@ -1,21 +1,15 @@
 ''' wrap_ensplots_script
-Runs ensemble plotting functions in fun_ens_plot. To replicate figures from
-Hueholt et al. 2023 "Assessing Outcomes in Stratospheric Aerosol Injection
-Scenarios Shortly After Deployment" directly, see
-wrap_paperplots_basicplots_script.
+Runs ensemble plotting functions in fun_ens_plot.
 
 dataDict: defines input data
 setDict: settings for analysis/visualization
     areaAvgBool: sets area averaging behavior, more accurately named areaAvgFlag
-        True: plot area average
-        'sum': plot area sum (e.g. for ice extent)
     styleFlag: choose preset visual style for ens_spread_timeseries figures
-        0: code takes its best guess for all aesthetics
-        1: only plot the timeseries curves
-        2: aesthetics used in Hueholt et al. 2023
-        3: for IPCC-defined region figures in Open Science Foundation archive
 outDict: output image settings
 loopDict: determines which images are made
+
+Supplementary Fig. 1:
+  Run with default settings
 
 Written by Daniel Hueholt | February 2022
 Graduate Research Assistant at Colorado State University
@@ -36,7 +30,7 @@ import region_library as rlib
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_2mTemp/',
+    "dataPath": '/Users/dhueholt/Desktop/OSF/CSHF/',
     "idGlensCntrl": None,  # 'control_*' or None
     "idGlensFdbck": None,  # 'feedback_*' or None
     "idArise": '*DEFAULT*',  # '*DEFAULT*' or None
@@ -62,7 +56,7 @@ setDict = {
     "xticks": True, #True/False to enable/disable x-axis tick labels
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20230608_revisitOcean/',
+    "savePath": '/Users/dhueholt/Desktop/OSF/images/',
     "addToSaveStr": '',
     "dpiVal": 'pdf'
 }

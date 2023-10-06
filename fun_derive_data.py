@@ -362,15 +362,11 @@ def generate_gridcellarea(saveFlag=False, scn='cesm'):
         latNew = np.flip(np.arange(-90,90.25,0.25))
         lonNew = np.arange(0, 360, 0.25)
     elif scn == 'era5coarse':
-        # latNew = np.arange(-89.375,90,1.25) #UKESM
-        # lonNew = np.arange(0.9375,360,1.875) #UKESM
-        latNew = np.arange(-90,91,0.94240838) #CESM
-        latNew = latNew[:-1] #CESM
-        lonNew = np.arange(0,360,1.25) #CESM
-    elif scn == 'cruts4':
-        outFile = '/Users/dhueholt/Documents/ecology_data/Misc/gridCellAreaCruts4.nc'
-        latNew = np.arange(-89.75, 90, 0.5)
-        lonNew = np.arange(-179.75, 180, 0.5)
+        # latNew = np.arange(-89.375,90,1.25) #UKESM (Fig. 3, Supplementary Fig. 8c)
+        # lonNew = np.arange(0.9375,360,1.875) #UKESM (Fig. 3, Supplementary Fig. 8c)
+        latNew = np.arange(-90,91,0.94240838) #CESM (Fig. 3, Supplementary Fig. 8b)
+        latNew = latNew[:-1] #CESM (Fig. 3, Supplementary Fig. 8b)
+        lonNew = np.arange(0,360,1.25) #CESM (Fig. 3, Supplementary Fig. 8b)
     earthRad = 6371000 / 1000 #Earth's radius in km
 
     lonGrid,latGrid = np.meshgrid(lonNew, latNew)

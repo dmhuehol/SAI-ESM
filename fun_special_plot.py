@@ -187,7 +187,10 @@ def plot_rangeplot(loRlzList, loDataDictList, setDict, outDict):
         for pscc,pscn in enumerate(plotDict.keys()):
             for itvl in plotDict[pscn].interval:
                 ensMed = fcv.calc_weighted_med(plotDict[pscn])
-                ensMedAbs = ensMed.copy()#abs(ensMed)
+                if setDict["magBool"] == True:
+                    ensMedAbs = abs(ensMed)
+                else:
+                    ensMedAbs = ensMed.copy()
                 minEnsMed = np.min(ensMedAbs.data)
                 maxEnsMed = np.max(ensMedAbs.data)
                 mnEnsMed = np.mean(ensMedAbs.data)
@@ -245,10 +248,13 @@ def plot_rangeplot(loRlzList, loDataDictList, setDict, outDict):
                         #     plt.annotate(
                         #         str(emc), (emv, yVal+0.03), fontsize=8, color=actCol)
                     plt.scatter(mnEnsMed, yVal, s=200, marker='|', color=actCol)
-                # plt.xlim([-0.1, 11])
-                plt.xlim([-10.5,10.5])
+                if setDict["magBool"] == True:
+                    plt.xlim([-0.1, 11])
+                    plt.xticks([0, 2, 7, 10])
+                else:
+                    plt.xlim([-10.5,10.5])
+                    plt.xticks([-10, -7, -2, 0, 2, 7, 10])
                 
-                plt.xticks([-10, -7, -2, 0, 2, 7, 10])
                 plt.yticks([])
                 b,t = plt.ylim()
                 # plt.xlabel('Magnitude of climate speed (km/yr)')
@@ -256,7 +262,7 @@ def plot_rangeplot(loRlzList, loDataDictList, setDict, outDict):
         ax.set_yticklabels([])
         ax.set_xticklabels([])
         
-        savePrefix = '5_noabsFixThreshold_'
+        savePrefix = ''
         saveStr = 'rangeplot' + '_' + md['varSve'][:11] + '_' + 'landocean' + \
             '_' + md['ensStr']
         if outDict["dpiVal"] == 'pdf':
@@ -476,12 +482,12 @@ def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
     plt.xlim(xlim)
     plt.ylim([0, 70])
     
-    # plt.xlim(0, 0.1) #Supplemental Fig. 7
-    # plt.ylim(10, 70) #Supplemental Fig. 7
+    # plt.xlim(0, 0.1) #Supplementary Fig. 8
+    # plt.ylim(10, 70) #Supplementary Fig. 8
     ax.spines[['top', 'right']].set_visible(False)
        
     md = fpd.meta_book(setDict, cspdDictList, plotIntRlzMn) # Get metadata
-    savePrefix = '5_era5_'
+    savePrefix = ''
     if setDict["landmaskFlag"] is None:
         setDict["landmaskFlag"] = 'none'
     saveStr = 'wrae' + '_' + str(thrsh) + 'kmyr' + '_' + \
