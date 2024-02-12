@@ -47,11 +47,12 @@ import fun_calc_var as fcv
 import fun_process_data as fpd
 import fun_special_plot as fsp
 import region_library as rlib
-#
+import get_periods as gp
 
+per = gp.periods()
 # Dictionaries to define inputs
 dataDict = {
-    "dataPath": '/Users/dhueholt/Desktop/OSF/CSHF/',
+    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_2mTemp/',
     "idGlensCntrl": None,  # 'control_*' or None
     "idGlensFdbck": None,  # 'feedback_*' or None
     "idArise": '*DEFAULT*',  # '*DEFAULT*' or None
@@ -61,7 +62,8 @@ dataDict = {
     "idUkesmArise": None, #'*arise-sai-1p5*' or None
     "idDelayedStart": '*DELAYED*', # '*DELAYED*' or None
     "idArise1p0": None, # '*ARISE1P0*' or None
-    "idPiControl": '*piControl*', #'*piControl*'
+    "idPiControl": None, #'*piControl*'
+    "idLastma": '*past1000*', #'*past1000*' or None
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc', # Landmask file location (CESM)
     "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
 }
@@ -77,6 +79,7 @@ setDict = {
             [10, 29], [48, 67], [100, 119],
             [129, 148], [169, 188], [264, 283],
             [285, 304], [341, 360], [384, 403], [471, 490]),
+        "LastMillennium": (per['per_all_10yr']),
         },
     "convert": (fcu.kel_to_cel, fcv.calc_climate_speed,),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
     "cmap": None,  # None for default (cmocean balance) or choose colormap
@@ -86,11 +89,11 @@ setDict = {
     "robustnessBool": False,  # True/False to run robustness
     "plotScenarios": (
         'SSP2-4.5', 'ARISE-SAI-1.5', 'ARISE-SAI-DelayedStart', 
-        'CESM2-WACCM:PreindustrialControl',
+        'LastMillennium',
         ), # See docstring for valid inputs
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Desktop/OSF/images/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20240209_editWithLastma/',
     "dpiVal": 'pdf'
 }
 loopDict = {
@@ -104,8 +107,8 @@ ic(dataDict, setDict, outDict, loopDict)  # Show input settings at command line
 for rlz in loopDict["rlzs"]:
     landoceanScnList = list()
     landoceanDdList = list()
-    # for landocean in ('land',):
-    for landocean in ('ocean',):
+    for landocean in ('land',):
+    # for landocean in ('ocean',):
         setDict["landmaskFlag"] = landocean
         setDict["realization"] = rlz
         scnList, cmnDict = fpd.call_to_open(dataDict, setDict)

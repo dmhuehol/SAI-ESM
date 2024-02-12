@@ -88,11 +88,13 @@ import fun_calc_var as fcv
 import fun_plot_slice_globe as fpsg
 import fun_plot_tools as fpt
 import fun_process_data as fpd
+import get_periods as gp
 
 zmzmDisc = fpt.get_cspd_colormap('zmzm')
+per = gp.periods()
 
 dataDict = {
-    "dataPath": '/Users/dhueholt/Desktop/OSF/CSHF/',
+    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_2mTemp/',
     "idGlensCntrl": None,  # 'control_*' or None
     "idGlensFdbck": None,  # 'feedback_*' or None
     "idArise": None,  # '*DEFAULT*' or None
@@ -100,9 +102,10 @@ dataDict = {
     "idS245Hist": None,  # '*BWHIST*' or None
     "idUkesmNoSai": None, #'*ssp245*' or None
     "idUkesmArise": None, #'*arise-sai-1p5*' or None
-    "idDelayedStart": '*DELAYED*', # '*DELAYED*' or None
+    "idDelayedStart": None, # '*DELAYED*' or None
     "idArise1p0": None, # '*ARISE1P0*' or None
     "idPiControl": None, #'*piControl*' or None
+    "idLastma": '*past1000*', #'*past1000*' or None
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc', # Landmask file location (CESM)
     "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
 }
@@ -119,6 +122,13 @@ setDict = {
             [5, 24], [43, 62], [95, 114],
             [124, 143], [164, 183], [259, 278],
             [280, 299], [336, 355], [379, 398], [465, 484]),
+        # "LastMillennium": (
+        #     [863, 882],
+        #     [928, 947], [1035, 1054], [1129, 1148], 
+        #     [1215, 1234], [1314, 1333], 
+        #     [1426, 1445], [1466, 1485], [1609, 1628],
+        #     [1715, 1734]),
+        "LastMillennium": (per['per_ens']),
         },
     "convert": (fcu.kel_to_cel, fcv.calc_climate_speed),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
     "cmap": zmzmDisc,  # None for default (cmocean balance) or choose colormap
@@ -127,8 +137,10 @@ setDict = {
     "areaAvgBool": False,  # ALWAYS FALSE: no area averaging for a map!
     "robustnessBool": False,  # True/False to run robustness
     "plotScenarios": (
-        'ARISE-SAI-DelayedStart',
+        'LastMillennium',
+        # 'ARISE-SAI-DelayedStart',
         # 'ARISE-SAI-1.5',
+        # 'DS-15',
         # 'ARISE-SAI-1.0',
         # 'UKESM-ARISE-SAI-1.5',
         # 'CESM2-WACCM:PreindustrialControl',
@@ -139,7 +151,7 @@ setDict = {
     "plotEnsType": '' # 'mean', 'max'/'min' pointwise max/min, number for single member
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Desktop/OSF/images/rlz/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20240212_posterAndFinalFigs/',
     "dpiVal": 400
 }
 loopDict = {
@@ -148,11 +160,13 @@ loopDict = {
     "regions": ('global',),  # 'global' only for maps
 }
 ic(dataDict, setDict, outDict, loopDict)  # Show input settings at command line
-# ic(np.diff(setDict["calcIntvl"]["piControl"])) # Check to ensure correct time periods
-
+# ic(setDict["calcIntvl"]["LastMillennium"])
+# ic(np.diff(setDict["calcIntvl"]["LastMillennium"])) # Check to ensure correct time periods
+# ic(len(setDict["calcIntvl"]["LastMillennium"]))
+# sys.exit('STOP')
 # Make images
-for pet in (0,1,2,3,4,5,6,7,8,9): # For ensemble member figures (Supplementary Fig. 3, 4, 5, 6)
-# for pet in ('mean',): # For ensemble mean figures
+# for pet in (0,1,2,3,4,5,6,7,8,9): # For ensemble member figures (Supplementary Fig. 3, 4, 5, 6)
+for pet in ('mean',): # For ensemble mean figures
     setDict["plotEnsType"] = pet
     for rlz in loopDict["rlzs"]:
         setDict["realization"] = rlz
@@ -163,5 +177,8 @@ for pet in (0,1,2,3,4,5,6,7,8,9): # For ensemble member figures (Supplementary F
             setDict["levOfInt"] = lev
             fpsg.plot_single_slice_globe(
                 scnList, dataDict, setDict, outDict)
+            # fpsg.plot_single_slice_vector_globe(
+                # scnList, dataDict, setDict, outDict)
+            
 
 ic('Completed! :D')

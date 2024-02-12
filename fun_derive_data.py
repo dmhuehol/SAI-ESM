@@ -10,10 +10,10 @@ import sys
 
 from cftime import DatetimeNoLeap as dtnl
 import cftime
-import climdex.temperature as tdex
-import climdex.precipitation as pdex
+# import climdex.temperature as tdex #INSTALL
+# import climdex.precipitation as pdex #INSTALL
 from datetime import date
-import marineHeatWaves as mhws
+# import marineHeatWaves as mhws #INSTALL
 import numpy as np
 import xarray as xr
 
@@ -367,6 +367,10 @@ def generate_gridcellarea(saveFlag=False, scn='cesm'):
         latNew = np.arange(-90,91,0.94240838) #CESM (Fig. 3, Supplementary Fig. 8b)
         latNew = latNew[:-1] #CESM (Fig. 3, Supplementary Fig. 8b)
         lonNew = np.arange(0,360,1.25) #CESM (Fig. 3, Supplementary Fig. 8b)
+    elif scn == 'lm':
+        latNew = np.linspace(-90, 90, 96)
+        lonNew = np.arange(0, 360, 2.5)
+        
     earthRad = 6371000 / 1000 #Earth's radius in km
 
     lonGrid,latGrid = np.meshgrid(lonNew, latNew)

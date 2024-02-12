@@ -45,11 +45,12 @@ import fun_convert_unit as fcu
 import fun_calc_var as fcv
 import fun_process_data as fpd
 import fun_special_plot as fsp
-#
+import get_periods as gp
 
+per = gp.periods()
 # Dictionaries to define inputs
 dataDict = {
-    "dataPath": '/Users/dhueholt/Desktop/OSF/CSHF/',
+    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_2mTemp/',
     "idGlensCntrl": 'control_*',  # 'control_*' or None
     "idGlensFdbck": 'feedback_*',  # 'feedback_*' or None
     "idArise": '*DEFAULT*',  # '*DEFAULT*' or None
@@ -59,14 +60,15 @@ dataDict = {
     "idUkesmArise": '*arise-sai-1p5*', #'*arise-sai-1p5*' or None
     "idDelayedStart": '*DELAYED*', # '*DELAYED*' or None
     "idArise1p0": '*ARISE1P0*', # '*ARISE1P0*' or None
-    "idPiControl": '*piControl*', #'*piControl*'
+    "idPiControl": None, #'*piControl*'
+    "idLastma": '*past1000*', #'*past1000*' or None
     "idS126": '*ssp126*', # '*ssp126' or None
     "idEra5": '*era5*', # '*era5*' or None
     "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc', # Landmask file location (CESM)
     "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
 }
 setDict = {
-    "dataPath": '/Users/dhueholt/Desktop/OSF/CSHF/', # Need this info in both dictionaries for this script
+    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_2mTemp/', # Need this info in both dictionaries for this script
     "landmaskFlag": None,  # None no mask, 'land' to mask ocean, 'ocean' to mask land
     "calcIntvl": { # Years to calculate
         "GLENS": ([2020, 2039],),
@@ -81,6 +83,7 @@ setDict = {
             [200, 219], [220, 239], [240, 259], [260, 279], [280, 299],
             [300, 319], [320, 339], [340, 359], [360, 379], [380, 399],
             [400, 419], [420, 439], [440, 459], [460, 479], [480, 499]),
+        "LastMillennium": (per['per_all']),
         "Historical": ([1996, 2015],),
         "CESM2-SSP126": ([2045, 2064],),
         "ERA5": ([1996, 2015],),
@@ -99,13 +102,14 @@ setDict = {
         'RCP8.5',
         'UKESM-ARISE-SAI-1.5',
         'UKESM-SSP2-4.5',
-        'CESM2-WACCM:PreindustrialControl',
+        # 'CESM2-WACCM:PreindustrialControl',
+        'LastMillennium',
         'SSP1-2.6',
         'ERA5',
         ), # See docstring for valid inputs
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Desktop/OSF/images/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20240212_posterAndFinalFigs/',
     "dpiVal": 'pdf'
 }
 loopDict = {
@@ -115,6 +119,7 @@ loopDict = {
     "regions": ('global',),  # 'global' only for maps
 }
 ic(dataDict, setDict, outDict, loopDict)  # Show input settings at terminal
+
 # Make images
 wrCsList = list()
 wrCsDictList = list()
@@ -128,8 +133,7 @@ for rlz in loopDict["rlzs"]:
         dataDict["landmaskFlag"] = setDict["landmaskFlag"] # Needed by wrae
         # You can put custom opening functions for datasets that can't
         # plug into call_to_open here. Remember this is "bespoke"--it 
-        # needs to be replicable, not flexible. (Kind of like your old
-        # ice diagram code!)
+        # needs to be replicable, not flexible.
         #
         # Note that plot_warmrate_areaexposed RELIES ON THE ORDER OF 
         # DATASETS IN THE INPUT LISTS. DO NOT MODIFY THIS.

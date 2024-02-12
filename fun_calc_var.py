@@ -42,6 +42,8 @@ def time_slice_darr(darr, setDict):
         setYrs = setDict["calcIntvl"]["RCP8.5"]
     elif 'PreindustrialControl' in darr.scenario:
         setYrs = setDict["calcIntvl"]["piControl"]
+    elif 'LastMillennium' in darr.scenario:
+        setYrs = setDict["calcIntvl"]["LastMillennium"]
     elif 'SSP1-2.6' in darr.scenario:
         setYrs = setDict["calcIntvl"]["CESM2-SSP126"]
     elif 'ERA5' in darr.scenario:
@@ -285,8 +287,12 @@ def calc_decadal_climate_distance(darr, setDict):
 
     return dcd
 
-def calc_climate_velocity(darr, setDict):
+def calc_climate_velocity(darrIn, setDict):
     ''' Calculate the climate velocity (vector form) of a variable '''
+    # grid_ref = {"lon": np.arange(0, 360, 2.5), "lat": np.arange(-90, 91, 2.5)}
+    # remap = xe.Regridder(darrIn, grid_ref, "bilinear")
+    darr = darrIn #remap(darrIn)
+    
     tGrad, nsGrad, ewGrad, yrsSpan = calc_spat_temp_grad(darr, setDict)
     nsClimVel = -1 * tGrad / nsGrad
     ewClimVel = -1 * tGrad / ewGrad
@@ -319,15 +325,15 @@ def calc_climate_velocity(darr, setDict):
     #     }
     # )
     climVelDs['ns'].attrs['long_name'] = 'Climate velocity of 2m temp (N-S)'
-    climVelDs['ns'].attrs['scenario'] = darr.scenario
+    climVelDs['ns'].attrs['scenario'] = darrIn.scenario
     climVelDs['ns'].attrs['units'] = 'km/yr'
     climVelDs['ew'].attrs['long_name'] = 'Climate velocity of 2m temp (E-W)'
-    climVelDs['ew'].attrs['scenario'] = darr.scenario
+    climVelDs['ew'].attrs['scenario'] = darrIn.scenario
     climVelDs['ew'].attrs['units'] = 'km/yr'
     climVelDs['cspd'].attrs['long_name'] = 'Climate speed of 2m temp'
-    climVelDs['cspd'].attrs['scenario'] = darr.scenario
+    climVelDs['cspd'].attrs['scenario'] = darrIn.scenario
     climVelDs['cspd'].attrs['units'] = 'km/yr'
-    climVelDs.attrs['scenario'] = darr.scenario
+    climVelDs.attrs['scenario'] = darrIn.scenario
 
     return climVelDs
 
@@ -409,7 +415,9 @@ def calc_seasonal_shift(darr, setDict):
 def calc_area_exposed(cSpdDarr, setDict, dataDict, threshold):
     ''' Calculate area exposed to certain climate velocity '''
     cSpdData = cSpdDarr.data # Must be dimension lat x lon, no realization or interval
-    if 'CESM' in cSpdDarr.scenario:
+    if 'LastMillennium' in cSpdDarr.scenario:
+        cellAreaDset = fdd.generate_gridcellarea(saveFlag=False, scn='lm')
+    elif 'CESM' in cSpdDarr.scenario:
         cellAreaDset = fdd.generate_gridcellarea(saveFlag=False)
     elif 'UKESM' in cSpdDarr.scenario:
         cellAreaDset = fdd.generate_gridcellarea(saveFlag=False, scn='ukesm')

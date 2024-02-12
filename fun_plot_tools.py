@@ -439,7 +439,7 @@ def line_from_scenario(scn, md):
     elif 'UKESM-ARISE:Control' in scn:
         activeColor = '#DAB23D'
         activeLabel = md['ukS245Str']
-    elif 'PreindustrialControl' in scn:
+    elif ('PreindustrialControl' in scn) | ('LastMillennium' in scn):
         activeColor = '#B8B8B8'
         activeLabel = 'Preindustrial'
     else:
@@ -472,13 +472,20 @@ def markers_from_scenario(scn, landmaskFlag):
         else:
             yVal = 1.2
             fcol = '#F8A53D'
-    elif 'PreindustrialControl' in scn:
+    elif 'LastMillennium' in scn:
         if landmaskFlag == 'ocean':
             yVal = 0
             fcol = '#B8B8B8' #'none'
         else:
             yVal = 0.2
             fcol = '#B8B8B8'
+    elif 'PreindustrialControl' in scn:
+        if landmaskFlag == 'ocean':
+            yVal = 0
+            fcol = '#3f6593' #'none'
+        else:
+            yVal = 0.2
+            fcol = '#3f6593'
     else:
         yVal = None
         fcol = '#000000'
@@ -588,37 +595,42 @@ def get_cspd_colormap(palKey):
 
     return custom_cmap
     
-def get_cspd_ocean_colormap(palKey):
-    ''' Create custom colormap for climate velocity '''
+def get_cspd_vector_colormap(palKey):
+    ''' Create custom colormap for climate velocity. Extreme values 
+    have to be handled differently for quiver plot.'''
     #What we really want is 0-2, 2-10, 10-30, 30-50, 50+
     zmzm = palette_lists(palKey)
     ic(len(zmzm))
+    # map1 = np.reshape(
+    #     np.tile(zmzm[0], 1), (1,4))
     map1 = np.reshape(
         np.tile(zmzm[0], 1), (1,4))
     map2 = np.reshape(
         np.tile(zmzm[1], 20), (20,4))
     map3 = np.reshape(
-        np.tile(zmzm[3], 12), (12,4))
+        np.tile(zmzm[3], 20), (20,4))
     map4 = np.reshape(
-        np.tile(zmzm[5], 9), (9,4))
+        np.tile(zmzm[5], 5), (5,4))
     map0 = np.reshape(
         np.tile([233/255, 219/255, 247/255, 1], 3), (3,4)) #lch(89.2% 14.8 306.8)
     map5 = np.reshape(
-        np.tile(zmzm[7], 13), (13,4))
+        #np.tile(zmzm[7], 4), (4,4))
+        np.tile([233/255, 233/255, 233/255, 1], 4), (4,4))
     mapLightRed = np.reshape(
         np.tile([250/255, 217/255, 205/255, 1], 3), (3,4)) #lch(89.2% 14.8 306.8)
     map6 = np.reshape(
-        np.tile(zmzm[9], 9), (9,4))
+        np.tile(zmzm[9], 5), (5,4))
     map7 = np.reshape(
-        np.tile(zmzm[11], 12), (12,4))
+        np.tile(zmzm[11], 20), (20,4))
     map8 = np.reshape(
         np.tile(zmzm[13], 20), (20,4))
+    # map9 = np.reshape(
+    #     np.tile(zmzm[14], 1), (1,4))
     map9 = np.reshape(
-        np.tile(zmzm[14], 1), (1,4))
+        np.tile(zmzm[14], 1), (1,4)) #5001
     
     colors = np.vstack(
-        # (map1, map2, map3, map4, map0, map5, mapLightRed, map6, map7, map8, map9))
-        (map1, map2, map3, map4, map5, map6, map7, map8, map9))
+        (map1, map2, map3, map4, map0, map5, mapLightRed, map6, map7, map8, map9))
     custom_cmap = mcolors.ListedColormap(colors)
 
     return custom_cmap
@@ -640,13 +652,15 @@ def colors_from_scenario(scn):
     elif 'UKESM-ARISE:Control' in scn:
         fcol = '#DAB23D'
     elif 'PreindustrialControl' in scn:
+        fcol = '#000000'
+    elif 'LastMillennium' in scn:
         fcol = '#B8B8B8'
     elif 'GLENS:Feedback' in scn:
         fcol = '#8346C1'
     elif 'GLENS:Control' in scn:
         fcol = '#D93636'
     elif 'SSP1-2.6' in scn:
-        fcol = '#F9E166'
+        fcol = '#F9A275'
     elif 'ERA5' in scn:
         fcol = '#956a36'
     else:

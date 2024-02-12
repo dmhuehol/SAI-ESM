@@ -20,6 +20,7 @@ import numpy as np
 import matplotlib.path as mpth
 import xarray as xr
 xr.set_options(keep_attrs=True)
+import xesmf as xe
 
 import CustomExceptions
 import fun_convert_unit as fcu
@@ -109,6 +110,10 @@ def apply_mask(darr, dataDict, setDict):
                 activeMask = activeMaskDset.landmask
             except:
                 activeMask = activeMaskDset.imask
+            if "LastMillennium" in darr.scenario:
+                grid_ref = darr
+                remap = xe.Regridder(activeMask, grid_ref, "bilinear")
+                activeMask = remap(activeMask)
 
         if setDict['landmaskFlag'] == 'land':
             maskDarr = darr.where(activeMask > 0)
@@ -133,6 +138,11 @@ def get_mask(dataDict, scenario):
             activeMask = activeMaskDset.landmask
         except:
             activeMask = activeMaskDset.imask
+        if "LastMillennium" in scenario:
+            grid_ref = {
+                "lon": np.arange(0, 360, 2.5), "lat": np.linspace(-90, 90, 96)}
+            remap = xe.Regridder(activeMask, grid_ref, "bilinear")
+            activeMask = remap(activeMask)
     else:
         activeMask = None
 
@@ -188,6 +198,8 @@ def bind_scenario(darr, inID):
         darr.attrs['scenario'] = 'UKESM-ARISE:Feedback/SAI/UKESM-ARISE-SAI-1.5'
     elif 'piControl' in inID:        
         darr.attrs['scenario'] = 'PreindustrialControl'
+    elif 'past1000' in inID:
+        darr.attrs['scenario'] = 'CESM2-WACCMma/Past1000/LastMillennium'
     elif '126' in inID:
         darr.attrs['scenario'] = 'CESM2-WACCM/CMIP6/No-SAI/SSP1-2.6'
     elif 'era5' in inID:
@@ -252,6 +264,8 @@ def manage_realizations(setDict, darr, emem):
             scnStr = 'ukas' #ukarisesai
         elif 'PreindustrialControl' in darr.scenario:
             scnStr = 'pi'
+        elif 'LastMillennium' in darr.scenario:
+            scnStr = 'lma'
         elif 'SSP1-2.6' in darr.scenario:
             scnStr = 's126'
         elif 'ERA5' in darr.scenario:

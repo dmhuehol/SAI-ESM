@@ -176,6 +176,9 @@ def plot_rangeplot(loRlzList, loDataDictList, setDict, outDict):
     plt.rcParams.update({'font.family': 'Red Hat Display'})
     plt.rcParams.update({'font.weight': 'normal'})
     fig, ax = plt.subplots()
+    scenarioList = list()
+    dataList = list()
+    
     for loc,rlzList in enumerate(loRlzList):
         if loc == 0: #Land, because there isn't a better way to track this
             disperseThrsh = 2
@@ -191,6 +194,7 @@ def plot_rangeplot(loRlzList, loDataDictList, setDict, outDict):
                     ensMedAbs = abs(ensMed)
                 else:
                     ensMedAbs = ensMed.copy()
+                ic(ensMedAbs)
                 minEnsMed = np.min(ensMedAbs.data)
                 maxEnsMed = np.max(ensMedAbs.data)
                 mnEnsMed = np.mean(ensMedAbs.data)
@@ -211,7 +215,7 @@ def plot_rangeplot(loRlzList, loDataDictList, setDict, outDict):
                 plt.plot(
                     [minEnsMed, maxEnsMed], [yVal, yVal], color=actCol, label=actLab,
                     linewidth=0.5)
-                if pscn == 'CESM2-WACCM:PreindustrialControl':
+                if (pscn == 'CESM2-WACCM:PreindustrialControl') | (pscn == 'LastMillennium'):
                     plt.scatter(
                         ensMedAbsGtThr.data, 
                         np.zeros(len(ensMedAbsGtThr.interval))+yVal,
@@ -333,7 +337,7 @@ def plot_area_exposed(loRlzList, loDataDictList, setDict, outDict):
                     
                 if  'CESM2-ARISE:Feedback' in plotIntRlzMn.scenario:
                     plt.plot([0, pae2Mn], [0.5, 0.5], color='#12D0B2', linewidth=5.5)
-                elif 'PreindustrialControl' in plotIntRlzMn.scenario:
+                elif ('PreindustrialControl' in plotIntRlzMn.scenario) | ('LastMillennium' in plotIntRlzMn.scenario):
                     plt.plot([0, pae2Mn], [0.6, 0.6], color='#B8B8B8', linewidth=5.5)
                 elif 'CESM2-ARISE:Control' in plotIntRlzMn.scenario:
                     plt.plot([0, pae2Mn], [0.7, 0.7], color='#F8A53D', linewidth=5.5)
@@ -342,7 +346,7 @@ def plot_area_exposed(loRlzList, loDataDictList, setDict, outDict):
                     
                 if  'CESM2-ARISE:Feedback' in plotIntRlzMn.scenario:
                     plt.plot([0, pae5Mn], [1.5, 1.5], color='#12D0B2', linewidth=5.5)
-                elif 'PreindustrialControl' in plotIntRlzMn.scenario:
+                elif ('PreindustrialControl' in plotIntRlzMn.scenario) | ('LastMillennium' in plotIntRlzMn.scenario):
                     plt.plot([0, pae5Mn], [1.6, 1.6], color='#B8B8B8', linewidth=5.5)
                 elif 'CESM2-ARISE:Control' in plotIntRlzMn.scenario:
                     plt.plot([0, pae5Mn], [1.7, 1.7], color='#F8A53D', linewidth=5.5)
@@ -351,7 +355,7 @@ def plot_area_exposed(loRlzList, loDataDictList, setDict, outDict):
                     
                 if  'CESM2-ARISE:Feedback' in plotIntRlzMn.scenario:
                     plt.plot([0, pae10Mn], [2.5, 2.5], color='#12D0B2', linewidth=5.5)
-                elif 'PreindustrialControl' in plotIntRlzMn.scenario:
+                elif ('PreindustrialControl' in plotIntRlzMn.scenario) | ('LastMillennium' in plotIntRlzMn.scenario):
                     plt.plot([0, pae10Mn], [2.6, 2.6], color='#B8B8B8', linewidth=5.5)
                 elif 'CESM2-ARISE:Control' in plotIntRlzMn.scenario:
                     plt.plot([0, pae10Mn], [2.7, 2.7], color='#F8A53D', linewidth=5.5)
@@ -360,7 +364,7 @@ def plot_area_exposed(loRlzList, loDataDictList, setDict, outDict):
 
                 if  'CESM2-ARISE:Feedback' in plotIntRlzMn.scenario:
                     plt.plot([0, pae30Mn], [3.5, 3.5], color='#12D0B2', linewidth=5.5)
-                elif 'PreindustrialControl' in plotIntRlzMn.scenario:
+                elif ('PreindustrialControl' in plotIntRlzMn.scenario) | ('LastMillennium' in plotIntRlzMn.scenario):
                     plt.plot([0, pae30Mn], [3.6, 3.6], color='#B8B8B8', linewidth=5.5)
                 elif 'CESM2-ARISE:Control' in plotIntRlzMn.scenario:
                     plt.plot([0, pae30Mn], [3.7, 3.7], color='#F8A53D', linewidth=5.5)
@@ -369,7 +373,7 @@ def plot_area_exposed(loRlzList, loDataDictList, setDict, outDict):
                     
                 if  'CESM2-ARISE:Feedback' in plotIntRlzMn.scenario:
                     plt.plot([0, pae50Mn], [4.5, 4.5], color='#12D0B2', linewidth=5.5)
-                elif 'PreindustrialControl' in plotIntRlzMn.scenario:
+                elif ('PreindustrialControl' in plotIntRlzMn.scenario) | ('LastMillennium' in plotIntRlzMn.scenario):
                     plt.plot([0, pae50Mn], [4.6, 4.6], color='#B8B8B8', linewidth=5.5)
                 elif 'CESM2-ARISE:Control' in plotIntRlzMn.scenario:
                     plt.plot([0, pae50Mn], [4.7, 4.7], color='#F8A53D', linewidth=5.5)
@@ -417,6 +421,7 @@ def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
     paeThrshList = list()
     pwrList = list()
     piLine = None
+    lmLine = None
     thrsh = 10 # FREE PARAMETER km/yr
     # ic(wrPlotDict.keys())
     
@@ -430,7 +435,7 @@ def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
         paeThrshMn = fcv.calc_area_exposed(
             plotIntRlzMn, setDict, cspdDictList, thrsh)
         wrScnMn = wrPlotDict[pscn].mean(dim=('interval','realization'))
-        ic(wrScnMn)
+        # ic(wrScnMn)
         latWeights = np.cos(np.deg2rad(wrScnMn['lat']))
         darrMnWght = wrScnMn.weighted(latWeights)
         if 'ERA5' in pscn:
@@ -438,8 +443,9 @@ def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
         else:
             wrScnGlobalMn = darrMnWght.mean(dim=['lat','lon'], skipna=True)
         fcol = fpt.colors_from_scenario(wrScnGlobalMn.scenario)
-        ic(wrScnGlobalMn, paeThrshMn.data)
-        plt.scatter(wrScnGlobalMn, paeThrshMn.data, s=80, color=fcol)
+        # ic(paeThrshMn.data)
+        if ('LastMillennium' not in pscn) & ('Preindustrial' not in pscn):
+            plt.scatter(wrScnGlobalMn, paeThrshMn.data, s=80, color=fcol)
         for itvl in cspdDict[pscn].interval:
             for rlz in cspdDict[pscn].realization:
                 cspdAct = cspdDict[pscn]
@@ -452,6 +458,7 @@ def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
                 darrWghtRlz = wrScnRlz.weighted(latWeights)
                 wrScnGlobal = darrWghtRlz.mean(dim=['lat','lon'], skipna=True)
                 pwrList.append(wrScnGlobal)
+                ic(paeThrsh.data)
                 # plt.scatter( # Plot individual realizations, CAN BE MISLEADING
                     # wrScnGlobal, paeThrsh.data, color=fcol, s=20,
                     # facecolor='none')
@@ -460,22 +467,29 @@ def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
         aeSpanRlz = np.max(np.abs(paeThrshList)) - np.min(np.abs(paeThrshList))
         paeSpanRlz = [
             paeThrshMn.data - aeSpanRlz / 2, paeThrshMn.data + aeSpanRlz / 2]
-        plt.plot(
-            pwrSpanRlz, [paeThrshMn.data, paeThrshMn.data], color=fcol)
-        plt.plot(
-            [wrScnGlobalMn.data, wrScnGlobalMn.data], paeSpanRlz, color=fcol)
+        if ('LastMillennium' not in pscn) & ('Preindustrial' not in pscn):
+            plt.plot(
+                pwrSpanRlz, [paeThrshMn.data, paeThrshMn.data], color=fcol)
+            plt.plot(
+                [wrScnGlobalMn.data, wrScnGlobalMn.data], paeSpanRlz, color=fcol)
         if 'Preindustrial' in pscn:
-            piLine = paeThrshMn.data + aeSpanRlz / 2
+            piLine = paeSpanRlz#paeThrshMn.data + aeSpanRlz / 2
+        if 'LastMillennium' in pscn:
+            lmLine = paeSpanRlz#paeThrshMn.data + aeSpanRlz / 2
         paeThrshList = list()
         pwrList = list()
     xlim = [-0.1, 0.1] #0.02 land, 0.04 ocean
     plt.plot( # Zero line
         [0, 0], [0, 100], color='#242424', linewidth=0.4, linestyle='dashed',
         zorder=0.5)
-    plt.plot( # Preindustrial boundary
-        xlim, [piLine, piLine], color='#b8b8b8', linewidth=0.4, 
+    if 'CESM2-WACCM:PreindustrialControl' in setDict["plotScenarios"]:
+        plt.plot( # Preindustrial boundary
+            xlim, [piLine, piLine], color='#000000', linewidth=0.4, 
+            linestyle='dashed', zorder=0.51)
+    plt.plot( # Last Millennium boundary
+        xlim, [lmLine, lmLine], color='#b8b8b8', linewidth=0.4, 
         linestyle='dashed', zorder=0.51)
-    ic(piLine)
+    # ic(piLine)
     plt.xticks(
         [-0.1, -0.08, -0.06, -0.04, -0.02, 
             0, 0.02, 0.04, 0.06, 0.08, 0.1])
@@ -487,7 +501,7 @@ def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
     ax.spines[['top', 'right']].set_visible(False)
        
     md = fpd.meta_book(setDict, cspdDictList, plotIntRlzMn) # Get metadata
-    savePrefix = ''
+    savePrefix = '2_autoperiod10spc_'
     if setDict["landmaskFlag"] is None:
         setDict["landmaskFlag"] = 'none'
     saveStr = 'wrae' + '_' + str(thrsh) + 'kmyr' + '_' + \
