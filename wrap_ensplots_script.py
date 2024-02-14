@@ -8,10 +8,10 @@ setDict: settings for analysis/visualization
 outDict: output image settings
 loopDict: determines which images are made
 
-Supplementary Fig. 1:
+Fig. 2:
   Run with default settings
 
-Written by Daniel Hueholt | February 2022
+Written by Daniel Hueholt
 Graduate Research Assistant at Colorado State University
 '''
 
@@ -30,7 +30,7 @@ import region_library as rlib
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Desktop/OSF/CSHF/',
+    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_2mTemp/',
     "idGlensCntrl": None,  # 'control_*' or None
     "idGlensFdbck": None,  # 'feedback_*' or None
     "idArise": '*DEFAULT*',  # '*DEFAULT*' or None
@@ -56,13 +56,13 @@ setDict = {
     "xticks": True, #True/False to enable/disable x-axis tick labels
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Desktop/OSF/images/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20240213_periodsAndPaperFigs/',
     "addToSaveStr": '',
     "dpiVal": 'pdf'
 }
 loopDict = {
     "levels": (None,), #'stratosphere', 'troposphere', 'total', numeric level(s), or None for surface variable
-    "regions": ('global', ) #rlib.region() for single (rlib.region(), rlib.region()) to concatenate)
+    "regions": (rlib.Amazon(), ) #rlib.region() for single (rlib.region(), rlib.region()) to concatenate)
 }
 
 ic(dataDict, setDict, outDict) #Lowers chances of making the wrong plots by mistake

@@ -10,9 +10,9 @@ for font in fm.findSystemFonts(fontPath):
 import numpy as np
 import xarray as xr
 
-p_out = '/Users/dhueholt/Documents/ecology_fig/20240209_editWithLastma/'
-s = 1750
-e = 1850
+p_out = '/Users/dhueholt/Documents/ecology_fig/20240212_posterAndFinalFigs/'
+s = 850
+e = 869
 name_out = str(s) + str(e) + '_lastma_timeseries.png'
 p_lastma = '/Users/dhueholt/Documents/ecology_data/annual_2mTemp/past1000_002_TREFHT_0850-1849_annual.nc'
 ds_lastma = xr.open_dataset(p_lastma)
@@ -32,6 +32,7 @@ plt.rcParams.update({'font.size': 14})
 
 plt.plot(years, np_lastma, linewidth=2.3, color='#3F6593')
 plt.xlim(s, e)
+plt.ylim(14,15)
 plt.title('CESM2(WACCMma) Last Millennium 2m temp global mean')
 plt.ylabel('\u00b0C')
 plt.savefig(p_out + name_out, dpi=400)

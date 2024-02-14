@@ -24,7 +24,7 @@ loopDict: determines which images are made
 Fig. 3:
   Run script with default settings.
   
-Supplementary Fig. 8:
+Supplementary Fig. 10:
   This plot requires some recoding within fun_calc_var, fun_derive_data, and fun_special_plot
   In fun_calc_var: See in-line comments. Uncomment desired line and comment others. (search on "Supplementary Fig. 8")
   In fun_derive_data: See in-line comments. Uncomment desired line and comment others. (search on "Supplementary Fig. 8")
@@ -109,7 +109,7 @@ setDict = {
         ), # See docstring for valid inputs
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20240212_posterAndFinalFigs/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20240213_periodsAndPaperFigs/',
     "dpiVal": 'pdf'
 }
 loopDict = {

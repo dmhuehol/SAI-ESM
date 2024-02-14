@@ -18,7 +18,8 @@ setDict: settings for analysis/visualization
         'ARISE-SAI-DelayedStart': CESM2-ARISE-SAI-1.37-DelayedStart
         'ARISE-SAI-1.0': CESM2-ARISE-SAI-1.0
         'UKESM-ARISE-SAI-1.5': UKESM-ARISE-SAI-1.5
-        'CESM2-WACCM:PreindustrialControl': CESM2 preindustrial control
+        'LastMillennium': CESM2(WACCM6ma) Last Millennium
+        'CESM2-WACCM:PreindustrialControl': CESM2 preindustrial control (disabled by default)
 outDict: output image settings
 loopDict: determines which images are made
     rlzs: 
@@ -79,7 +80,7 @@ setDict = {
             [10, 29], [48, 67], [100, 119],
             [129, 148], [169, 188], [264, 283],
             [285, 304], [341, 360], [384, 403], [471, 490]),
-        "LastMillennium": (per['per_all_10yr']),
+        "LastMillennium": (per['per_ens']),
         },
     "convert": (fcu.kel_to_cel, fcv.calc_climate_speed,),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
     "cmap": None,  # None for default (cmocean balance) or choose colormap
@@ -93,7 +94,7 @@ setDict = {
         ), # See docstring for valid inputs
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20240209_editWithLastma/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20240212_posterAndFinalFigs/',
     "dpiVal": 'pdf'
 }
 loopDict = {
@@ -107,8 +108,8 @@ ic(dataDict, setDict, outDict, loopDict)  # Show input settings at command line
 for rlz in loopDict["rlzs"]:
     landoceanScnList = list()
     landoceanDdList = list()
-    for landocean in ('land',):
-    # for landocean in ('ocean',):
+    # for landocean in ('land',):
+    for landocean in ('ocean',):
         setDict["landmaskFlag"] = landocean
         setDict["realization"] = rlz
         scnList, cmnDict = fpd.call_to_open(dataDict, setDict)

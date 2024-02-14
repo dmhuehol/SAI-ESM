@@ -261,7 +261,7 @@ def plot_rangeplot(loRlzList, loDataDictList, setDict, outDict):
                 
                 plt.yticks([])
                 b,t = plt.ylim()
-                # plt.xlabel('Magnitude of climate speed (km/yr)')
+                plt.xlabel('Magnitude of climate speed (km/yr)')
         ax.spines[['left', 'top', 'right']].set_visible(False)
         ax.set_yticklabels([])
         ax.set_xticklabels([])
@@ -444,8 +444,8 @@ def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
             wrScnGlobalMn = darrMnWght.mean(dim=['lat','lon'], skipna=True)
         fcol = fpt.colors_from_scenario(wrScnGlobalMn.scenario)
         # ic(paeThrshMn.data)
-        if ('LastMillennium' not in pscn) & ('Preindustrial' not in pscn):
-            plt.scatter(wrScnGlobalMn, paeThrshMn.data, s=80, color=fcol)
+        # if ('LastMillennium' not in pscn) & ('Preindustrial' not in pscn): # Choose whether to plot dot
+        plt.scatter(wrScnGlobalMn, paeThrshMn.data, s=80, color=fcol)
         for itvl in cspdDict[pscn].interval:
             for rlz in cspdDict[pscn].realization:
                 cspdAct = cspdDict[pscn]
@@ -467,15 +467,15 @@ def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
         aeSpanRlz = np.max(np.abs(paeThrshList)) - np.min(np.abs(paeThrshList))
         paeSpanRlz = [
             paeThrshMn.data - aeSpanRlz / 2, paeThrshMn.data + aeSpanRlz / 2]
-        if ('LastMillennium' not in pscn) & ('Preindustrial' not in pscn):
-            plt.plot(
-                pwrSpanRlz, [paeThrshMn.data, paeThrshMn.data], color=fcol)
-            plt.plot(
-                [wrScnGlobalMn.data, wrScnGlobalMn.data], paeSpanRlz, color=fcol)
+        # if ('LastMillennium' not in pscn) & ('Preindustrial' not in pscn): # Choose whether to plot Last Millennium or Unforced lines
+        plt.plot(
+            pwrSpanRlz, [paeThrshMn.data, paeThrshMn.data], color=fcol)
+        plt.plot(
+            [wrScnGlobalMn.data, wrScnGlobalMn.data], paeSpanRlz, color=fcol)
         if 'Preindustrial' in pscn:
-            piLine = paeSpanRlz#paeThrshMn.data + aeSpanRlz / 2
+            piLine = paeThrshMn.data + aeSpanRlz / 2
         if 'LastMillennium' in pscn:
-            lmLine = paeSpanRlz#paeThrshMn.data + aeSpanRlz / 2
+            lmLine = paeThrshMn.data + aeSpanRlz / 2 #Add width of variability
         paeThrshList = list()
         pwrList = list()
     xlim = [-0.1, 0.1] #0.02 land, 0.04 ocean
@@ -496,12 +496,12 @@ def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
     plt.xlim(xlim)
     plt.ylim([0, 70])
     
-    # plt.xlim(0, 0.1) #Supplementary Fig. 8
-    # plt.ylim(10, 70) #Supplementary Fig. 8
+    # plt.xlim(0, 0.06) #Supplementary Fig. 10
+    # plt.ylim(13, 25) #Supplementary Fig. 10
     ax.spines[['top', 'right']].set_visible(False)
        
     md = fpd.meta_book(setDict, cspdDictList, plotIntRlzMn) # Get metadata
-    savePrefix = '2_autoperiod10spc_'
+    savePrefix = ''
     if setDict["landmaskFlag"] is None:
         setDict["landmaskFlag"] = 'none'
     saveStr = 'wrae' + '_' + str(thrsh) + 'kmyr' + '_' + \

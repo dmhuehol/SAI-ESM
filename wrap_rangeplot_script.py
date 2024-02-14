@@ -3,7 +3,7 @@ Run plotting function for the range of variability of climate speeds.
 Lots of the inputs in this script are NOT necessary to make a range plot, 
 but are rather inherited from its construction from wrap_plot_slice_globe_script.
 If I rewrote this from the ground up, I would make different decisions (and this
-might happen someday)--but it works well enough for the current purposes!
+might happen someday)--but it does work for the current purposes!
 
 dataDict: defines input data
 setDict: settings for analysis/visualization
@@ -16,6 +16,7 @@ setDict: settings for analysis/visualization
         'ARISE-SAI-DelayedStart': CESM2-ARISE-SAI-1.37-DelayedStart
         'ARISE-SAI-1.0': CESM2-ARISE-SAI-1.0
         'UKESM-ARISE-SAI-1.5': UKESM-ARISE-SAI-1.5
+        'LastMillennium': CESM2(WACCM6ma) Last Millennium
         'CESM2-WACCM:PreindustrialControl': CESM2 preindustrial control
 outDict: output image settings
 loopDict: determines which images are made
@@ -24,10 +25,14 @@ loopDict: determines which images are made
         'mean' ens mean all members
         'ensplot' for both member information and mean (i.e. for robustness)
 
-Fig. 2a:
+Fig. 3a:
     setDict["magBool"]: True
 
-Supplementary Fig. 7
+Supplementary Fig. 9a:
+    Requires commenting and uncommenting a few lines in get_periods: search on
+    "Supplementary" to find relevant lines.
+Supplementary Fig. 9b
+    Same as Fig. 3a
     setDict["magBool"]: False
 
 Written by Daniel Hueholt
@@ -90,10 +95,10 @@ setDict = {
         'LastMillennium',
         # 'CESM2-WACCM:PreindustrialControl',
         ), # See docstring for valid inputs
-    "magBool": True #Plot magnitude true/false
+    "magBool": False #Plot magnitude true/false
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20240209_editWithLastma/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20240213_periodsAndPaperFigs/',
     "dpiVal": 'pdf'
 }
 loopDict = {

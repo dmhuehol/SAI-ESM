@@ -290,7 +290,7 @@ def calc_decadal_climate_distance(darr, setDict):
 def calc_climate_velocity(darrIn, setDict):
     ''' Calculate the climate velocity (vector form) of a variable '''
     # grid_ref = {"lon": np.arange(0, 360, 2.5), "lat": np.arange(-90, 91, 2.5)}
-    # remap = xe.Regridder(darrIn, grid_ref, "bilinear")
+    # remap = xe.Regridder(darrIn, grid_ref, "bilinear") # Can be useful for vector plots
     darr = darrIn #remap(darrIn)
     
     tGrad, nsGrad, ewGrad, yrsSpan = calc_spat_temp_grad(darr, setDict)
@@ -422,17 +422,19 @@ def calc_area_exposed(cSpdDarr, setDict, dataDict, threshold):
     elif 'UKESM' in cSpdDarr.scenario:
         cellAreaDset = fdd.generate_gridcellarea(saveFlag=False, scn='ukesm')
     elif 'ERA5' in cSpdDarr.scenario:
-        # gridref_path = setDict["dataPath"] + 'arise-sai-1p5_r4i1p1f2_tas_203501-204912_205001-207012_annual.nc' # Regrid to UKESM (Supplementary Fig. 8)
-        gridref_path = setDict["dataPath"] + 'SSP245-TSMLT-GAUSS-DELAYED-2045_006_TREFHT_204501-204512_206812-206912_anmnnodup.nc' # Regrid to CESM2 (Fig. 3, Supplementary Fig. 8)
-        grid_ref = xr.open_dataset(gridref_path)
-        remap = xe.Regridder(cSpdDarr, grid_ref, "bilinear")
-        cSpdCoarse = remap(cSpdDarr)
-        # cSpdCoarse = cSpdDarr # Native grid (Supplementary Fig. 8a)
+        # gridref_path = setDict["dataPath"] + 'arise-sai-1p5_r4i1p1f2_tas_203501-204912_205001-207012_annual.nc' # Regrid to UKESM (Supplementary Fig. 10c)
+        # gridref_path = setDict["dataPath"] + 'SSP245-TSMLT-GAUSS-DELAYED-2045_006_TREFHT_204501-204512_206812-206912_anmnnodup.nc' # Regrid to CESM2 (Supplementary Fig. 10b)
+        # gridref_path = setDict["dataPath"] + 'past1000_002_TREFHT_0850-1849_annual.nc' # Regrid to Last Millennium (Supplementary Fig. 10d)
+        # grid_ref = xr.open_dataset(gridref_path) # Open grid file
+        # grid_ref = {"lon": np.arange(0, 360, 5), "lat": np.arange(-90, 90, 5)} #Custom grid for testing
+        # remap = xe.Regridder(cSpdDarr, grid_ref, "bilinear")
+        # cSpdCoarse = remap(cSpdDarr)
+        cSpdCoarse = cSpdDarr # Native grid (Supplementary Fig. 10a)
         cSpdData = cSpdCoarse.data
-        # ic(np.diff(cSpdCoarse.lon.data)) # Print grid spacing to console
-        # ic(np.diff(cSpdCoarse.lat.data)) # Print grid spacing to console
-        cellAreaDset = fdd.generate_gridcellarea(saveFlag=False, scn='era5coarse') # (Fig. 3, Supplementary Fig. 8b, 8c)
-        # cellAreaDset = fdd.generate_gridcellarea(saveFlag=False, scn='era5') # (Supplementary Fig. 8a)
+        ic(np.diff(cSpdCoarse.lon.data)) # Print grid spacing to console
+        ic(np.diff(cSpdCoarse.lat.data)) # Print grid spacing to console
+        # cellAreaDset = fdd.generate_gridcellarea(saveFlag=False, scn='era5coarse') # (Supplementary Fig. 10b, 10c, 10d)
+        cellAreaDset = fdd.generate_gridcellarea(saveFlag=False, scn='era5') # (Supplementary Fig. 10a)
     cellAreaDarr = cellAreaDset['grid_cell_area']
     cesmMask = fpd.get_mask(dataDict, cSpdDarr.scenario)
     if cesmMask is not None:

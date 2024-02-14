@@ -347,7 +347,6 @@ def derive_iceextent(inFileIcefrac, outPath):
 def generate_gridcellarea(saveFlag=False, scn='cesm'):
     ''' Generate a file with grid cell area data '''
     outKey = 'grid_cell_area'
-
     if scn == 'cesm':
         outFile = '/Users/dhueholt/Documents/GLENS_data/Misc/gridCellArea.nc'
         latNew = np.arange(-90,91,0.94240838)
@@ -362,24 +361,25 @@ def generate_gridcellarea(saveFlag=False, scn='cesm'):
         latNew = np.flip(np.arange(-90,90.25,0.25))
         lonNew = np.arange(0, 360, 0.25)
     elif scn == 'era5coarse':
-        # latNew = np.arange(-89.375,90,1.25) #UKESM (Fig. 3, Supplementary Fig. 8c)
-        # lonNew = np.arange(0.9375,360,1.875) #UKESM (Fig. 3, Supplementary Fig. 8c)
-        latNew = np.arange(-90,91,0.94240838) #CESM (Fig. 3, Supplementary Fig. 8b)
-        latNew = latNew[:-1] #CESM (Fig. 3, Supplementary Fig. 8b)
-        lonNew = np.arange(0,360,1.25) #CESM (Fig. 3, Supplementary Fig. 8b)
+        # latNew = np.arange(-89.375, 90, 1.25) #UKESM (Supplementary Fig. 10c)
+        # lonNew = np.arange(0.9375, 360, 1.875) #UKESM (Supplementary Fig. 10c)
+        latNew = np.arange(-90, 90, 0.94240838) #CESM (Supplementary Fig. 10b)
+        lonNew = np.arange(0, 360, 1.25) #CESM (Supplementary Fig. 10b)
+        # latNew = np.linspace(-90, 90, 96) #Last Millennium (Supplementary Fig. 8d)
+        # lonNew = np.arange(0, 360, 2.5) # Last Millennium (Supplementary Fig. 8d)
+        # latNew = np.arange(-90, 90, 5) # Custom for testing
+        # lonNew = np.arange(0, 360, 5) # Custom for testing
     elif scn == 'lm':
         latNew = np.linspace(-90, 90, 96)
         lonNew = np.arange(0, 360, 2.5)
         
     earthRad = 6371000 / 1000 #Earth's radius in km
-
     lonGrid,latGrid = np.meshgrid(lonNew, latNew)
     latGridRad = np.deg2rad(latGrid)
     dLat = np.gradient(latGrid)
     dLon = np.gradient(lonGrid)
     dDistY = dLat[0] * earthRad * np.pi / 180
     dDistX = (dLon[1]/180) * np.pi * earthRad * np.cos(latGridRad)
-
     gridCellArea = np.abs(dDistX * dDistY)
 
     newDset = xr.Dataset(

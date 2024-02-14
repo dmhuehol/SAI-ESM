@@ -12,12 +12,12 @@ from icecream import ic
 import numpy as np
 import xarray as xr
 
-def periods(th=10, vol_spc=5, span=20, spcr=20, start_yr=850, end_yr=1850):
+def periods(th=10, vol_spc=5, start_yr=850, end_yr=1850):
     ''' Generate and return dictionary with periods 
+    The volcano list is generated automatically,
+    but the periods need hand tuning!
     th: threshold for serious volcano in Tg
     vol_spc: years to consider contaminated by volcano
-    span: length of output time period
-    spacer: time between periods; spcr > span for non-overlapping
     start_yr: start year
     end_yr: end year
     '''
@@ -33,58 +33,53 @@ def periods(th=10, vol_spc=5, span=20, spcr=20, start_yr=850, end_yr=1850):
     for eygl in erupt_yrs_gth_lm:
         l_vol_contam.append(np.arange(eygl, eygl + vol_spc + 1)) #+1 for inclusivity
     np_vol_contam = np.ravel(np.array(l_vol_contam))
+    # ic(sorted(np_vol_contam))
+
+    # I would prefer this to be automatic but xkcd.com/1205/ applies here for now
+    clist = [ #th=10 spc=5
+        [850, 869], [870, 889], [890, 909], [910, 929],
+        [945, 964], [965, 984], [985, 1004], [1005, 1024],
+        [1025, 1044], [1045, 1064], [1065, 1084], [1085, 1104],
+        [1114, 1133], [1134, 1153], [1188, 1207], [1208, 1227], 
+        [1236, 1255], [1292, 1311], [1312, 1331], [1351, 1370], 
+        [1371, 1390], [1391, 1410], [1411, 1430], [1431, 1450],
+        [1464, 1483], [1484, 1503], [1504, 1523], [1524, 1543], 
+        [1544, 1563], [1564, 1583], [1606, 1625], [1646, 1665], 
+        [1666, 1685], [1701, 1720], [1721, 1740], [1741, 1760], 
+        [1761, 1780], [1789, 1808]
+    ]
+    # clist = [ #th=5 spc=5
+    #     [850, 869], [870, 889], [945, 964], [982, 1001],
+    #     [1002, 1021], [1034, 1053], [1054, 1073], [1074, 1093],
+    #     [1114, 1133], [1134, 1153], [1197, 1216], [1292, 1311],
+    #     [1312, 1331], [1351, 1370], [1371, 1390], [1391, 1410],
+    #     [1411, 1430], [1431, 1450], [1483, 1502], [1503, 1522],
+    #     [1523, 1542], [1543, 1562], [1563, 1582], [1606, 1625], 
+    #     [1646, 1665], [1701, 1720], [1721, 1740], [1741, 1760],
+    #     [1789, 1808]
+    # ]
+    # clist = [ #Randomly-chosen 20-year periods obeying th=5 spc=5 non-overlap
+    #     [851, 870], [983, 1012], [1083, 1102], [1149, 1170],
+    #     [1208, 1227], [1306, 1325], [1366, 1385], [1397, 1416],
+    #     [1520, 1539], [1674, 1693]
+    # ]
+
+    # ind = [2, 3, 7, 13, 22, 27, 28, 30, 32, 37] #10 random inds chosen with random.org
+    # ind = [0, 3, 7, 8, 9, 14, 15, 20, 21, 25] # 10 random inds chosen with random.org
+    # ind = np.arange(0, 10)
+    # ind = np.arange(0, len(clist)) # Supplementary Fig. 9a
     
-    clist = list()
-    for c in np.arange(start_yr, end_yr, spcr):
-        per = np.arange(c, c+span, 1)
-        per_bounds = np.array([c, c + span - 1]) # -1 for inclusivity
-        check_vol = np.intersect1d(np_vol_contam, per)
-        if check_vol.size > 0:
-            continue # Intersecting members exist
-        else:
-            clist.append(per_bounds)
-    
-    rnd = [3,4,7,8,9,16,17,20,21,22] # 10 random inds chosen with random.org (compare to ARISE)
     per_dict = {
         "eruptions": erupt_yrs_gth_lm,
         "contaminated_yrs": np_vol_contam,
         "per_all": clist,
-        "per_ens": [clist[ri] for ri in rnd]
+        # Next line for all but Supplementary Fig. 9a
+        # "per_ens": [clist[ei] for ei in ind] # Use for more flexible index selection
+        # Below for Fig. 3a; Supplementary Fig. 9b
+        "per_ens":[ # Chosen ad hoc early in development to avoid large volcanoes
+            [851, 870], [871, 890], [891, 910], [911, 930], [945, 964],
+            [971, 990], [991, 1010], [1011, 1030], [1031, 1050], [1051, 1070],]
             
     }
-    
-    return per_dict
 
-# def periods():
-#     per_dict = {
-#         "volcanoes": [
-#             1835, 1831, 1822, 1815, 1783, 1766, 1755, 1739, 1721, 1707, 1673,
-#             1667, 1640, 1600, 1595, 1585, 1510, 1477, 1257, 946, 939],
-#         "discontinuities": [
-#             '1110', '1170', '1230', '1460', '1695',
-#         ],
-#         "per_all_5yr_gth10": None,
-        
-#         "per_ens": [
-#             # [851, 870], [871, 890], [891, 910], [911, 930], [957, 976],
-#             # [977, 996], [997, 1016], [1017, 1036], [1037, 1056], [1051, 1070],],
-#             [851, 870], [871, 890], [891, 910], [911, 930], [951, 970],
-#             [971, 990], [991, 1010], [1011, 1030], [1031, 1050], [1051, 1070],],
-#         # "per_all_10yr": [
-#         #     [851, 870], [871, 890], [891, 910], [911, 930], [957, 976],
-#         #     [977, 996], [997, 1016], [1017, 1036], [1037, 1056], [1051, 1070],
-#         #     [1071, 1090], [1127, 1146], [1131, 1150], [1181, 1200], [1201, 1220],
-#         #     [1268, 1287], [1288, 1307], [1308, 1327], [1328, 1347], [1348, 1367],
-#         #     [1368, 1387], [1388, 1407], [1408, 1427], [1428, 1447],
-#         #     [1488, 1507], [1521, 1540], [1541, 1560], [1561, 1580], [1611, 1630],
-#         # ]
-#         "per_all_10yr": [
-#             [851, 870], [871, 890], [891, 910], [911, 930], [951, 970],
-#             [971, 990], [991, 1010], [1011, 1030], [1031, 1050], [1051, 1070],
-#             [1065, 1084], [1122, 1141], [1125, 1144], [1175, 1194], [1195, 1214],
-#             [1263, 1282], [1283, 1302], [1303, 1322], [1323, 1342], [1343, 1362],
-#             [1363, 1382], [1383, 1402], [1403, 1422], [1423, 1442],
-#             [1483, 1502], [1516, 1535], [1536, 1555], [1556, 1575], [1606, 1625],
-#         ]
-#     }
-#     return per_dict
+    return per_dict

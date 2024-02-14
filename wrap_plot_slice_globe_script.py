@@ -12,6 +12,7 @@ setDict: settings for analysis/visualization
         'ARISE-SAI-DelayedStart': CESM2-ARISE-SAI-1.37-DelayedStart
         'ARISE-SAI-1.0': CESM2-ARISE-SAI-1.0
         'UKESM-ARISE-SAI-1.5': UKESM-ARISE-SAI-1.5
+        'LastMillennium': CESM2(WACCM6ma) Last Millennium
         'CESM2-WACCM:PreindustrialControl': CESM2 preindustrial control
 outDict: output image settings
 loopDict: determines which images are made
@@ -30,15 +31,15 @@ Fig. 1b:
   Same as Fig. 1a, but:
   setDict["landmaskFlag"]: 'ocean'
 Fig. 1c:
-  dataDict["idPiControl"]: '*piControl*'
+  dataDict["idLastma"]: '*past1000*'
   All other "id" keys: None
   setDict["landmaskFlag"]: 'land'
-  setDict["plotScenarios"]: ('CESM2-WACCM:PreindustrialControl',)
+  setDict["plotScenarios"]: ('LastMillennium',)
 Fig. 1d:
   Same as Fig. 1c, but:
   setDict["landmaskFlag"]: 'ocean'
 Fig. 1e:
-  dataDict["idPiControl"]: '*DEFAULT*'
+  dataDict["idArise"]: '*DEFAULT*'
   All other "id" keys: None
   setDict["landmaskFlag"]: 'land'
   setDict["plotScenarios"]: ('ARISE-SAI-1.5',)
@@ -46,29 +47,53 @@ Fig. 1f:
   Same as Fig. 1e, but:
   setDict["landmaskFlag"]: 'ocean'
 Fig. 1g:
-  dataDict["idPiControl"]: '*DELAYED*'
+  dataDict["idDelayedStart"]: '*DELAYED*'
   All other "id" keys: None
   setDict["landmaskFlag"]: 'land'
   setDict["plotScenarios"]: ('ARISE-SAI-DelayedStart',)
 Fig. 1h:
   Same as Fig. 1g, but:
   setDict["landmaskFlag"]: 'ocean'
+
+To plot ARISE-DelayedStart - ARISE-1.5 difference (Supplementary Fig. 2ab)
+  Supplementary Fig. 2a:
+    dataDict["idArise"]: '*DEFAULT*'
+    dataDict["idDelayedStart"]: '*DELAYED*'
+    All other "id" keys: None
+    setDict["landmaskFlag"]: 'land'
+    setDict["plotScenarios"]: ('ARISE-SAI-DelayedStart', 'ARISE-SAI-1.5', 'DS-15')
+  Supplementary Fig. 2b:
+    Same as 2a, except:
+    setDict["landmaskFlag"]: 'ocean'
+
+To plot Unforced (Supplementary Fig. 3ab):
+  Supplementary Fig. 3a:
+    dataDict["idPiControl"]: '*piControl*'
+    All other ["id"] keys: None
+    setDict["landmaskFlag"]: 'land'
+    setDict["plotScenarios"]: 'CESM2-WACCM:PreindustrialControl'
+  Supplementary Fig. 3b:
+    Same as 3a, except:
+    setDict["landmaskFlag"]: 'ocean'
   
-To plot all ensemble members (Supplementary Fig. 3-6): 
+To plot all ensemble members (Supplementary Fig. 4-7): 
   Uncomment "for pet in (0,1,2,3,4,5,6,7,8,9):"
   Comment "for pet in ('mean',)"
-Supplementary Fig. 3:
-  Top half: Same as Fig. 1c
-  Bottom half: Same as Fig. 1d
-Supplementary Fig. 4: 
-  Top half: Same as Fig. 1e
-  Bottom half: Same as Fig. 1f
-Supplementary Fig. 5:
+Supplementary Fig. 4:
   Top half: Same as Fig. 1a
   Bottom half: Same as Fig. 1b
-Supplementary Fig. 6: 
+Supplementary Fig. 5: 
+  Top half: Same as Fig. 1c
+  Bottom half: Same as Fig. 1d
+Supplementary Fig. 6:
+  Top half: Same as Fig. 1e
+  Bottom half: Same as Fig. 1f
+Supplementary Fig. 7: 
   Top half: Same as Fig. 1g
   Bottom half: Same as Fig. 1h
+Supplementary Fig. 8
+  Top half: Same as Supplementary Fig. 3a
+  Top half: Same as Supplementary Fig. 3b
 Fig. 2b, 2c, 2d correspond to members 4, 2, and 6 of ARISE-DelayedStart (Supplementary Fig. 6)
   Note that because of Python's zero indexing, this corresponds to indices
   3, 1, and 5.
@@ -110,7 +135,7 @@ dataDict = {
     "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
 }
 setDict = {
-    "landmaskFlag": 'ocean',  # None no mask, 'land' to mask ocean, 'ocean' to mask land
+    "landmaskFlag": 'land',  # None no mask, 'land' to mask ocean, 'ocean' to mask land
     "calcIntvl": { # Years to calculate
         "GLENS": ([2020, 2039],),
         "RCP8.5": ([2045, 2064],),
@@ -122,13 +147,7 @@ setDict = {
             [5, 24], [43, 62], [95, 114],
             [124, 143], [164, 183], [259, 278],
             [280, 299], [336, 355], [379, 398], [465, 484]),
-        # "LastMillennium": (
-        #     [863, 882],
-        #     [928, 947], [1035, 1054], [1129, 1148], 
-        #     [1215, 1234], [1314, 1333], 
-        #     [1426, 1445], [1466, 1485], [1609, 1628],
-        #     [1715, 1734]),
-        "LastMillennium": (per['per_ens']),
+        "LastMillennium": ([1646, 1665],)#(per['per_ens']),
         },
     "convert": (fcu.kel_to_cel, fcv.calc_climate_speed),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
     "cmap": zmzmDisc,  # None for default (cmocean balance) or choose colormap
@@ -151,7 +170,7 @@ setDict = {
     "plotEnsType": '' # 'mean', 'max'/'min' pointwise max/min, number for single member
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20240212_posterAndFinalFigs/',
+    "savePath": '/Users/dhueholt/Documents/ecology_fig/20240213_periodsAndPaperFigs/',
     "dpiVal": 400
 }
 loopDict = {
@@ -160,10 +179,8 @@ loopDict = {
     "regions": ('global',),  # 'global' only for maps
 }
 ic(dataDict, setDict, outDict, loopDict)  # Show input settings at command line
-# ic(setDict["calcIntvl"]["LastMillennium"])
 # ic(np.diff(setDict["calcIntvl"]["LastMillennium"])) # Check to ensure correct time periods
-# ic(len(setDict["calcIntvl"]["LastMillennium"]))
-# sys.exit('STOP')
+
 # Make images
 # for pet in (0,1,2,3,4,5,6,7,8,9): # For ensemble member figures (Supplementary Fig. 3, 4, 5, 6)
 for pet in ('mean',): # For ensemble mean figures
@@ -179,6 +196,5 @@ for pet in ('mean',): # For ensemble mean figures
                 scnList, dataDict, setDict, outDict)
             # fpsg.plot_single_slice_vector_globe(
                 # scnList, dataDict, setDict, outDict)
-            
 
 ic('Completed! :D')
