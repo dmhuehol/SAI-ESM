@@ -119,7 +119,7 @@ zmzmDisc = fpt.get_cspd_colormap('zmzm')
 per = gp.periods()
 
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_2mTemp/',
+    "dataPath": '/Users/dhueholt/Desktop/OSF/CSHF/',
     "idGlensCntrl": None,  # 'control_*' or None
     "idGlensFdbck": None,  # 'feedback_*' or None
     "idArise": None,  # '*DEFAULT*' or None
@@ -131,8 +131,8 @@ dataDict = {
     "idArise1p0": None, # '*ARISE1P0*' or None
     "idPiControl": None, #'*piControl*' or None
     "idLastma": '*past1000*', #'*past1000*' or None
-    "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc', # Landmask file location (CESM)
-    "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
+    "mask": '/Users/dhueholt/Desktop/OSF/CSHF/Masks/cesm_atm_mask.nc', # Landmask file location (CESM)
+    "maskUkesm": '/Users/dhueholt/Desktop/OSF/CSHF/Masks/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
 }
 setDict = {
     "landmaskFlag": 'land',  # None no mask, 'land' to mask ocean, 'ocean' to mask land
@@ -170,7 +170,7 @@ setDict = {
     "plotEnsType": '' # 'mean', 'max'/'min' pointwise max/min, number for single member
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20240213_periodsAndPaperFigs/',
+    "savePath": 'ENTER PATH',
     "dpiVal": 400
 }
 loopDict = {

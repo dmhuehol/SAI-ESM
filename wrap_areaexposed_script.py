@@ -53,7 +53,7 @@ import get_periods as gp
 per = gp.periods()
 # Dictionaries to define inputs
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_2mTemp/',
+    "dataPath": '/Users/dhueholt/Desktop/OSF/CSHF/',
     "idGlensCntrl": None,  # 'control_*' or None
     "idGlensFdbck": None,  # 'feedback_*' or None
     "idArise": '*DEFAULT*',  # '*DEFAULT*' or None
@@ -65,8 +65,8 @@ dataDict = {
     "idArise1p0": None, # '*ARISE1P0*' or None
     "idPiControl": None, #'*piControl*'
     "idLastma": '*past1000*', #'*past1000*' or None
-    "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc', # Landmask file location (CESM)
-    "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
+    "mask": '/Users/dhueholt/Desktop/OSF/CSHF/cesm_atm_mask.nc', # Landmask file location (CESM)
+    "maskUkesm": '/Users/dhueholt/Desktop/OSF/CSHF/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
 }
 setDict = {
     "landmaskFlag": 'See loop',  # None no mask, 'land' to mask ocean, 'ocean' to mask land
@@ -94,12 +94,11 @@ setDict = {
         ), # See docstring for valid inputs
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20240212_posterAndFinalFigs/',
+    "savePath": 'ENTER PATH',
     "dpiVal": 'pdf'
 }
 loopDict = {
     "rlzs": ('allplot',),  # See docstring for valid inputs
-    # TODO: Refactor so allplot is only behavior
     "levels": (None,),  # None for single-level variable (as for all used in Hueholt et al. 2023)
     "regions": ('global',),  # 'global' only for maps
 }

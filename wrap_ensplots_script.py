@@ -30,7 +30,7 @@ import region_library as rlib
 
 # Dictionaries
 dataDict = {
-    "dataPath": '/Users/dhueholt/Documents/ecology_data/annual_2mTemp/',
+    "dataPath": '/Users/dhueholt/Desktop/OSF/CSHF/',
     "idGlensCntrl": None,  # 'control_*' or None
     "idGlensFdbck": None,  # 'feedback_*' or None
     "idArise": '*DEFAULT*',  # '*DEFAULT*' or None
@@ -40,8 +40,8 @@ dataDict = {
     "idUkesmArise": None, #'*arise-sai-1p5*' or None
     "idDelayedStart": '*DELAYED*', # '*DELAYED*' or None
     "idArise1p0": None, # '*ARISE1P0*' or None
-    "mask": '/Users/dhueholt/Documents/Summery_Summary/cesm_atm_mask.nc', # Landmask file location (CESM)
-    "maskUkesm": '/Users/dhueholt/Documents/UKESM_data/landmask/ukesm_binary_landmask.nc' #Landmask file location (UKESM)
+    "mask": '/Users/dhueholt/Desktop/OSF/CSHF/Masks/cesm_atm_mask.nc', # Landmask file location (CESM)
+    "maskUkesm": '/Users/dhueholt/Desktop/OSF/CSHF/Masks/ukesm_binary_landmask.nc' #Landmask file location (UKESM)
 }
 setDict = {
     "landmaskFlag": None, # None or 'land'
@@ -56,7 +56,7 @@ setDict = {
     "xticks": True, #True/False to enable/disable x-axis tick labels
 }
 outDict = {
-    "savePath": '/Users/dhueholt/Documents/ecology_fig/20240213_periodsAndPaperFigs/',
+    "savePath": 'ENTER PATH',
     "addToSaveStr": '',
     "dpiVal": 'pdf'
 }
