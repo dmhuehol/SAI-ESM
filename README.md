@@ -2,9 +2,9 @@
 Code for analyzing model output from stratospheric aerosol injection (SAI) experiments in Earth system models, particularly the Community Earth System model (CESM). In particular, this code is designed to calculate and visualize the climate speed of 2m temperature as a metric for high-level perturbations to ecology.  
 
 The version of this code available in `reproducibility-climate-speeds-help-frame` specifically accompanies:  
-**Hueholt, D.M.**, E.A. Barnes, J.W. Hurrell, A.L. Morrison. "Climate speeds help frame relative ecological risk in future climate change and stratospheric aerosol injection scenarios", submitted Oct. 2023.  
+**Hueholt, D.M.**, E.A. Barnes, J.W. Hurrell, A.L. Morrison. "Climate speeds help frame relative ecological risk in future climate change and stratospheric aerosol injection scenarios", revised Feb. 2024.  
 
-I spun this code off of the main branch of [SAI-ESM](https://github.com/dmhuehol/SAI-ESM) written for [Hueholt et al. 2023 "Assessing Outcomes in Stratospheric Aerosol Injection Scenarios Shortly After Deployment"](https://doi.org/10.1029/2023EF003488), expecting this would be an effective way to reuse a code base I had already spent significant time developing. In reality, the purposes of these projects quickly diverged, and this fundamental choice resulted in irretrievably snarled code. This was a valuable learning experience--but it does, unfortunately, mean that reproducing the figures from "Climate speeds help frame ecological risk..." is not as smooth as for "Assessing Outcomes..."!
+I spun this code off of the main branch of [SAI-ESM](https://github.com/dmhuehol/SAI-ESM) written for [Hueholt et al. 2023 "Assessing Outcomes in Stratospheric Aerosol Injection Scenarios Shortly After Deployment"](https://doi.org/10.1029/2023EF003488), expecting this would be an effective way to reuse a code base I had already spent significant time developing. In reality, these projects quickly diverged, and this fundamental choice resulted in irretrievably snarled code. This was a valuable learning experience--but it does, unfortunately, mean reproducing the figures from "Climate speeds help frame ecological risk..." is not as smooth as for "Assessing Outcomes..."!
 
 ## Replicating Hueholt et al.
 The method to make each figure is documented in the docstring and comments of each script beginning with `wrap_`. Note that most figures generate without features such as axes, annotations, or titles, as I prefer to add these manually in Keynote for flexibility.
@@ -13,8 +13,9 @@ The method to make each figure is documented in the docstring and comments of ea
 Data will be permanently archived at the Open Science Foundation before publication.
 
 ## Brief description of code within package
-All files written in Python except for the README itself.
+All files written in Python except when specified otherwise.
 * `CustomExceptions`: Custom exceptions
+* `do_cdo_annualmean.sh`: Shell script example of using CDO to merge CESM files (CDO commands for non-CESM files derived from this manually)
 * `fun_calc_var`: Functions for calculations more complicated than unit conversions, but not so complicated they need a new file
 * `fun_convert_unit`: Functions for simple in-line unit conversions and calculations
 * `fun_derive_data`: Functions to derive and save data from a base dataset to a new netCDF file
@@ -24,6 +25,7 @@ All files written in Python except for the README itself.
 * `fun_process_data`: Functions for operations used across many scripts like extracting metadata from filenames, opening files in, managing area inputs and realizations, etc.
 * `fun_robustness`: Functions to calculate robustness of trends in data (see Hueholt et al. 2023 "Assessing Outcomes..." Supplemental for description of robustness)
 * `fun_special_plot`: Special plotting functions (e.g., Fig. 3, plotting colorbars alone)
+* `get_periods`: Obtain time periods for the Last Millennium simulation
 * `README`: This README file
 * `region_library`: Contains regions that can be called from plotting functions
 * `wrap_areaexposed_script`: Wrap functions to plot area exposed to a given value of climate speed (Supplementary Fig. 2)
@@ -36,7 +38,7 @@ All files written in Python except for the README itself.
 ### What's with all the variable names referencing "control" and "feedback"?
 "Control" refers to the runs following a climate change trajectory WITHOUT SAI ("no-SAI" in Hueholt et al.), while "Feedback" refers to runs where SAI is also deployed in the model ("SAI" in Hueholt et al.). "Control" and "Feedback" were terms that come out of the development of GLENS and ARISE. Choosing better variable names would certainly be part of a hypothetical rewrite of this code base!
 
-### What do the "fun_", "run_", and "wrap_" in the filenames mean?
+### What do the "fun_" and "wrap_" filenames mean?
 Generally, code in this repository follows the naming schema:
 *    "fun_" contains individual functions
 *    "wrap_" wraps these functions to be run from the command line
