@@ -463,6 +463,8 @@ def plot_warmrate_areaexposed(wrCsList, wrCsDictList, setDict, outDict):
                     # wrScnGlobal, paeThrsh.data, color=fcol, s=20,
                     # facecolor='none')
         wrSpanRlz = np.max(np.abs(pwrList)) - np.min(np.abs(pwrList))
+        # Ensemble variability on this figure is defined by the width of the ensemble centered on the ensemble mean
+        # due to interactions between the ensemble mean and the absolute value
         pwrSpanRlz = [wrScnGlobalMn - wrSpanRlz/2, wrScnGlobalMn + wrSpanRlz/2]
         aeSpanRlz = np.max(np.abs(paeThrshList)) - np.min(np.abs(paeThrshList))
         paeSpanRlz = [
