@@ -1,16 +1,26 @@
 # SAI-ESM for Hueholt et al. "Climate speeds help frame relative ecological risk in future climate change and stratospheric aerosol injection scenarios"
-Code for analyzing model output from stratospheric aerosol injection (SAI) experiments in Earth system models, particularly the Community Earth System model (CESM). In particular, this code is designed to calculate and visualize the climate speed of 2m temperature as a metric for high-level perturbations to ecology.  
+Code for analyzing model output from stratospheric aerosol injection (SAI) experiments in Earth system models, particularly the Community Earth System model (CESM). In particular, this code is designed to calculate and visualize the climate speed of 2m temperature as a metric for high-level perturbations to ecology. This code includes all required content for the Nature Research Code and Software Submission Checklist.  
 
 The version of this code available in `reproducibility-climate-speeds-help-frame` specifically accompanies:  
 **Hueholt, D.M.**, E.A. Barnes, J.W. Hurrell, A.L. Morrison. "Climate speeds help frame relative ecological risk in future climate change and stratospheric aerosol injection scenarios", revised Feb. 2024.  
 
 I spun this code off of the main branch of [SAI-ESM](https://github.com/dmhuehol/SAI-ESM) written for [Hueholt et al. 2023 "Assessing Outcomes in Stratospheric Aerosol Injection Scenarios Shortly After Deployment"](https://doi.org/10.1029/2023EF003488), expecting this would be an effective way to reuse a code base I had already spent significant time developing. In reality, these projects quickly diverged, and this fundamental choice resulted in irretrievably snarled code. This was a valuable learning experience--but it does, unfortunately, mean reproducing the figures from "Climate speeds help frame ecological risk..." is not as smooth as for "Assessing Outcomes..."!
 
-## Replicating Hueholt et al.
-The method to make each figure is documented in the docstring and comments of each script beginning with `wrap_`. Note that most figures generate without features such as axes, annotations, or titles, as I prefer to add these manually in Keynote for flexibility.
+## System requirements
+* Code written in Python 3.11.7 on a 2020 MacBook Pro running Mac OS Sonoma 14.2.1. The computational complexity is not high and it should function on other platforms.
+* At least 1.3GB of free space is required for the accompanying data
+* Dependencies are listed in `requirements.txt`
+* No non-standard hardware is required
+
+## Install software
+**Instructions**: Clone the repository using the method of your choice. 
+**Typical install time**: A few seconds for download.
 
 ## Get data
-Data will be permanently archived at the Open Science Foundation before publication.
+Data is permanently archived at the Open Science Framework: [doi.org/10.17605/OSF.IO/Z37ES](https://doi.org/10.17605/OSF.IO/Z37ES). This repository includes a datasheet (Gebru et al. 2021, [Connolly & Hueholt in prep](https://github.com/dmhuehol/Datasheets-for-Earth-Science-Datasets)) for comprehensive documentation of the data. Download this data to the path of your choice, and use this as the ``dataPath`` when running code.
+
+## Replicating Hueholt et al.
+The production of each figure within the Main Text and Supplementary Information of Hueholt et al. "Climate speeds help frame..." is documented in the docstring and comments of each script beginning with `wrap_`. Note that most figures generate by default without features such as axes, annotations, or titles, as I add these manually in Keynote for flexibility. Run time for each figure ranges from a few seconds (for ``wrap_plot_slice_globe``) to up to a couple of minutes (for ``wrap_wrae_script``).
 
 ## Brief description of code within package
 All files written in Python except when specified otherwise.
@@ -28,6 +38,7 @@ All files written in Python except when specified otherwise.
 * `get_periods`: Obtain time periods for the Last Millennium simulation
 * `README`: This README file
 * `region_library`: Contains regions that can be called from plotting functions
+* `requirements.txt`: Python environment description
 * `wrap_areaexposed_script`: Wrap functions to plot area exposed to a given value of climate speed (Supplementary Fig. 2)
 * `wrap_ensplots_script`: Wrap plotting functions to make timeseries with ensemble visualizations (Supplementary Fig. 1)
 * `wrap_plot_slice_globe`: Wrap plotting functions to make time-slice maps (Fig. 1, Fig. 2b-d, Supplementary Fig. 3-6)
