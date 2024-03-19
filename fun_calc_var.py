@@ -289,14 +289,15 @@ def calc_decadal_climate_distance(darr, setDict):
 
 def calc_climate_velocity(darrIn, setDict):
     ''' Calculate the climate velocity (vector form) of a variable '''
-    # grid_ref = {"lon": np.arange(0, 360, 2.5), "lat": np.arange(-90, 91, 2.5)}
-    # remap = xe.Regridder(darrIn, grid_ref, "bilinear") # Can be useful for vector plots
-    darr = darrIn #remap(darrIn)
+    msg = 'Note climate velocity vector calculation regrids to 2.5x2.5 by default!'
+    ic(msg)
+    grid_ref = {"lon": np.arange(0, 360, 2.5), "lat": np.arange(-90, 91, 2.5)}
+    remap = xe.Regridder(darrIn, grid_ref, "bilinear")
+    darr = remap(darrIn) #darrIn for original resolution
     
     tGrad, nsGrad, ewGrad, yrsSpan = calc_spat_temp_grad(darr, setDict)
     nsClimVel = -1 * tGrad / nsGrad
     ewClimVel = -1 * tGrad / ewGrad
-    # ewGrad, nsGrad
     totGrad = np.sqrt((nsGrad ** 2) + (ewGrad ** 2))
     sGrad = totGrad
     climSpd = tGrad / sGrad
@@ -313,17 +314,6 @@ def calc_climate_velocity(darrIn, setDict):
         }
     )
        
-    # climVelDs = xr.Dataset(
-    #     data_vars = dict(
-    #         ns=(["lat","lon"], nsClimVel.data),
-    #         ew=(["lat","lon"], ewClimVel.data),
-    #         cspd=(["lat","lon"], climSpd.data)
-    #     ),
-    #     coords={
-    #         "lat": tGrad['lat'].data,
-    #         "lon": tGrad['lon'].data
-    #     }
-    # )
     climVelDs['ns'].attrs['long_name'] = 'Climate velocity of 2m temp (N-S)'
     climVelDs['ns'].attrs['scenario'] = darrIn.scenario
     climVelDs['ns'].attrs['units'] = 'km/yr'
@@ -335,43 +325,7 @@ def calc_climate_velocity(darrIn, setDict):
     climVelDs['cspd'].attrs['units'] = 'km/yr'
     climVelDs.attrs['scenario'] = darrIn.scenario
 
-    return climVelDs
-
-                                                                                                            
-# def calc_climate_velocity(darr, setDict):
-#     ''' Calculate the climate velocity (vector form) of a variable '''
-#     tGrad, nsGrad, ewGrad, yrsSpan = calc_spat_temp_grad(darr, setDict)
-#     nsClimVel = tGrad / nsGrad
-#     ewClimVel = tGrad / ewGrad
-#     # ewGrad, nsGrad
-#     totGrad = np.sqrt((nsGrad ** 2) + (ewGrad ** 2))
-#     sGrad = totGrad   
-#     climSpd = tGrad / sGrad
-    
-#     climVelDs = xr.Dataset(
-#         data_vars = dict(
-#             ns=(["realization","lat","lon"], nsClimVel.data),
-#             ew=(["realization","lat","lon"], ewClimVel.data),
-#             cspd=(["realization","lat","lon"], climSpd.data)
-#         ),
-#         coords={
-#             "realization": tGrad['realization'].data,
-#             "lat": tGrad['lat'],
-#             "lon": tGrad['lon']
-#         }
-#     )
-#     climVelDs['ns'].attrs['long_name'] = 'Climate velocity of 2m temp (N-S)'
-#     climVelDs['ns'].attrs['scenario'] = darr.scenario
-#     climVelDs['ns'].attrs['units'] = 'km/yr'
-#     climVelDs['ew'].attrs['long_name'] = 'Climate velocity of 2m temp (E-W)'
-#     climVelDs['ew'].attrs['scenario'] = darr.scenario
-#     climVelDs['ew'].attrs['units'] = 'km/yr'
-#     climVelDs['cspd'].attrs['long_name'] = 'Climate speed of 2m temp'
-#     climVelDs['cspd'].attrs['scenario'] = darr.scenario
-#     climVelDs['cspd'].attrs['units'] = 'km/yr'
-#     climVelDs.attrs['scenario'] = darr.scenario
-
-#     return climVelDs
+    return climVelDs                                                                                              
                                     
 def calc_seasonal_shift(darr, setDict):
     ''' Calculate seasonal shift of a variable '''

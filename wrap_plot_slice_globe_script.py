@@ -55,25 +55,27 @@ Fig. 1h:
   Same as Fig. 1g, but:
   setDict["landmaskFlag"]: 'ocean'
 
-To plot ARISE-DelayedStart - ARISE-1.5 difference (Supplementary Fig. 2ab)
+To plot Unforced (Supplementary Fig. 2ab):
   Supplementary Fig. 2a:
+    dataDict["idPiControl"]: '*piControl*'
+    All other ["id"] keys: None
+    setDict["landmaskFlag"]: 'land'
+    setDict["plotScenarios"]: 'CESM2-WACCM:PreindustrialControl'
+  Supplementary Fig. 2b:
+    Same as 3a, except:
+    setDict["landmaskFlag"]: 'ocean'
+
+To plot ARISE-DelayedStart - ARISE-1.5 difference (Supplementary Fig. 3ab):
+(Note that this produces three maps: the ARISE-DelayedStart map, the ARISE-1.5
+    map, and their difference [token: DS-15].)        
+Supplementary Fig. 3a:
     dataDict["idArise"]: '*DEFAULT*'
     dataDict["idDelayedStart"]: '*DELAYED*'
     All other "id" keys: None
     setDict["landmaskFlag"]: 'land'
     setDict["plotScenarios"]: ('ARISE-SAI-DelayedStart', 'ARISE-SAI-1.5', 'DS-15')
-  Supplementary Fig. 2b:
+Supplementary Fig. 3b:
     Same as 2a, except:
-    setDict["landmaskFlag"]: 'ocean'
-
-To plot Unforced (Supplementary Fig. 3ab):
-  Supplementary Fig. 3a:
-    dataDict["idPiControl"]: '*piControl*'
-    All other ["id"] keys: None
-    setDict["landmaskFlag"]: 'land'
-    setDict["plotScenarios"]: 'CESM2-WACCM:PreindustrialControl'
-  Supplementary Fig. 3b:
-    Same as 3a, except:
     setDict["landmaskFlag"]: 'ocean'
   
 To plot all ensemble members (Supplementary Fig. 4-7): 
@@ -95,8 +97,21 @@ Supplementary Fig. 8
   Top half: Same as Supplementary Fig. 3a
   Top half: Same as Supplementary Fig. 3b
 Fig. 2b, 2c, 2d correspond to members 4, 2, and 6 of ARISE-DelayedStart (Supplementary Fig. 6)
+  with only the land plotted.
   Note that because of Python's zero indexing, this corresponds to indices
   3, 1, and 5.
+  
+To plot vector maps (Supplementar Fig. 11abc):
+  Uncomment "fpsg.plot_single_slice_vector_globe(
+                scnList, dataDict, setDict, outDict)"
+  Comment  "fpsg.plot_single_slice_globe(
+                scnList, dataDict, setDict, outDict)"
+Supplementary Fig. 11a:
+  dataDict["idS245Cntrl"]: '*BWSSP245*'
+  All other "id" keys: None
+  setDict["landmaskFlag"]: None
+  setDict["plotScenarios"]: ('SSP2-4.5',)
+  
 
 Written by Daniel Hueholt
 Graduate Research Assistant at Colorado State University
@@ -119,23 +134,23 @@ zmzmDisc = fpt.get_cspd_colormap('zmzm')
 per = gp.periods()
 
 dataDict = {
-    "dataPath": '/Users/dhueholt/Desktop/OSF/CSHF/',
+    "dataPath": '/Users/dhueholt/Desktop/OSF/ClimateSpeeds/',
     "idGlensCntrl": None,  # 'control_*' or None
     "idGlensFdbck": None,  # 'feedback_*' or None
     "idArise": None,  # '*DEFAULT*' or None
-    "idS245Cntrl": None,  # '*BWSSP245*' or None
+    "idS245Cntrl": '*BWSSP245*',  # '*BWSSP245*' or None
     "idS245Hist": None,  # '*BWHIST*' or None
     "idUkesmNoSai": None, #'*ssp245*' or None
     "idUkesmArise": None, #'*arise-sai-1p5*' or None
     "idDelayedStart": None, # '*DELAYED*' or None
     "idArise1p0": None, # '*ARISE1P0*' or None
     "idPiControl": None, #'*piControl*' or None
-    "idLastma": '*past1000*', #'*past1000*' or None
-    "mask": '/Users/dhueholt/Desktop/OSF/CSHF/Masks/cesm_atm_mask.nc', # Landmask file location (CESM)
-    "maskUkesm": '/Users/dhueholt/Desktop/OSF/CSHF/Masks/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
+    "idLastma": None, #'*past1000*' or None
+    "mask": '/Users/dhueholt/Desktop/OSF/ClimateSpeeds/Masks/cesm_atm_mask.nc', # Landmask file location (CESM)
+    "maskUkesm": '/Users/dhueholt/Desktop/OSF/ClimateSpeeds/Masks/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
 }
 setDict = {
-    "landmaskFlag": 'land',  # None no mask, 'land' to mask ocean, 'ocean' to mask land
+    "landmaskFlag": None,  # None no mask, 'land' to mask ocean, 'ocean' to mask land
     "calcIntvl": { # Years to calculate
         "GLENS": ([2020, 2039],),
         "RCP8.5": ([2045, 2064],),
@@ -147,7 +162,7 @@ setDict = {
             [5, 24], [43, 62], [95, 114],
             [124, 143], [164, 183], [259, 278],
             [280, 299], [336, 355], [379, 398], [465, 484]),
-        "LastMillennium": ([1646, 1665],)#(per['per_ens']),
+        "LastMillennium": (per['per_ens']),
         },
     "convert": (fcu.kel_to_cel, fcv.calc_climate_speed),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
     "cmap": zmzmDisc,  # None for default (cmocean balance) or choose colormap
@@ -156,14 +171,14 @@ setDict = {
     "areaAvgBool": False,  # ALWAYS FALSE: no area averaging for a map!
     "robustnessBool": False,  # True/False to run robustness
     "plotScenarios": (
-        'LastMillennium',
+        # 'LastMillennium',
         # 'ARISE-SAI-DelayedStart',
         # 'ARISE-SAI-1.5',
         # 'DS-15',
         # 'ARISE-SAI-1.0',
         # 'UKESM-ARISE-SAI-1.5',
         # 'CESM2-WACCM:PreindustrialControl',
-        # 'SSP2-4.5',
+        'SSP2-4.5',
         # 'GLENS-SAI',
         # 'RCP8.5',
         ), # See docstring for valid inputs
@@ -194,7 +209,5 @@ for pet in ('mean',): # For ensemble mean figures
             setDict["levOfInt"] = lev
             fpsg.plot_single_slice_globe(
                 scnList, dataDict, setDict, outDict)
-            # fpsg.plot_single_slice_vector_globe(
-                # scnList, dataDict, setDict, outDict)
 
 ic('Completed! :D')

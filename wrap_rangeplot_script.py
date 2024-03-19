@@ -55,7 +55,7 @@ import get_periods as gp
 per = gp.periods()
 # Dictionaries to define inputs
 dataDict = {
-    "dataPath": '/Users/dhueholt/Desktop/OSF/CSHF/',
+    "dataPath": '/Users/dhueholt/Desktop/OSF/ClimateSpeeds/',
     "idGlensCntrl": None,  # 'control_*' or None
     "idGlensFdbck": None,  # 'feedback_*' or None
     "idArise": '*DEFAULT*',  # '*DEFAULT*' or None
@@ -67,8 +67,8 @@ dataDict = {
     "idArise1p0": None, # '*ARISE1P0*' or None
     "idPiControl": None, #'*piControl*'
     "idLastma": '*past1000*', #'*past1000*' or None
-    "mask": '/Users/dhueholt/Desktop/OSF/CSHF/Masks/cesm_atm_mask.nc', # Landmask file location (CESM)
-    "maskUkesm": '/Users/dhueholt/Desktop/OSF/CSHF/Masks/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
+    "mask": '/Users/dhueholt/Desktop/OSF/ClimateSpeeds/Masks/cesm_atm_mask.nc', # Landmask file location (CESM)
+    "maskUkesm": '/Users/dhueholt/Desktop/OSF/ClimateSpeeds/Masks/ukesm_binary0p01_landmask.nc' #Landmask file location (UKESM)
 }
 setDict = {
     "landmaskFlag": 'See loop',  # None no mask, 'land' to mask ocean, 'ocean' to mask land
@@ -79,9 +79,9 @@ setDict = {
         "CESM2-ARISE-DelayedStart": ([2045, 2064],),
         "UKESM-ARISE": ([2035, 2054],),
         "piControl": (
-            [10, 29], [48, 67], [100, 119],
-            [129, 148], [169, 188], [264, 283],
-            [285, 304], [341, 360], [384, 403], [471, 490]),
+            [5, 24], [43, 62], [95, 114],
+            [124, 143], [164, 183], [259, 278],
+            [280, 299], [336, 355], [379, 398], [465, 484]),
         "LastMillennium": (per['per_ens']),
         },
     "convert": (fcu.kel_to_cel, fcv.calc_climate_speed,),  # TUPLE of converter(s) or calculators from fun_convert_unit or fun_calc_var
@@ -95,7 +95,7 @@ setDict = {
         'LastMillennium',
         # 'CESM2-WACCM:PreindustrialControl',
         ), # See docstring for valid inputs
-    "magBool": False #Plot magnitude true/false
+    "magBool": True #Plot magnitude true/false
 }
 outDict = {
     "savePath": 'ENTER PATH',

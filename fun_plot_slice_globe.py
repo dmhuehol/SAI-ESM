@@ -77,8 +77,8 @@ def plot_single_slice_globe(rlzList, dataDict, setDict, outDict):
         md = fpd.meta_book(setDict, dataDict, panel)
         lats = rlzList[0].lat
         lons = rlzList[0].lon
-        plt.rcParams.update({'font.family': 'Open Sans'})
-        plt.rcParams.update({'font.weight': 'light'}) #normal, bold, heavy, light, ultrabold, ultralight
+        plt.rcParams.update({'font.family': 'Red Hat Display'})
+        plt.rcParams.update({'font.weight': 'normal'}) #normal, bold, heavy, light, ultrabold, ultralight
         fpt.drawOnGlobe(
             ax, panel, lats, lons, cmap, vmin=cbVals[0], vmax=cbVals[1],
             cbarBool=False, fastBool=True, extent='both',
@@ -117,14 +117,9 @@ def plot_single_slice_vector_globe(rlzList, dataDict, setDict, outDict):
                     sys.exit('Check plotEnsType input!')
             except:
                 panel[varKey] = actData[varKey]
-            
-        # ic(panel)
-        # sys.exit('STOP')
     
         CL = 0.
-        import cartopy as ct
         mapProj = ccrs.EqualEarth(central_longitude = CL)
-        # mapProj = ccrs.Orthographic(180, -90)
         fig = plt.figure(figsize=(12, 2.73*2))
         ax = plt.subplot(1, 1, 1, projection=mapProj) #nrow ncol index
         plt.rcParams.update({'font.family': 'Open Sans'})
@@ -142,14 +137,24 @@ def plot_single_slice_vector_globe(rlzList, dataDict, setDict, outDict):
         ewDataNorm = ewData / totGrad
         nsDataNorm = nsData / totGrad
         
-        # zmzmDisc = fpt.get_cspd_colormap('zmzmGray')
         archer = ax.quiver(
             lons, lats, ewDataNorm, nsDataNorm, cspd, scale=100, transform=data_crs,
             cmap=setDict["cmap"], headwidth=2, headlength=5, headaxislength=4.5)
             #scale=200, headwidth=3, headlength=5, headaxislength=4.5 default
             #'boid' aesthetics are headwidth=2, headlength=5, headaxislength=4.5
-        plt.colorbar(archer, cmap=setDict["cmap"], ticks=[-50,-30,-10,-2,2,10,30,50])
-        archer.set_clim(-51, 51)
+        # plt.colorbar(archer, cmap=setDict["cmap"], ticks=[-50,-30,-10,-2,2,10,30,50])
+        archer.set_clim(-51, 51)   
+        gl = ax.gridlines(
+            crs=ccrs.PlateCarree(), draw_labels=False, linewidth=0.8,
+            color='#000000', alpha=0.35, linestyle=':')
+        gl.top_labels = False
+        gl.bottom_labels = False
+        gl.right_labels = False
+        gl.left_labels = False
+        gl.ylines = True
+        gl.xlines = True
+        gl.xlabel_style = {'size': 7, 'color': 'k'}
+        gl.ylabel_style = {'color': 'k', 'size': 7}
     
         savePrfx = '' #Easy modification for unique filename
         saveStr = ps + '_' + 'climvel' + '_' \
