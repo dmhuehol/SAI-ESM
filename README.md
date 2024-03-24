@@ -39,11 +39,12 @@ All files written in Python except when specified otherwise.
 * `README`: This README file
 * `region_library`: Contains regions that can be called from plotting functions
 * `requirements.txt`: Python environment description
-* `wrap_areaexposed_script`: Wrap functions to plot area exposed to a given value of climate speed (Supplementary Fig. 2)
-* `wrap_ensplots_script`: Wrap plotting functions to make timeseries with ensemble visualizations (Supplementary Fig. 1)
-* `wrap_plot_slice_globe`: Wrap plotting functions to make time-slice maps (Fig. 1, Fig. 2b-d, Supplementary Fig. 3-6)
-* `wrap_rangeplot_script`: Wrap plotting functions to plot range of ensemble variability (Fig. 2a, Supplementary Fig. 7)
-* `wrap_wrae_script`: Plot warming rate vs. area exposed to threshold value (Fig. 3, Supplementary Fig. 8)
+* `wrap_areaexposed_script`: Wrap functions to plot area exposed to a given value of climate speed (Supplementary Fig. 1)
+* `wrap_ensplots_script`: Wrap plotting functions to make timeseries with ensemble visualizations (Fig. 2)
+* `wrap_plot_slice_globe`: Wrap plotting functions to make time-slice maps (Fig. 1, Fig. 2b-d, Supplementary Fig. 2-8)
+* `wrap_plot_vector_globe`: Wrap plotting functions to make vector maps (Supplementary Fig. 11)
+* `wrap_rangeplot_script`: Wrap plotting functions to plot range of ensemble variability (Fig. 2a, Supplementary Fig. 9)
+* `wrap_wrae_script`: Plot warming rate vs. area exposed to threshold value (Fig. 4, Supplementary Fig. 10)
 
 ## Questions and answers
 ### What's with all the variable names referencing "control" and "feedback"?
